@@ -1,0 +1,35 @@
+provider_config:
+  bms:
+    ssh_user: root
+    ssh_pwd:
+    domainsuffix: localdomain
+
+instances:
+  server1:
+    ip: $NODE_IP
+    provider: bms
+    roles:
+      analytics:
+      analytics_snmp:
+      analytics_alarm:
+      analytics_database:
+      config:
+      config_database:
+      control:
+      webui:
+      vrouter:
+      k8s_master:
+      k8s_node:
+      kubemanager:
+global_configuration:
+  CONTAINER_REGISTRY: $CONTAINER_REGISTRY
+  REGISTRY_PRIVATE_INSECURE: True
+  K8S_VERSION: $K8S_VERSION
+contrail_configuration:
+  CONTRAIL_CONTAINER_TAG: $CONTRAIL_CONTAINER_TAG
+  CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
+  DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
+  JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
+  VROUTER_ENCRYPTION: FALSE
+  LOG_LEVEL: SYS_DEBUG
+  CLOUD_ORCHESTRATOR: kubernetes
