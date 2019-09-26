@@ -2,9 +2,13 @@
 
 set -o errexit
 
+# default env variables
+
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 DEV_ENV=${DEV_ENV:-false}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
+CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
+CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-ocata-master-latest}
 
 [ "$(whoami)" != "root" ] && echo Please run script as root user && exit
 
@@ -69,11 +73,6 @@ fi
 [ -d /root/contrail-ansible-deployer ] && rm -rf /root/contrail-ansible-deployer
 cd /root && git clone https://github.com/Juniper/contrail-ansible-deployer.git
 cd /root/contrail-ansible-deployer
-
-# default env variables
-
-CONTAINER_REGISTRY="opencontrailnightly"
-CONTRAIL_CONTAINER_TAG="ocata-master-latest"
 
 # generate inventory file
 

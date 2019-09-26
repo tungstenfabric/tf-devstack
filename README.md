@@ -94,6 +94,9 @@ Environment variable list:
 - K8S_VERSION kubernetes version, 1.12.3 is default for Centos, 1.12.7 is default for Ubuntu
 - OPENSTACK_VERSION queens (default), ocata or rocky, variable used when ORCHESTRATOR=openstack
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES
+- CONTAINER_REGISTRY - by default "opencontrailnightly"
+- CONTRAIL_CONTAINER_TAG - by default "ocata-master-latest"
+
 
 ## Access WebUI in AWS or other environments
 
