@@ -10,11 +10,10 @@ OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-ocata-master-latest}
 
-[ "$(whoami)" != "root" ] && echo Please run script as root user && exit
-
+[ "$(whoami)" != "root" ] && echo "Please run script as root user" && exit
 
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
-echo $distro detected.
+echo "$distro detected"
 
 # install required packages
 
@@ -26,7 +25,8 @@ elif [ "$distro" == "ubuntu" ]; then
     apt-get update
     apt-get install -y python-setuptools iproute
 else
-    echo "Unsupported OS version" && exit
+    echo "Unsupported OS version"
+    exit
 fi
 
 easy_install pip
@@ -34,15 +34,14 @@ pip install requests
 pip install pyyaml==3.13
 pip install 'ansible==2.7.11'
 
-PHYSICAL_INTERFACE=$(ip route get 1 | grep -o 'dev.*' | awk '{print($2)}')
-NODE_IP=$(ip addr show dev $PHYSICAL_INTERFACE | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1)
+PHYSICAL_INTERFACE=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
+NODE_IP=`ip addr show dev $PHYSICAL_INTERFACE | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
 
 # show config variables
 
-[ "$NODE_IP" != "" ] && echo "Node IP: NODE_IP"
+[ "$NODE_IP" != "" ] && echo "Node IP: $NODE_IP"
 echo "Build from source: $DEV_ENV" # true or false
 echo "Orchestrator: $ORCHESTRATOR" # kubernetes or openstack
-[ "$ORCHESTRATOR" == "kubernetes" ] && [ "$K8S_VERSION" != "" ] && echo "Kubernetes version: $K8S_VERSION"
 [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack version: $OPENSTACK_VERSION"
 echo
 
@@ -56,9 +55,9 @@ grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
-	# get tf-dev-env	
-	[ -d /root/tf-dev-env ] && rm -rf /root/tf-dev-env
-	cd /root && git clone https://github.com/tungstenfabric/tf-dev-env.git
+    # get tf-dev-env
+    [ -d /root/tf-dev-env ] && rm -rf /root/tf-dev-env
+    cd /root && git clone https://github.com/tungstenfabric/tf-dev-env.git
 
     # build all
     cd /root/tf-dev-env && AUTOBUILD=1 BUILD_DEV_ENV=1 ./startup.sh
@@ -76,18 +75,9 @@ cd /root/contrail-ansible-deployer
 
 # generate inventory file
 
-if [ "$K8S_VERSION" == "" ]; then
-    if [ "$(</opt/control/node_distro)" == "ubuntu" ]; then
-        K8S_VERSION="1.12.7"
-    else
-        K8S_VERSION="1.12.3"
-    fi
-fi
-
 export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG
-export K8S_VERSION
 export OPENSTACK_VERSION
 envsubst < /root/tf-devstack/instance_$ORCHESTRATOR.yaml > /root/tf-devstack/instance.yaml
 
@@ -96,8 +86,10 @@ envsubst < /root/tf-devstack/instance_$ORCHESTRATOR.yaml > /root/tf-devstack/ins
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
     -e config_file=/root/tf-devstack/instance.yaml \
     playbooks/configure_instances.yml
-
-[ $? -gt 1 ] && echo Installation aborted && exit
+if [[ $? != 0 ]]; then
+    echo "Installation aborted"
+    exit
+fi
 
 # step 2 - install orchestrator
 
@@ -107,22 +99,26 @@ playbook_name="install_k8s.yml"
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
     -e config_file=/root/tf-devstack/instance.yaml \
     playbooks/$playbook_name
-
-[ $? -gt 1 ] && echo Installation aborted && exit
+if [[ $? != 0 ]]; then
+    echo "Installation aborted"
+    exit
+fi
 
 # step 3 - install Tungsten Fabric
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
     -e config_file=/root/tf-devstack/instance.yaml \
     playbooks/install_contrail.yml
-
-[ $? -gt 1 ] && echo Installation aborted && exit
+if [[ $? != 0 ]]; then
+    echo "Installation aborted"
+    exit
+fi
 
 # show results
 
 echo
-echo Deployment scripts are finished
-[ "$DEV_ENV" == "true" ] && echo Please reboot node before testing
-echo Contrail Web UI must be available at https://$NODE_IP:8143
-[ "$ORCHESTRATOR" == "openstack" ] && echo OpenStack UI must be avaiable at http://$NODE_IP
-echo Use admin/contrail123 to log in
+echo "Deployment scripts are finished"
+[ "$DEV_ENV" == "true" ] && echo "Please reboot node before testing"
+echo "Contrail Web UI must be available at https://$NODE_IP:8143"
+[ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
+echo "Use admin/contrail123 to log in"

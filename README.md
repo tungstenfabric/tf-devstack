@@ -91,7 +91,6 @@ build tf-dev-control container.
 Environment variable list:
 - DEV_ENV true if build step is needed, false by default
 - ORCHESTRATOR kubernetes by default or openstack
-- K8S_VERSION kubernetes version, 1.12.3 is default for Centos, 1.12.7 is default for Ubuntu
 - OPENSTACK_VERSION queens (default), ocata or rocky, variable used when ORCHESTRATOR=openstack
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
