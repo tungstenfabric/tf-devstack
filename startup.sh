@@ -1,6 +1,8 @@
 #!/bin/bash
 
 set -o errexit
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname "$my_file")"
 
 # default env variables
 
@@ -52,6 +54,14 @@ echo
 [ ! -f /root/.ssh/authorized_keys ] && touch /root/.ssh/authorized_keys && chmod 0600 /root/.ssh/authorized_keys
 grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
+# definitions for contrail-kolla-ansible-deployer container
+# and for contrail-ansible-deployer/contrail-kolla-ansible sources
+ansible_deployer_image=contrail-kolla-ansible-deployer
+base_deployers_dir=/root
+ansible_deployer_dir="$base_deployers_dir/contrail-ansible-deployer"
+kolla_ansible_dir="$base_deployers_dir/contrail-kolla-ansible"
+rm -rf "$ansible_deployer_dir" "$kolla_ansible_dir"
+
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
@@ -65,13 +75,25 @@ if [ "$DEV_ENV" == "true" ]; then
     # fix env variables
     CONTAINER_REGISTRY="$(docker inspect --format '{{(index .IPAM.Config 0).Gateway}}' bridge):6666"
     CONTRAIL_CONTAINER_TAG="dev"
+    git clone https://github.com/Juniper/contrail-ansible-deployer.git "$base_deployers_dir"
+else
+    # NOTE: we need to install docker to pull image with ansible-deployer
+    # right now it's implemented in minimal way
+    # with next change it will be commonized for other orchestrators and will be implemented correctly
+    if [ x"$distro" == x"centos" ]; then
+        # docker version from contrail ansible deployer
+        yum install -y yum-utils device-mapper-persistent-data lvm2
+        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+        yum install -y docker-ce-18.03.1.ce
+        systemctl start docker
+    elif [ x"$distro" == x"ubuntu" ]; then
+        which docker || apt install -y docker.io
+    fi
+    docker run --name $ansible_deployer_image -d --rm --entrypoint "/usr/bin/tail" $CONTAINER_REGISTRY/$ansible_deployer_image:$CONTRAIL_CONTAINER_TAG -f /dev/null
+    docker cp $ansible_deployer_image:/root/contrail-ansible-deployer "$base_deployers_dir"
+    docker cp $ansible_deployer_image:/root/contrail-kolla-ansible "$base_deployers_dir"
+    docker stop $ansible_deployer_image
 fi
-
-# get contrail-ansible-deployer from git
-
-[ -d /root/contrail-ansible-deployer ] && rm -rf /root/contrail-ansible-deployer
-cd /root && git clone https://github.com/Juniper/contrail-ansible-deployer.git
-cd /root/contrail-ansible-deployer
 
 # generate inventory file
 
@@ -79,12 +101,13 @@ export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG
 export OPENSTACK_VERSION
-envsubst < /root/tf-devstack/instance_$ORCHESTRATOR.yaml > /root/tf-devstack/instance.yaml
+envsubst < $my_dir/instance_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instance.yaml
 
+cd $ansible_deployer_dir
 # step 1 - configure instances
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=/root/tf-devstack/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instance.yaml \
     playbooks/configure_instances.yml
 if [[ $? != 0 ]]; then
     echo "Installation aborted"
@@ -97,7 +120,7 @@ playbook_name="install_k8s.yml"
 [ "$ORCHESTRATOR" == "openstack" ] && playbook_name="install_openstack.yml"
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=/root/tf-devstack/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instance.yaml \
     playbooks/$playbook_name
 if [[ $? != 0 ]]; then
     echo "Installation aborted"
@@ -107,7 +130,7 @@ fi
 # step 3 - install Tungsten Fabric
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=/root/tf-devstack/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instance.yaml \
     playbooks/install_contrail.yml
 if [[ $? != 0 ]]; then
     echo "Installation aborted"
