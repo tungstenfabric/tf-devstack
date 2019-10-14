@@ -8,9 +8,9 @@ source "$my_dir/../common/common.sh"
 
 # constants
 
-DEPLOYER_IMAGE=contrail-k8s-manifests
-DEPLOYER_NAME=contrail-container-buider
-DEPLOYER_DIR=contrail-container-builder
+export DEPLOYER_IMAGE=contrail-k8s-manifests
+export DEPLOYER_NAME=contrail-container-buider
+export DEPLOYER_DIR=contrail-container-builder
 
 # default env variables
 
@@ -21,6 +21,8 @@ SKIP_K8S_DEPLOYMENT=${SKIP_K8S_DEPLOYMENT:-false}
 SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
 SKIP_MANIFEST_CREATION=${SKIP_MANIFEST_CREATION:-false}
 KUBE_MANIFEST=${KUBE_MANIFEST:-$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
+CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
+AGENT_NODES=${AGENT_NODES:-$NODE_IP}
 
 if [ $SKIP_K8S_DEPLOYMENT == false ]; then
     $my_dir/../common/deploy_kubespray.sh
@@ -37,6 +39,8 @@ elif [ $SKIP_MANIFEST_CREATION == false ]; then
     export HOST_IP=$NODE_IP
     export PHYSICAL_INTERFACE=$PHYSICAL_INTERFACE
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
+    export AGENT_NODES=$AGENT_NODES
+    export CONTROLLER_NODES=$CONTROLLER_NODES
     $my_dir/../common/fetch_deployer.sh
     $DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
     echo "Manifest contrail.yaml is created"

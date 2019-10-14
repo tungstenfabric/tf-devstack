@@ -2,6 +2,8 @@
 
 set -o errexit
 
+#TODO: should be broken for now
+
 # get tf-dev-env
 [ -d /root/tf-dev-env ] && sudo rm -rf /root/tf-dev-env
 sudo cd /root && git clone https://github.com/tungstenfabric/tf-dev-env.git

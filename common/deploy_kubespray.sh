@@ -13,13 +13,14 @@ source "$my_dir/common.sh"
 if [ "$distro" == "centos" ]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel ansible git
 elif [ "$distro" == "ubuntu" ]; then
+    #TODO: should be broken for now
     apt-get update
     apt-get install -y python3 python3-pip libyaml-devel python3-devel ansible git
 else
     echo "Unsupported OS version" && exit
 fi
 
-# prepare ssh key authorization
+# prepare ssh key authorization for all-in-one single node deployment
 
 [ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
 [ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
@@ -33,7 +34,7 @@ cd kubespray/
 sudo pip3 install -r requirements.txt
 
 cp -rfp inventory/sample/ inventory/mycluster
-declare -a IPS=( $NODE_IP )
+declare -a IPS=( $CONTROLLER_NODES $AGENT_NODES )
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 sed -i 's/calico/cni/g' inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
