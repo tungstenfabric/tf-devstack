@@ -6,13 +6,22 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/common.sh"
 
+# parameters
+
+K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
+K8S_NODES=${K8S_NODES:-$NODE_IP}
+K8S_POD_SUBNET=${K8S_POD_SUBNET:-}
+K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-}
+CNI=${CNI:-cni}
+# kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
+
 [ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit
 
 # install required packages
 
-if [ "$distro" == "centos" ]; then
+if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel ansible git
-elif [ "$distro" == "ubuntu" ]; then
+elif [ "$DISTRO" == "ubuntu" ]; then
     #TODO: should be broken for now
     apt-get update
     apt-get install -y python3 python3-pip libyaml-devel python3-devel ansible git
@@ -34,11 +43,16 @@ cd kubespray/
 sudo pip3 install -r requirements.txt
 
 cp -rfp inventory/sample/ inventory/mycluster
-declare -a IPS=( $CONTROLLER_NODES $AGENT_NODES )
+declare -a IPS=( $K8S_MASTERS $K8S_NODES )
+masters=( $K8S_MASTERS )
+echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
+export KUBE_MASTERS_MASTERS=${#masters[@]}
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
-sed -i 's/calico/cni/g' inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-
-ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml
+sed -i 's/calico/$CNI/g' inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+extra_vars=""
+[[ -z $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
+[[ -z $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
+ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars
 
 mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config

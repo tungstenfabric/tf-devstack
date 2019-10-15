@@ -6,12 +6,6 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 
-# constants
-
-export DEPLOYER_IMAGE=contrail-k8s-manifests
-export DEPLOYER_NAME=contrail-container-buider
-export DEPLOYER_DIR=contrail-container-builder
-
 # default env variables
 
 DEV_ENV=${DEV_ENV:-false}
@@ -23,8 +17,18 @@ SKIP_MANIFEST_CREATION=${SKIP_MANIFEST_CREATION:-false}
 KUBE_MANIFEST=${KUBE_MANIFEST:-$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
 CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
 AGENT_NODES=${AGENT_NODES:-$NODE_IP}
+CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
+CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+
+# constants
+
+AGENT_LABEL="node-role.opencontrail.org/agent="
 
 if [ $SKIP_K8S_DEPLOYMENT == false ]; then
+    export K8S_NODES=$AGENT_NODES
+    export K8S_MASTERS=$CONTROLLER_NODES
+    export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
+    export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
 fi
 
@@ -37,10 +41,7 @@ elif [ $SKIP_MANIFEST_CREATION == false ]; then
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
-    export PHYSICAL_INTERFACE=$PHYSICAL_INTERFACE
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
-    export AGENT_NODES=$AGENT_NODES
-    export CONTROLLER_NODES=$CONTROLLER_NODES
     $my_dir/../common/fetch_deployer.sh
     $DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
     echo "Manifest contrail.yaml is created"
@@ -49,14 +50,35 @@ fi
 # deploy Contrail
 
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
+
+    # label nodes
+
+    nodes=( `kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'` )
     labels=( $(grep "key: \"node-role." contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
-    existing_labels=`kubectl get nodes --show-labels`
-    for label in ${labels[@]}
+    echo Labelling nodes: ${nodes[*]} Agents: $AGENT_NODES Controllers: $CONTROLLER_NODES
+    for i in $(seq 1 ${#nodes[@]})
     do
-        if [[ $existing_labels != *"$label="* ]]; then
-            kubectl label nodes node1 $label=
+        existing_labels=`kubectl get nodes node$i --show-labels`
+        if [[ $CONTROLLER_NODES == *${nodes[i-1]}* ]]; then
+            # [[ `kubectl taint node node1 node.kubernetes.io/master=true:NoSchedule` ]] || true
+            for label in ${labels[@]}
+            do
+                if [[ $existing_labels != *"$label="* ]]; then
+                    echo Label node$i with $label=
+                    kubectl label nodes node$i $label=
+                fi
+            done
+        else
+            # [[ `kubectl taint node node1 node.kubernetes.io/master-` ]] || true
+            if [[ $existing_labels != *$AGENT_LABEL* ]]; then
+                echo Label node$i with $AGENT_LABEL
+                kubectl label nodes node$i $AGENT_LABEL
+            fi
         fi
     done
+
+    # apply manifests
+
     kubectl apply -f contrail.yaml
 
     # show results
