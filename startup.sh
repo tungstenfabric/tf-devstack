@@ -1,43 +1,41 @@
 #!/bin/bash
 
+[ "$(whoami)" != "root" ] && echo "Please run script as root user" && exit
+
 set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname "$my_file")"
+source "$my_dir/common/common.sh"
+source "$my_dir/common/functions.sh"
 
 # default env variables
 
+WORKSPACE="$(pwd)"
+DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
+DEPLOYER_DIR="root"
+
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
-DEV_ENV=${DEV_ENV:-false}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
-CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-ocata-master-latest}
-
-[ "$(whoami)" != "root" ] && echo "Please run script as root user" && exit
-
-distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
-echo "$distro detected"
 
 # install required packages
 
-if [ "$distro" == "centos" ]; then
-    yum install -y python-setuptools  iproute
+echo "$DISTRO detected"
+if [ "$DISTRO" == "centos" ]; then
+    yum install -y python-setuptools iproute
     yum remove -y python-yaml
     yum remove -y python-requests
-elif [ "$distro" == "ubuntu" ]; then
+elif [ "$DISTRO" == "ubuntu" ]; then
     apt-get update
-    apt-get install -y python-setuptools iproute
+    apt-get install -y python-setuptools iproute2
 else
     echo "Unsupported OS version"
     exit
 fi
 
-easy_install pip
+curl -s https://bootstrap.pypa.io/get-pip.py | python
 pip install requests
 pip install pyyaml==3.13
 pip install 'ansible==2.7.11'
-
-PHYSICAL_INTERFACE=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
-NODE_IP=`ip addr show dev $PHYSICAL_INTERFACE | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
 
 # show config variables
 
@@ -54,17 +52,12 @@ echo
 [ ! -f /root/.ssh/authorized_keys ] && touch /root/.ssh/authorized_keys && chmod 0600 /root/.ssh/authorized_keys
 grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
-# definitions for contrail-kolla-ansible-deployer container
-# and for contrail-ansible-deployer/contrail-kolla-ansible sources
-ansible_deployer_image=contrail-kolla-ansible-deployer
-base_deployers_dir=/root
-ansible_deployer_dir="$base_deployers_dir/contrail-ansible-deployer"
-kolla_ansible_dir="$base_deployers_dir/contrail-kolla-ansible"
-rm -rf "$ansible_deployer_dir" "$kolla_ansible_dir"
-
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
+    # TODO: fix dev_env.sh and use it here
+    #"$my_dir/../common/dev_env.sh"
+
     # get tf-dev-env
     [ -d /root/tf-dev-env ] && rm -rf /root/tf-dev-env
     cd /root && git clone https://github.com/tungstenfabric/tf-dev-env.git
@@ -75,28 +68,15 @@ if [ "$DEV_ENV" == "true" ]; then
     # fix env variables
     CONTAINER_REGISTRY="$(docker inspect --format '{{(index .IPAM.Config 0).Gateway}}' bridge):6666"
     CONTRAIL_CONTAINER_TAG="dev"
-    git clone https://github.com/Juniper/contrail-ansible-deployer.git "$base_deployers_dir"
 else
-    # NOTE: we need to install docker to pull image with ansible-deployer
-    # right now it's implemented in minimal way
-    # with next change it will be commonized for other orchestrators and will be implemented correctly
-    if [ x"$distro" == x"centos" ]; then
-        # docker version from contrail ansible deployer
-        yum install -y yum-utils device-mapper-persistent-data lvm2
-        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-        yum install -y docker-ce-18.03.1.ce
-        systemctl start docker
-    elif [ x"$distro" == x"ubuntu" ]; then
-        which docker || apt install -y docker.io
-    fi
-    docker run --name $ansible_deployer_image -d --rm --entrypoint "/usr/bin/tail" $CONTAINER_REGISTRY/$ansible_deployer_image:$CONTRAIL_CONTAINER_TAG -f /dev/null
-    docker cp $ansible_deployer_image:/root/contrail-ansible-deployer "$base_deployers_dir"
-    docker cp $ansible_deployer_image:/root/contrail-kolla-ansible "$base_deployers_dir"
-    docker stop $ansible_deployer_image
+    "$my_dir/common/install_docker.sh"
 fi
+
+fetch_deployer
 
 # generate inventory file
 
+ansible_deployer_dir="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
 export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG

@@ -5,24 +5,31 @@ set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
-
-# default env variables
-
-DEV_ENV=${DEV_ENV:-false}
-CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-master-latest}
-SKIP_K8S_DEPLOYMENT=${SKIP_K8S_DEPLOYMENT:-false}
-SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
-SKIP_MANIFEST_CREATION=${SKIP_MANIFEST_CREATION:-false}
-KUBE_MANIFEST=${KUBE_MANIFEST:-$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
-CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
-AGENT_NODES=${AGENT_NODES:-$NODE_IP}
-CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
-CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+source "$my_dir/common/functions.sh"
 
 # constants
 
+WORKSPACE="$(pwd)"
+DEPLOYER_IMAGE="contrail-k8s-manifests"
+DEPLOYER_DIR="contrail-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
+
+# default env variables
+
+SKIP_K8S_DEPLOYMENT=${SKIP_K8S_DEPLOYMENT:-false}
+SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
+SKIP_MANIFEST_CREATION=${SKIP_MANIFEST_CREATION:-false}
+KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
+CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
+CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+
+# build step
+
+if [ $DEV_ENV == true ]; then
+    "$my_dir/../common/dev_env.sh"
+fi
+
+# deploy kubernetes step
 
 if [ $SKIP_K8S_DEPLOYMENT == false ]; then
     export K8S_NODES=$AGENT_NODES
@@ -32,22 +39,18 @@ if [ $SKIP_K8S_DEPLOYMENT == false ]; then
     $my_dir/../common/deploy_kubespray.sh
 fi
 
-# build step
+# deploy Contrail
 
-if [ $DEV_ENV == true ]; then
-    "$my_dir/../common/dev_env.sh"
-elif [ $SKIP_MANIFEST_CREATION == false ]; then
+if [ $SKIP_MANIFEST_CREATION == false ]; then
     echo "Creating manifest"
+    fetch_deployer
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
-    $my_dir/../common/fetch_deployer.sh
-    $DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
+    $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
     echo "Manifest contrail.yaml is created"
 fi
-
-# deploy Contrail
 
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
 
