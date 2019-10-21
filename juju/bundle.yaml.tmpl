@@ -1,0 +1,162 @@
+series: "{{ SERIES }}"
+
+machines:
+
+  "{{ JUJU_DEPLOY_MCH }}":
+    series: "{{ SERIES }}"
+    constraints: mem=16G cores=4 root-disk=120G
+
+services:
+
+  # kubernetes
+
+  easyrsa:
+    series: "{{ SERIES }}"
+    charm: cs:~containers/easyrsa
+    num_units: 1
+    to:
+    - lxd:{{ JUJU_DEPLOY_MCH }}
+
+  etcd:
+    series: "{{ SERIES }}"
+    charm: cs:~containers/etcd
+    num_units: 1
+    options:
+      channel: 3.2/stable
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  kubernetes-master:
+    series: "{{ SERIES }}"
+    charm: cs:~containers/kubernetes-master-696
+    num_units: 1
+    expose: true
+    options:
+      channel: '1.14/stable'
+      service-cidr: '10.96.0.0/12'
+      docker_runtime: 'custom'
+      docker_runtime_repo: 'deb [arch={ARCH}] https://download.docker.com/linux/ubuntu {CODE} stable'
+      docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+      docker_runtime_package: 'docker-ce'
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  kubernetes-worker:
+    series: "{{ SERIES }}"
+    charm: cs:~containers/kubernetes-worker-550
+    num_units: 1
+    options:
+      channel: '1.14/stable'
+      docker_runtime: 'custom'
+      docker_runtime_repo: 'deb [arch={ARCH}] https://download.docker.com/linux/ubuntu {CODE} stable'
+      docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+      docker_runtime_package: 'docker-ce'
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  # contrail-kubernetes
+
+  contrail-kubernetes-master:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-kubernetes-master
+    options:
+      log-level: 'SYS_DEBUG'
+      service_subnets: '10.96.0.0/12'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+      cluster_name: test_cluster
+
+  contrail-kubernetes-node:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-kubernetes-node
+    options:
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+
+  # contrail
+
+  contrail-agent:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-agent
+    options:
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+
+  contrail-analytics:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-analytics
+    num_units: 1
+    expose: true
+    options:
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  contrail-analyticsdb:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-analyticsdb
+    num_units: 1
+    options:
+      cassandra-minimum-diskgb: '4'
+      cassandra-jvm-extra-opts: '-Xms1g -Xmx2g'
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  contrail-controller:
+    series: "{{ SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-controller
+    num_units: 1
+    expose: true
+    options:
+      auth-mode: 'no-auth'
+      cassandra-minimum-diskgb: '4'
+      cassandra-jvm-extra-opts: '-Xms1g -Xmx2g'
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  # misc
+
+  ubuntu:
+    charm: "cs:{{ SERIES }}/bionic"
+    num_units: 1
+    to:
+      - "{{ JUJU_DEPLOY_MCH }}"
+
+  ntp:
+    charm: "cs:{{ SERIES }}/ntp"
+
+relations:
+
+
+- [ kubernetes-master:kube-api-endpoint, kubernetes-worker:kube-api-endpoint ]
+- [ kubernetes-master:kube-control, kubernetes-worker:kube-control ]
+- [ kubernetes-master:certificates, easyrsa:client ]
+- [ kubernetes-master:etcd, etcd:db ]
+- [ kubernetes-worker:certificates,  easyrsa:client ]
+- [ etcd:certificates, easyrsa:client ]
+
+- [ ubuntu, ntp ]
+
+# contrail
+- [ contrail-controller, contrail-analytics ]
+- [ contrail-controller, contrail-analyticsdb ]
+- [ contrail-analytics, contrail-analyticsdb ]
+- [ contrail-agent, contrail-controller ]
+
+# contrail-kubernetes
+- [ contrail-kubernetes-node:cni, kubernetes-master:cni ]
+- [ contrail-kubernetes-node:cni, kubernetes-worker:cni ]
+- [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
+- [ contrail-kubernetes-master:kube-api-endpoint, kubernetes-master:kube-api-endpoint ]
+- [ contrail-agent:juju-info, kubernetes-worker:juju-info ]
+- [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
