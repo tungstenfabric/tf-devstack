@@ -3,6 +3,8 @@ series: "{{ SERIES }}"
 machines:
 
   "{{ JUJU_DEPLOY_MCH }}":
+    series: "{{ SERIES }}"
+    constraints: mem=16G cores=4 root-disk=120G
 
 services:
 
