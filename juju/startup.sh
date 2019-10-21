@@ -7,6 +7,7 @@ my_dir="$(dirname $my_file)"
 
 WORKSPACE="$(pwd)"
 
+#TODO: CONTROLLER_NODES is a list
 juju_node_ip=${CONTROLLER_NODES}
 
 # default env variables
@@ -15,12 +16,10 @@ export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
 export CONTRAIL_VERSION=${CONTRAIL_CONTAINER_TAG:-master-latest}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 
-# TODO: if already cloned
-[[ -d $WORKSPACE/contrail-charms ]] || git clone https://github.com/Juniper/contrail-charms -b R5
+[ -d $WORKSPACE/contrail-charms ] || git clone https://github.com/Juniper/contrail-charms -b R5 $WORKSPACE
 cd $WORKSPACE/contrail-charms
 
 # prepare ssh key authorization for all-in-one single node deployment
-
 [ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
 [ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
 [ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
