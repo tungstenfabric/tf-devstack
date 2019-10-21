@@ -2,7 +2,7 @@ series: "{{ SERIES }}"
 
 machines:
 
-  "{{ juju_deploy_mch }}":
+  "{{ JUJU_DEPLOY_MCH }}":
 
 services:
 
@@ -13,7 +13,7 @@ services:
     charm: cs:~containers/easyrsa
     num_units: 1
     to:
-    - lxd:{{ juju_deploy_mch }}
+    - lxd:{{ JUJU_DEPLOY_MCH }}
 
   etcd:
     series: "{{ SERIES }}"
@@ -22,7 +22,7 @@ services:
     options:
       channel: 3.2/stable
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   kubernetes-master:
     series: "{{ SERIES }}"
@@ -37,7 +37,7 @@ services:
       docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
       docker_runtime_package: 'docker-ce'
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   kubernetes-worker:
     series: "{{ SERIES }}"
@@ -50,7 +50,7 @@ services:
       docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
       docker_runtime_package: 'docker-ce'
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   # contrail-kubernetes
 
@@ -92,7 +92,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       image-tag: "{{ CONTRAIL_VERSION }}"
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   contrail-analyticsdb:
     series: "{{ SERIES }}"
@@ -105,7 +105,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       image-tag: "{{ CONTRAIL_VERSION }}"
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   contrail-controller:
     series: "{{ SERIES }}"
@@ -120,7 +120,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       image-tag: "{{ CONTRAIL_VERSION }}"
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
 
   # misc
 
@@ -128,7 +128,7 @@ services:
     charm: "cs:{{ SERIES }}/bionic"
     num_units: 1
     to:
-      - "{{ juju_deploy_mch }}"
+      - "{{ JUJU_DEPLOY_MCH }}"
   
   ntp:
     charm: "cs:{{ SERIES }}/ntp"
