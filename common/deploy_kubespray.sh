@@ -23,8 +23,8 @@ if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel ansible git
 elif [ "$DISTRO" == "ubuntu" ]; then
     #TODO: should be broken for now
-    apt-get update
-    apt-get install -y python3 python3-pip libyaml-devel python3-devel ansible git
+    sudo apt-get update
+    sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev ansible git
 else
     echo "Unsupported OS version" && exit
 fi
@@ -48,7 +48,8 @@ masters=( $K8S_MASTERS )
 echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
 export KUBE_MASTERS_MASTERS=${#masters[@]}
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
-sed -i "s/calico/$CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 extra_vars=""
 [[ -z $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
 [[ -z $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
