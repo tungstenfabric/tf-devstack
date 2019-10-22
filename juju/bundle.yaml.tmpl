@@ -4,7 +4,7 @@ machines:
 
   "{{ JUJU_DEPLOY_MCH }}":
     series: "{{ SERIES }}"
-    constraints: mem=16G cores=4 root-disk=120G
+    constraints: mem=16G cores=8 root-disk=120G
 
 services:
 
@@ -127,7 +127,7 @@ services:
   # misc
 
   ubuntu:
-    charm: "cs:{{ SERIES }}/bionic"
+    charm: "cs:{{ SERIES }}/ubuntu"
     num_units: 1
     to:
       - "{{ JUJU_DEPLOY_MCH }}"
