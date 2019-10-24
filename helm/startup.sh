@@ -14,9 +14,11 @@ DEPLOYER_IMAGE="contrail-helm-deployer"
 DEPLOYER_DIR="root"
 
 SKIP_K8S_DEPLOYMENT=${SKIP_K8S_DEPLOYMENT:-false}
-SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
+SKIP_HELM_OPENSTACK=${SKIP_HELM_OPENSTACK:-false}
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
+export CNI=${CNI:-calico}
 
 # build step
 
@@ -34,11 +36,15 @@ if [[ "$SKIP_K8S_DEPLOYMENT" == false ]]; then
     $my_dir/../common/deploy_kubespray.sh
 fi
 
-fetch_deployer
+#fetch_deployer
 
-# deploy Contrail
+# deploy helm-openstack
+if [[ "$SKIP_HELM_OPENSTACK" == false ]]; then
+    $my_dir/../common/deploy_helm_openstack.sh
+fi
 
-# TODO
+# deploy Tungsten Fabric
+./deploy_tf_helm.sh
 
 # show results
 

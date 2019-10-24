@@ -49,7 +49,21 @@ echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
 export KUBE_MASTERS_MASTERS=${#masters[@]}
 CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
+# DNS
+# Allow host and hostnet pods to resolve cluster domains
+echo "resolvconf_mode: host_resolvconf" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+# Grab first nameserver from /etc/resolv.conf that is not coredns
+nameserver=$(grep -i nameserver /etc/resolv.conf | grep -v 10.233. | head -1 | awk '{print $2}' )
+# Set upstream DNS server used by host and coredns for recursive lookups
+echo "upstream_dns_servers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
+# Fix coredns deployment on single node
+echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 extra_vars=""
 [[ -z $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
 [[ -z $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"

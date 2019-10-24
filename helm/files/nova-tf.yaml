@@ -1,0 +1,55 @@
+images:
+  tags:
+    opencontrail_compute_init: opencontrailnightly/contrail-openstack-compute-init:master-latest
+conf:
+  nova:
+    libvirt:
+      virt_type: qemu
+      cpu_mode: host-model
+  agent:
+    compute:
+      node_selector_key: openstack-compute-node
+      node_selector_value: enabled
+    compute_ironic:
+      node_selector_key: openstack-compute-node
+      node_selector_value: enabled
+  api_metadata:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  conductor:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  consoleauth:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  job:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  novncproxy:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  osapi:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  placement:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  scheduler:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  spiceproxy:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+  test:
+    node_selector_key: openstack-control-plane
+    node_selector_value: enabled
+network:
+  backend:
+    - tungstenfabric
+dependencies:
+  dynamic:
+    targeted:
+      tungstenfabric:
+        compute:
+          daemonset: []
+
