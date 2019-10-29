@@ -4,52 +4,95 @@ set -o errexit
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+source "$my_dir/../common/common.sh"
 
-WORKSPACE="$(pwd)"
+export WORKSPACE="$(pwd)"
 
-#TODO: CONTROLLER_NODES is a list
-juju_node_ip=${CONTROLLER_NODES}
+export CONTAINER_REGISTRY
+export CONTRAIL_CONTAINER_TAG
+export NODE_IP
+export CONTROLLER_NODES
 
 # default env variables
-export SERIES=${SERIES:-bionic}
-export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
-export CONTRAIL_VERSION=${CONTRAIL_CONTAINER_TAG:-master-latest}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
+export ORCHESTRATOR=${ORCHESTRATOR:-openstack}  # openstack | kubernetes
+export CLOUD=${CLOUD:-aws}  # aws | manual
+export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
 
-[ -d $WORKSPACE/contrail-charms ] || git clone --depth 1 --single-branch https://github.com/Juniper/contrail-charms -b R5 $WORKSPACE/contrail-charms
-cd $WORKSPACE/contrail-charms
+AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
+AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
+AWS_REGION=${AWS_REGION:-'us-east-1'}
 
-# prepare ssh key authorization for all-in-one single node deployment
-[ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
-[ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
-[ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
-grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+SKIP_JUJU_BOOTSTRAP=${SKIP_JUJU_BOOTSTRAP:-false}
+SKIP_JUJU_ADD_MACHINES=${SKIP_JUJU_ADD_MACHINES:-false}
+SKIP_DEPLOY_ORCHESTRATOR=${SKIP_DEPLOY_ORCHESTRATOR:-false}
+SKIP_DEPLOY_CONTRAIL=${SKIP_DEPLOY_CONTRAIL:-false}
 
-cat <<EOF > $HOME/.ssh/config
-Host *
-StrictHostKeyChecking no
-UserKnownHostsFile=/dev/null
-EOF
+# install juju
+if [ $SKIP_JUJU_BOOTSTRAP == false ]; then
+    echo "Installing JuJu, setup and bootstrap JuJu controller"
+    $my_dir/../common/deploy_juju.sh
+fi
 
-#TODO: check snap in ubuntu xenial
-sudo snap install juju --classic
+# add-machines to juju
+if [ $SKIP_JUJU_ADD_MACHINES == false ]; then
+    echo "Add machines to Jujus"
+    $my_dir/../common/add_juju_machines.sh
+fi
 
-juju bootstrap manual/ubuntu@${NODE_IP} juju-cont
-export JUJU_DEPLOY_MCH=`juju add-machine ssh:ubuntu@$juju_node_ip 2>&1 | tail -1 | awk '{print $3}'`
+# deploy orchestrator
+if [ $SKIP_DEPLOY_ORCHESTRATOR == false ]; then
+    echo "Deploy ${ORCHESTRATOR^}"
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+        export BUNDLE_TEMPLATE="$my_dir/bundle_os_${CLOUD}.yaml.tmpl"
+    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
+        export BUNDLE_TEMPLATE="$my_dir/bundle_k8s_${CLOUD}.yaml.tmpl"
+    fi
+    $my_dir/../common/deploy_juju_bundle.sh
+fi
 
-# change bundles variables
-echo "INFO: Change variables in bundle..."
-python3 "$my_dir/../common/jinja2_render.py" <"$my_dir/bundle.yaml.tmpl" >"$my_dir/bundle.yaml"
+# deploy contrail
+if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
+    echo "Deploy Contrail"
+    export BUNDLE_TEMPLATE="$my_dir/bundle_contrail.yaml.tmpl"
 
-juju deploy $my_dir/bundle.yaml --map-machines=existing
+    # get contrail-charms
+    [ -d $JUJU_REPO ] || git clone https://github.com/Juniper/contrail-charms -b R5 $JUJU_REPO
+    cd $JUJU_REPO
 
-# fix /etc/hosts
-juju_node_hostname=`juju ssh $JUJU_DEPLOY_MCH "hostname" | tr -d '\r'`
-juju ssh $JUJU_DEPLOY_MCH "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+    $my_dir/../common/deploy_juju_bundle.sh
 
-# show results
-echo "Deployment scripts are finished"
-echo "Now you can monitor when contrail becomes available with:"
-echo "juju status"
-echo "All applications and units should become active, before you can use Contrail"
-echo "Contrail Web UI will be available at https://$NODE_IP:8143"
+    # add relations between orchestrator and Contrail
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then        
+        juju add-relation contrail-controller ntp
+        juju add-relation contrail-keystone-auth keystone
+        juju add-relation contrail-openstack neutron-api
+        juju add-relation contrail-openstack heat
+        juju add-relation contrail-openstack nova-compute
+        juju add-relation contrail-agent:juju-info nova-compute:juju-info
+    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
+        juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
+        juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
+        juju add-relation contrail-kubernetes-master:contrail-controller contrail-controller:contrail-controller
+        juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
+        juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+        juju add-relation contrail-kubernetes-master:contrail-kubernetes-config contrail-kubernetes-node:contrail-kubernetes-config
+    fi
+
+    if [[ $ORCHESTRATOR == 'kubernetes' && $CLOUD == 'manual' ]]; then
+        JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+        # fix /etc/hosts
+        for machine in $JUJU_MACHINES ; do
+            juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
+            juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
+            juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+        done
+    fi
+
+    # show results
+    echo "Deployment scripts are finished"
+    echo "Now you can monitor when contrail becomes available with:"
+    echo "juju status"
+    echo "All applications and units should become active, before you can use Contrail"
+    echo "Contrail Web UI will be available at https://$NODE_IP:8143"
+fi
