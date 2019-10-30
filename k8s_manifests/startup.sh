@@ -11,7 +11,7 @@ source "$my_dir/../common/functions.sh"
 
 WORKSPACE="$(pwd)"
 DEPLOYER_IMAGE="contrail-k8s-manifests"
-DEPLOYER_DIR="contrail-container-builder"
+CONTAINER_BUILDER_DIR=${CONTAINER_BUILDER_DIR:-${WORKSPACE}/contrail-container-builder }
 AGENT_LABEL="node-role.opencontrail.org/agent="
 
 # default env variables
@@ -19,7 +19,7 @@ AGENT_LABEL="node-role.opencontrail.org/agent="
 SKIP_K8S_DEPLOYMENT=${SKIP_K8S_DEPLOYMENT:-false}
 SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
 SKIP_MANIFEST_CREATION=${SKIP_MANIFEST_CREATION:-false}
-KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
+KUBE_MANIFEST=${KUBE_MANIFEST:-$CONTAINER_BUILDER_DIR/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
@@ -48,7 +48,7 @@ if [ $SKIP_MANIFEST_CREATION == false ]; then
     export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
-    $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
+    $CONTAINER_BUILDER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
     echo "Manifest contrail.yaml is created"
 fi
 

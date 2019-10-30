@@ -2,6 +2,17 @@
 
 set -o errexit
 
+#install net-tools
+
+source /etc/os-release
+ID=${ID:-centos}
+LINUX_DISTRIB=$ID
+if [[ ${LINUX_DISTRIB} == 'centos' ]]; then
+ yum list installed net-tools || yum install net-tools -y
+elif [[ ${LINUX_DISTRIB} == 'ubuntu' ]]; then
+ dpkg -l | grep net-tools || apt-get install net-tools -y
+fi
+
 # determined variables
 
 DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
