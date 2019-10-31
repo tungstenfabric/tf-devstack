@@ -29,9 +29,12 @@ fi
 NODES_ARGS="--set global.contrail_env.CONTROLLER_NODES=$CONTROLLER_NODES"
 JVM_ARGS="--set global.contrail_env.JVM_EXTRA_OPTS='-Xms1g -Xmx2g'"
 
+# Create /var/log/contrail dir because it's not created in centos automatically by k8s
+# but is mounted to containers
+mkdir -p /var/log/contrail
 
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric contrail $NODES_ARGS
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric contrail $NODES_ARGS $JVM_ARGS
 echo "Waiting for vrouter to be ready"
 kubectl wait --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
 
