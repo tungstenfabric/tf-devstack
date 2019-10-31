@@ -16,14 +16,16 @@ export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
 [ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit
 
 # label nodes
+for node in $(kubectl get nodes --no-headers | cut -d' ' -f1 | head -1); do
+  kubectl label node $node --overwrite openstack-control-plane=enabled
+  kubectl label node $node --overwrite ceph-mgr=enabled
+  kubectl label node $node --overwrite ceph-mon=enabled
+  kubectl label node $node --overwrite ceph-osd=enabled
+  kubectl label node $node --overwrite ceph-mds=enabled
+  kubectl label node $node --overwrite ceph-rgw=enabled
+done
 for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
-  kubectl label node --overwrite $node openstack-control-plane=enabled
-  kubectl label node --overwrite $node openstack-compute-node=enabled
-  kubectl label node --overwrite $node ceph-mgr=enabled
-  kubectl label node --overwrite $node ceph-mon=enabled
-  kubectl label node --overwrite $node ceph-osd=enabled
-  kubectl label node --overwrite $node ceph-mds=enabled
-  kubectl label node --overwrite $node ceph-rgw=enabled
+  kubectl label node $node --overwrite openstack-compute-node=enabled
 done
 
 # fetch helm-openstack
