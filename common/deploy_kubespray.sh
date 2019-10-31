@@ -65,8 +65,8 @@ echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluste
 echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
 extra_vars=""
-[[ -z $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
-[[ -z $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
+[[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
+[[ -n $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars
 
 mkdir -p ~/.kube
