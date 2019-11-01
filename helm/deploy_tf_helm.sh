@@ -1,4 +1,9 @@
 #!/bin/bash -xe
+
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+source "$my_dir/common.sh"
+
 TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer/archive/master.tar.gz}
 wget $TF_HELM_URL -O contrail-helm-deployer.tar.gz
 mkdir -p contrail-helm-deployer
