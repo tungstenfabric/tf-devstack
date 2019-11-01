@@ -55,19 +55,7 @@ grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
-    # TODO: fix dev_env.sh and use it here
-    #"$my_dir/../common/dev_env.sh"
-
-    # get tf-dev-env
-    [ -d $WORKSPACE/tf-dev-env ] && rm -rf $WORKSPACE/tf-dev-env
-    cd $WORKSPACE && git clone --depth 1 --single-branch https://github.com/tungstenfabric/tf-dev-env.git
-
-    # build all
-    cd $WORKSPACE/tf-dev-env && AUTOBUILD=1 BUILD_DEV_ENV=1 ./startup.sh
-
-    # fix env variables
-    CONTAINER_REGISTRY="$(docker inspect --format '{{(index .IPAM.Config 0).Gateway}}' bridge):6666"
-    CONTRAIL_CONTAINER_TAG="dev"
+    "$my_dir/../common/dev_env.sh"
 else
     "$my_dir/../common/install_docker.sh"
 fi

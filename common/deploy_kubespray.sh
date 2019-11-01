@@ -38,7 +38,7 @@ grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub 
 
 # deploy kubespray
 
-[ ! -d kubespray ] && git clone https://github.com/kubernetes-sigs/kubespray.git
+[ ! -d kubespray ] && git clone --depth 1 --single-branch https://github.com/kubernetes-sigs/kubespray.git
 cd kubespray/
 sudo pip3 install -r requirements.txt
 

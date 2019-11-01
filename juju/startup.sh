@@ -16,7 +16,7 @@ export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-opencontrailnightly}
 export CONTRAIL_VERSION=${CONTRAIL_CONTAINER_TAG:-master-latest}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 
-[ -d $WORKSPACE/contrail-charms ] || git clone https://github.com/Juniper/contrail-charms -b R5 $WORKSPACE/contrail-charms
+[ -d $WORKSPACE/contrail-charms ] || git clone --depth 1 --single-branch https://github.com/Juniper/contrail-charms -b R5 $WORKSPACE/contrail-charms
 cd $WORKSPACE/contrail-charms
 
 # prepare ssh key authorization for all-in-one single node deployment
