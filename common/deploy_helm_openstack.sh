@@ -18,11 +18,6 @@ export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
 # label nodes
 for node in $(kubectl get nodes --no-headers | cut -d' ' -f1 | head -1); do
   kubectl label node $node --overwrite openstack-control-plane=enabled
-  kubectl label node $node --overwrite ceph-mgr=enabled
-  kubectl label node $node --overwrite ceph-mon=enabled
-  kubectl label node $node --overwrite ceph-osd=enabled
-  kubectl label node $node --overwrite ceph-mds=enabled
-  kubectl label node $node --overwrite ceph-rgw=enabled
 done
 for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
   kubectl label node $node --overwrite openstack-compute-node=enabled
@@ -50,9 +45,8 @@ sudo apt-get install --no-install-recommends -y \
         curl \
         uuid-runtime \
         bc \
-        ceph-common \
-	python-pip \
-	python-dev
+        python-pip \
+        python-dev
 sudo -H pip install -U pip wheel
 sudo -H pip install --user wheel yq
 
@@ -71,20 +65,15 @@ export FEATURE_GATES=tf
 cd ../openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 ./tools/deployment/developer/common/030-ingress.sh
-./tools/deployment/developer/ceph/040-ceph.sh
-./tools/deployment/developer/ceph/045-ceph-ns-activate.sh
-./tools/deployment/developer/ceph/050-mariadb.sh
-./tools/deployment/developer/ceph/060-rabbitmq.sh
-./tools/deployment/developer/ceph/070-memcached.sh
-./tools/deployment/developer/ceph/080-keystone.sh
-./tools/deployment/developer/ceph/090-heat.sh
-./tools/deployment/developer/ceph/110-ceph-radosgateway.sh
-./tools/deployment/developer/ceph/120-glance.sh
-./tools/deployment/developer/ceph/130-cinder.sh
-./tools/deployment/developer/ceph/150-libvirt.sh
+./tools/deployment/developer/nfs/040-nfs-provisioner.sh
+./tools/deployment/developer/nfs/050-mariadb.sh
+./tools/deployment/developer/nfs/060-rabbitmq.sh
+./tools/deployment/developer/nfs/070-memcached.sh
+./tools/deployment/developer/nfs/080-keystone.sh
+./tools/deployment/developer/nfs/090-heat.sh
+./tools/deployment/developer/nfs/120-glance.sh
+./tools/deployment/developer/nfs/150-libvirt.sh
 echo "Running nova/neutron deploy in the background"
-./tools/deployment/developer/ceph/160-compute-kit.sh &
-#kubectl -n openstack delete pod horizon-test || :
-#./tools/deployment/developer/ceph/100-horizon.sh &
+./tools/deployment/developer/nfs/160-compute-kit.sh &
 
 cd ../..
