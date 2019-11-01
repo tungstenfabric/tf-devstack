@@ -38,13 +38,25 @@ fi
 
 #fetch_deployer
 
+# deploy Tungsten Fabric
+
+if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
+  ./deploy_tf_helm.sh
+fi
+
 # deploy helm-openstack
+
 if [[ "$SKIP_HELM_OPENSTACK" == false ]]; then
     $my_dir/../common/deploy_helm_openstack.sh
 fi
 
-# deploy Tungsten Fabric
-./deploy_tf_helm.sh
+# Late labelling for controller pods to be deployed
+
+if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
+  for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
+    kubectl label node --overwrite $node opencontrail.org/controller=enabled
+  done
+fi
 
 # show results
 

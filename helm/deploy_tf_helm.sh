@@ -34,12 +34,16 @@ global:
     JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
 EOF
 
+if [ "$DISTRO" == "centos" ]; then
+  host_var="--set global.node.host_os=centos"
+else
+  host_var=""
+fi
 
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric contrail -f tf-devstack-values.yaml
-echo "Waiting for vrouter to be ready"
-kubectl -n tungsten-fabric wait daemonset --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric contrail -f tf-devstack-values.yaml $host_var
+#echo "Waiting for vrouter to be ready"
+#kubectl -n tungsten-fabric wait daemonset --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
 
-for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
-  kubectl label node --overwrite $node opencontrail.org/controller=enabled
-done
+# Nodes here are not yet labelled for controller which allows vrouter to be installed.
+# Labelling for controller is done in startup.sh

@@ -35,8 +35,13 @@ cp $my_dir/../helm/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_ove
 cp $my_dir/../helm/files/nova-tf.yaml openstack-helm/nova/values_overrides/tf.yaml
 cp $my_dir/../helm/files/neutron-tf.yaml openstack-helm/neutron/values_overrides/tf.yaml
 sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" openstack-helm/neutron/values_overrides/tf.yaml
-# install deps
-sudo apt-get install --no-install-recommends -y \
+# install and remove deps and other prereqs
+if [ "$DISTRO" == "centos" ]; then
+    sudo yum remove -y pyparsing
+    sudo service firewalld stop
+    sudo yum install -y jq nmap bc python-pip python-devel git gcc
+elif [ "$DISTRO" == "ubuntu" ]; then
+  sudo apt-get install --no-install-recommends -y \
         ca-certificates \
         git \
         make \
@@ -47,6 +52,7 @@ sudo apt-get install --no-install-recommends -y \
         bc \
         python-pip \
         python-dev
+fi
 sudo -H pip install -U pip wheel
 sudo -H pip install --user wheel yq
 
@@ -62,6 +68,8 @@ make helm-toolkit
 export FEATURE_GATES=tf
 
 # TODO: set coredns replicas=1 if one node
+cd ../openstack-helm-infra
+make all
 cd ../openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 ./tools/deployment/developer/common/030-ingress.sh
