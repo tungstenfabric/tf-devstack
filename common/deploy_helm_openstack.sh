@@ -69,7 +69,9 @@ export FEATURE_GATES=tf
 
 # TODO: set coredns replicas=1 if one node
 cd ../openstack-helm-infra
-make all
+make helm-toolkit
+make nfs-provisioner
+
 cd ../openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh
 ./tools/deployment/developer/common/030-ingress.sh
