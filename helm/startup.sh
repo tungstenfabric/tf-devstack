@@ -42,7 +42,7 @@ fi
 # deploy Tungsten Fabric
 
 if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
-  ./deploy_tf_helm.sh
+    $my_dir/deploy_tf_helm.sh
 fi
 
 # deploy helm-openstack
