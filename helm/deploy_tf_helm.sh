@@ -12,10 +12,10 @@ tar xzf contrail-helm-deployer.tar.gz --strip-components=1 -C contrail-helm-depl
 cd contrail-helm-deployer
 
 helm init --client-only
-helm repo add local http://localhost:8879/charts
 pgrep -f "helm serve" | xargs -n1 -r kill
 helm serve &
 sleep 5
+helm repo add local http://localhost:8879/charts
 make all
 
 # Refactor for AGENT_NODES and CONTROLLER_NODES
