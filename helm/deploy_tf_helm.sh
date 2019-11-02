@@ -48,7 +48,7 @@ if [ "$DISTRO" == "centos" ]; then
   k8s_dns=$(kubectl get services -n kube-system | grep dns | awk '{print $3}')
   sudo touch /etc/dhcp/dhclient.conf
   if [[ -z $(sudo grep "$k8s_dns" /etc/dhcp/dhclient.conf) ]]; then
-    echo "prepend domain-name-server $k8s_dns;" | sudo tee -a /etc/dhcp/dhclient.conf
+    echo "prepend domain-name-servers $k8s_dns;" | sudo tee -a /etc/dhcp/dhclient.conf
     echo "prepend domain-search \"default.svc.cluster.local\", \"svc.cluster.local\";" | sudo tee -a /etc/dhcp/dhclient.conf
   fi
 else
