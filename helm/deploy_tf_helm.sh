@@ -33,7 +33,6 @@ if [ -z "$CONTROLLER_NODES" ]; then
   echo "CONTROLLER_NODES must be set"
 fi
 
-
 cat << EOF > tf-devstack-values.yaml
 global:
   contrail_env:
@@ -44,6 +43,14 @@ EOF
 if [ "$DISTRO" == "centos" ]; then
   sudo service firewalld stop
   host_var="--set global.node.host_os=centos"
+  # Determine kuberenetes dns and add it with searchdomains to dhclient.conf
+  # because NetworkManager in centos rewrites resolv.conf
+  k8s_dns=$(kubectl get services -n kube-system | grep dns | awk '{print $3}')
+  sudo touch /etc/dhcp/dhclient.conf
+  if [[ -z $(sudo grep "$k8s_dns" /etc/dhcp/dhclient.conf) ]]; then
+    echo "prepend domain-name-server $k8s_dns;" | sudo tee -a /etc/dhcp/dhclient.conf
+    echo "prepend domain-search \"default.svc.cluster.local\", \"svc.cluster.local\";" | sudo tee -a /etc/dhcp/dhclient.conf
+  fi
 else
   host_var=""
 fi
