@@ -41,7 +41,7 @@ global:
 EOF
 
 if [ "$DISTRO" == "centos" ]; then
-  sudo service firewalld stop
+  [[ $(sudo service firewalld stop) ]] || true
   host_var="--set global.node.host_os=centos"
   # Determine kuberenetes dns and add it with searchdomains to dhclient.conf
   # because NetworkManager in centos rewrites resolv.conf
