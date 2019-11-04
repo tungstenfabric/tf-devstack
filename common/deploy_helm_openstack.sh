@@ -34,6 +34,7 @@ tar xzf helm-openstack-infra.tgz --strip-components=1 -C openstack-helm-infra
 cp $my_dir/../helm/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_overrides/tf.yaml
 cp $my_dir/../helm/files/nova-tf.yaml openstack-helm/nova/values_overrides/tf.yaml
 cp $my_dir/../helm/files/neutron-tf.yaml openstack-helm/neutron/values_overrides/tf.yaml
+cp $my_dir/../helm/files/keystone-tf.yaml openstack-helm/keystone/values_overrides/tf.yaml
 sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" openstack-helm/neutron/values_overrides/tf.yaml
 # install and remove deps and other prereqs
 if [ "$DISTRO" == "centos" ]; then
@@ -80,7 +81,8 @@ cd ../openstack-helm
 ./tools/deployment/developer/nfs/060-rabbitmq.sh
 ./tools/deployment/developer/nfs/070-memcached.sh
 ./tools/deployment/developer/nfs/080-keystone.sh
-./tools/deployment/developer/nfs/090-heat.sh
+# Heat is not really supported by TF now
+#./tools/deployment/developer/nfs/090-heat.sh
 ./tools/deployment/developer/nfs/120-glance.sh
 ./tools/deployment/developer/nfs/150-libvirt.sh
 echo "Running nova/neutron deploy in the background"

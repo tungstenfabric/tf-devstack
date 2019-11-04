@@ -25,14 +25,6 @@ for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
   kubectl label node --overwrite $node opencontrail.org/vrouter-kernel=enabled
 done
 
-if [ -z "$AGENT_NODES" ]; then
-  echo "AGENT_NODES must be set"
-fi
-
-if [ -z "$CONTROLLER_NODES" ]; then
-  echo "CONTROLLER_NODES must be set"
-fi
-
 cat << EOF > tf-devstack-values.yaml
 global:
   contrail_env:
