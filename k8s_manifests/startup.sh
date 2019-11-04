@@ -54,8 +54,9 @@ fi
 
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
 
-    # label nodes
+    ensure_insecure_registry_set $CONTAINER_REGISTRY
 
+    # label nodes
     nodes=( `kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'` )
     labels=( $(grep "key: \"node-role." contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
     echo Labelling nodes: ${nodes[*]} Agents: $AGENT_NODES Controllers: $CONTROLLER_NODES
@@ -81,11 +82,9 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     done
 
     # apply manifests
-
     kubectl apply -f contrail.yaml
 
     # show results
-
     echo "Deployment scripts are finished"
     echo "Now you can monitor when contrail becomes available with:"
     echo "kubectl get pods --all-namespaces"

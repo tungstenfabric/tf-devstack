@@ -77,9 +77,9 @@ fi
 
 runtime_docker_mtu=`sudo docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
 if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
-  if [ x"$distro" == x"centos" ]; then
+  if [ x"$DISTRO" == x"centos" ]; then
     systemctl restart docker
-  elif [ x"$distro" == x"ubuntu" ]; then
+  elif [ x"$DISTRO" == x"ubuntu" ]; then
     service docker reload
   fi
 fi
