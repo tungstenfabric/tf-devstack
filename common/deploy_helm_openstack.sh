@@ -40,7 +40,7 @@ sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" open
 if [ "$DISTRO" == "centos" ]; then
     sudo yum remove -y pyparsing
     [[ $(sudo service firewalld stop) ]] || true
-    sudo yum install -y jq nmap bc python-pip python-devel git gcc
+    sudo yum install -y epel-release jq nmap bc python-pip python-devel git gcc nfs-utils
 elif [ "$DISTRO" == "ubuntu" ]; then
   sudo apt-get install --no-install-recommends -y \
         ca-certificates \
