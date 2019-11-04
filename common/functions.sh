@@ -13,7 +13,7 @@ function fetch_deployer() {
 function wait_cmd_success() {
   local cmd=$1
   local interval=${2:-3}
-  local max=${3:-60}
+  local max=${3:-180}
   local i=0
   while ! $cmd 2>/dev/null; do
       printf "."

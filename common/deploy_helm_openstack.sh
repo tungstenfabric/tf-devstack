@@ -23,6 +23,19 @@ for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
   kubectl label node $node --overwrite openstack-compute-node=enabled
 done
 
+# install and remove deps and other prereqs
+if [ "$DISTRO" == "centos" ]; then
+    sudo yum remove -y pyparsing
+    [[ $(sudo service firewalld stop) ]] || true
+    sudo yum install -y epel-release
+    sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils
+elif [ "$DISTRO" == "ubuntu" ]; then
+  sudo apt-get install --no-install-recommends -y \
+        wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev
+fi
+sudo -H pip install -U pip wheel
+sudo -H pip install --user wheel yq
+
 # fetch helm-openstack
 wget $HELM_OPENSTACK_URL -O helm-openstack.tgz
 wget $HELM_OPENSTACK_INFRA_URL -O helm-openstack-infra.tgz
@@ -36,26 +49,6 @@ cp $my_dir/../helm/files/nova-tf.yaml openstack-helm/nova/values_overrides/tf.ya
 cp $my_dir/../helm/files/neutron-tf.yaml openstack-helm/neutron/values_overrides/tf.yaml
 cp $my_dir/../helm/files/keystone-tf.yaml openstack-helm/keystone/values_overrides/tf.yaml
 sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" openstack-helm/neutron/values_overrides/tf.yaml
-# install and remove deps and other prereqs
-if [ "$DISTRO" == "centos" ]; then
-    sudo yum remove -y pyparsing
-    [[ $(sudo service firewalld stop) ]] || true
-    sudo yum install -y epel-release jq nmap bc python-pip python-devel git gcc nfs-utils
-elif [ "$DISTRO" == "ubuntu" ]; then
-  sudo apt-get install --no-install-recommends -y \
-        ca-certificates \
-        git \
-        make \
-        jq \
-        nmap \
-        curl \
-        uuid-runtime \
-        bc \
-        python-pip \
-        python-dev
-fi
-sudo -H pip install -U pip wheel
-sudo -H pip install --user wheel yq
 
 # build infra charts
 helm init -c
