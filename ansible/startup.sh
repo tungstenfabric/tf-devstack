@@ -21,15 +21,14 @@ OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
 echo "$DISTRO detected"
 if [ "$DISTRO" == "centos" ]; then
-    yum install -y python-setuptools iproute
-    yum remove -y python-yaml
-    yum remove -y python-requests
+  yum install -y python-setuptools iproute
+  yum autoremove -y python-yaml python-requests
 elif [ "$DISTRO" == "ubuntu" ]; then
-    apt-get update
-    apt-get install -y python-setuptools iproute2
+  apt-get update
+  apt-get install -y python-setuptools iproute2
 else
-    echo "Unsupported OS version"
-    exit
+  echo "Unsupported OS version"
+  exit
 fi
 
 curl -s https://bootstrap.pypa.io/get-pip.py | python
@@ -55,9 +54,9 @@ grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
-    "$my_dir/../common/dev_env.sh"
+  "$my_dir/../common/dev_env.sh"
 else
-    "$my_dir/../common/install_docker.sh"
+  "$my_dir/../common/install_docker.sh"
 fi
 
 fetch_deployer
@@ -69,17 +68,17 @@ export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG
 export OPENSTACK_VERSION
-envsubst < $my_dir/instance_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instance.yaml
+python3 "$my_dir/../common/jinja2_render.py" < $my_dir/instances_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instances.yaml
 
 cd $ansible_deployer_dir
 # step 1 - configure instances
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instances.yaml \
     playbooks/configure_instances.yml
 if [[ $? != 0 ]]; then
-    echo "Installation aborted"
-    exit
+  echo "Installation aborted. Instances preparation failed."
+  exit
 fi
 
 # step 2 - install orchestrator
@@ -88,21 +87,21 @@ playbook_name="install_k8s.yml"
 [ "$ORCHESTRATOR" == "openstack" ] && playbook_name="install_openstack.yml"
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instances.yaml \
     playbooks/$playbook_name
 if [[ $? != 0 ]]; then
-    echo "Installation aborted"
-    exit
+  echo "Installation aborted. Failed to run $playbook_name"
+  exit
 fi
 
 # step 3 - install Tungsten Fabric
 
 ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instance.yaml \
+    -e config_file=$ansible_deployer_dir/instances.yaml \
     playbooks/install_contrail.yml
 if [[ $? != 0 ]]; then
-    echo "Installation aborted"
-    exit
+  echo "Installation aborted. Contrail installation has been failed."
+  exit
 fi
 
 # show results

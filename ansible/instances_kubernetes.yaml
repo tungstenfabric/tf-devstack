@@ -6,7 +6,7 @@ provider_config:
 
 instances:
   server1:
-    ip: $NODE_IP
+    ip: "{{ NODE_IP }}"
     provider: bms
     roles:
       analytics:
@@ -22,10 +22,10 @@ instances:
       k8s_node:
       kubemanager:
 global_configuration:
-  CONTAINER_REGISTRY: $CONTAINER_REGISTRY
+  CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
 contrail_configuration:
-  CONTRAIL_CONTAINER_TAG: $CONTRAIL_CONTAINER_TAG
+  CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
   CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
