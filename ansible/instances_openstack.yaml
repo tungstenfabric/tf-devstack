@@ -2,11 +2,9 @@ provider_config:
   bms:
     ssh_user: root
     ssh_pwd:
-    domainsuffix: local
-    ntpserver: 169.254.169.123
 instances:
   server1:
-    ip: $NODE_IP
+    ip: "{{ NODE_IP }}"
     provider: bms
     roles:
       analytics:
@@ -22,18 +20,18 @@ instances:
       openstack_compute:  
 
 global_configuration:
-  CONTAINER_REGISTRY: $CONTAINER_REGISTRY
+  CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
 
 contrail_configuration:
-  CONTRAIL_CONTAINER_TAG: $CONTRAIL_CONTAINER_TAG
+  CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
   CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
   VROUTER_ENCRYPTION: FALSE
   LOG_LEVEL: SYS_DEBUG
   CLOUD_ORCHESTRATOR: openstack
-  OPENSTACK_VERSION: $OPENSTACK_VERSION
+  OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
   AUTH_MODE: keystone
   KEYSTONE_AUTH_URL_VERSION: /v3
 
