@@ -53,7 +53,7 @@ function fetch_deployer() {
 function wait_cmd_success() {
   local cmd=$1
   local interval=${2:-3}
-  local max=${3:-180}
+  local max=${3:-300}
   local i=0
   while ! $cmd 2>/dev/null; do
       printf "."
@@ -71,4 +71,11 @@ function wait_nic_up() {
   printf "INFO: wait for $nic is up"
   wait_cmd_success "nic_has_ip $nic" || { echo -e "\nERROR: $nic is not up" && return 1; }
   echo -e "\nINFO: $nic is up"
+}
+
+function set_ssh_keys() {
+  [ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
+  [ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
+  [ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
+  grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 }

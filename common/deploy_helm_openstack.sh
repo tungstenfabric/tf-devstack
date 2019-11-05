@@ -15,14 +15,6 @@ export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
 
 [ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit
 
-# label nodes
-for node in $(kubectl get nodes --no-headers | cut -d' ' -f1 | head -1); do
-  kubectl label node $node --overwrite openstack-control-plane=enabled
-done
-for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
-  kubectl label node $node --overwrite openstack-compute-node=enabled
-done
-
 # install and remove deps and other prereqs
 if [ "$DISTRO" == "centos" ]; then
     sudo yum remove -y pyparsing
@@ -65,6 +57,14 @@ export FEATURE_GATES=tf
 cd ../openstack-helm-infra
 make helm-toolkit
 make nfs-provisioner
+
+# label nodes
+for node in $(kubectl get nodes --no-headers | cut -d' ' -f1 | head -1); do
+  kubectl label node $node --overwrite openstack-control-plane=enabled
+done
+for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
+  kubectl label node $node --overwrite openstack-compute-node=enabled
+done
 
 cd ../openstack-helm
 ./tools/deployment/developer/common/020-setup-client.sh

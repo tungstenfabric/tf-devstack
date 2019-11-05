@@ -5,6 +5,7 @@ set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/common.sh"
+source "$my_dir/functions.sh"
 
 # parameters
 
@@ -31,10 +32,7 @@ fi
 
 # prepare ssh key authorization for all-in-one single node deployment
 
-[ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
-[ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
-[ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
-grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+set_ssh_keys
 
 # deploy kubespray
 
