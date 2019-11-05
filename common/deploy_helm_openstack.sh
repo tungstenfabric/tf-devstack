@@ -23,7 +23,7 @@ if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils
 elif [ "$DISTRO" == "ubuntu" ]; then
   sudo apt-get install --no-install-recommends -y \
-        wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev
+        wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev nfs-common
 fi
 sudo -H pip install -U pip wheel
 sudo -H pip install --user wheel yq

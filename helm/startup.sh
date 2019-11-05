@@ -34,7 +34,13 @@ if [[ "$SKIP_K8S_DEPLOYMENT" == false ]]; then
     export K8S_MASTERS=$CONTROLLER_NODES
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
-    $my_dir/../common/deploy_kubespray.sh
+    cat << EOF >> tf-node-labels.yaml
+node_labels:
+  opencontrail.org/vrouter-kernel: enabled
+  openstack-control-plane: enabled
+  openstack-compute-node: enabled
+EOF
+    $my_dir/../common/deploy_kubespray.sh -e @../tf-node-labels.yaml
 fi
 
 #fetch_deployer

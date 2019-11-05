@@ -73,6 +73,16 @@ function wait_nic_up() {
   echo -e "\nINFO: $nic is up"
 }
 
+function nic_has_ip() {
+  local nic=$1
+  if nic_ip=$(ip addr show $nic | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"); then
+    printf "\n$nic has IP $nic_ip"
+    return 0
+  else
+    return 1
+  fi
+}
+
 function set_ssh_keys() {
   [ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
   [ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
