@@ -37,6 +37,11 @@ if [ $SKIP_K8S_DEPLOYMENT == false ]; then
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
+    # in case of pure k8s we need to wait a bit for port 6443
+    if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
+        echo "ERROR: kubernetes is not ready. Exiting..."
+        exit 1
+    fi
 fi
 
 # deploy Contrail
