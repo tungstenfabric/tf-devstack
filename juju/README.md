@@ -6,7 +6,7 @@ Recommended:
 
 - Ubuntu 18.04
 
-## Quick start on an AWS instances
+## Quick start on an AWS instances on base of Kubernetes (all-in-one)
 
 1. Launch two new AWS instances.
 
@@ -33,14 +33,50 @@ ssh-keygen -t rsa
 
 Copy public key to ~/.ssh/authorized_keys to **both** machines.
 
-4. Clone this repository and run the startup script:
+4. Set environmet variables:
+
+```
+export ORCHESTRATOR='kubernetes'
+export CLOUD='manual'
+CONTROLLER_NODES=*ip of machine on which
+```
+
+5. Clone this repository and run the startup script:
 
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/startup.sh
 ```
 
-5. Wait about 30-60 minutes to complete the deployment.
+6. Wait about 30-60 minutes to complete the deployment.
+
+
+## Quick start on an AWS instances on base of Openstack
+
+1. Set environmet variables:
+```
+export ORCHESTRATOR='openstack'
+export CLOUD='aws'
+export AWS_ACCESS_KEY=*aws_access_key*
+export AWS_SECRET_KEY=*aws_secret_key*
+```
+
+2. Clone this repository and run the startup script:
+```
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/juju/startup.sh
+```
+
+## Partly installations
+
+1. You should set SKIP_JUJU_BOOTSTRAP to **true** if Juju is already installed on your system, and there is already running JuJu controller.
+
+2. You should set SKIP_JUJU_ADD_MACHINES to **true** if all machines are already added to the JuJu model.
+
+3. You can set SKIP_DEPLOY_ORCHESTRATOR to **true** if you have already deployed orchestrator earlier.
+
+4. You can set SKIP_DEPLOY_CONTRAIL to **true** if you don't want to deploy Contrail, but orchestrator only (openstack or kubernetes). You would be able to deploy Contrail later setting SKIP_DEPLOY_CONTRAIL to **false** and  SKIP_JUJU_BOOTSTRAP to **true**.
+
 
 ## Installation configuration
 
@@ -48,12 +84,19 @@ Juju is deployed on Ubuntu18 by default.
 You can select Ubuntu 16 with environment variables before installation.
 
 ```
-export SERIES=${SERIES:-xenial} 
+export UBUNTU_SERIES=${UBUNTU_SERIES:-xenial}
 ./startup.sh
 ```
 
 ## Environment variables
 Environment variable list:
-- SERIES - version of ubuntu, bionic by default
+- UBUNTU_SERIES - version of ubuntu, bionic by default
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
-- CONTRAIL_CONTAINER_TAG - by default "ocata-master-latest"
+- CONTRAIL_CONTAINER_TAG - by default "master-latest"
+- JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
+- ORCHESTRATOR - orchestrator for deploy, "openstack" and "kubernetes" are supported, "openstack" by default
+- CLOUD - cloud for juju deploy, "aws" and "manual" are supported, "aws" by default
+- SKIP_JUJU_BOOTSTRAP - skip installation, setup of JuJu, bootstrap JuJu controller, false by default
+- SKIP_JUJU_ADD_MACHINES - skip adding machines if they are ready, false by default
+- SKIP_DEPLOY_ORCHESTRATOR - skip deploy of orchestrator (openstack or kubernetes), false by default
+- SKIP_DEPLOY_CONTRAIL - skip deploy of contrail, false by default

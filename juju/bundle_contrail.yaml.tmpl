@@ -1,0 +1,95 @@
+machines:
+  "{{ MACHINES[0] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=15G cores=2 root-disk=60G
+
+series: "{{ UBUNTU_SERIES }}"
+services:
+  contrail-controller:
+    charm: "/home/ubuntu/contrail-charms/contrail-controller"
+    series: "{{ UBUNTU_SERIES }}"
+    num_units: 1
+    options:
+      log-level: "SYS_DEBUG"
+      auth-mode: "rbac"
+      cassandra-minimum-diskgb: "4"
+      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    expose: true
+    to:
+      - "{{ MACHINES[0] }}"
+  contrail-analyticsdb:
+    charm: "/home/ubuntu/contrail-charms/contrail-analyticsdb"
+    series: "{{ UBUNTU_SERIES }}"
+    num_units: 1
+    options:
+      log-level: "SYS_DEBUG"
+      cassandra-minimum-diskgb: "4"
+      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    expose: true
+    to:
+      - "{{ MACHINES[0] }}"
+  contrail-analytics:
+    charm: "/home/ubuntu/contrail-charms/contrail-analytics"
+    series: "{{ UBUNTU_SERIES }}"
+    num_units: 1
+    options:
+      log-level: "SYS_DEBUG"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+    expose: true
+    to:
+      - "{{ MACHINES[0] }}"
+  contrail-agent:
+    charm: "/home/ubuntu/contrail-charms/contrail-agent"
+    series: "{{ UBUNTU_SERIES }}"
+    options:
+      log-level: "SYS_DEBUG"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+{%- if ORCHESTRATOR == 'openstack' %}
+  contrail-keystone-auth:
+    charm: "/home/ubuntu/contrail-charms/contrail-keystone-auth"
+    series: "{{ UBUNTU_SERIES }}"
+    num_units: 1
+    to:
+      - "{{ MACHINES[0] }}"
+  contrail-openstack:
+    charm: "/home/ubuntu/contrail-charms/contrail-openstack"
+    series: "{{ UBUNTU_SERIES }}"
+    options:
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+{%- elif ORCHESTRATOR == 'kubernetes' %}
+  contrail-kubernetes-master:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-kubernetes-master
+    options:
+      log-level: 'SYS_DEBUG'
+      service_subnets: '10.96.0.0/12'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+      cluster_name: test_cluster
+  contrail-kubernetes-node:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: {{ JUJU_REPO }}/contrail-kubernetes-node
+    options:
+      log-level: 'SYS_DEBUG'
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      image-tag: "{{ CONTRAIL_VERSION }}"
+{%- endif %}
+
+relations:
+# contrail
+- [ contrail-controller, contrail-analytics ]
+- [ contrail-controller, contrail-analyticsdb ]
+- [ contrail-analytics, contrail-analyticsdb ]
+- [ contrail-agent, contrail-controller ]
+
+{%- if ORCHESTRATOR == 'openstack' %}
+- [ contrail-controller, contrail-keystone-auth ]
+- [ contrail-openstack, contrail-controller ]
+{%- endif %}
