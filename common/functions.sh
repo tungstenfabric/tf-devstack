@@ -8,7 +8,7 @@ function check_docker_value() {
 
 function ensure_insecure_registry_set() {
   local registry=$1
-  sudo_cmd=""
+  local sudo_cmd=""
   [ "$(whoami)" != "root" ] && sudo_cmd="sudo"
   registry=`echo $registry | sed 's|^.*://||' | cut -d '/' -f 1`
   if ! curl -s -I --connect-timeout 5 http://$registry/v2/ ; then
@@ -40,7 +40,7 @@ EOF
 }
 
 function fetch_deployer() {
-  sudo_cmd=""
+  local sudo_cmd=""
   [ "$(whoami)" != "root" ] && sudo_cmd="sudo"
   $sudo_cmd rm -rf "$WORKSPACE/$DEPLOYER_DIR"
   ensure_insecure_registry_set $CONTAINER_REGISTRY
