@@ -1,4 +1,6 @@
 #!/bin/bash
+# In case of manual cloud adds number of machines due to CONTROLLER_NODES parameter.
+# In case of amazon adds NUMBER_OF_MACHINES_TO_DEPLOY instances
 
 set -o errexit
 my_file="$(readlink -e "$0")"
@@ -8,6 +10,7 @@ my_dir="$(dirname $my_file)"
 ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 CLOUD=${CLOUD:-'aws'}
 CONTROLLER_NODES=${CONTROLLER_NODES:-}
+NUMBER_OF_MACHINES_TO_DEPLOY=${NUMBER_OF_MACHINES_TO_DEPLOY:-1}
 
 # add machines
 if [[ $CLOUD == 'manual' ]]; then
@@ -15,7 +18,7 @@ if [[ $CLOUD == 'manual' ]]; then
         juju add-machine ssh:ubuntu@$machine 2>&1
     done
 else
-    juju add-machine -n 4 --constraints "mem=15G cores=2 root-disk=80G" 2>&1
+    juju add-machine -n $NUMBER_OF_MACHINES_TO_DEPLOY --constraints "mem=15G cores=2 root-disk=80G" 2>&1
 fi
 
 JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
