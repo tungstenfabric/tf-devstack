@@ -9,7 +9,7 @@ source "$my_dir/../common/common.sh"
 export WORKSPACE="$(pwd)"
 
 export CONTAINER_REGISTRY
-export CONTRAIL_CONTAINER_TAG
+export CONTRAIL_VERSION=CONTRAIL_CONTAINER_TAG
 export NODE_IP
 export CONTROLLER_NODES
 
@@ -37,6 +37,7 @@ fi
 # add-machines to juju
 if [ $SKIP_JUJU_ADD_MACHINES == false ]; then
     echo "Add machines to Jujus"
+    export NUMBER_OF_MACHINES_TO_DEPLOY=4
     $my_dir/../common/add_juju_machines.sh
 fi
 
