@@ -2,16 +2,10 @@
 machines:
   "{{ MACHINES[0] }}":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=60G
+    constraints: mem=15G cores=8 root-disk=80G
   "{{ MACHINES[1] }}":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=60G
-  "{{ MACHINES[2] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=60G
-  {{ MACHINES[3] }}:
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=60G
+    constraints: mem=15G cores=2 root-disk=80G
 
 series: "{{ UBUNTU_SERIES }}"
 services:
@@ -19,21 +13,18 @@ services:
     charm: cs:glance
     num_units: 1
     options:
-      openstack-origin: distro
-      region: RegionOne
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
     to:
     - lxd:{{ MACHINES[0] }}
   keystone:
     charm: cs:keystone
     num_units: 1
     options:
-      openstack-origin: distro
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
       admin-password: password
       admin-role: "admin"
       debug: "true"
-      openstack-origin: distro
-      preferred-api-version: 3
-      region: RigionOne
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
     to:
     - lxd:{{ MACHINES[0] }}
   mysql:
@@ -51,11 +42,9 @@ services:
     num_units: 1
     options:
       neutron-security-groups: true
-      flat-network-providers: physnet1
-      openstack-origin: distro
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
       manage-neutron-plugin-legacy-mode: false
-      region: RegionOne
     to:
     - lxd:{{ MACHINES[0] }}
   heat:
@@ -63,8 +52,7 @@ services:
     num_units: 1
     options:
       debug: "true"
-      openstack-origin: "distro"
-      region: RegionOne
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
     - lxd:{{ MACHINES[0] }}
@@ -73,35 +61,25 @@ services:
     num_units: 1
     options:
       network-manager: Neutron
-      openstack-origin: distro
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
       console-access-protocol: "novnc"
       debug: "true"
-      region: RegionOne
     to:
     - lxd:{{ MACHINES[0] }}
   nova-compute:
     charm: cs:nova-compute
-    num_units: 3
+    num_units: 1
     options:
-      config-flags: default_ephemeral_format=ext4
-      enable-live-migration: true
-      enable-resize: true
-      migration-auth-type: ssh
-      openstack-origin: distro
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
-      virt-type: "qemu"
+      virt-type: {{ VIRT_TYPE }}
     to:
     - {{ MACHINES[1] }}
-    - {{ MACHINES[2] }}
-    - {{ MACHINES[3] }}
-  ntp:
-    charm: cs:ntp
-    num_units: 0
   openstack-dashboard:
     charm: cs:openstack-dashboard
     num_units: 1
     options:
-      openstack-origin: distro
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
     to:
     - lxd:{{ MACHINES[0] }}
@@ -110,6 +88,17 @@ services:
     num_units: 1
     to:
     - lxd:{{ MACHINES[0] }}
+
+  # misc
+
+  ubuntu:
+    charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
+    num_units: 2
+    to:
+      - "{{ MACHINES[0] }}"
+      - "{{ MACHINES[1] }}"
+  ntp:
+    charm: "cs:{{ UBUNTU_SERIES }}/ntp"
 
 relations:
 
@@ -130,7 +119,8 @@ relations:
 - [ openstack-dashboard:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
-- [ ntp:juju-info, nova-compute:juju-info ]
 - [ heat:shared-db, mysql:shared-db ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
+
+- [ ubuntu, ntp ]
