@@ -92,4 +92,7 @@ relations:
 {%- if ORCHESTRATOR == 'openstack' %}
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
+{%- elif ORCHESTRATOR == 'kubernetes' %}
+- [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
+- [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
 {%- endif %}

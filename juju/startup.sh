@@ -6,18 +6,15 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 
+# constants
+
 export WORKSPACE="$(pwd)"
 
-export CONTAINER_REGISTRY
-export CONTRAIL_VERSION=CONTRAIL_CONTAINER_TAG
-export NODE_IP
-export CONTROLLER_NODES
-
 # default env variables
+
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-openstack}  # openstack | kubernetes
 export CLOUD=${CLOUD:-aws}  # aws | manual
-export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -28,6 +25,17 @@ SKIP_JUJU_ADD_MACHINES=${SKIP_JUJU_ADD_MACHINES:-false}
 SKIP_DEPLOY_ORCHESTRATOR=${SKIP_DEPLOY_ORCHESTRATOR:-false}
 SKIP_DEPLOY_CONTRAIL=${SKIP_DEPLOY_CONTRAIL:-false}
 
+export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
+export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
+
+export CONTAINER_REGISTRY
+export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
+export NODE_IP
+export CONTROLLER_NODES
+
+# build step
+
 # install juju
 if [ $SKIP_JUJU_BOOTSTRAP == false ]; then
     echo "Installing JuJu, setup and bootstrap JuJu controller"
@@ -37,7 +45,7 @@ fi
 # add-machines to juju
 if [ $SKIP_JUJU_ADD_MACHINES == false ]; then
     echo "Add machines to Jujus"
-    export NUMBER_OF_MACHINES_TO_DEPLOY=4
+    export NUMBER_OF_MACHINES_TO_DEPLOY=2
     $my_dir/../common/add_juju_machines.sh
 fi
 
@@ -45,9 +53,14 @@ fi
 if [ $SKIP_DEPLOY_ORCHESTRATOR == false ]; then
     echo "Deploy ${ORCHESTRATOR^}"
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        export BUNDLE_TEMPLATE="$my_dir/bundle_os_${CLOUD}.yaml.tmpl"
+        if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
+            export OPENSTACK_ORIGIN="distro"
+        else
+            export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
+        fi
+        export BUNDLE="$my_dir/bundle_openstack.yaml.tmpl"
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        export BUNDLE_TEMPLATE="$my_dir/bundle_k8s_${CLOUD}.yaml.tmpl"
+        export BUNDLE="$my_dir/bundle_k8s.yaml.tmpl"
     fi
     $my_dir/../common/deploy_juju_bundle.sh
 fi
@@ -55,7 +68,7 @@ fi
 # deploy contrail
 if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
     echo "Deploy Contrail"
-    export BUNDLE_TEMPLATE="$my_dir/bundle_contrail.yaml.tmpl"
+    export BUNDLE="$my_dir/bundle_contrail.yaml.tmpl"
 
     # get contrail-charms
     [ -d $JUJU_REPO ] || git clone https://github.com/Juniper/contrail-charms -b R5 $JUJU_REPO
@@ -64,7 +77,7 @@ if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
     $my_dir/../common/deploy_juju_bundle.sh
 
     # add relations between orchestrator and Contrail
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then        
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
         juju add-relation contrail-controller ntp
         juju add-relation contrail-keystone-auth keystone
         juju add-relation contrail-openstack neutron-api
@@ -74,10 +87,8 @@ if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
         juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
         juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
-        juju add-relation contrail-kubernetes-master:contrail-controller contrail-controller:contrail-controller
         juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
         juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
-        juju add-relation contrail-kubernetes-master:contrail-kubernetes-config contrail-kubernetes-node:contrail-kubernetes-config
     fi
 
     if [[ $ORCHESTRATOR == 'kubernetes' && $CLOUD == 'manual' ]]; then
@@ -89,11 +100,13 @@ if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
             juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
         done
     fi
+fi
 
-    # show results
-    echo "Deployment scripts are finished"
-    echo "Now you can monitor when contrail becomes available with:"
-    echo "juju status"
+# show results
+echo "Deployment scripts are finished"
+echo "Now you can monitor when contrail becomes available with:"
+echo "juju status"
+if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
     echo "All applications and units should become active, before you can use Contrail"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
 fi
