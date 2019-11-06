@@ -22,8 +22,8 @@ AWS_REGION=${AWS_REGION:-'us-east-1'}
 
 SKIP_JUJU_BOOTSTRAP=${SKIP_JUJU_BOOTSTRAP:-false}
 SKIP_JUJU_ADD_MACHINES=${SKIP_JUJU_ADD_MACHINES:-false}
-SKIP_DEPLOY_ORCHESTRATOR=${SKIP_DEPLOY_ORCHESTRATOR:-false}
-SKIP_DEPLOY_CONTRAIL=${SKIP_DEPLOY_CONTRAIL:-false}
+SKIP_ORCHESTRATOR_DEPLOYMENT=${SKIP_ORCHESTRATOR_DEPLOYMENT:-false}
+SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
 
 export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
@@ -50,7 +50,7 @@ if [ $SKIP_JUJU_ADD_MACHINES == false ]; then
 fi
 
 # deploy orchestrator
-if [ $SKIP_DEPLOY_ORCHESTRATOR == false ]; then
+if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
     echo "Deploy ${ORCHESTRATOR^}"
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
         if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
@@ -66,7 +66,7 @@ if [ $SKIP_DEPLOY_ORCHESTRATOR == false ]; then
 fi
 
 # deploy contrail
-if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
+if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     echo "Deploy Contrail"
     export BUNDLE="$my_dir/bundle_contrail.yaml.tmpl"
 
