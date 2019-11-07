@@ -1,20 +1,28 @@
-#!/bin/bash
+#!/bin/bash -e
 
-set -o errexit
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+source "$my_dir/common.sh"
+source "$my_dir/functions.sh"
 
-#TODO: should be broken for now
-
-DEPLOYER_NAME=contrail-container-buider
+pushd $WORKSPACE
 
 # get tf-dev-env
-[ -d $WORKSPACE/tf-dev-env ] && sudo rm -rf $WORKSPACE/tf-dev-env
-sudo cd $WORKSPACE && git clone --depth 1 --single-branch https://github.com/tungstenfabric/tf-dev-env.git
+echo
+echo [get tf-dev-env]
+echo cleanup old if exists
+[ -d ./tf-dev-env ] && rm -rf ./tf-dev-env
+git clone --depth 1 --single-branch https://github.com/tungstenfabric/tf-dev-env.git
 
 # build all
-sudo cd $WORKSPACE/tf-dev-env && AUTOBUILD=1 BUILD_DEV_ENV=1 ./startup.sh
+echo
+echo [build all containers]
+build_opts="WORKSPACE=$WORKSPACE AUTOBUILD=1"
+[ -n "${BUILD_TEST_CONTAINERS}" ] && build_opts+=" BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS}"
+$build_opts sudo -E ./tf-dev-en/startup.sh
 
-# fix env variables
-# TODO: they must be returned to caller
-CONTAINER_REGISTRY="$(sudo docker inspect --format '{{(index .IPAM.Config 0).Gateway}}' bridge):6666"
-CONTRAIL_CONTAINER_TAG="dev"
-sudo git clone --depth 1 --single-branch https://github.com/Juniper/$DEPLOYER_NAME.git $DEPLOYER_DIR
+# import tf profile that created by devenv into current context
+load_tf_devenv_profile
+
+popd
+

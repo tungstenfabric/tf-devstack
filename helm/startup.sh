@@ -9,7 +9,6 @@ source "$my_dir/../common/functions.sh"
 
 # default env variables
 
-WORKSPACE="$(pwd)"
 DEPLOYER_IMAGE="contrail-helm-deployer"
 DEPLOYER_DIR="root"
 
@@ -47,7 +46,7 @@ if [[ "$SKIP_K8S_DEPLOYMENT" == false ]]; then
     $my_dir/../common/deploy_kubespray.sh
 fi
 
-#fetch_deployer
+#sudo -E fetch_deployer
 
 # deploy helm-openstack
 
@@ -64,6 +63,8 @@ if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
     wait_nic_up vhost0
     label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 fi
+
+safe_tf_stack_profile
 
 # show results
 

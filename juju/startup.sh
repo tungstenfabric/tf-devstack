@@ -5,13 +5,10 @@ set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
+source "$my_dir/../common/functions.sh"
 
-# constants
-
-export WORKSPACE="$(pwd)"
 
 # default env variables
-
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local
@@ -30,7 +27,6 @@ export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 
 export CONTAINER_REGISTRY
-export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
 export NODE_IP
 
 # build step
@@ -39,6 +35,12 @@ export NODE_IP
 if [ $SKIP_JUJU_BOOTSTRAP == false ]; then
     echo "Installing JuJu, setup and bootstrap JuJu controller"
     $my_dir/../common/deploy_juju.sh
+fi
+
+# build step
+
+if [[ "$DEV_ENV" == true ]]; then
+    "$my_dir/../common/dev_env.sh"
 fi
 
 # add-machines to juju
@@ -110,6 +112,8 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
         juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 fi
+
+safe_tf_stack_profile
 
 # show results
 echo "Deployment scripts are finished"

@@ -1,4 +1,13 @@
-#!/bin/bash -e
+#!/bin/bash
+
+function ensure_root() {
+  local me=$(whoami)
+  if [ "$me" != 'root' ] ; then
+    echo "ERROR: this script requires root, run it like this:"
+    echo "       sudo -E $0"
+    exit 1;
+  fi
+}
 
 function check_docker_value() {
   local name=$1
@@ -40,14 +49,13 @@ EOF
 }
 
 function fetch_deployer() {
-  local sudo_cmd=""
-  [ "$(whoami)" != "root" ] && sudo_cmd="sudo"
-  $sudo_cmd rm -rf "$WORKSPACE/$DEPLOYER_DIR"
+  ensure_root
+  rm -rf "$WORKSPACE/$DEPLOYER_DIR"
   ensure_insecure_registry_set $CONTAINER_REGISTRY
-  $sudo_cmd docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
-  $sudo_cmd docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR $WORKSPACE
-  $sudo_cmd docker rm -fv $DEPLOYER_IMAGE
-  $sudo_cmd chown -R $USER "$WORKSPACE/$DEPLOYER_DIR"
+  docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
+  docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR $WORKSPACE
+  docker rm -fv $DEPLOYER_IMAGE
+  chown -R $USER "$WORKSPACE/$DEPLOYER_DIR"
 }
 
 function wait_cmd_success() {
@@ -101,9 +109,37 @@ function label_nodes_by_ip() {
   local interval=2
   local silent=0
   for node in $(wait_cmd_success "kubectl get nodes --no-headers | grep master | cut -d' ' -f1" $retries $interval $silent ); do
-    nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
+    local nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
     if echo $node_ips | tr ' ' '\n' | grep -F $nodeip; then
       wait_cmd_success "kubectl label node --overwrite $node $label" $retries $interval $silent
     fi
   done
+}
+
+function load_tf_devenv_profile() {
+  if [ -e "$TF_DEVENV_PROFILE" ] ; then
+    echo
+    echo '[load tf devenv configuration]'
+    source "$TF_DEVENV_PROFILE"
+  else
+    echo
+    echo '[there is no tf devenv configuration to load]'
+  fi
+}
+
+function save_tf_stack_profile() {
+  local file=${1:-$TF_STACK_PROFILE}
+  echo
+  echo '[update tf stack configuration]'
+  mkdir -p "$(dirname $file)"
+  cat <<EOF > $file
+CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG}"
+CONTRAIL_REGISTRY="${REGISTRY_IP}:${REGISTRY_PORT}"
+ORCHESTRATOR="$ORCHESTRATOR"
+OPENSTACK_VERSION="$OPENSTACK_VERSION"
+CONTROLLER_NODES="$CONTROLLER_NODES"
+AGENT_NODES="$AGENT_NODES"
+EOF
+  echo "tf setup profile $file"
+  cat ${file}
 }

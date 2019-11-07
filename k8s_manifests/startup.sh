@@ -9,7 +9,6 @@ source "$my_dir/../common/functions.sh"
 
 # constants
 
-WORKSPACE="$(pwd)"
 DEPLOYER_IMAGE="contrail-k8s-manifests"
 DEPLOYER_DIR="contrail-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
@@ -48,9 +47,9 @@ fi
 
 if [ $SKIP_MANIFEST_CREATION == false ]; then
     echo "Creating manifest"
-    fetch_deployer
+    sudo -E fetch_deployer
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
-    export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
+    export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
@@ -88,6 +87,10 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
 
     # apply manifests
     kubectl apply -f contrail.yaml
+
+    # safe tf stack profile
+
+    safe_tf_stack_profile
 
     # show results
     echo "Deployment scripts are finished"

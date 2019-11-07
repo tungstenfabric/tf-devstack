@@ -8,9 +8,10 @@ my_dir="$(dirname "$my_file")"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
+ensure_root
+
 # default env variables
 
-WORKSPACE="$(pwd)"
 DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
 DEPLOYER_DIR="root"
 
@@ -54,12 +55,12 @@ grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
-  "$my_dir/../common/dev_env.sh"
+    "$my_dir/../common/dev_env.sh"
 else
   "$my_dir/../common/install_docker.sh"
 fi
 
-fetch_deployer
+sudo -E fetch_deployer
 
 # generate inventory file
 
@@ -103,6 +104,10 @@ if [[ $? != 0 ]]; then
   echo "Installation aborted. Contrail installation has been failed."
   exit
 fi
+
+# safe tf stack profile
+
+safe_tf_stack_profile
 
 # show results
 
