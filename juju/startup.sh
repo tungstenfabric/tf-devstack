@@ -78,7 +78,6 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
 
     # add relations between orchestrator and Contrail
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        juju add-relation contrail-controller ntp
         juju add-relation contrail-keystone-auth keystone
         juju add-relation contrail-openstack neutron-api
         juju add-relation contrail-openstack heat
@@ -106,7 +105,7 @@ fi
 echo "Deployment scripts are finished"
 echo "Now you can monitor when contrail becomes available with:"
 echo "juju status"
-if [ $SKIP_DEPLOY_CONTRAIL == false ]; then
+if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     echo "All applications and units should become active, before you can use Contrail"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
 fi
