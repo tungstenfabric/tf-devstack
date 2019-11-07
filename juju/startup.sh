@@ -13,8 +13,8 @@ export WORKSPACE="$(pwd)"
 # default env variables
 
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
-export ORCHESTRATOR=${ORCHESTRATOR:-openstack}  # openstack | kubernetes
-export CLOUD=${CLOUD:-aws}  # aws | manual
+export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
+export CLOUD=${CLOUD:-local}  # aws | local
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -32,7 +32,6 @@ export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 export CONTAINER_REGISTRY
 export CONTRAIL_VERSION=$CONTRAIL_CONTAINER_TAG
 export NODE_IP
-export CONTROLLER_NODES
 
 # build step
 
@@ -43,14 +42,27 @@ if [ $SKIP_JUJU_BOOTSTRAP == false ]; then
 fi
 
 # add-machines to juju
-if [ $SKIP_JUJU_ADD_MACHINES == false ]; then
-    echo "Add machines to Jujus"
+if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD != 'local' ]]; then
+    echo "Add machines to JuJu"
     export NUMBER_OF_MACHINES_TO_DEPLOY=2
     $my_dir/../common/add_juju_machines.sh
+
+    # fix lxd profile to let docker containers run on lxd
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+        JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+        for machine in $JUJU_MACHINES ; do
+            juju scp "$my_dir/files/lxd-default.yaml" $machine:lxd-default.yaml 2>/dev/null
+            juju ssh $machine "cat ./lxd-default.yaml | sudo lxc profile edit default"
+        done
+    fi
 fi
 
 # deploy orchestrator
 if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
+    if [[ $ORCHESTRATOR == 'openstack' && $CLOUD == 'local' ]] ; then
+        echo "The deployment of OpenStack on local cloud isn't supported."
+        exit 0
+    fi
     echo "Deploy ${ORCHESTRATOR^}"
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
         if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
@@ -58,9 +70,9 @@ if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
         else
             export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
         fi
-        export BUNDLE="$my_dir/bundle_openstack.yaml.tmpl"
+        export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        export BUNDLE="$my_dir/bundle_k8s.yaml.tmpl"
+        export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     fi
     $my_dir/../common/deploy_juju_bundle.sh
 fi
@@ -68,7 +80,7 @@ fi
 # deploy contrail
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     echo "Deploy Contrail"
-    export BUNDLE="$my_dir/bundle_contrail.yaml.tmpl"
+    export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
 
     # get contrail-charms
     [ -d $JUJU_REPO ] || git clone https://github.com/Juniper/contrail-charms -b R5 $JUJU_REPO
@@ -90,15 +102,13 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
         juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
     fi
 
-    if [[ $ORCHESTRATOR == 'kubernetes' && $CLOUD == 'manual' ]]; then
-        JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
-        # fix /etc/hosts
-        for machine in $JUJU_MACHINES ; do
-            juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
-            juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
-            juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
-        done
-    fi
+    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+    # fix /etc/hosts
+    for machine in $JUJU_MACHINES ; do
+        juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
+        juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
+        juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+    done
 fi
 
 # show results
