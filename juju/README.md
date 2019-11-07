@@ -22,7 +22,7 @@ Steps:
 
 Juju-deploy instance
 Steps:
-- Ubuntu 18.04  (x86_64) - with Updates HVM
+- Ubuntu 18.04 (x86_64) - with Updates HVM
 - c5.2xlarge instance type
 - 120 GiB disk Storage
 
@@ -37,12 +37,11 @@ ssh-keygen -t rsa
 
 Copy public key to ~/.ssh/authorized_keys to **both** machines.
 
-4. Set environmet variables:
+4. Set environment variables:
 
 ```
-export ORCHESTRATOR='kubernetes'
-export CLOUD='manual'
-CONTROLLER_NODES=*ip of machine on which
+# export ORCHESTRATOR='kubernetes'  # by default
+# export CLOUD='local'  # by default
 ```
 
 5. Clone this repository and run the startup script:
@@ -57,7 +56,7 @@ tf-devstack/juju/startup.sh
 
 ## Quick start on an AWS instances on base of Openstack
 
-1. Set environmet variables:
+1. Set environment variables:
 ```
 export ORCHESTRATOR='openstack'
 export CLOUD='aws'
@@ -79,7 +78,7 @@ tf-devstack/juju/startup.sh
 
 3. You can set SKIP_ORCHESTRATOR_DEPLOYMENT to **true** if you have already deployed orchestrator earlier.
 
-4. You can set SKIP_DEPLOY_CONTRAIL to **true** if you don't want to deploy Contrail, but orchestrator only (openstack or kubernetes). You would be able to deploy Contrail later setting SKIP_DEPLOY_CONTRAIL to **false** and  SKIP_JUJU_BOOTSTRAP to **true**.
+4. You can set SKIP_CONTRAIL_DEPLOYMENT to **true** if you don't want to deploy Contrail, but orchestrator only (openstack or kubernetes). You would be able to deploy Contrail later setting SKIP_CONTRAIL_DEPLOYMENT to **false** and SKIP_JUJU_BOOTSTRAP to **true**.
 
 
 ## Installation configuration
@@ -98,8 +97,8 @@ Environment variable list:
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
-- ORCHESTRATOR - orchestrator for deployment, "openstack" (default) and "kubernetes" are supported
-- CLOUD - cloud for juju deploy, "aws" and "manual" are supported, "aws" by default
+- ORCHESTRATOR - orchestrator for deployment, "openstack" and "kubernetes" (default) are supported
+- CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
 - SKIP_JUJU_BOOTSTRAP - skip installation, setup of JuJu, bootstrap JuJu controller, false by default
 - SKIP_JUJU_ADD_MACHINES - skip adding machines if they are ready, false by default
 - SKIP_ORCHESTRATOR_DEPLOYMENT - skip deployment of orchestrator (openstack or kubernetes), false by default

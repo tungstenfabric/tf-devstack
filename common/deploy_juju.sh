@@ -8,7 +8,7 @@ source "$my_dir/functions.sh"
 
 # parameters
 UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
-CLOUD=${CLOUD:-'aws'}
+CLOUD=${CLOUD:-'local'}
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
@@ -41,12 +41,14 @@ EOF
     juju set-default-region aws $AWS_REGION
 fi
 
-if [[ $CLOUD == 'manual' ]] ; then
+# bootstrap JuJu-controller
+if [[ $CLOUD == 'local' ]] ; then
     # prepare ssh key authorization for running bootstrap on the same node
     set_ssh_keys
 
     CLOUD="manual/ubuntu@$NODE_IP"
+    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-aio-controller
+    juju switch tf-aio-controller
+else
+    juju bootstrap --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-$CLOUD-controller
 fi
-
-# bootstrap JuJu-controller
-juju bootstrap --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-$CLOUD-controller
