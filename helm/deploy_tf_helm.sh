@@ -30,7 +30,8 @@ helm init --client-only
 if [[ -z $(kubectl get pods -n kube-system | grep tiller-deploy | grep Running) ]]; then
   helm plugin install https://github.com/rimusz/helm-tiller || :
   helm tiller stop >dev/null &2>&1 || :
-  helm tiller start &
+  export HELM_HOST=127.0.0.1:44134
+  helm tiller start-ci
 fi
 
 pgrep -f "helm serve" | xargs -n1 -r kill
