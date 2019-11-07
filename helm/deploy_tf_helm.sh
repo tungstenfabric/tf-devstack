@@ -4,14 +4,30 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 
-TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer/archive/master.tar.gz}
-wget $TF_HELM_URL -O contrail-helm-deployer.tar.gz
-mkdir -p contrail-helm-deployer
-tar xzf contrail-helm-deployer.tar.gz --strip-components=1 -C contrail-helm-deployer
+TF_HELM_FOLDER=${TF_HELM_FOLDER:-tf-helm-deployer}
+TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer}
+ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
 
-cd contrail-helm-deployer
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  CONTRAIL_CHART="contrail-k8s"
+else
+  CONTRAIL_CHART="contrail"
+fi
+
+if [ ! -d "$TF_HELM_FOLDER" ] ; then
+    git clone "$TF_HELM_URL" "$TF_HELM_FOLDER"
+fi
+cd tf-helm-deployer
 
 helm init --client-only
+
+#install plugin to make helm work without CNI
+if [[ -z $(kubectl get pods -n kube-system | grep tiller-deploy | grep Running) ]]; then
+  helm plugin install https://github.com/rimusz/helm-tiller || :
+  helm tiller stop >dev/null &2>&1 || :
+  helm tiller start &
+fi
+
 pgrep -f "helm serve" | xargs -n1 -r kill
 helm serve &
 sleep 5
@@ -48,8 +64,11 @@ else
   host_var=""
 fi
 
+sudo mkdir -p /var/log/contrail
+
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric contrail -f tf-devstack-values.yaml $host_var
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f tf-devstack-values.yaml $host_var
+
 #echo "Waiting for vrouter to be ready"
 #kubectl -n tungsten-fabric wait daemonset --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
 
