@@ -22,14 +22,15 @@ make all
 # Mark controller after vrouter installed
 for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
   kubectl label node --overwrite $node opencontrail.org/controller-
-  kubectl label node --overwrite $node opencontrail.org/vrouter-kernel=enabled
 done
 
+# Refactor BGP_PORT for OpenStack and Kubernetes modes
 cat << EOF > tf-devstack-values.yaml
 global:
   contrail_env:
     CONTROLLER_NODES: "$(echo $CONTROLLER_NODES | tr ' ' ',')"
     JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
+    BGP_PORT: "1179"
 EOF
 
 if [ "$DISTRO" == "centos" ]; then
