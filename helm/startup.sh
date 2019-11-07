@@ -18,8 +18,18 @@ SKIP_OPENSTACK_DEPLOYMENT=${SKIP_OPENSTACK_DEPLOYMENT:-false}
 SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
-export CNI=${CNI:-calico}
+
+if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+  export $SKIP_OPENSTACK_DEPLOYMENT=true
+elif [[ "$ORCHESTRATOR" == "openstack" ]]; then
+  export CNI=${CNI:-calico}
+else
+  echo "Set ORCHESTRATOR environment variable with value \"kubernetes\" or \"openstack\"  "
+  exit
+fi
+
 
 # build step
 
