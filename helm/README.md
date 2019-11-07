@@ -6,7 +6,7 @@ Helm deployer provides Helm-based deployment for TF with OpenStack or Kubernetes
 
 Minimal:
 - instance with 4 virtual CPU, 16 GB of RAM and 120 GB of disk space to deploy with Openstack
-- instance with 2 virtual CPU, 10 GB of RAM and 120 GB of disk space to deploy with Kubernetes (work in progress)
+- instance with 2 virtual CPU, 10 GB of RAM and 120 GB of disk space to deploy with Kubernetes
 
 - Ubuntu 18.04
 - CentOS 7.x

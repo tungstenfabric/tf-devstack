@@ -22,7 +22,7 @@ ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
 if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
-  export $SKIP_OPENSTACK_DEPLOYMENT=true
+  SKIP_OPENSTACK_DEPLOYMENT=true
 elif [[ "$ORCHESTRATOR" == "openstack" ]]; then
   export CNI=${CNI:-calico}
 else
