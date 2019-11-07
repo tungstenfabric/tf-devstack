@@ -3,6 +3,7 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
+source "$my_dir/../common/functions.sh"
 
 TF_HELM_FOLDER=${TF_HELM_FOLDER:-tf-helm-deployer}
 TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer}
