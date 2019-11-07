@@ -28,6 +28,10 @@ fi
 sudo -H pip install -U pip wheel
 sudo -H pip install --user wheel yq
 
+# label nodes
+label_nodes_by_ip openstack-control-plane=enabled $CONTROLLER_NODES
+label_nodes_by_ip openstack-compute-node=enabled $AGENT_NODES
+
 # fetch helm-openstack
 wget $HELM_OPENSTACK_URL -O helm-openstack.tgz
 wget $HELM_OPENSTACK_INFRA_URL -O helm-openstack-infra.tgz

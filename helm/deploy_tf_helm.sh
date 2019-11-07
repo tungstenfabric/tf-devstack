@@ -17,6 +17,10 @@ fi
 if [ ! -d "$TF_HELM_FOLDER" ] ; then
     git clone "$TF_HELM_URL" "$TF_HELM_FOLDER"
 fi
+
+# label nodes
+label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $AGENT_NODES
+
 cd tf-helm-deployer
 
 helm init --client-only

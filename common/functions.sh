@@ -54,9 +54,12 @@ function wait_cmd_success() {
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
+  local silent=${4:-1}
   local i=0
-  while ! $cmd 2>/dev/null; do
-      printf "."
+  while ! eval "$cmd" 2>/dev/null; do
+      if [[ "$silent" != "0" ]]; then
+        printf "."
+      fi
       i=$((i + 1))
       if (( i > max )) ; then
         return 1
@@ -88,4 +91,19 @@ function set_ssh_keys() {
   [ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
   [ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
   grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+}
+
+function label_nodes_by_ip() {
+  local label=$1
+  shift
+  local node_ips=$*
+  local retries=5
+  local interval=2
+  local silent=0
+  for node in $(wait_cmd_success "kubectl get nodes --no-headers | grep master | cut -d' ' -f1" $retries $interval $silent ); do
+    nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
+    if echo $node_ips | tr ' ' '\n' | grep -F $nodeip; then
+      wait_cmd_success "kubectl label node --overwrite $node $label" $retries $interval $silent
+    fi
+  done
 }

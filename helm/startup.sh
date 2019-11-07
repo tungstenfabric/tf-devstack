@@ -44,13 +44,7 @@ if [[ "$SKIP_K8S_DEPLOYMENT" == false ]]; then
     export K8S_MASTERS=$CONTROLLER_NODES
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
-    cat << EOF >> tf-node-labels.yaml
-node_labels:
-  opencontrail.org/vrouter-kernel: enabled
-  openstack-control-plane: "{% if inventory_hostname in groups['kube-master'] %}enabled{% else %}disabled{% endif %}"
-  openstack-compute-node: "{% if inventory_hostname in groups['kube-node'] %}enabled{% else %}disabled{% endif %}"
-EOF
-    $my_dir/../common/deploy_kubespray.sh -e @../tf-node-labels.yaml
+    $my_dir/../common/deploy_kubespray.sh
 fi
 
 #fetch_deployer
@@ -67,10 +61,8 @@ fi
 
 if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
     $my_dir/deploy_tf_helm.sh
-    wait_nic_up vhost0    
-    for node in $(kubectl get nodes --no-headers | grep master | cut -d' ' -f1); do
-      kubectl label node --overwrite $node opencontrail.org/controller=enabled
-    done
+    wait_nic_up vhost0
+    label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 fi
 
 # show results
