@@ -49,13 +49,12 @@ EOF
 }
 
 function fetch_deployer() {
-  ensure_root
-  rm -rf "$WORKSPACE/$DEPLOYER_DIR"
-  ensure_insecure_registry_set $CONTAINER_REGISTRY
-  docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
-  docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR $WORKSPACE
-  docker rm -fv $DEPLOYER_IMAGE
-  chown -R $USER "$WORKSPACE/$DEPLOYER_DIR"
+  sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
+  sudo ensure_insecure_registry_set $CONTAINER_REGISTRY
+  sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
+  sudo docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR $WORKSPACE
+  sudo docker rm -fv $DEPLOYER_IMAGE
+  sudo chown -R $USER "$WORKSPACE/$DEPLOYER_DIR"
 }
 
 function wait_cmd_success() {

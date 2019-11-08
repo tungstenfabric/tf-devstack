@@ -47,7 +47,7 @@ fi
 
 if [ $SKIP_MANIFEST_CREATION == false ]; then
     echo "Creating manifest"
-    sudo -E fetch_deployer
+    fetch_deployer
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP

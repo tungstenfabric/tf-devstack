@@ -60,7 +60,7 @@ else
   "$my_dir/../common/install_docker.sh"
 fi
 
-sudo -E fetch_deployer
+fetch_deployer
 
 # generate inventory file
 

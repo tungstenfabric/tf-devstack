@@ -46,7 +46,7 @@ if [[ "$SKIP_K8S_DEPLOYMENT" == false ]]; then
     $my_dir/../common/deploy_kubespray.sh
 fi
 
-#sudo -E fetch_deployer
+#fetch_deployer
 
 # deploy helm-openstack
 
