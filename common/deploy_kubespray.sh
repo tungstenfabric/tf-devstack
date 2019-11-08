@@ -11,8 +11,8 @@ source "$my_dir/functions.sh"
 
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES:-$NODE_IP}
-K8S_POD_SUBNET=${K8S_POD_SUBNET:-}
-K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-}
+K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
+K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 CNI=${CNI:-cni}
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
