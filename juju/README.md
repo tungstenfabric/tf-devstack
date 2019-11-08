@@ -12,46 +12,30 @@ Recommended:
 
 ## Quick start on an AWS instances on base of Kubernetes (all-in-one)
 
-1. Launch two new AWS instances.
+1. Launch new AWS instance.
 
-Juju-controller instance
-Steps:
-- Ubuntu 18.04 (x86_64) - with Updates HVM
-- t2.medium instance type
-- 8 GiB disk Storage
-
-Juju-deploy instance
-Steps:
+1. Steps:
 - Ubuntu 18.04 (x86_64) - with Updates HVM
 - c5.2xlarge instance type
 - 120 GiB disk Storage
 
-2. Open on both instances security group TCP ports 22(ssh) and 17070.
+2. Set environment variables:
 
-3. Log into a juju-controller instance.
-Generate key for ssh access:
-
-```
-ssh-keygen -t rsa
-```
-
-Copy public key to ~/.ssh/authorized_keys to **both** machines.
-
-4. Set environment variables:
+(optionally - these parameters are set by default)
 
 ```
-# export ORCHESTRATOR='kubernetes'  # by default
-# export CLOUD='local'  # by default
+export ORCHESTRATOR='kubernetes'  # by default
+export CLOUD='local'  # by default
 ```
 
-5. Clone this repository and run the startup script:
+3. Clone this repository and run the startup script:
 
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/startup.sh
 ```
 
-6. Wait about 30-60 minutes to complete the deployment.
+4. Wait about 30-60 minutes to complete the deployment.
 
 
 ## Quick start on an AWS instances on base of Openstack
