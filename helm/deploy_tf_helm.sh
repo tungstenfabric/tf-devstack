@@ -29,7 +29,7 @@ helm init --client-only
 #install plugin to make helm work without CNI
 if [[ -z $(kubectl get pods -n kube-system | grep tiller-deploy | grep Running) ]]; then
   helm plugin install https://github.com/rimusz/helm-tiller || :
-  helm tiller stop >dev/null &2>&1 || :
+  helm tiller stop >/dev/null &2>&1 || :
   export HELM_HOST=127.0.0.1:44134
   helm tiller start-ci
 fi
