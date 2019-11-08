@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[[ "$DEBUG" -eq "true" ]] && set -x
+
 set -o errexit
 
 # working environment

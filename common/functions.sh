@@ -52,9 +52,8 @@ function fetch_deployer() {
   sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
   ensure_insecure_registry_set $CONTAINER_REGISTRY
   sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
-  sudo docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR $WORKSPACE
+  sudo docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR - | tar -x -C $WORKSPACE
   sudo docker rm -fv $DEPLOYER_IMAGE
-  sudo chown -R $USER "$WORKSPACE/$DEPLOYER_DIR"
 }
 
 function wait_cmd_success() {

@@ -64,7 +64,7 @@ if [[ "$SKIP_CONTRAIL_DEPLOYMENT" == false ]]; then
     label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 fi
 
-safe_tf_stack_profile
+save_tf_stack_profile
 
 # show results
 

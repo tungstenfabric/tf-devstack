@@ -8,6 +8,8 @@ my_dir="$(dirname "$my_file")"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
+cd $WORKSPACE
+
 ensure_root
 
 # default env variables
@@ -22,20 +24,18 @@ OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
 echo "$DISTRO detected"
 if [ "$DISTRO" == "centos" ]; then
-  yum install -y python-setuptools iproute
   yum autoremove -y python-yaml python-requests
+  yum install -y python-setuptools iproute PyYAML
 elif [ "$DISTRO" == "ubuntu" ]; then
   apt-get update
-  apt-get install -y python-setuptools iproute2
+  apt-get install -y python-setuptools iproute2 PyYAML
 else
   echo "Unsupported OS version"
   exit
 fi
 
 curl -s https://bootstrap.pypa.io/get-pip.py | python
-pip install requests
-pip install pyyaml==3.13
-pip install 'ansible==2.7.11'
+pip install requests jinja2 'ansible==2.7.11'
 
 # show config variables
 
@@ -69,7 +69,7 @@ export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG
 export OPENSTACK_VERSION
-python3 "$my_dir/../common/jinja2_render.py" < $my_dir/instances_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instances.yaml
+python "$my_dir/../common/jinja2_render.py" < $my_dir/instances_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instances.yaml
 
 cd $ansible_deployer_dir
 # step 1 - configure instances
@@ -107,7 +107,7 @@ fi
 
 # safe tf stack profile
 
-safe_tf_stack_profile
+save_tf_stack_profile
 
 # show results
 

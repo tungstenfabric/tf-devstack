@@ -113,7 +113,7 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     done
 fi
 
-safe_tf_stack_profile
+save_tf_stack_profile
 
 # show results
 echo "Deployment scripts are finished"
