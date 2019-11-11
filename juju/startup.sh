@@ -48,15 +48,6 @@ if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD != 'local' ]]; then
     echo "Add machines to JuJu"
     export NUMBER_OF_MACHINES_TO_DEPLOY=2
     $my_dir/../common/add_juju_machines.sh
-
-    # fix lxd profile to let docker containers run on lxd
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
-        for machine in $JUJU_MACHINES ; do
-            juju scp "$my_dir/files/lxd-default.yaml" $machine:lxd-default.yaml 2>/dev/null
-            juju ssh $machine "cat ./lxd-default.yaml | sudo lxc profile edit default"
-        done
-    fi
 fi
 
 # deploy orchestrator
