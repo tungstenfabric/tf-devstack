@@ -11,7 +11,7 @@ source "$my_dir/../common/functions.sh"
 # default env variables
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
-export CLOUD=${CLOUD:-local}  # aws | local
+export CLOUD=${CLOUD:-local}  # aws | local | manual
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -44,9 +44,15 @@ if [[ "$DEV_ENV" == true ]]; then
 fi
 
 # add-machines to juju
-if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD != 'local' ]]; then
-    echo "Add machines to JuJu"
-    export NUMBER_OF_MACHINES_TO_DEPLOY=2
+if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD == 'manual' ]] ;then
+    MACHINES_TO_ADD=`echo $CONTROLLER_NODES | tr ',' ' '`
+    NODES=($MACHINES_TO_ADD)
+    if [ ${#NODES[@]} != 5 ] ; then
+        echo "We support deploy on 5 machines only now."
+        echo "You should specify their ip addresses in CONTROLLER_NODES variable."
+        exit 0
+    fi
+    export MACHINES_TO_ADD
     $my_dir/../common/add_juju_machines.sh
 fi
 
@@ -63,7 +69,11 @@ if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
         else
             export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
         fi
-        export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+        if [ $CLOUD == 'aws' ] ; then
+            export BUNDLE="$my_dir/files/bundle_openstack_lxd.yaml.tmpl"
+        elif [ $CLOUD == 'manual' ] ; then
+            export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+        fi
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
         export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     fi

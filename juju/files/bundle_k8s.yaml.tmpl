@@ -1,11 +1,11 @@
-series: "{{ UBUNTU_SERIES }}"
-
+{% set MACHINES = MACHINES.split(',')  -%}
 machines:
 
   "{{ MACHINES[0] }}":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=16G cores=8 root-disk=120G
 
+series: "{{ UBUNTU_SERIES }}"
 services:
 
   # kubernetes

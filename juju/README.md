@@ -5,9 +5,7 @@ JuJu deployer provides JuJu-based deployment for TF with OpenStack or Kubernetes
 ## Hardware and software requirements
 
 Recommended:
-- instance with 2 virtual CPU, 4 GB of RAM and 10 GB of disk space to start juju-controller
-- instance with 8 virtual CPU, 16 GB of RAM and 120 GB of disk space to deploy from charms
-
+- instance with 8 virtual CPU, 16 GB of RAM and 120 GB of disk space to deploy all-in-one
 - Ubuntu 18.04
 
 ## Quick start on an AWS instances on base of Kubernetes (all-in-one)
@@ -49,6 +47,46 @@ export AWS_SECRET_KEY=*aws_secret_key*
 ```
 
 2. Clone this repository and run the startup script:
+```
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/juju/startup.sh
+```
+
+## Quick start on an your own instances on base of Openstack
+
+1. Launch 6 nodes:
+
+- instance with 2 virtual CPU, 16 GB of RAM and 300 GB of disk space to deploy JuJu-controller, heat, contrail
+- instance with 4 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy glance, nova-compute
+- instance with 4 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy keystone
+- instance with 2 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy nova-cloud-controller
+- instance with 2 virtual CPU, 16 GB of RAM and 300 GB of disk space to deploy neutron
+- instance with 2 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy openstack-dashboard, mysql, rabbit
+
+- Ubuntu 18.04
+
+
+2. Make sure that juju-controller node has access to all other nodes.
+
+On JuJu-controller node:
+```
+ssh-keygen -t rsa
+```
+
+Copy created public key
+```
+cat ~/.ssh/id_rsa.pub
+```
+and add it to ~/.ssh/authorized_keys on **all** other nodes.
+
+3. On JuJu-controller node set environment variables:
+```
+export ORCHESTRATOR='openstack'
+export CLOUD='manual'
+export CONTROLLER_NODES=*access ips of 5 nodes*  # you should specify exactly 5 nodes for manual deployment.
+```
+
+4. Clone this repository and run the startup script:
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/startup.sh

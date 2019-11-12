@@ -1,52 +1,78 @@
 {% set MACHINES = MACHINES.split(',')  -%}
 machines:
+  # heat
   "{{ MACHINES[0] }}":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=8 root-disk=80G
+    constraints: mem=15G cores=2 root-disk=300G
+  # glance, nova-compute
   "{{ MACHINES[1] }}":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=80G
+    constraints: mem=7G cores=4 root-disk=40G
+  # keystone
+  "{{ MACHINES[2] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=7G cores=4 root-disk=40G
+  # nova-cloud-controller (nova-api)
+  "{{ MACHINES[3] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=8G cores=2 root-disk=40G
+  # Neutron
+  "{{ MACHINES[4] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=15G cores=2 root-disk=300G
+  # openstack-dashboard, mysql, rabbitmq
+  "{{ MACHINES[5] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=8G cores=2 root-disk=40G
+
 
 series: "{{ UBUNTU_SERIES }}"
 services:
   glance:
-    charm: cs:glance
+    charm: "cs:{{ UBUNTU_SERIES }}/glance"
     num_units: 1
     options:
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[1] }}"
   keystone:
-    charm: cs:keystone
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 1
     options:
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
-      admin-password: password
+      admin-password: "password"
       admin-role: "admin"
       debug: "true"
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      preferred-api-version: "3"
+    expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[2] }}"
   mysql:
-    charm: cs:percona-cluster
+    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
     num_units: 1
     options:
-      innodb-buffer-pool-size: 256M
-      max-connections: 1000
-      performance-schema: true
-      root-password: password
+      root-password: "password"
+      max-connections: 1500
     to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[5] }}"
+  rabbitmq-server:
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
+    num_units: 1
+    to:
+      - "{{ MACHINES[5] }}"
   neutron-api:
-    charm: cs:neutron-api
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 1
     options:
-      neutron-security-groups: true
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       manage-neutron-plugin-legacy-mode: false
+      neutron-security-groups: "true"
+    expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[4] }}"
   heat:
     charm: "cs:heat"
     num_units: 1
@@ -55,50 +81,56 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
+    - {{ MACHINES[0] }}
   nova-cloud-controller:
-    charm: cs:nova-cloud-controller
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 1
     options:
-      network-manager: Neutron
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
+      network-manager: "Neutron"
       console-access-protocol: "novnc"
       debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[3] }}"
   nova-compute:
-    charm: cs:nova-compute
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    series: {{ UBUNTU_SERIES }}
     num_units: 1
     options:
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
-      virt-type: {{ VIRT_TYPE }}
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      virt-type: "qemu"
+      enable-resize: "true"
+      enable-live-migration: "true"
+      migration-auth-type: "ssh"
     to:
-    - {{ MACHINES[1] }}
+      - "{{ MACHINES[1] }}"
   openstack-dashboard:
-    charm: cs:openstack-dashboard
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
     options:
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
     to:
-    - lxd:{{ MACHINES[0] }}
-  rabbitmq-server:
-    charm: cs:rabbitmq-server
-    num_units: 1
-    to:
-    - lxd:{{ MACHINES[0] }}
+      - "{{ MACHINES[5] }}"
 
   # misc
 
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
-    num_units: 2
+    num_units: 6
     to:
       - "{{ MACHINES[0] }}"
       - "{{ MACHINES[1] }}"
+      - "{{ MACHINES[2] }}"
+      - "{{ MACHINES[3] }}"
+      - "{{ MACHINES[4] }}"
+      - "{{ MACHINES[5] }}"
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp"
+
 
 relations:
 
@@ -116,7 +148,6 @@ relations:
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 - [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
 - [ openstack-dashboard:identity-service, keystone:identity-service ]
-- [ openstack-dashboard:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
 - [ heat:shared-db, mysql:shared-db ]

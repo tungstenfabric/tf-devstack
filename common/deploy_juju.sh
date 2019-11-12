@@ -42,13 +42,13 @@ EOF
 fi
 
 # bootstrap JuJu-controller
-if [[ $CLOUD == 'local' ]] ; then
+if [[ $CLOUD == 'local' || $CLOUD == 'manual' ]] ; then
     # prepare ssh key authorization for running bootstrap on the same node
     set_ssh_keys
 
     CLOUD="manual/ubuntu@$NODE_IP"
-    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-aio-controller
-    juju switch tf-aio-controller
+    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-juju-controller
+    juju switch tf-juju-controller
 else
     juju bootstrap --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-$CLOUD-controller
 fi
