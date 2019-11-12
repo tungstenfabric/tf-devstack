@@ -40,6 +40,14 @@ conf:
         multi_tenancy: True
       keystone:
         insecure: True
+  vnc_api_lib:
+    global:
+      WEB_SERVER: config-api-server.tungsten-fabric.svc.cluster.local
+      WEB_PORT: 8082
+    auth:
+      AUTHN_TYPE: keystone
+      AUTHN_PROTOCOL: http
+      AUTHN_URL: /v3/auth/tokens
 manifests:
   daemonset_dhcp_agent: false
   daemonset_l3_agent: false
