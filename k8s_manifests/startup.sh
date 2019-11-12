@@ -22,6 +22,13 @@ KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/con
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
+function ensure_kube_api_ready() {
+    if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
+        echo "ERROR: kubernetes is not ready. Exiting..."
+        exit 1
+    fi
+}
+
 # build step
 
 if [ $DEV_ENV == true ]; then
@@ -36,11 +43,7 @@ if [ $SKIP_K8S_DEPLOYMENT == false ]; then
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
-    # in case of pure k8s we need to wait a bit for port 6443
-    if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
-        echo "ERROR: kubernetes is not ready. Exiting..."
-        exit 1
-    fi
+    ensure_kube_api_ready
 fi
 
 # deploy Contrail
@@ -59,6 +62,7 @@ fi
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
 
     ensure_insecure_registry_set $CONTAINER_REGISTRY
+    ensure_kube_api_ready
 
     # label nodes
     nodes=( `kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'` )

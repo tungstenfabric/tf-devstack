@@ -62,7 +62,7 @@ function wait_cmd_success() {
   local max=${3:-300}
   local silent=${4:-1}
   local i=0
-  while ! eval "$cmd" 2>/dev/null; do
+  while ! eval "$cmd" >/dev/null 2>&1 ; do
       if [[ "$silent" != "0" ]]; then
         printf "."
       fi

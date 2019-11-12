@@ -70,6 +70,8 @@ echo "upstream_dns_servers: ['$nameserver']" >> inventory/mycluster/group_vars/k
 echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 # Fix coredns deployment on single node
 echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+# enable docker live restore option
+echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
 extra_vars=""
 [[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
