@@ -55,7 +55,8 @@ grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh
 # build step
 
 if [ "$DEV_ENV" == "true" ]; then
-    "$my_dir/../common/dev_env.sh"
+  "$my_dir/../common/dev_env.sh"
+  load_tf_devenv_profile
 else
   "$my_dir/../common/install_docker.sh"
 fi
