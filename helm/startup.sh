@@ -34,6 +34,7 @@ fi
 
 if [[ "$DEV_ENV" == true ]]; then
     "$my_dir/../common/dev_env.sh"
+    load_tf_devenv_profile
 fi
 
 # kubernetes
