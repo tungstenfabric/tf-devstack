@@ -31,10 +31,10 @@ function ensure_kube_api_ready() {
 
 # build step
 
-if [ $DEV_ENV == true ]; then
+if [[ "$DEV_ENV" == true ]] ; then
   "$my_dir/../common/dev_env.sh"
-  load_tf_devenv_profile
 fi
+load_tf_devenv_profile
 
 # deploy kubernetes step
 

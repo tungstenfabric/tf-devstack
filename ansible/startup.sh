@@ -24,7 +24,9 @@ OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
 echo "$DISTRO detected"
 if [ "$DISTRO" == "centos" ]; then
-  yum autoremove -y python-yaml python-requests
+  # remove packages taht may cause conflicts, 
+  # all requried ones be re-installed
+  yum autoremove -y python-yaml python-requests python-urllib3
   yum install -y python-setuptools iproute PyYAML
 elif [ "$DISTRO" == "ubuntu" ]; then
   apt-get update
@@ -34,8 +36,9 @@ else
   exit
 fi
 
+# install pip
 curl -s https://bootstrap.pypa.io/get-pip.py | python
-pip install requests jinja2 'ansible==2.7.11'
+pip install jinja2 'ansible==2.7.11'
 
 # show config variables
 
@@ -52,14 +55,14 @@ echo
 [ ! -f /root/.ssh/authorized_keys ] && touch /root/.ssh/authorized_keys && chmod 0600 /root/.ssh/authorized_keys
 grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 
+"$my_dir/../common/install_docker.sh"
+
 # build step
 
-if [ "$DEV_ENV" == "true" ]; then
+if [[ "$DEV_ENV" == true ]] ; then
   "$my_dir/../common/dev_env.sh"
-  load_tf_devenv_profile
-else
-  "$my_dir/../common/install_docker.sh"
 fi
+load_tf_devenv_profile
 
 fetch_deployer
 

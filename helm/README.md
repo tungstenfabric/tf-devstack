@@ -38,7 +38,7 @@ You'll have Kubernetes deployed with TF as its CNI networking.
 
 ## Environment variables
 Environment variable list:
-- CONTAINER_REGISTRY - by default "opencontrailnightly"
+- CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - ORCHESTRATOR - orchestrator for deployment, "openstack" (default) and "kubernetes" are supported
 - SKIP_K8S_DEPLOYMENT - skip kubespray deployment

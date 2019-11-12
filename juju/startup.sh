@@ -39,10 +39,10 @@ fi
 
 # build step
 
-if [[ "$DEV_ENV" == true ]]; then
-    "$my_dir/../common/dev_env.sh"
-    load_tf_devenv_profile
+if [[ "$DEV_ENV" == true ]] ; then
+  "$my_dir/../common/dev_env.sh"
 fi
+load_tf_devenv_profile
 
 # add-machines to juju
 if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD == 'manual' ]] ;then

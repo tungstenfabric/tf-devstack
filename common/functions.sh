@@ -51,7 +51,9 @@ EOF
 function fetch_deployer() {
   sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
   ensure_insecure_registry_set $CONTAINER_REGISTRY
-  sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $CONTAINER_REGISTRY/$DEPLOYER_IMAGE:$CONTRAIL_CONTAINER_TAG
+  local image="$CONTAINER_REGISTRY/$DEPLOYER_IMAGE"
+  [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
+  sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $image
   sudo docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR - | tar -x -C $WORKSPACE
   sudo docker rm -fv $DEPLOYER_IMAGE
 }
@@ -119,10 +121,13 @@ function load_tf_devenv_profile() {
     echo
     echo '[load tf devenv configuration]'
     source "$TF_DEVENV_PROFILE"
+    [ -n "$REGISTRY_IP" ] && CONTAINER_REGISTRY="${REGISTRY_IP}" && [ -n "$REGISTRY_PORT" ] && CONTAINER_REGISTRY+=":${REGISTRY_PORT}"
   else
     echo
     echo '[there is no tf devenv configuration to load]'
   fi
+  # set to tungstenfabric if not set
+  [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric'
 }
 
 function save_tf_stack_profile() {
@@ -131,9 +136,9 @@ function save_tf_stack_profile() {
   echo '[update tf stack configuration]'
   mkdir -p "$(dirname $file)"
   cat <<EOF > $file
-CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG}"
-CONTRAIL_REGISTRY="${REGISTRY_IP}:${REGISTRY_PORT}"
-ORCHESTRATOR="$ORCHESTRATOR"
+CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
+CONTAINER_REGISTRY=${CONTAINER_REGISTRY}
+ORCHESTRATOR=${ORCHESTRATOR}
 OPENSTACK_VERSION="$OPENSTACK_VERSION"
 CONTROLLER_NODES="$CONTROLLER_NODES"
 AGENT_NODES="$AGENT_NODES"
