@@ -73,6 +73,9 @@ echo "Deployment scripts are finished"
 echo "Now you can monitor when contrail becomes available with:"
 echo "kubectl get pods --all-namespaces"
 echo "All pods should become Running before you can use Contrail"
+if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+echo "When all pods are Running, you may run test_openstack_vm.sh in the common/ directory to ensure Tungsten Fabric is correctly set up."
+fi
 echo "If agent is in Error state you might need to upgrade your kernel with 'sudo yum update -y' on agent node and reboot the node"
 echo "If agent is in a permanent CrashLoopBackOff state and other Contrail containers are Running, please reboot the node"
 echo "Contrail Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"
