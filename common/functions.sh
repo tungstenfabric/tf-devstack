@@ -128,6 +128,7 @@ function load_tf_devenv_profile() {
   fi
   # set to tungstenfabric if not set
   [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric'
+  [ -z "$CONTRAIL_CONTAINER_TAG" ] && CONTRAIL_CONTAINER_TAG='latest'
 }
 
 function save_tf_stack_profile() {

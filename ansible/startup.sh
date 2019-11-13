@@ -30,7 +30,7 @@ if [ "$DISTRO" == "centos" ]; then
   yum install -y python-setuptools iproute PyYAML
 elif [ "$DISTRO" == "ubuntu" ]; then
   apt-get update
-  apt-get install -y python-setuptools iproute2 PyYAML
+  apt-get install -y python-setuptools iproute2
 else
   echo "Unsupported OS version"
   exit
@@ -38,7 +38,7 @@ fi
 
 # install pip
 curl -s https://bootstrap.pypa.io/get-pip.py | python
-pip install jinja2 'ansible==2.7.11'
+pip install requests jinja2 'ansible==2.7.11'
 
 # show config variables
 
