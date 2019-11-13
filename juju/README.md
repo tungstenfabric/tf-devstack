@@ -65,6 +65,7 @@ tf-devstack/juju/startup.sh
 
 - Ubuntu 18.04
 
+Open ports 22, 17070 and 37017
 
 2. Make sure that juju-controller node has access to all other nodes.
 
@@ -102,6 +103,22 @@ tf-devstack/juju/startup.sh
 
 4. You can set SKIP_CONTRAIL_DEPLOYMENT to **true** if you don't want to deploy Contrail, but orchestrator only (openstack or kubernetes). You would be able to deploy Contrail later setting SKIP_CONTRAIL_DEPLOYMENT to **false** and SKIP_JUJU_BOOTSTRAP to **true**.
 
+## Cleanup
+1. Set environment variables:
+
+```
+export CLOUD='local'  # by default, another options are 'manual' and 'aws'
+```
+
+2. If you're using manual deployment
+```
+export CONTROLLER_NODES=*access ips of the rest 5 nodes*
+```
+
+3. Run the cleanup script:
+```
+tf-devstack/juju/cleanup.sh
+```
 
 ## Installation configuration
 
