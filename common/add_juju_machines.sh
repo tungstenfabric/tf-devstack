@@ -1,16 +1,18 @@
 #!/bin/bash
-# Adds MACHINES_TO_ADD machines to model for manual deployment
+# Adds CONTROLLER_NODES to model for manual deployment
 
 set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+source "$my_dir/../common/common.sh"
 
 # parameters
-MACHINES_TO_ADD=${MACHINES_TO_ADD:-}
+CONTROLLER_NODES=${CONTROLLER_NODES:-}
 
+CONTROLLER_NODES=`echo $CONTROLLER_NODES | tr ',' ' '`
 # add machines
-if [ ! -z "$MACHINES_TO_ADD" ]; then
-    for node in $MACHINES_TO_ADD ; do
+if [ -n "$CONTROLLER_NODES" ]; then
+    for node in $CONTROLLER_NODES ; do
         juju add-machine ssh:ubuntu@$node
     done
 fi

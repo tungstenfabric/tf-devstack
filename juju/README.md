@@ -83,7 +83,7 @@ and add it to ~/.ssh/authorized_keys on **all** other nodes.
 ```
 export ORCHESTRATOR='openstack'
 export CLOUD='manual'
-export CONTROLLER_NODES=*access ips of 5 nodes*  # you should specify exactly 5 nodes for manual deployment.
+export CONTROLLER_NODES=*access ips of the rest 5 nodes*  # you should specify exactly 5 nodes for manual deployment.
 ```
 
 4. Clone this repository and run the startup script:

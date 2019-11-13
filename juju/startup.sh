@@ -29,6 +29,21 @@ export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 export CONTAINER_REGISTRY
 export NODE_IP
 
+function wait_machine() {
+    local machine=$1
+    echo "Waiting for machine: $machine"
+    fail=0
+    while ! output=`juju ssh $machine "uname -a" 2>/dev/null` ; do
+        if ((fail >= 60)); then
+            echo "ERROR: Machine $machine did not up."
+            echo $output
+            exit 1
+        fi
+        sleep 15
+        ((++fail))
+    done
+}
+
 # build step
 
 # install juju
@@ -46,14 +61,11 @@ load_tf_devenv_profile
 
 # add-machines to juju
 if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD == 'manual' ]] ;then
-    MACHINES_TO_ADD=`echo $CONTROLLER_NODES | tr ',' ' '`
-    NODES=($MACHINES_TO_ADD)
-    if [ ${#NODES[@]} != 5 ] ; then
+    if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
         echo "We support deploy on 5 machines only now."
         echo "You should specify their ip addresses in CONTROLLER_NODES variable."
         exit 0
     fi
-    export MACHINES_TO_ADD
     $my_dir/../common/add_juju_machines.sh
 fi
 
@@ -109,6 +121,10 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
+        if [ $CLOUD == 'aws' ] ; then
+            # we need to wait while machine is up for aws deployment
+            wait_machine $machine
+        fi
         juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
         juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
         juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null

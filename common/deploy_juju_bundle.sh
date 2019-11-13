@@ -10,7 +10,7 @@ BUNDLE=${BUNDLE:-} # may be template, would be rendered by jinja
 
 # get list of machines to supply to bundle template, because machine indexes can change
 JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
-export MACHINES=`echo $JUJU_MACHINES | sed 's/ /,/g'`
+export JUJU_MACHINES=`echo $JUJU_MACHINES | sed 's/ /,/g'`
 
 # change bundles variables
 echo "INFO: Change variables in bundle..."
