@@ -2,7 +2,7 @@ provider_config:
   bms:
     ssh_user: root
     ssh_pwd:
-    domainsuffix: localdomain
+    domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
   server1:

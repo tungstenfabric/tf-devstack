@@ -2,6 +2,8 @@ provider_config:
   bms:
     ssh_user: root
     ssh_pwd:
+    domainsuffix: "{{ DOMAINSUFFIX }}"
+
 instances:
   server1:
     ip: "{{ NODE_IP }}"

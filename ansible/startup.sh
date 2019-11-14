@@ -20,6 +20,8 @@ DEPLOYER_DIR="root"
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
+export DOMAINSUFFIX=${DOMAINSUFFIX-$(hostname -d)}
+
 # install required packages
 
 echo "$DISTRO detected"
