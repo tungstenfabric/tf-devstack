@@ -1,0 +1,19 @@
+[DEFAULT]
+local_ip = ${prov_subnet}.2/24
+undercloud_public_host = ${prov_subnet}.10
+undercloud_admin_host = ${prov_subnet}.11
+local_interface = eth1
+overcloud_domain_name = localdomain
+undercloud_nameservers = 8.8.8.8
+undercloud_hostname = undercloud.my5domain.local
+discovery_iprange = ${prov_subnet}.150,${prov_subnet}.170
+subnets = ctlplane-subnet
+inspection_interface = br-ctlplane
+[ctlplane-subnet]
+cidr = ${prov_subnet}.0/24
+dhcp_start = ${prov_subnet}.100
+dhcp_end = ${prov_subnet}.149
+gateway = ${prov_subnet}.2
+inspection_iprange = ${prov_subnet}.150,${prov_subnet}.170
+masquerade = true
+
