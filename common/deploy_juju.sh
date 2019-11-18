@@ -23,6 +23,7 @@ Host *
 StrictHostKeyChecking no
 UserKnownHostsFile=/dev/null
 EOF
+chmod 600 $HOME/.ssh/config
 
 if [[ $CLOUD == 'aws' ]] ; then
     # configure juju to authentificate itself to amazon
