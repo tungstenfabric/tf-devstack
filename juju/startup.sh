@@ -12,6 +12,7 @@ source "$my_dir/../common/functions.sh"
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
+export DATA_NETWORK=${DATA_NETWORK:-}
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -103,6 +104,10 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     cd $JUJU_REPO
 
     $my_dir/../common/deploy_juju_bundle.sh
+
+    if [[ -n $DATA_NETWORK ]] ; then
+        juju config contrail-controller data-network=$DATA_NETWORK
+    fi
 
     # add relations between orchestrator and Contrail
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then

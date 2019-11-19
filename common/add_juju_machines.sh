@@ -11,7 +11,7 @@ CONTROLLER_NODES=${CONTROLLER_NODES:-}
 
 CONTROLLER_NODES=`echo $CONTROLLER_NODES | tr ',' ' '`
 # add machines
-if [ -n "$CONTROLLER_NODES" ]; then
+if [[ -n "$CONTROLLER_NODES" ]]; then
     for node in $CONTROLLER_NODES ; do
         juju add-machine ssh:ubuntu@$node
     done

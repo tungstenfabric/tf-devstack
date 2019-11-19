@@ -138,6 +138,7 @@ Environment variable list:
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
 - ORCHESTRATOR - orchestrator for deployment, "openstack" and "kubernetes" (default) are supported
 - CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
+- DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
 - SKIP_JUJU_BOOTSTRAP - skip installation, setup of JuJu, bootstrap JuJu controller, false by default
 - SKIP_JUJU_ADD_MACHINES - skip adding machines if they are ready, false by default
 - SKIP_ORCHESTRATOR_DEPLOYMENT - skip deployment of orchestrator (openstack or kubernetes), false by default
