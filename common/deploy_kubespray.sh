@@ -16,7 +16,7 @@ K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-}
 CNI=${CNI:-cni}
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
-[ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit
+[ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit 1
 
 # install required packages
 
@@ -27,7 +27,7 @@ elif [ "$DISTRO" == "ubuntu" ]; then
     sudo apt-get update
     sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev ansible git
 else
-    echo "Unsupported OS version" && exit
+    echo "Unsupported OS version" && exit 1
 fi
 
 # prepare ssh key authorization for all-in-one single node deployment
