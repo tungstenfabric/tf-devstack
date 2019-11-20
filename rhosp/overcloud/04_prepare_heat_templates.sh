@@ -3,7 +3,7 @@
 cd
 
 if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'" 
+   echo "This script must be run by user 'stack'"
    exit 1
 fi
 
@@ -13,14 +13,14 @@ if [ -f ~/rhel-account.rc ]; then
    source ~/rhel-account.rc
 else
    echo "File ~/rhel-account.rc not found"
-   exit    
+   exit
 fi
 
-if [ -f ~/env_desc.sh ]; then
-   source ~/env_desc.sh
+if [ -f ~/env.sh ]; then
+   source ~/env.sh
 else
-   echo "File ~/env_desc.sh not found"
-   exit    
+   echo "File ~/env.sh not found"
+   exit
 fi
 
 

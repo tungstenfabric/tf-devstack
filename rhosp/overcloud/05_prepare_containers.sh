@@ -1,15 +1,15 @@
 #!/bin/bash
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
-if [ -f /home/stack/env_desc.sh ]; then
-   source /home/stack/env_desc.sh
+if [ -f /home/stack/env.sh ]; then
+   source /home/stack/env.sh
 else
-   echo "File /home/stack/env_desc.sh not found"
-   exit    
+   echo "File /home/stack/env.sh not found"
+   exit
 fi
 
 
@@ -31,7 +31,7 @@ cat /home/stack/contrail_containers.yaml
 echo openstack overcloud container image upload --config-file /home/stack/contrail_containers.yaml
 openstack overcloud container image upload --config-file /home/stack/contrail_containers.yaml
 
-echo Checking catalog in docker registry 
+echo Checking catalog in docker registry
 curl -X GET http://${prov_ip}:8787/v2/_catalog
 
 

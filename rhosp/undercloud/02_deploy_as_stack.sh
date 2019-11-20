@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'" 
+   echo "This script must be run by user 'stack'"
    exit 1
 fi
 
@@ -9,15 +9,19 @@ if [ -f ~/rhel-account.rc ]; then
    source ~/rhel-account.rc
 else
    echo "File ~/rhel-account not found"
-   exit    
+   exit
 fi
 
-if [ -f ~/env_desc.sh ]; then
-   source ~/env_desc.sh
+if [ -f ~/env.sh ]; then
+   source ~/env.sh
 else
-   echo "File ~/env_desc.sh not found"
-   exit    
+   echo "File ~/env.sh not found"
+   exit
 fi
+
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
 
 mkdir -p /home/stack/.ssh
 chmod 700 /home/stack/.ssh
@@ -33,6 +37,7 @@ EOF
 chown stack:stack /home/stack/.ssh/config
 chmod 600 /home/stack/.ssh/config
 
+cd $my_dir
 cat undercloud.conf.template | envsubst >/home/stack/undercloud.conf
 
 openstack undercloud install
@@ -40,6 +45,6 @@ openstack undercloud install
 #Adding stack to group docker
 sudo usermod -a -G docker stack
 
-echo User 'stack' has been added to group 'docker'. Please relogin 
+echo User 'stack' has been added to group 'docker'. Please relogin
 
 

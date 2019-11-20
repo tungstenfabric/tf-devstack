@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
@@ -12,7 +12,7 @@ if [ -f /home/stack/rhel-account.rc ]; then
    source /home/stack/rhel-account.rc
 else
    echo "File home/stack/rhel-account.rc not found"
-   exit    
+   exit
 fi
 
 #set -x
@@ -41,7 +41,7 @@ subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-ex
 yum update -y
 
 yum install -y  ntp wget yum-utils screen mc deltarpm createrepo bind-utils sshpass \
-                     gcc make python-devel yum-plugin-priorities sshpass libguestfs-tools libvirt-client 
+                     gcc make python-devel yum-plugin-priorities sshpass libguestfs-tools libvirt-client
 
 chkconfig ntpd on
 service ntpd start

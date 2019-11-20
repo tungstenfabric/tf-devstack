@@ -3,22 +3,22 @@
 cd
 
 if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'" 
+   echo "This script must be run by user 'stack'"
    exit 1
 fi
 
-if [ -f ~/env_desc.sh ]; then
-   source ~/env_desc.sh
+if [ -f ~/env.sh ]; then
+   source ~/env.sh
 else
-   echo "File ~/env_desc.sh not found"
-   exit    
+   echo "File ~/env.sh not found"
+   exit
 fi
 
 if [ -f ~/stackrc ]; then
    source ~/stackrc
 else
    echo "File /home/stack/stackrc not found"
-   exit    
+   exit
 fi
 
 # re-define flavors
