@@ -6,7 +6,7 @@ set -o errexit
 
 # working environment
 WORKSPACE=${WORKSPACE:-$(pwd)}
-TF_CONFIG_DIR="${WORKSPACE}/.tf"
+TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 TF_STACK_PROFILE="${TF_CONFIG_DIR}/stack.env"
 
