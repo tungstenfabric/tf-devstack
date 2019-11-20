@@ -79,4 +79,4 @@ helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHA
 #kubectl -n tungsten-fabric wait daemonset --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
 
 # Nodes here are not yet labelled for controller which allows vrouter to be installed.
-# Labelling for controller is done in startup.sh
+# Labelling for controller is done in run.sh

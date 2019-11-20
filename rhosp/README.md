@@ -11,7 +11,7 @@ Only RHOSP13 over Red Hat Enterprise Linux
 
 ### Files descriptions
 
-startup.sh                                    - Full tripleo deployment start script
+run.sh                                    - Full tripleo deployment start script
 kvm-host/00_provision_kvm_host.sh             - Initial provisioning for KVM host
 kvm-host/01_create_env.sh                     - creating VMs, networks and setup vbmc
 kvm-host/02_collecting_node_information.sh    - creating file instackenv.json for overcloud node introspection
@@ -37,7 +37,7 @@ overcloud/environment-rhel-registration.yaml.template
 overcloud/misc_opts.yaml.template
 overcloud/roles_data_contrail_aio.yaml
 
-### Installation with startup.sh
+### Installation with run.sh
 
 1) Put appropriate variables in kvm-host/env.sh
 
@@ -46,7 +46,7 @@ export RHEL_USER=<login>
 export RHEL_PASSWORD=<password>
 export RHEL_POOL_ID=8a85f99c68b939320168c7f5b5b2461c
 
-3) Run startup.sh
+3) Run run.sh
 
 
 

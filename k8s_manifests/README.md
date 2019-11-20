@@ -12,12 +12,12 @@ Minimal:
 
 ## Quick start for k8s all-in-one node
 
-Clone and run the startup.sh script for k8s_manifests
+Clone and run the run.sh script for k8s_manifests
 
 ```
 sudo yum install -y git
 git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/k8s_manifests/startup.sh
+tf-devstack/k8s_manifests/run.sh
 ```
 
 You'll have Kubernetes deployed with TF as its CNI networking

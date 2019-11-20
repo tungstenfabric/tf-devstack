@@ -44,7 +44,7 @@ yum install -y git
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
 cd tf-devstack
-./startup.sh
+./run.sh
 ```
 
 5. Wait about 30-60 minutes to complete the deployment.
@@ -57,7 +57,7 @@ You can select OpenStack as orchestrator with environment variables before insta
 ```
 export ORCHESTRATOR=openstack
 export OPENSTACK_VERSION=queens
-./startup.sh
+./run.sh
 ```
 
 OpenStack version may be selected from queens (default), ocata or rocky.
@@ -69,7 +69,7 @@ Please, set variable BEFORE preparation script or restart preparation script:
 
 ```
 export DEV_ENV=true
-./startup.sh
+./run.sh
 ```
 
 In this case, the instance must be rebooted manually after building and deployment.
@@ -101,7 +101,7 @@ For that you should:
 - run Firefox and set it to use sock5 proxy : localhost 8000
 - ssh -D 8000 -N centos@<ip address of your TF node>
 
-Then use the IP:Port/login/password displayed at the end of the output produced by startup.sh
+Then use the IP:Port/login/password displayed at the end of the output produced by run.sh
 
 ## Known issues
 

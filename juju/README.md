@@ -30,7 +30,7 @@ export CLOUD='local'  # by default
 
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/juju/startup.sh
+tf-devstack/juju/run.sh
 ```
 
 4. Wait about 30-60 minutes to complete the deployment.
@@ -49,7 +49,7 @@ export AWS_SECRET_KEY=*aws_secret_key*
 2. Clone this repository and run the startup script:
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/juju/startup.sh
+tf-devstack/juju/run.sh
 ```
 
 ## Quick start on an your own instances on base of Openstack
@@ -90,7 +90,7 @@ export CONTROLLER_NODES=*access ips of the rest 5 nodes*  # you should specify e
 4. Clone this repository and run the startup script:
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/juju/startup.sh
+tf-devstack/juju/run.sh
 ```
 
 ## Partial installations
@@ -127,7 +127,7 @@ You can select Ubuntu 16 with environment variables before installation.
 
 ```
 export UBUNTU_SERIES=${UBUNTU_SERIES:-xenial}
-./startup.sh
+./run.sh
 ```
 
 ## Environment variables
