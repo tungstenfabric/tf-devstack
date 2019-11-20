@@ -44,7 +44,7 @@ curl -s https://bootstrap.pypa.io/get-pip.py | python
 # conflicts with other projects (like tf-test, tf-dev-env)
 # and reinstall them via deps of docker-compose
 pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
-pip install jinja2 'ansible==2.7.11' docker-compose
+pip install jinja2 'ansible==2.7.11'
 
 # show config variables
 
