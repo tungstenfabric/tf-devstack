@@ -4,7 +4,7 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-source "$my_dir/env_desc.sh"
+source "$my_dir/env.sh"
 source "$my_dir/virsh_functions"
 
 # delete stack to unregister nodes

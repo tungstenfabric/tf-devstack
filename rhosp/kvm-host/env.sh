@@ -7,7 +7,7 @@ export poolname="rdimages"
 export undercloud_prefix="undercloud"
 export undercloud_vmname="rhosp13-undercloud"
 
-export BASE_IMAGE="/home/root/images/rhel-server-7.7-update-1-x86_64-kvm.qcow2"
+export BASE_IMAGE="/home/ggalkin/rhel_7.7.qcow2"
 
 #define virtual machine's volumes
 
@@ -24,6 +24,11 @@ export NET_NAME_PROV=${NET_NAME_PROV:-${BRIDGE_NAME_PROV}}
 export IPMI_USER="stack"
 export IPMI_PASSWORD="qwe123QWE"
 
+#SSH public key for user stack
+export ssh_private_key="/home/ggalkin/.ssh/id_rsa"
+export ssh_public_key="/home/ggalkin/.ssh/id_rsa.pub"
+
+
 # VBMC base port for IPMI management
 export VBMC_PORT_BASE=16000
 
@@ -39,6 +44,12 @@ export prov_ip="${prov_subnet}.2"
 export fixed_vip="${prov_subnet}.200"
 export fixed_controller_ip="${prov_subnet}.211"
 
-
-
 export CONTRAIL_VERSION="5.1"
+
+#VM nodes
+export OS_MEM=8192
+export CTRL_MEM=8192
+export COMP_MEM=4096
+export vm_disk_size="30G"
+
+export net_driver="virtio"

@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
@@ -9,9 +9,10 @@ fi
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-BASE_IMAGE="/home/ubuntu/rhel-7.7.qcow2"
+#BASE_IMAGE="/home/ubuntu/rhel-7.7.qcow2"
 
-source "$my_dir/env_desc.sh"
+source "$my_dir/env.sh"
+cd $my_dir
 
 # collect MAC addresses of overcloud machines
 function get_macs() {
@@ -72,7 +73,7 @@ for node in 'cont' 'compute' 'ctrlcont'; do
   vbmc_ip=$(get_vbmc_ip $node)
   vbmc_port=$(get_vbmc_port $node)
   mac=$(get_macs $node)
-  define_machine "profile:${longname[$node]},boot_option:local" $mac $vbmc_ip $vbmc_port 
+  define_machine "profile:${longname[$node]},boot_option:local" $mac $vbmc_ip $vbmc_port
 done
 
 # remove last comma

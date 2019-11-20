@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root" 
+   echo "This script must be run as root"
    exit 1
 fi
 
@@ -13,16 +13,17 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-OS_MEM=8192
-CTRL_MEM=8192
-COMP_MEM=4096
+OS_MEM=${OS_MEM:8192}
+CTRL_MEM=${CTRL_MEM:8192}
+COMP_MEM=${COMP_MEM:4096}
 
-
-vm_disk_size="30G"
+vm_disk_size=${vm_disk_size:30G}
 net_driver=${net_driver:-virtio}
 
-source "$my_dir/env_desc.sh"
+source "$my_dir/env.sh"
 source "$my_dir/virsh_functions"
+
+image_customize ${BASE_IMAGE} undercloud /home/ggalkin/.ssh/id_rsa.pub
 
 # check if environment is present
 assert_env_exists $undercloud_vmname

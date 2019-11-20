@@ -255,7 +255,7 @@ function call_vbmc() {
   shift
   local opts="$@"
   ensure_vbmcd
-  vbmc $cmd --no-daemon $opts 
+  vbmc $cmd --no-daemon $opts
 }
 
 function delete_domain() {
@@ -352,7 +352,7 @@ function rhel_customize() {
   local image_file=$1
   local image_type=$2
   local net_opts="--no-network"
-  
+
   virt-customize -a $image_file $net_opts \
     --run-command 'xfs_growfs /' \
     --run-command 'systemctl enable sshd' \
@@ -379,6 +379,32 @@ function rhel_unregister_system() {
     virt-customize -a $image_file $net_opts \
       --run-command "subscription-manager unregister" || true
   fi
+}
+
+function image_customize() {
+  local image=$1
+  local hname=$2
+  local ssh_public_key=$3
+  virt-customize -a $image \
+    --run-command 'xfs_growfs /' \
+    --run-command 'systemctl enable sshd' \
+    --run-command 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config' \
+    --root-password password:${IPMI_PASSWORD} \
+    --run-command 'yum remove -y cloud-init' \
+    --run-command 'echo net.ipv6.bindv6only=0 > /etc/sysctl.conf' \
+    --run-command 'echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf' \
+    --run-command 'echo ::1  localhost.localdomain localhost  ip6-localhost ip6-loopback > /etc/hosts' \
+    --run-command 'echo ff02::1 ip6-allnodes >> /etc/hosts' \
+    --run-command 'echo ff02::2 ip6-allrouters >> /etc/hosts' \
+    --run-command 'echo 127.0.0.1  localhost.localdomain  localhost >> /etc/hosts' \
+    --run-command 'echo 127.0.0.1  ${hname}.localdomain  $hname >> /etc/hosts' \
+    --hostname $hname \
+    --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
+    --run-command 'echo "stack:${IPMI_PASSWORD}" | chpasswd' \
+    --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
+    --ssh-inject root:file:$ssh_public_key \
+    --ssh-inject stack:file:$ssh_public_key \
+    --selinux-relabel
 }
 
 
@@ -465,7 +491,7 @@ function start_vbmc() {
     sleep 2
     local status=$(call_vbmc show -f value $domain | awk '/status /{print($2)}')
     [[ "$status" == 'running' ]] && break
-    # try start 
+    # try start
     call_vbmc start $domain
     sleep 2
     status=$(call_vbmc show -f value $domain | awk '/status /{print($2)}')
