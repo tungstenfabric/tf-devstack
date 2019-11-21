@@ -27,24 +27,17 @@ Steps:
 - t2.xlarge instance type
 - 50 GiB disk Storage
 
-Log into a new instance and get root access:
-
-```
-sudo su -
-```
-
 2. Install git to clone this repository:
 
 ```
-yum install -y git
+sudo yum install -y git
 ```
 
 3. Clone this repository and run the startup script:
 
 ```
 git clone http://github.com/tungstenfabric/tf-devstack
-cd tf-devstack
-./run.sh
+./tf-devstack/ansible/run.sh
 ```
 
 5. Wait about 30-60 minutes to complete the deployment.

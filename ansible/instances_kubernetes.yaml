@@ -1,6 +1,6 @@
 provider_config:
   bms:
-    ssh_user: root
+    ssh_user: "{{ USER }}"
     ssh_pwd:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 

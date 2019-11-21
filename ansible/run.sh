@@ -75,6 +75,7 @@ export NODE_IP
 export CONTAINER_REGISTRY
 export CONTRAIL_CONTAINER_TAG
 export OPENSTACK_VERSION
+export USER=$(whoami)
 python "$my_dir/../common/jinja2_render.py" < $my_dir/instances_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instances.yaml
 
 cd $ansible_deployer_dir
