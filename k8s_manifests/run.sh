@@ -56,6 +56,7 @@ if [ $SKIP_MANIFEST_CREATION == false ]; then
   export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
   export HOST_IP=$NODE_IP
   export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
+  export LINUX_DISTR=$DISTRO
   $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
   echo "Manifest contrail.yaml is created"
 fi
