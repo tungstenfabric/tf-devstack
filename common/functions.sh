@@ -59,20 +59,24 @@ function fetch_deployer() {
 }
 
 function wait_cmd_success() {
+  # silent mode = don't print dots for each attempt. Just print command output
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
   local silent=${4:-1}
   local i=0
-  while ! eval "$cmd" >/dev/null 2>&1 ; do
-      if [[ "$silent" != "0" ]]; then
-        printf "."
-      fi
-      i=$((i + 1))
-      if (( i > max )) ; then
-        return 1
-      fi
-      sleep $interval
+  if [[ "$silent" != "0" ]]; then
+    to_dev_null="&>/dev/null"
+  fi
+  while ! eval "$cmd" "$to_dev_null"; do
+    if [[ "$silent" != "0" ]]; then
+      printf "."
+    fi
+    i=$((i + 1))
+    if (( i > max )) ; then
+      return 1
+    fi
+    sleep $interval
   done
   return 0
 }
@@ -108,7 +112,8 @@ function label_nodes_by_ip() {
   local retries=5
   local interval=2
   local silent=0
-  for node in $(wait_cmd_success "kubectl get nodes --no-headers | grep master | cut -d' ' -f1" $retries $interval $silent ); do
+  for node in $(wait_cmd_success "kubectl get nodes --no-headers | cut -d' ' -f1" $retries $interval $silent ); do
+    echo $node
     local nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
     if echo $node_ips | tr ' ' '\n' | grep -F $nodeip; then
       wait_cmd_success "kubectl label node --overwrite $node $label" $retries $interval $silent
