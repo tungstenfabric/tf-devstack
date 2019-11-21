@@ -35,7 +35,7 @@ else
 fi
 
 # install pip
-curl -s https://bootstrap.pypa.io/get-pip.py | python
+curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
 # Uninstall docker-compose and packages it uses to avoid 
 # conflicts with other projects (like tf-test, tf-dev-env)
 # and reinstall them via deps of docker-compose
