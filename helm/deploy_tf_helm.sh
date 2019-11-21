@@ -53,11 +53,12 @@ global:
     CONTROLLER_NODES: "$(echo $CONTROLLER_NODES | tr ' ' ',')"
     JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
     BGP_PORT: "1179"
+  node:
+    host_os: $DISTRO
 EOF
 
 if [ "$DISTRO" == "centos" ]; then
   [[ $(sudo service firewalld stop) ]] || true
-  host_var="--set global.node.host_os=centos"
   # Determine kuberenetes dns and add it with searchdomains to dhclient.conf
   # because NetworkManager in centos rewrites resolv.conf
   k8s_dns=$(kubectl get services -n kube-system | grep dns | awk '{print $3}')
