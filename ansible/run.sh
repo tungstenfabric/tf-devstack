@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ "$(whoami)" != "root" ] && echo "Please run script as root user" && exit
-
 set -o errexit
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname "$my_file")"
@@ -9,8 +7,6 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
 cd $WORKSPACE
-
-ensure_root
 
 # default env variables
 
@@ -28,11 +24,11 @@ echo "$DISTRO detected"
 if [ "$DISTRO" == "centos" ]; then
   # remove packages taht may cause conflicts, 
   # all requried ones be re-installed
-  yum autoremove -y python-yaml python-requests python-urllib3
-  yum install -y python-setuptools iproute PyYAML
+  sudo yum autoremove -y python-yaml python-requests python-urllib3
+  sudo yum install -y python-setuptools iproute PyYAML
 elif [ "$DISTRO" == "ubuntu" ]; then
-  apt-get update
-  apt-get install -y python-setuptools iproute2
+  sudo apt-get update
+  sudo apt-get install -y python-setuptools iproute2
 else
   echo "Unsupported OS version"
   exit
@@ -43,8 +39,8 @@ curl -s https://bootstrap.pypa.io/get-pip.py | python
 # Uninstall docker-compose and packages it uses to avoid 
 # conflicts with other projects (like tf-test, tf-dev-env)
 # and reinstall them via deps of docker-compose
-pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
-pip install jinja2 'ansible==2.7.11' 'docker-compose==1.24.1'
+sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
+sudo pip install jinja2 'ansible==2.7.11' 'docker-compose==1.24.1'
 
 # show config variables
 
@@ -56,12 +52,12 @@ echo
 
 # prepare ssh key authorization
 
-[ ! -d /root/.ssh ] && mkdir /root/.ssh && chmod 0700 /root/.ssh
-[ ! -f /root/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f /root/.ssh/id_rsa -N ''
-[ ! -f /root/.ssh/authorized_keys ] && touch /root/.ssh/authorized_keys && chmod 0600 /root/.ssh/authorized_keys
-grep "$(</root/.ssh/id_rsa.pub)" /root/.ssh/authorized_keys -q || cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
+[ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
+[ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
+[ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
+grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 
-"$my_dir/../common/install_docker.sh"
+sudo -E "$my_dir/../common/install_docker.sh"
 
 # build step
 
