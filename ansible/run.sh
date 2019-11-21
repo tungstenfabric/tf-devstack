@@ -40,7 +40,9 @@ curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
 # conflicts with other projects (like tf-test, tf-dev-env)
 # and reinstall them via deps of docker-compose
 sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
-sudo pip install jinja2 'ansible==2.7.11' 'docker-compose==1.24.1'
+
+# docker-compose MUST be first here, because it will install the right version of PyYAML
+sudo pip install 'docker-compose==1.24.1' jinja2 'ansible==2.7.11'
 
 # show config variables
 
