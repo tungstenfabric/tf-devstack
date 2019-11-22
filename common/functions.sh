@@ -183,7 +183,7 @@ function wait_absence_status_for_juju_services() {
   done
 }
 
-function juju_post_deploy() {}
+function juju_post_deploy() {
   echo "INFO: Waiting for services start: $(date)"
 
   if ! wait_absence_status_for_juju_services "executing|blocked|waiting" 45 ; then
