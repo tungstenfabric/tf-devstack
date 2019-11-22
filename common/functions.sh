@@ -152,3 +152,51 @@ EOF
   echo "tf setup profile $file"
   cat ${file}
 }
+
+function wait_absence_status_for_juju_services() {
+  sleep 10
+  check_str=$1
+  local max_iter=${2:-30}
+  # waiting for services
+  local iter=0
+  while juju status | grep -P $check_str &>/dev/null
+  do
+    echo "Waiting for all service to be active - $iter/$max_iter"
+    if ((iter >= max_iter)); then
+      echo "ERROR: Services didn't up."
+      juju status --format tabular
+      return 1
+    fi
+    if juju status | grep "current" | grep error ; then
+      echo "ERROR: Some services went to error state"
+      juju status --format tabular
+      return 1
+    fi
+    local merr=`juju status --format json | python3 -c "import sys; import json; ms = json.load(sys.stdin)['machines']; [sys.stdout.write(str(m) + '\n') for m in ms if (ms[m]['juju-status']['current'] == 'down' and ms[m]['instance-id'] == 'pending')]"`
+    if [ -n "$merr" ] ; then
+      echo "ERROR: Machines went to down state: "$merr
+      juju status
+      return 1
+    fi
+    sleep 30
+    ((++iter))
+  done
+}
+
+function juju_post_deploy() {}
+  echo "INFO: Waiting for services start: $(date)"
+
+  if ! wait_absence_status_for_juju_services "executing|blocked|waiting" 45 ; then
+    echo "ERROR: Waiting for services end: $(date)"
+    return 1
+  fi
+  echo "INFO: Waiting for services end: $(date)"
+
+  # check for errors
+  if juju status | grep "current" | grep error ; then
+    echo "ERROR: Some services went to error state"
+    return 1
+  fi
+
+  juju status --format tabular
+}
