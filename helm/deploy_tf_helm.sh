@@ -26,15 +26,16 @@ cd tf-helm-deployer
 
 helm init --client-only
 
-#install plugin to make helm work without CNI
-if [[ -z $(kubectl get pods -n kube-system | grep tiller-deploy | grep Running) ]]; then
+# install plugin to make helm work without CNI
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  kubectl -n kube-system scale deployment tiller-deploy --replicas=0
   helm plugin install https://github.com/rimusz/helm-tiller || :
   helm tiller stop >/dev/null &2>&1 || :
   export HELM_HOST=127.0.0.1:44134
   helm tiller start-ci
 fi
 
-pgrep -f "helm serve" | xargs -n1 -r kill
+(pgrep -f "helm serve" | xargs -n1 -r kill) || :
 helm serve &
 sleep 5
 helm repo add local http://localhost:8879/charts
@@ -75,6 +76,10 @@ sudo mkdir -p /var/log/contrail
 
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f tf-devstack-values.yaml $host_var
+
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  kubectl -n kube-system scale deployment tiller-deploy --replicas=1
+fi
 
 wait_nic_up vhost0
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES

@@ -53,6 +53,8 @@ echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-clus
 # DNS
 # Allow host and hostnet pods to resolve cluster domains
 echo "resolvconf_mode: host_resolvconf" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "enable_nodelocaldns: false" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 # Grab first nameserver from /etc/resolv.conf that is not coredns
 if sudo systemctl is-enabled systemd-resolved.service; then
   nameserver=$(grep -i nameserver /run/systemd/resolve/resolv.conf | grep -v $(echo $K8S_SERVICE_SUBNET | cut -d. -f1-2) | head -1 | awk '{print $2}')

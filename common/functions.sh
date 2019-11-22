@@ -121,8 +121,7 @@ function label_nodes_by_ip() {
   local retries=5
   local interval=2
   local silent=0
-  for node in $(wait_cmd_success "kubectl get nodes --no-headers | cut -d' ' -f1" $retries $interval $silent ); do
-    echo $node
+  for node in $(wait_cmd_success "kubectl get nodes --no-headers" $retries $interval $silent | cut -d' ' -f1 ); do
     local nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
     if echo $node_ips | tr ' ' '\n' | grep -F $nodeip; then
       wait_cmd_success "kubectl label node --overwrite $node $label" $retries $interval $silent
