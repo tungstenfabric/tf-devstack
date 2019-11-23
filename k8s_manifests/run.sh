@@ -56,28 +56,11 @@ function tf() {
     ensure_kube_api_ready
 
     # label nodes
-    nodes=( `kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="InternalIP")].address}'` )
     labels=( $(grep "key: \"node-role." contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
-    echo Labelling nodes: ${nodes[*]} Agents: $AGENT_NODES Controllers: $CONTROLLER_NODES
-    for i in $(seq 1 ${#nodes[@]})
+    label_nodes_by_ip $AGENT_LABEL $AGENT_NODES
+    for label in ${labels[@]}
     do
-        existing_labels=`kubectl get nodes node$i --show-labels`
-        if [[ $CONTROLLER_NODES == *${nodes[i-1]}* ]]; then
-            # [[ `kubectl taint node node1 node.kubernetes.io/master=true:NoSchedule` ]] || true
-            for label in ${labels[@]}
-            do
-                if [[ $existing_labels != *"$label="* ]]; then
-                    echo Label node$i with $label=
-                    kubectl label nodes node$i $label=
-                fi
-            done
-        else
-            # [[ `kubectl taint node node1 node.kubernetes.io/master-` ]] || true
-            if [[ $existing_labels != *$AGENT_LABEL* ]]; then
-                echo Label node$i with $AGENT_LABEL
-                kubectl label nodes node$i $AGENT_LABEL
-            fi
-        fi
+        label_nodes_by_ip $label $CONTROLLER_NODES
     done
 
     # apply manifests
