@@ -140,9 +140,8 @@ save_tf_stack_profile
 
 # show results
 echo "Deployment scripts are finished"
-
-juju_post_deploy
-
+echo "Now you can monitor when contrail becomes available with:"
+echo "juju status"
 if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     echo "All applications and units should become active, before you can use Contrail"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
