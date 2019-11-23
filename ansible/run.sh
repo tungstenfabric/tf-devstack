@@ -28,7 +28,7 @@ if [ "$DISTRO" == "centos" ]; then
   sudo yum install -y python-setuptools iproute PyYAML
 elif [ "$DISTRO" == "ubuntu" ]; then
   sudo apt-get update
-  sudo apt-get install -y python-setuptools iproute2
+  sudo apt-get install -y python-setuptools iproute2 python-crypto
 else
   echo "Unsupported OS version"
   exit
