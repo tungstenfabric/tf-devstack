@@ -48,6 +48,13 @@ EOF
   fi
 }
 
+function ensure_kube_api_ready() {
+  if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
+    echo "ERROR: kubernetes is not ready. Exiting..."
+    exit 1
+  fi
+}
+
 function fetch_deployer() {
   sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
   ensure_insecure_registry_set $CONTAINER_REGISTRY
@@ -151,4 +158,27 @@ AGENT_NODES="$AGENT_NODES"
 EOF
   echo "tf setup profile $file"
   cat ${file}
+}
+
+# Stages workflow
+
+function run_stage() {
+  if ! finished_stage $1 ; then
+    $1 $2
+  fi
+  mkdir -p $TF_STAGES_DIR
+  touch $TF_STAGES_DIR/$1
+}
+
+function finished_stage() {
+  [ -e $TF_STAGES_DIR/$1 ]
+}
+
+function cleanup() {
+  local stage=${1:-'*'}
+  rm -f $TF_STAGES_DIR/$stage
+}
+
+function enabled() {
+  [[ "$1" =~ "$2" ]]
 }

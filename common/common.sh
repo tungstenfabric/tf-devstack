@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[[ "$DEBUG" -eq "true" ]] && set -x
+[[ "$DEBUG" == true ]] && set -x
 
 set -o errexit
 
@@ -9,6 +9,7 @@ WORKSPACE=${WORKSPACE:-$(pwd)}
 TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
 TF_DEVENV_PROFILE="${TF_CONFIG_DIR}/dev.env"
 TF_STACK_PROFILE="${TF_CONFIG_DIR}/stack.env"
+TF_STAGES_DIR="${TF_CONFIG_DIR}/.stages"
 
 # determined variables
 DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
