@@ -12,3 +12,4 @@ if [ -d "/etc/kubernetes" ]; then
 fi
 sudo docker rm -f $(sudo docker ps -a -q)
 sudo docker container prune -f
+rm -rf ~/.tf/.stages

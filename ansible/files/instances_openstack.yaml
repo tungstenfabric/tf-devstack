@@ -19,7 +19,7 @@ instances:
       webui:
       vrouter:
       openstack:
-      openstack_compute:  
+      openstack_compute:
 
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"

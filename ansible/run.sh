@@ -5,124 +5,116 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname "$my_file")"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
+source "$my_dir/../common/stages.sh"
 
-cd $WORKSPACE
+# stages declaration
+
+declare -A STAGES=( \
+    ["all"]="build machines k8s openstack tf wait" \
+    ["default"]="machines k8s openstack tf wait" \
+    ["master"]="build machines k8s openstack tf wait" \
+)
 
 # default env variables
 
 DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
-DEPLOYER_DIR="root"
+DEPLOYER_DIR="contrail-deployer"
+ANSIBLE_DEPLOYER_DIR="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
 
 export DOMAINSUFFIX=${DOMAINSUFFIX-$(hostname -d)}
 
-# install required packages
+cd $WORKSPACE
 
-echo "$DISTRO detected"
-if [ "$DISTRO" == "centos" ]; then
-  # remove packages taht may cause conflicts, 
-  # all requried ones be re-installed
-  sudo yum autoremove -y python-yaml python-requests python-urllib3
-  sudo yum install -y python-setuptools iproute PyYAML
-elif [ "$DISTRO" == "ubuntu" ]; then
-  sudo apt-get update
-  sudo apt-get install -y python-setuptools iproute2 python-crypto
-else
-  echo "Unsupported OS version"
-  exit
-fi
+function build() {
+    "$my_dir/../common/dev_env.sh"
+}
 
-# install pip
-curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
-# Uninstall docker-compose and packages it uses to avoid 
-# conflicts with other projects (like tf-test, tf-dev-env)
-# and reinstall them via deps of docker-compose
-sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
+function machines() {
+    # install required packages
 
-# docker-compose MUST be first here, because it will install the right version of PyYAML
-sudo pip install 'docker-compose==1.24.1' jinja2 'ansible==2.7.11'
+    echo "$DISTRO detected"
+    if [ "$DISTRO" == "centos" ]; then
+        # remove packages that may cause conflicts,
+        # all requried ones be re-installed
+        sudo yum autoremove -y python-yaml python-requests python-urllib3
+        sudo yum install -y python-setuptools iproute PyYAML
+    elif [ "$DISTRO" == "ubuntu" ]; then
+        sudo apt-get update
+        sudo apt-get install -y python-setuptools iproute2 python-crypto
+    else
+        echo "Unsupported OS version"
+        exit 1
+    fi
 
-# show config variables
+    curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
+    # Uninstall docker-compose and packages it uses to avoid
+    # conflicts with other projects (like tf-test, tf-dev-env)
+    # and reinstall them via deps of docker-compose
+    sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
 
-[ "$NODE_IP" != "" ] && echo "Node IP: $NODE_IP"
-echo "Build from source: $DEV_ENV" # true or false
-echo "Orchestrator: $ORCHESTRATOR" # kubernetes or openstack
-[ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack version: $OPENSTACK_VERSION"
-echo
+    # docker-compose MUST be first here, because it will install the right version of PyYAML
+    sudo pip install 'docker-compose==1.24.1' jinja2 'ansible==2.7.11'
 
-# prepare ssh key authorization
+    set_ssh_keys
 
-[ ! -d ~/.ssh ] && mkdir ~/.ssh && chmod 0700 ~/.ssh
-[ ! -f ~/.ssh/id_rsa ] && ssh-keygen -t rsa -b 2048 -f ~/.ssh/id_rsa -N ''
-[ ! -f ~/.ssh/authorized_keys ] && touch ~/.ssh/authorized_keys && chmod 0600 ~/.ssh/authorized_keys
-grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+    sudo -E "$my_dir/../common/install_docker.sh"
 
-sudo -E "$my_dir/../common/install_docker.sh"
+    fetch_deployer
 
-# build step
+    # generate inventory file
 
-if [[ "$DEV_ENV" == true ]] ; then
-  "$my_dir/../common/dev_env.sh"
-fi
-load_tf_devenv_profile
+    export NODE_IP
+    export CONTAINER_REGISTRY
+    export CONTRAIL_CONTAINER_TAG
+    export OPENSTACK_VERSION
+    export USER=$(whoami)
+    python "$my_dir/../common/jinja2_render.py" < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
 
-fetch_deployer
+    ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
+        $ANSIBLE_DEPLOYER_DIRplaybooks/configure_instances.yml
+    if [[ $? != 0 ]]; then
+        echo "Installation aborted. Instances preparation failed."
+        exit 1
+    fi
+}
 
-# generate inventory file
+function k8s() {
+    if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
+        echo "INFO: Skipping k8s deployment"
+    else
+        ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+            -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
+            $ANSIBLE_DEPLOYER_DIRplaybooks/install_k8s.yml
+    fi
+}
 
-ansible_deployer_dir="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
-export NODE_IP
-export CONTAINER_REGISTRY
-export CONTRAIL_CONTAINER_TAG
-export OPENSTACK_VERSION
-export USER=$(whoami)
-python "$my_dir/../common/jinja2_render.py" < $my_dir/instances_$ORCHESTRATOR.yaml > $ansible_deployer_dir/instances.yaml
+function openstack() {
+    if [[ "$ORCHESTRATOR" != "openstack" ]]; then
+        echo "INFO: Skipping openstack deployment"
+    else
+        ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+            -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
+            $ANSIBLE_DEPLOYER_DIRplaybooks/install_openstack.yml
+    fi
+}
 
-cd $ansible_deployer_dir
-# step 1 - configure instances
+function tf() {
+    ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
+        $ANSIBLE_DEPLOYER_DIRplaybooks/install_contrail.yml
+    echo "Contrail Web UI must be available at https://$NODE_IP:8143"
+    [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
+    echo "Use admin/contrail123 to log in"
+}
 
-ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instances.yaml \
-    playbooks/configure_instances.yml
-if [[ $? != 0 ]]; then
-  echo "Installation aborted. Instances preparation failed."
-  exit
-fi
+# This is_active function is called in wait stage defined in common/stages.sh
+function is_active() {
+    [ "$ORCHESTRATOR" == "kubernetes" ] && eval check_pods_active 
+    eval check_tf_active
+}
 
-# step 2 - install orchestrator
-
-playbook_name="install_k8s.yml"
-[ "$ORCHESTRATOR" == "openstack" ] && playbook_name="install_openstack.yml"
-
-ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instances.yaml \
-    playbooks/$playbook_name
-if [[ $? != 0 ]]; then
-  echo "Installation aborted. Failed to run $playbook_name"
-  exit
-fi
-
-# step 3 - install Tungsten Fabric
-
-ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-    -e config_file=$ansible_deployer_dir/instances.yaml \
-    playbooks/install_contrail.yml
-if [[ $? != 0 ]]; then
-  echo "Installation aborted. Contrail installation has been failed."
-  exit
-fi
-
-# safe tf stack profile
-
-save_tf_stack_profile
-
-# show results
-
-echo
-echo "Deployment scripts are finished"
-[ "$DEV_ENV" == "true" ] && echo "Please reboot node before testing"
-echo "Contrail Web UI must be available at https://$NODE_IP:8143"
-[ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
-echo "Use admin/contrail123 to log in"
+run_stages $STAGE
