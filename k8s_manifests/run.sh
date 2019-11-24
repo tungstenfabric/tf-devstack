@@ -8,7 +8,11 @@ source "$my_dir/../common/stages.sh"
 
 # stages declaration
 
-declare -a all_stages=(build kubernetes manifest tf wait)
+declare -A STAGES=( \
+    ["all"]="build k8s manifest tf wait" \
+    ["default"]="k8s manifest tf wait" \
+    ["master"]="build k8s manifest tf wait" \
+)
 
 # constants
 
@@ -25,12 +29,10 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 # stages
 
 function build() {
-    echo "INFO: Building TF $(date)"
-    #"$my_dir/../common/dev_env.sh"
+    "$my_dir/../common/dev_env.sh"
 }
 
 function k8s() {
-    echo "INFO: Deploying kubespray  $(date)"
     export K8S_NODES=$AGENT_NODES
     export K8S_MASTERS=$CONTROLLER_NODES
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
@@ -39,7 +41,6 @@ function k8s() {
 }
 
 function manifest() {
-    echo "INFO: Creating manifest contrail.yaml"
     fetch_deployer
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
@@ -50,7 +51,6 @@ function manifest() {
 }
 
 function tf() {
-    echo "INFO: Deploying TF $(date)"
     ensure_insecure_registry_set $CONTAINER_REGISTRY
     ensure_kube_api_ready
 
@@ -66,7 +66,6 @@ function tf() {
     kubectl apply -f contrail.yaml
 
     # show results
-    echo "TF deployment scripts are finished $(date)"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
 }
 
@@ -75,13 +74,4 @@ function is_active() {
     eval check_pods_active && eval check_tf_active
 }
 
-if [[ -z "$STAGE" ]] || [[ "$STAGE" == "deploy" ]] ; then
-    stages="k8s manifest tf wait"
-elif [[ "$STAGE" == "master" ]]; then
-    stages="build k8s manifest tf wait"
-else
-    # run selected stage
-    stages="$STAGE"
-fi
-
-run_stages $stages
+run_stages $STAGE

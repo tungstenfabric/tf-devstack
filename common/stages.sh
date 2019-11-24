@@ -61,13 +61,15 @@ function wait() {
 }
 
 function run_stages() {
-  local stages="$@"
+  [[ -z $STAGE ]] && STAGE="default"
+  stages=${STAGES[$STAGE]]}
+  [[ -z $stages ]] && stages="$STAGE"
 
   load_tf_devenv_profile
 
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
-    echo "INFO: Running stages $stage at $(date)"
+    echo "INFO: Running stage $stage at $(date)"
     run_stage $stage $OPTIONS
   done
 
