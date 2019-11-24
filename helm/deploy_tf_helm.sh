@@ -76,8 +76,7 @@ sudo mkdir -p /var/log/contrail
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f tf-devstack-values.yaml $host_var
 
-#echo "Waiting for vrouter to be ready"
-#kubectl -n tungsten-fabric wait daemonset --for=condition=Ready --timeout=420s -l component=contrail-vrouter-agent-kernel
+wait_nic_up vhost0
+label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 
-# Nodes here are not yet labelled for controller which allows vrouter to be installed.
-# Labelling for controller is done in run.sh
+echo "Contrail Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"

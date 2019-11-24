@@ -10,7 +10,7 @@ source "$my_dir/functions.sh"
 # parameters
 
 HELM_OPENSTACK_URL=${HELM_OPENSTACK_URL:-https://review.opendev.org/changes/663390/revisions/ce7ee2188228d6ab3ff6aaaa6ab5ba0cd1717ba1/archive?format=tgz}
-HELM_OPENSTACK_INFRA_URL=https://github.com/openstack/openstack-helm-infra/archive/24c1cd4514384fe22f3a882d41cf927588b03f2b.tar.gz
+#HELM_OPENSTACK_INFRA_URL=https://github.com/openstack/openstack-helm-infra/archive/24c1cd4514384fe22f3a882d41cf927588b03f2b.tar.gz
 export OPENSTACK_RELEASE=${OPENSTACK_VERSION:-queens}
 export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
 
@@ -35,10 +35,11 @@ label_nodes_by_ip openstack-compute-node=enabled $AGENT_NODES
 
 # fetch helm-openstack
 wget $HELM_OPENSTACK_URL -O helm-openstack.tgz
-wget $HELM_OPENSTACK_INFRA_URL -O helm-openstack-infra.tgz
+#wget $HELM_OPENSTACK_INFRA_URL -O helm-openstack-infra.tgz
 mkdir -p openstack-helm openstack-helm-infra
 tar xzf helm-openstack.tgz -C openstack-helm
-tar xzf helm-openstack-infra.tgz --strip-components=1 -C openstack-helm-infra
+#tar xzf helm-openstack-infra.tgz --strip-components=1 -C openstack-helm-infra
+git clone http://github.com/openstack/openstack-helm-infra
 
 # add TF overrides
 cp $my_dir/../helm/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_overrides/tf.yaml
@@ -50,7 +51,7 @@ sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" open
 # build infra charts
 helm init -c
 cd openstack-helm-infra
-pgrep -f "helm serve" | xargs -n1 -r kill
+[ $(pgrep -f "helm serve" | xargs -n1 -r kill) ] || true
 helm serve &
 sleep 5
 helm repo add local http://localhost:8879/charts
