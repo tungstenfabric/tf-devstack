@@ -21,11 +21,11 @@ CNI=${CNI:-cni}
 # install required packages
 
 if [ "$DISTRO" == "centos" ]; then
-    sudo yum install -y python3 python3-pip libyaml-devel python3-devel ansible git
+    sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
 elif [ "$DISTRO" == "ubuntu" ]; then
     #TODO: should be broken for now
     sudo apt-get update
-    sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev ansible git
+    sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev git
 else
     echo "Unsupported OS version" && exit 1
 fi

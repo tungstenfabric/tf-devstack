@@ -67,13 +67,16 @@ function fetch_deployer() {
 
 function wait_cmd_success() {
   # silent mode = don't print dots for each attempt. Just print command output
+  set -o pipefail
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
   local silent=${4:-1}
   local i=0
   if [[ "$silent" != "0" ]]; then
-    to_dev_null="&>/dev/null"
+    local to_dev_null="&>/dev/null"
+  else
+    local to_dev_null=""
   fi
   while ! eval "$cmd" "$to_dev_null"; do
     if [[ "$silent" != "0" ]]; then
@@ -85,7 +88,6 @@ function wait_cmd_success() {
     fi
     sleep $interval
   done
-  return 0
 }
 
 function wait_nic_up() {
@@ -128,57 +130,31 @@ function label_nodes_by_ip() {
   done
 }
 
-function load_tf_devenv_profile() {
-  if [ -e "$TF_DEVENV_PROFILE" ] ; then
-    echo
-    echo '[load tf devenv configuration]'
-    source "$TF_DEVENV_PROFILE"
-    [ -n "$REGISTRY_IP" ] && CONTAINER_REGISTRY="${REGISTRY_IP}" && [ -n "$REGISTRY_PORT" ] && CONTAINER_REGISTRY+=":${REGISTRY_PORT}" || true
-  else
-    echo
-    echo '[there is no tf devenv configuration to load]'
-  fi
-  # set to tungstenfabric if not set
-  [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric' || true
-  [ -z "$CONTRAIL_CONTAINER_TAG" ] && CONTRAIL_CONTAINER_TAG='latest' || true
+function check_pods_active() {
+  declare -a pods
+  readarray -t pods < <( kubectl get pods   --all-namespaces  | grep contrail   )
+
+  #check if all pods are running
+  for pod in "${pods[@]}" ; do
+    if [ "$( echo $pod | awk '{print $4}')" != "Running" ] ; then
+      return 1
+    else
+      containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
+      containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+      if [ "$containers_running" != "$containers_total" ] ; then
+        return 1
+      fi
+    fi
+  done
+  return 0
 }
 
-function save_tf_stack_profile() {
-  local file=${1:-$TF_STACK_PROFILE}
-  echo
-  echo '[update tf stack configuration]'
-  mkdir -p "$(dirname $file)"
-  cat <<EOF > $file
-CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
-CONTAINER_REGISTRY=${CONTAINER_REGISTRY}
-ORCHESTRATOR=${ORCHESTRATOR}
-OPENSTACK_VERSION="$OPENSTACK_VERSION"
-CONTROLLER_NODES="$CONTROLLER_NODES"
-AGENT_NODES="$AGENT_NODES"
-EOF
-  echo "tf setup profile $file"
-  cat ${file}
-}
-
-# Stages workflow
-
-function run_stage() {
-  if ! finished_stage $1 ; then
-    $1 $2
-  fi
-  mkdir -p $TF_STAGES_DIR
-  touch $TF_STAGES_DIR/$1
-}
-
-function finished_stage() {
-  [ -e $TF_STAGES_DIR/$1 ]
-}
-
-function cleanup() {
-  local stage=${1:-'*'}
-  rm -f $TF_STAGES_DIR/$stage
-}
-
-function enabled() {
-  [[ "$1" =~ "$2" ]]
+function check_tf_active() {
+  local line=
+  for line in $(sudo contrail-status | egrep "^.*[a-Z]: " | awk '{print $2}'); do
+    if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
+      return 1
+    fi
+  done
+  return 0
 }

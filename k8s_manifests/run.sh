@@ -4,12 +4,11 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
+source "$my_dir/../common/stages.sh"
 
 # stages declaration
 
-STAGE=$1
-[[ -n $2 ]] && shift && OPTIONS="$@"
-declare -a all_stages=(build kubernetes manifest contrail)
+declare -a all_stages=(build kubernetes manifest tf wait)
 
 # constants
 
@@ -30,7 +29,7 @@ function build() {
     #"$my_dir/../common/dev_env.sh"
 }
 
-function kubernetes() {
+function k8s() {
     echo "INFO: Deploying kubespray  $(date)"
     export K8S_NODES=$AGENT_NODES
     export K8S_MASTERS=$CONTROLLER_NODES
@@ -51,7 +50,7 @@ function manifest() {
 }
 
 function tf() {
-    echo "INFO: Deploying TF"
+    echo "INFO: Deploying TF $(date)"
     ensure_insecure_registry_set $CONTAINER_REGISTRY
     ensure_kube_api_ready
 
@@ -60,42 +59,29 @@ function tf() {
     label_nodes_by_ip $AGENT_LABEL $AGENT_NODES
     for label in ${labels[@]}
     do
-        label_nodes_by_ip $label $CONTROLLER_NODES
+        label_nodes_by_ip "$label=" $CONTROLLER_NODES
     done
 
     # apply manifests
     kubectl apply -f contrail.yaml
 
-    # safe tf stack profile
-
-    save_tf_stack_profile
-
     # show results
-    echo "Deployment scripts are finished"
-    echo "Now you can monitor when contrail becomes available with:"
-    echo "kubectl get pods --all-namespaces"
-    echo "All pods should become Running before you can use Contrail"
-    echo "If agent is in Error state you might need to upgrade your kernel with 'sudo yum update -y' and reboot the node"
-    echo "If agent is in a permanent CrashLoopBackOff state and other Contrail containers are Running, please reboot the node"
+    echo "TF deployment scripts are finished $(date)"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
 }
 
-# build step
-
-load_tf_devenv_profile
+# This is_active function is called in wait stage defined in common/stages.sh
+function is_active() {
+    eval check_pods_active && eval check_tf_active
+}
 
 if [[ -z "$STAGE" ]] || [[ "$STAGE" == "deploy" ]] ; then
-    stages="kubernetes manifest tf"
+    stages="k8s manifest tf wait"
 elif [[ "$STAGE" == "master" ]]; then
-    stages="build kubernetes manifest tf"
+    stages="build k8s manifest tf wait"
 else
     # run selected stage
     stages="$STAGE"
 fi
 
-echo "INFO: Applying stages ${stages[@]}"
-for stage in ${stages[@]} ; do
-    run_stage $stage $OPTIONS
-done
-
-echo "INFO: Successful deployment $(date)"
+run_stages $stages
