@@ -18,7 +18,7 @@ declare -A STAGES=( \
 # default env variables
 
 DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
-DEPLOYER_DIR="contrail-deployer"
+DEPLOYER_DIR="root"
 ANSIBLE_DEPLOYER_DIR="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
