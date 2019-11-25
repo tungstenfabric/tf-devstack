@@ -1,14 +1,22 @@
 #!/bin/bash
 
-set -o errexit
-
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
+source "$my_dir/../common/stages.sh"
 
+# stages declaration
+
+declare -A STAGES=( \
+    ["all"]="build machines k8s openstack tf wait" \
+    ["default"]="k8s openstack tf wait" \
+    ["master"]="build machines k8s openstack tf wait" \
+    ["platform"]="k8s openstack" \
+)
 
 # default env variables
+
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
@@ -18,11 +26,6 @@ AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
 
-SKIP_JUJU_BOOTSTRAP=${SKIP_JUJU_BOOTSTRAP:-false}
-SKIP_JUJU_ADD_MACHINES=${SKIP_JUJU_ADD_MACHINES:-false}
-SKIP_ORCHESTRATOR_DEPLOYMENT=${SKIP_ORCHESTRATOR_DEPLOYMENT:-false}
-SKIP_CONTRAIL_DEPLOYMENT=${SKIP_CONTRAIL_DEPLOYMENT:-false}
-
 export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
@@ -30,54 +33,32 @@ export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 export CONTAINER_REGISTRY
 export NODE_IP
 
-function wait_machine() {
-    local machine=$1
-    echo "Waiting for machine: $machine"
-    fail=0
-    while ! output=`juju ssh $machine "uname -a" 2>/dev/null` ; do
-        if ((fail >= 60)); then
-            echo "ERROR: Machine $machine did not up."
-            echo $output
-            exit 1
-        fi
-        sleep 15
-        ((++fail))
-    done
+# stages
+
+function build() {
+    "$my_dir/../common/dev_env.sh"
 }
 
-# build step
-
-# install juju
-if [ $SKIP_JUJU_BOOTSTRAP == false ]; then
-    echo "Installing JuJu, setup and bootstrap JuJu controller"
+function machines() {
     $my_dir/../common/deploy_juju.sh
-fi
-
-# build step
-
-if [[ "$DEV_ENV" == true ]] ; then
-  "$my_dir/../common/dev_env.sh"
-fi
-load_tf_devenv_profile
-
-# add-machines to juju
-if [[ $SKIP_JUJU_ADD_MACHINES == false && $CLOUD == 'manual' ]] ;then
-    if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
-        echo "We support deploy on 5 machines only now."
-        echo "You should specify their ip addresses in CONTROLLER_NODES variable."
-        exit 0
+    if [[ $CLOUD == 'manual' ]] ;then
+        if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
+            echo "We support deploy on 5 machines only now."
+            echo "You should specify their ip addresses in CONTROLLER_NODES variable."
+            exit 0
+        fi
+        $my_dir/../common/add_juju_machines.sh
     fi
-    $my_dir/../common/add_juju_machines.sh
-fi
+}
 
-# deploy orchestrator
-if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
-    if [[ $ORCHESTRATOR == 'openstack' && $CLOUD == 'local' ]] ; then
-        echo "The deployment of OpenStack on local cloud isn't supported."
-        exit 0
-    fi
-    echo "Deploy ${ORCHESTRATOR^}"
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+function openstack() {
+    if [[ "$ORCHESTRATOR" != "openstack" ]]; then
+        echo "INFO: Skipping openstack deployment"
+    else
+        if [[ $CLOUD == 'local' ]] ; then
+            echo "The deployment of OpenStack on local cloud isn't supported."
+            return 0
+        fi
         if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
             export OPENSTACK_ORIGIN="distro"
         else
@@ -88,15 +69,20 @@ if [ $SKIP_ORCHESTRATOR_DEPLOYMENT == false ]; then
         elif [ $CLOUD == 'manual' ] ; then
             export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
         fi
-    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
+        $my_dir/../common/deploy_juju_bundle.sh
     fi
-    $my_dir/../common/deploy_juju_bundle.sh
-fi
+}
 
-# deploy contrail
-if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
-    echo "Deploy Contrail"
+function k8s() {
+    if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
+        echo "INFO: Skipping k8s deployment"
+    else
+        export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
+        $my_dir/../common/deploy_juju_bundle.sh
+    fi
+}
+
+function tf() {
     export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
 
     # get contrail-charms
@@ -128,21 +114,27 @@ if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
     for machine in $JUJU_MACHINES ; do
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_machine $machine
+            wait_cmd_success 'juju ssh $machine "uname -a"'
         fi
         juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
         juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
         juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
-fi
 
-save_tf_stack_profile
+    # show results
 
-# show results
-echo "Deployment scripts are finished"
-echo "Now you can monitor when contrail becomes available with:"
-echo "juju status"
-if [ $SKIP_CONTRAIL_DEPLOYMENT == false ]; then
-    echo "All applications and units should become active, before you can use Contrail"
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
-fi
+}
+
+# This is_active function is called in wait stage defined in common/stages.sh
+function is_active() {
+    local status=$(juju status)
+    if [[ $status =~ "error" ]]; then
+        echo "ERROR: Deployment has failed because juju state is error"
+        echo status
+        exit 1
+    fi
+    eval ! 'echo $status | grep -P "executing|blocked|waiting"'
+}
+
+run_stages $STAGE
