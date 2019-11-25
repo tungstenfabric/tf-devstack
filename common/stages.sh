@@ -62,7 +62,7 @@ function wait() {
 
 function run_stages() {
   [[ -z $STAGE ]] && STAGE="default"
-  stages=${STAGES[$STAGE]]}
+  stages=${STAGES[$STAGE]}
   [[ -z $stages ]] && stages="$STAGE"
 
   load_tf_devenv_profile
