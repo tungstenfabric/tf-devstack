@@ -12,6 +12,7 @@ declare -A STAGES=( \
     ["all"]="build k8s manifest tf wait" \
     ["default"]="k8s manifest tf wait" \
     ["master"]="build k8s manifest tf wait" \
+    ["platform"]="k8s" \
 )
 
 # constants

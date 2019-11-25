@@ -13,6 +13,7 @@ declare -A STAGES=( \
     ["all"]="build machines k8s openstack tf wait" \
     ["default"]="machines k8s openstack tf wait" \
     ["master"]="build machines k8s openstack tf wait" \
+    ["platform"]="k8s openstack" \
 )
 
 # default env variables
