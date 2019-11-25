@@ -1,4 +1,4 @@
-# tf-devstack/rhosp
+# RHOSP deployer
 
 Bunch of scripts for deployment RHOSP on 4 VM (RHEL) running inside qemu-kvm host (Ubuntu).
 
