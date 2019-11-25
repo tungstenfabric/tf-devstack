@@ -4,8 +4,8 @@ set -o errexit
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
-source "$my_dir/common.sh"
-source "$my_dir/functions.sh"
+source "$my_dir/../common/common.sh"
+source "$my_dir/../common/functions.sh"
 
 # parameters
 
@@ -42,10 +42,10 @@ tar xzf helm-openstack.tgz -C openstack-helm
 git clone http://github.com/openstack/openstack-helm-infra
 
 # add TF overrides
-cp $my_dir/../helm/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_overrides/tf.yaml
-cp $my_dir/../helm/files/nova-tf.yaml openstack-helm/nova/values_overrides/tf.yaml
-cp $my_dir/../helm/files/neutron-tf.yaml openstack-helm/neutron/values_overrides/tf.yaml
-cp $my_dir/../helm/files/keystone-tf.yaml openstack-helm/keystone/values_overrides/tf.yaml
+cp $my_dir/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_overrides/tf.yaml
+cp $my_dir/files/nova-tf.yaml openstack-helm/nova/values_overrides/tf.yaml
+cp $my_dir/files/neutron-tf.yaml openstack-helm/neutron/values_overrides/tf.yaml
+cp $my_dir/files/keystone-tf.yaml openstack-helm/keystone/values_overrides/tf.yaml
 sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" openstack-helm/neutron/values_overrides/tf.yaml
 
 # build infra charts
@@ -86,5 +86,3 @@ cd ../openstack-helm
 ./tools/deployment/developer/nfs/150-libvirt.sh
 echo "Running nova/neutron deploy in the background"
 ./tools/deployment/developer/nfs/160-compute-kit.sh &
-
-cd ../..

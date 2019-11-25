@@ -49,7 +49,7 @@ function openstack() {
     if [[ $ORCHESTRATOR != "openstack" ]]; then
         echo "INFO: Skipping openstack deployment"
     else
-        $my_dir/../common/deploy_helm_openstack.sh
+        $my_dir/deploy_helm_openstack.sh
     fi
 }
 
