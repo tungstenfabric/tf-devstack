@@ -54,6 +54,8 @@ global:
     CONTROLLER_NODES: "$(echo $CONTROLLER_NODES | tr ' ' ',')"
     JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
     BGP_PORT: "1179"
+    CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
+    DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   node:
     host_os: $DISTRO
 EOF
