@@ -36,14 +36,27 @@ tf-devstack/helm/run.sh
 
 You'll have Kubernetes deployed with TF as its CNI networking.
 
+## Customized deployments and deployment steps
+
+run.sh accepts the following targets:
+
+Complete deployments:
+- (empty) - deploy kubernetes or openstack with TF and wait for completion
+- master - build existing master, deploy kubernetes or openstack with TF, and wait for completion
+- all - same as master
+
+Individual stages:
+- build - tf-dev-env container is fetched, TF is built and stored in local registry
+- k8s - kubernetes is deployed by means of kubespray (unless ORCHESRATOR=openstack)
+- openstack - helm openstack is deployed (unless ORCHESRATOR=kubernetes)
+- tf - TF is deployed
+- wait - wait until contrail-status verifies that all components are active
+
 ## Environment variables
 Environment variable list:
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - ORCHESTRATOR - orchestrator for deployment, "openstack" (default) and "kubernetes" are supported
-- SKIP_K8S_DEPLOYMENT - skip kubespray deployment
-- SKIP_OPENSTACK_DEPLOYMENT - skip Helm OpenStack deployment (when orchestrator is set to openstack)
-- SKIP_CONTRAIL_DEPLOYMENT - skip deployment of TF, false by default
 - CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 - OPENSTACK_VERSION - version of Openstack, queens by default

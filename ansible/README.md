@@ -55,19 +55,22 @@ export OPENSTACK_VERSION=queens
 
 OpenStack version may be selected from queens (default), ocata or rocky.
 
-## Building step
+## Customized deployments and deployment steps
 
-Environment variable DEV_ENV may be defined as "true" to build Tungsten Fabric from sources.
-Please, set variable BEFORE preparation script or restart preparation script:
+run.sh accepts the following targets:
 
-```
-export DEV_ENV=true
-./run.sh
-```
+Complete deployments:
+- (empty) - deploy kubernetes or openstack with TF and wait for completion
+- master - build existing master, deploy kubernetes or openstack with TF, and wait for completion
+- all - same as master
 
-In this case, the instance must be rebooted manually after building and deployment.
+Individual stages:
+- build - tf-dev-env container is fetched, TF is built and stored in local registry
+- k8s - kubernetes is deployed (unless ORCHESRATOR=openstack)
+- openstack - openstack is deployed (unless ORCHESRATOR=kubernetes)
+- tf - TF is deployed
+- wait - wait until contrail-status verifies that all components are active
 
-Building step takes from one to two hours.
 
 ## Details
 
@@ -79,7 +82,6 @@ Preparation script allows root user to connect to host via ssh, install and conf
 build tf-dev-control container.
 
 Environment variable list:
-- DEV_ENV true if build step is needed, false by default
 - ORCHESTRATOR kubernetes by default or openstack
 - OPENSTACK_VERSION queens (default), ocata or rocky, variable used when ORCHESTRATOR=openstack
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES

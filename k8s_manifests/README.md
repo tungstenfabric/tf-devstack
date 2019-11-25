@@ -12,7 +12,7 @@ Minimal:
 
 ## Quick start for k8s all-in-one node
 
-Clone and run the run.sh script for k8s_manifests
+Clone and invoke the run.sh script for k8s_manifests
 
 ```
 sudo yum install -y git
@@ -22,13 +22,26 @@ tf-devstack/k8s_manifests/run.sh
 
 You'll have Kubernetes deployed with TF as its CNI networking
 
+## Customized deployments and deployment steps
+
+run.sh accepts the following targets:
+
+Complete deployments:
+- (empty) - deploy kubernetes with TF as its CNI networking and wait for completion
+- master - build existing master and deploy kubernetes with TF as its CNI networking and wait for completion
+- all - same as master
+
+Individual stages:
+- build - tf-dev-env container is fetched, TF is built and stored in local registry
+- k8s - kubernetes is deployed by means of kubespray
+- manifest - manifest contrail.yaml is created from template
+- tf - TF is deployed
+- wait - wait until contrail-status verifies that all components are active
+
 ## Environment variables
 Environment variable list:
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - KUBE_MANIFEST - use particular k8s manifest template or ready manifest 
-- SKIP_K8S_DEPLOYMENT - skip kubespray deployment
-- SKIP_MANIFEST_CREATION - skip k8s manifest creation
-- SKIP_CONTRAIL_DEPLOYMENT - skip deployment of TF, false by default
 - CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
