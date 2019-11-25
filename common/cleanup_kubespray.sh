@@ -8,4 +8,4 @@ source "$my_dir/common.sh"
 
 # cleanup kubespray
 
-ansible-playbook -i kubespray/inventory/mycluster/hosts.yml --become --become-user=root $my_dir/../helm/kubespray/reset.yml
+ansible-playbook -i kubespray/inventory/mycluster/hosts.yml --become --become-user=root kubespray/reset.yml
