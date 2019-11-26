@@ -26,6 +26,15 @@ elif [ "$DISTRO" == "ubuntu" ]; then
     #TODO: should be broken for now
     sudo apt-get update
     sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev git
+
+    ubuntu_release=`lsb_release -r | awk '{split($2,a,"."); print a[1]}'`
+    if [ 16 -eq $ubuntu_release ]; then
+        sudo apt-add-repository --yes --update ppa:ansible/ansible-2.7
+        sudo apt update
+        sudo apt install -y ansible python3-cffi python3-crypto libssl-dev
+        pip3 install pyOpenSSL
+    fi
+
 else
     echo "Unsupported OS version" && exit 1
 fi
