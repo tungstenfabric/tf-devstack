@@ -19,6 +19,6 @@ echo
 echo [build all containers]
 build_opts="WORKSPACE=$WORKSPACE AUTOBUILD=1"
 [ -n "${BUILD_TEST_CONTAINERS}" ] && build_opts+=" BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS}"
-$build_opts sudo -E ./tf-dev-en/run.sh
+$build_opts sudo -E ./tf-dev-env/run.sh
 
 popd

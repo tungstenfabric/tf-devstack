@@ -10,7 +10,7 @@ source "$my_dir/../common/stages.sh"
 
 declare -A STAGES=( \
     ["all"]="build machines k8s openstack tf wait" \
-    ["default"]="k8s openstack tf wait" \
+    ["default"]="machines k8s openstack tf wait" \
     ["master"]="build machines k8s openstack tf wait" \
     ["platform"]="k8s openstack" \
 )
@@ -131,10 +131,10 @@ function is_active() {
     local status=$(juju status)
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
-        echo status
+        echo "$status"
         exit 1
     fi
-    eval ! 'echo $status | grep -P "executing|blocked|waiting"'
+    eval ! 'echo "$status" | grep -P "executing|blocked|waiting"'
 }
 
 run_stages $STAGE
