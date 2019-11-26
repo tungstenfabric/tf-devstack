@@ -134,7 +134,7 @@ function is_active() {
         echo "$status"
         exit 1
     fi
-    eval ! 'echo "$status" | grep -P "executing|blocked|waiting"'
+    [ ! $(echo $status | egrep 'executing|blocked|waiting') ]
 }
 
 run_stages $STAGE
