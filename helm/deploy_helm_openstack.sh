@@ -39,7 +39,10 @@ wget $HELM_OPENSTACK_URL -O helm-openstack.tgz
 mkdir -p openstack-helm openstack-helm-infra
 tar xzf helm-openstack.tgz -C openstack-helm
 #tar xzf helm-openstack-infra.tgz --strip-components=1 -C openstack-helm-infra
-git clone http://github.com/openstack/openstack-helm-infra
+[ ! -d "openstack-helm-infra" ] && git clone http://github.com/openstack/openstack-helm-infra
+
+# Hack neutron deploy to skip agent listing
+sed -i 's/^openstack network agent list/#openstack network_agent list/' openstack-helm/tools/deployment/developer/nfs/160-compute-kit.sh
 
 # add TF overrides
 cp $my_dir/files/libvirt-tf.yaml openstack-helm-infra/libvirt/values_overrides/tf.yaml
@@ -84,5 +87,4 @@ cd ../openstack-helm
 #./tools/deployment/developer/nfs/090-heat.sh
 ./tools/deployment/developer/nfs/120-glance.sh
 ./tools/deployment/developer/nfs/150-libvirt.sh
-echo "Running nova/neutron deploy in the background"
-./tools/deployment/developer/nfs/160-compute-kit.sh &
+./tools/deployment/developer/nfs/160-compute-kit.sh
