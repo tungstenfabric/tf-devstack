@@ -90,7 +90,7 @@ extra_vars=""
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars "$@"
 
 # FIXME: Re-restart systemd-resolved so internal domains resolve correctly
-sudo systemctl restart systemd-resolved.service
+sudo systemctl is-active systemd-resolved && sudo systemctl restart systemd-resolved.service
 
 mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config
