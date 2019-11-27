@@ -68,6 +68,7 @@ function tf() {
 
     # show results
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
+    echo "Use admin/contrail123 to log in"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
