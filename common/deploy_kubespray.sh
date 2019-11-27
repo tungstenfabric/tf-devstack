@@ -43,6 +43,10 @@ fi
 
 set_ssh_keys
 
+# setup timeserver
+
+setup_timeserver
+
 # deploy kubespray
 
 [ ! -d kubespray ] && git clone --depth 1 --single-branch https://github.com/kubernetes-sigs/kubespray.git

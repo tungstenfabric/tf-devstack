@@ -50,6 +50,9 @@ function machines() {
         exit 1
     fi
 
+    # setup timeserver
+    setup_timeserver
+
     curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
     # Uninstall docker-compose and packages it uses to avoid
     # conflicts with other projects (like tf-test, tf-dev-env)
