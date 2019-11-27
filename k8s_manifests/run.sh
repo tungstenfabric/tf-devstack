@@ -41,8 +41,12 @@ function machines() {
        sudo systemctl enable ntpd
        sudo systemctl start ntpd
     elif [ "$DISTRO" == "ubuntu" ]; then
+       sudo apt update -y
        sudo apt install -y ntp
     else
+        echo "Unsupported OS version"
+        exit 1
+    fi
 }
 
 function k8s() {
