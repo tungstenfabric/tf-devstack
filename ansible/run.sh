@@ -106,7 +106,7 @@ function openstack() {
 function tf() {
     ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-        $ANSIBLE_DEPLOYER_DIRplaybooks/install_contrail.yml
+        $ANSIBLE_DEPLOYER_DIR/playbooks/install_contrail.yml
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
     echo "Use admin/contrail123 to log in"
