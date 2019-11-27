@@ -17,8 +17,8 @@ git clone --depth 1 --single-branch https://github.com/tungstenfabric/tf-dev-env
 # build all
 echo
 echo [build all containers]
-build_opts="WORKSPACE=$WORKSPACE AUTOBUILD=1"
+build_opts="WORKSPACE=$WORKSPACE"
 [ -n "${BUILD_TEST_CONTAINERS}" ] && build_opts+=" BUILD_TEST_CONTAINERS=${BUILD_TEST_CONTAINERS}"
-$build_opts sudo -E ./tf-dev-env/run.sh
+$build_opts ./tf-dev-env/run.sh build
 
 popd
