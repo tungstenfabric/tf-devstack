@@ -9,9 +9,9 @@ source "$my_dir/../common/stages.sh"
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build machines k8s manifest tf wait" \
-    ["default"]="machines k8s manifest tf wait" \
-    ["master"]="build machines k8s manifest tf wait" \
+    ["all"]="build k8s manifest tf wait" \
+    ["default"]="k8s manifest tf wait" \
+    ["master"]="build k8s manifest tf wait" \
     ["platform"]="k8s" \
 )
 
@@ -31,22 +31,6 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 function build() {
     "$my_dir/../common/dev_env.sh"
-}
-
-function machines() {
-    # install required packages
-
-    if [ "$DISTRO" == "centos" ]; then
-       sudo yum install -y ntp
-       sudo systemctl enable ntpd
-       sudo systemctl start ntpd
-    elif [ "$DISTRO" == "ubuntu" ]; then
-       sudo apt update -y
-       sudo apt install -y ntp
-    else
-        echo "Unsupported OS version"
-        exit 1
-    fi
 }
 
 function k8s() {
