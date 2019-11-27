@@ -28,3 +28,5 @@ export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-}
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-}
 export CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
 export AGENT_NODES=${AGENT_NODES:-$NODE_IP}
+
+[ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit 1
