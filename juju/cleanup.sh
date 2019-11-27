@@ -26,4 +26,6 @@ if [[ $CLOUD == 'manual' && -n "$CONTROLLER_NODES" ]]; then
     done
 fi
 
+rm -rf ~/.tf/.stages
+
 echo "Cleanup is over."

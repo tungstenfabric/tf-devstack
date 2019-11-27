@@ -42,13 +42,13 @@ EOF
     juju set-default-region aws $AWS_REGION
 fi
 
-# bootstrap JuJu-controller
-if [[ $CLOUD == 'local' || $CLOUD == 'manual' ]] ; then
-    # prepare ssh key authorization for running bootstrap on the same node
-    set_ssh_keys
+# prepare ssh key authorization for running bootstrap on the same node
+set_ssh_keys
 
-    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
-    juju switch tf-$CLOUD-controller
+# bootstrap JuJu-controller
+if [[ $CLOUD == 'aws' ]] ; then
+    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
 else
-    juju bootstrap --bootstrap-series=$UBUNTU_SERIES $CLOUD tf-$CLOUD-controller
+    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
 fi
+juju switch tf-$CLOUD-controller
