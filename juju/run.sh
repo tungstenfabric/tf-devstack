@@ -9,10 +9,10 @@ source "$my_dir/../common/stages.sh"
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build machines k8s openstack tf wait" \
-    ["default"]="machines k8s openstack tf wait" \
-    ["master"]="build machines k8s openstack tf wait" \
-    ["platform"]="k8s openstack" \
+    ["all"]="build juju machines k8s openstack tf wait" \
+    ["default"]="juju machines k8s openstack tf wait" \
+    ["master"]="build juju machines k8s openstack tf wait" \
+    ["platform"]="juju k8s openstack" \
 )
 
 # default env variables
@@ -39,8 +39,11 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
-function machines() {
+function juju() {
     $my_dir/../common/deploy_juju.sh
+}
+
+function machines() {
     if [[ $CLOUD == 'manual' ]] ;then
         if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
             echo "We support deploy on 5 machines only now."
@@ -55,19 +58,15 @@ function openstack() {
     if [[ "$ORCHESTRATOR" != "openstack" ]]; then
         echo "INFO: Skipping openstack deployment"
     else
-        if [[ $CLOUD == 'local' ]] ; then
-            echo "The deployment of OpenStack on local cloud isn't supported."
-            return 0
-        fi
         if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
             export OPENSTACK_ORIGIN="distro"
         else
             export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
         fi
-        if [ $CLOUD == 'aws' ] ; then
-            export BUNDLE="$my_dir/files/bundle_openstack_lxd.yaml.tmpl"
-        elif [ $CLOUD == 'manual' ] ; then
+        if [ $CLOUD == 'manual' ] ; then
             export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+        else
+            export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
         fi
         $my_dir/../common/deploy_juju_bundle.sh
     fi
@@ -134,7 +133,7 @@ function is_active() {
         echo "$status"
         exit 1
     fi
-    [ ! $(echo $status | egrep 'executing|blocked|waiting') ]
+    [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
 }
 
 run_stages $STAGE

@@ -93,16 +93,6 @@ git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/run.sh
 ```
 
-## Partial installations
-
-1. You should set SKIP_JUJU_BOOTSTRAP to **true** if Juju is already installed on your system, and there is already running JuJu controller.
-
-2. You should set SKIP_JUJU_ADD_MACHINES to **true** if all machines are already added to the JuJu model.
-
-3. You can set SKIP_ORCHESTRATOR_DEPLOYMENT to **true** if you have already deployed orchestrator earlier.
-
-4. You can set SKIP_CONTRAIL_DEPLOYMENT to **true** if you don't want to deploy Contrail, but orchestrator only (openstack or kubernetes). You would be able to deploy Contrail later setting SKIP_CONTRAIL_DEPLOYMENT to **false** and SKIP_JUJU_BOOTSTRAP to **true**.
-
 ## Cleanup
 1. Set environment variables:
 
@@ -139,7 +129,3 @@ Environment variable list:
 - ORCHESTRATOR - orchestrator for deployment, "openstack" and "kubernetes" (default) are supported
 - CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
-- SKIP_JUJU_BOOTSTRAP - skip installation, setup of JuJu, bootstrap JuJu controller, false by default
-- SKIP_JUJU_ADD_MACHINES - skip adding machines if they are ready, false by default
-- SKIP_ORCHESTRATOR_DEPLOYMENT - skip deployment of orchestrator (openstack or kubernetes), false by default
-- SKIP_CONTRAIL_DEPLOYMENT - skip deployment of contrail, false by default
