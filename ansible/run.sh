@@ -76,7 +76,7 @@ function machines() {
 
     ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-        $ANSIBLE_DEPLOYER_DIRplaybooks/configure_instances.yml
+        $ANSIBLE_DEPLOYER_DIR/playbooks/configure_instances.yml
     if [[ $? != 0 ]]; then
         echo "Installation aborted. Instances preparation failed."
         exit 1
@@ -89,7 +89,7 @@ function k8s() {
     else
         ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-            $ANSIBLE_DEPLOYER_DIRplaybooks/install_k8s.yml
+            $ANSIBLE_DEPLOYER_DIR/playbooks/install_k8s.yml
     fi
 }
 
@@ -99,7 +99,7 @@ function openstack() {
     else
         ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-            $ANSIBLE_DEPLOYER_DIRplaybooks/install_openstack.yml
+            $ANSIBLE_DEPLOYER_DIR/playbooks/install_openstack.yml
     fi
 }
 
