@@ -36,7 +36,7 @@ label_nodes_by_ip openstack-compute-node=enabled $AGENT_NODES
 # fetch helm-openstack
 wget $HELM_OPENSTACK_URL -O helm-openstack.tgz
 #wget $HELM_OPENSTACK_INFRA_URL -O helm-openstack-infra.tgz
-mkdir -p openstack-helm openstack-helm-infra
+mkdir -p openstack-helm
 tar xzf helm-openstack.tgz -C openstack-helm
 #tar xzf helm-openstack-infra.tgz --strip-components=1 -C openstack-helm-infra
 [ ! -d "openstack-helm-infra" ] && git clone http://github.com/openstack/openstack-helm-infra
