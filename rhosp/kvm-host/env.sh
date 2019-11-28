@@ -44,6 +44,22 @@ export prov_ip="${prov_subnet}.2"
 export fixed_vip="${prov_subnet}.200"
 export fixed_controller_ip="${prov_subnet}.211"
 
+#Undercloud MAC addresses
+undercloud_mgmt_mac="00:16:00:00:08:02"
+undercloud_prov_mac="00:16:00:00:08:03"
+
+
+#ip addresses for overcloud nodes (uses when SKIP_OVERCLOUD_NODE_INTROSPECTION==true)
+export overcloud_cont_prov_mac="00:16:00:00:10:10"
+export overcloud_compute_prov_mac="00:16:00:00:10:11"
+export overcloud_ctrlcont_prov_mac="00:16:00:00:10:12"
+
+export overcloud_cont_prov_ip="${prov_subnet}.10"
+export overcloud_compute_prov_ip="${prov_subnet}.11"
+export overcloud_ctrlcont_prov_ip="${prov_subnet}.12"
+
+
+
 export CONTRAIL_VERSION="5.1"
 
 #VM nodes

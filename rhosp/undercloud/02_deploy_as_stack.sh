@@ -35,7 +35,7 @@ StrictHostKeyChecking no
 UserKnownHostsFile=/dev/null
 EOF
 chown stack:stack /home/stack/.ssh/config
-chmod 600 /home/stack/.ssh/config
+chmod 644 /home/stack/.ssh/config
 
 cd $my_dir
 cat undercloud.conf.template | envsubst >/home/stack/undercloud.conf
