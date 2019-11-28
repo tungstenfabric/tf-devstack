@@ -90,34 +90,35 @@ function tf() {
 
     $my_dir/../common/deploy_juju_bundle.sh
 
+    local juju=$(which juju)
     if [[ -n $DATA_NETWORK ]] ; then
-        juju config contrail-controller data-network=$DATA_NETWORK
+        $juju config contrail-controller data-network=$DATA_NETWORK
     fi
 
     # add relations between orchestrator and Contrail
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        juju add-relation contrail-keystone-auth keystone
-        juju add-relation contrail-openstack neutron-api
-        juju add-relation contrail-openstack heat
-        juju add-relation contrail-openstack nova-compute
-        juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        $juju add-relation contrail-keystone-auth keystone
+        $juju add-relation contrail-openstack neutron-api
+        $juju add-relation contrail-openstack heat
+        $juju add-relation contrail-openstack nova-compute
+        $juju add-relation contrail-agent:juju-info nova-compute:juju-info
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
-        juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
-        juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
-        juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+        $juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
+        $juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
+        $juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
+        $juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
     fi
 
-    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+    JUJU_MACHINES=`timeout -s 9 30 $juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_cmd_success 'juju ssh $machine "uname -a"'
+            wait_cmd_success '$juju ssh $machine "uname -a"'
         fi
-        juju_node_ip=`juju ssh $machine "hostname -i" | tr -d '\r'`
-        juju_node_hostname=`juju ssh $machine "hostname" | tr -d '\r'`
-        juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+        juju_node_ip=`$juju ssh $machine "hostname -i" | tr -d '\r'`
+        juju_node_hostname=`$juju ssh $machine "hostname" | tr -d '\r'`
+        $juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
     # show results
@@ -128,7 +129,7 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    local status=$(juju status)
+    local status=`$(which juju) status`
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
         echo "$status"
