@@ -14,8 +14,9 @@ AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
 
 # install JuJu
-#TODO: check snap in ubuntu xenial
-sudo snap install juju --classic
+sudo add-apt-repository -yu ppa:juju/stable
+sudo apt install -y juju
+export PATH=$PATH:$(which juju)
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
 cat <<EOF > $HOME/.ssh/config
