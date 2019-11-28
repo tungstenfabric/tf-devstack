@@ -7,6 +7,7 @@ my_dir="$(dirname "$my_file")"
 source "$my_dir/common.sh"
 
 function install_docker_ubuntu() {
+  export DEBIAN_FRONTEND=noninteractive
   apt-get update
   apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
