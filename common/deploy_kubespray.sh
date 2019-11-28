@@ -93,9 +93,6 @@ extra_vars=""
 [[ -n $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars "$@"
 
-# FIXME: Re-restart systemd-resolved so internal domains resolve correctly
-sudo systemctl is-active systemd-resolved && sudo systemctl restart systemd-resolved.service
-
 mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config
 sudo chown -R $(id -u):$(id -g) ~/.kube
