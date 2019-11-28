@@ -23,8 +23,8 @@ CNI=${CNI:-cni}
 if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
 elif [ "$DISTRO" == "ubuntu" ]; then
-    #TODO: should be broken for now
-    sudo apt-get update
+    sudo apt-get update -y
+    sudo apt-get -y purge unattended-upgrades || /bin/true
     sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev git
 
     ubuntu_release=`lsb_release -r | awk '{split($2,a,"."); print a[1]}'`
@@ -34,7 +34,6 @@ elif [ "$DISTRO" == "ubuntu" ]; then
         sudo apt install -y ansible python3-cffi python3-crypto libssl-dev
         pip3 install pyOpenSSL
     fi
-
 else
     echo "Unsupported OS version" && exit 1
 fi
