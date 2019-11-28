@@ -116,8 +116,8 @@ function tf() {
             # we need to wait while machine is up for aws deployment
             wait_cmd_success '$juju ssh $machine "uname -a"'
         fi
-        juju_node_ip=`$juju ssh $machine "hostname -i" | tr -d '\r'`
-        juju_node_hostname=`$juju ssh $machine "hostname" | tr -d '\r'`
+        juju_node_ip=`$juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1`
+        juju_node_hostname=`$juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1`
         $juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
