@@ -26,8 +26,8 @@ elif [ "$DISTRO" == "ubuntu" ]; then
   sudo apt-get install --no-install-recommends -y \
         wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev nfs-common
 fi
-sudo -H pip install -U pip wheel setuptools
-sudo -H pip install -U yq
+pip3 install --user wheel setuptools
+pip3 install --user yq
 
 # label nodes
 label_nodes_by_ip openstack-control-plane=enabled $CONTROLLER_NODES
