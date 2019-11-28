@@ -1,0 +1,21 @@
+resource_registry:
+  OS::TripleO::DeployedServer::ControlPlanePort: /home/stack/tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
+
+parameter_defaults:
+  DeployedServerPortMap:
+    rhosp13-overcloud-cont-ctlplane:
+      fixed_ips:
+        - ip_address: ${overcloud_cont_prov_ip}
+      subnets:
+        - cidr: 24
+    rhosp13-overcloud-compute-ctlplane:
+      fixed_ips:
+        - ip_address: ${overcloud_compute_prov_ip}
+      subnets:
+        - cidr: 24
+    rhosp13-overcloud-ctrlcont-ctlplane:
+      fixed_ips:
+        - ip_address: ${overcloud_ctrlcont_prov_ip}
+      subnets:
+        - cidr: 24
+

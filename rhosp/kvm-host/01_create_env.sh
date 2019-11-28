@@ -29,8 +29,8 @@ image_customize ${BASE_IMAGE} undercloud /home/ggalkin/.ssh/id_rsa.pub
 assert_env_exists $undercloud_vmname
 
 # define MAC's
-undercloud_mgmt_mac="00:16:00:00:08:02"
-undercloud_prov_mac="00:16:00:00:08:03"
+undercloud_mgmt_mac=${undercloud_mgmt_mac:-00:16:00:00:08:02}
+undercloud_prov_mac=${undercloud_prov_mac:-00:16:00:00:08:03}
 
 # create networks and setup DHCP rules
 create_network_dhcp $NET_NAME_MGMT $mgmt_subnet $BRIDGE_NAME_MGMT
@@ -47,7 +47,6 @@ function create_root_volume() {
   create_volume $name $poolname $vm_disk_size
 }
 
-
 function define_overcloud_vms() {
   local name=$1
   local mem=$2
@@ -61,14 +60,36 @@ function define_overcloud_vms() {
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
 }
 
+function define_overcloud_vms_without_vbmc() {
+  local name=$1
+  local mem=$2
+  local mac=$3
+  local ip=$4
+  local vcpu=${5:-2}
+  local vol_name="rhosp13-overcloud-${name}"
+  #create_root_volume $vol_name
+  local vm_name="$vol_name"
+  image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
+  cp -p $BASE_IMAGE $pool_path/$vol_name.qcow2
+  update_network_dhcp $NET_NAME_PROV $vm_name $mac $ip
+  define_machine $vm_name $vcpu $mem rhel7 $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
+}
+
+
 # just define overcloud machines
+if [[ "$SKIP_OVERCLOUD_NODE_INTROSPECTION" == false ]]; then
 vbmc_port=$VBMC_PORT_BASE
-define_overcloud_vms 'cont' $OS_MEM $vbmc_port 4
-(( vbmc_port+=1 ))
-define_overcloud_vms 'compute' $COMP_MEM $vbmc_port 4
-(( vbmc_port+=1 ))
-define_overcloud_vms 'ctrlcont' $CTRL_MEM $vbmc_port 4
-(( vbmc_port+=1 ))
+  define_overcloud_vms 'cont' $OS_MEM $vbmc_port 4
+  (( vbmc_port+=1 ))
+  define_overcloud_vms 'compute' $COMP_MEM $vbmc_port 4
+  (( vbmc_port+=1 ))
+  define_overcloud_vms 'ctrlcont' $CTRL_MEM $vbmc_port 4
+  (( vbmc_port+=1 ))
+else
+  define_overcloud_vms_without_vbmc 'cont' $OS_MEM $overcloud_cont_prov_mac $overcloud_cont_prov_ip 4
+  define_overcloud_vms_without_vbmc 'compute' $COMP_MEM $overcloud_compute_prov_mac $overcloud_compute_prov_ip 4
+  define_overcloud_vms_without_vbmc 'ctrlcont' $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
+fi
 
 # copy image for undercloud and resize them
 cp -p $BASE_IMAGE $pool_path/$undercloud_vm_volume

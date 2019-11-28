@@ -204,7 +204,7 @@ function define_machine() {
   local net=$5
   local disk_path=$6
   shift 6
-  NET_DRIVER=${NET_DRIVER:-'e1000'}
+  NET_DRIVER=${NET_DRIVER:-'virtio'}
   local disk_opts="path=${disk_path},device=disk,cache=writeback,bus=virtio,format=qcow2"
   local net_opts=''
   local i=''
@@ -288,99 +288,6 @@ function delete_volume() {
   virsh vol-delete $volname --pool $poolname 2>/dev/null || rm -f $pool_path/$volname 2>/dev/null
 }
 
-
-function _rhel_register() {
-  local image_file=$1
-  local ret=1
-  local i=0
-  while (( i < 5 )) ; do
-    echo "Image registration try=$i"
-    virt-customize -a $image_file \
-      --sm-credentials ${RHEL_USER}:password:${RHEL_PASSWORD} --sm-register && ret=0
-    if (( ret == 0 )) ; then
-      break
-    fi
-    (( i+=1 ))
-  done
-  echo "Image registration result for $i tries: $ret"
-  return $ret
-}
-
-function _rhel_attach() {
-  local image_file=$1
-  local attach_type='auto'
-  if [[ -n "$RHEL_POOL_ID" ]] ; then
-    attach_type="pool:${RHEL_POOL_ID}"
-  fi
-  local ret=1
-  local i=0
-  while (( i < 5 )) ; do
-    echo "Subscription attach try=$i"
-    virt-customize -a $image_file --sm-attach ${attach_type} && ret=0
-    if (( ret == 0 )) ; then
-      break
-    fi
-    (( i+=1 ))
-  done
-  echo "Subscription attach result for $i tries: $ret"
-  return $ret
-}
-
-function _rhel_repos() {
-  local image_file=$1
-  local common_repos=$(rhel_get_repos_for_os)
-  local enable_repos_opts=''
-  for i in $common_repos ; do
-    enable_repos_opts+=" --enable=${i}"
-  done
-  local ret=1
-  local i=0
-  while (( i < 5 )) ; do
-    echo "Enable yum repos try=$i"
-    virt-customize -a $image_file \
-      --run-command "subscription-manager repos ${enable_repos_opts}" && ret=0
-    if (( ret == 0 )) ; then
-      break
-    fi
-    (( i+=1 ))
-  done
-  echo "Enable yum repos result for $i tries: $ret"
-  return $ret
-}
-
-function rhel_customize() {
-  local image_file=$1
-  local image_type=$2
-  local net_opts="--no-network"
-
-  virt-customize -a $image_file $net_opts \
-    --run-command 'xfs_growfs /' \
-    --run-command 'systemctl enable sshd' \
-    --run-command 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config' \
-    --root-password password:$IPMI_PASSWORD \
-    --selinux-relabel
-      # --run-command 'sed -i "s/SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config'
-
-  if [[ "$image_type" == 'undercloud' ]] ; then
-
-    virt-customize -a $image_file $net_opts \
-      --run-command 'yum remove -y cloud-init'
-
-  fi
-}
-
-function rhel_unregister_system() {
-  local image_file=$1
-  # TODO: disable network related actions like rhel registration
-  # virt-customize doesnt work on 18.04 with network
-  # https://bugs.launchpad.net/ubuntu/+source/libguestfs/+bug/1768085
-  local net_opts="--no-network"
-  if [[ -f $image_file ]] ; then
-    virt-customize -a $image_file $net_opts \
-      --run-command "subscription-manager unregister" || true
-  fi
-}
-
 function image_customize() {
   local image=$1
   local hname=$2
@@ -402,6 +309,8 @@ function image_customize() {
     --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
     --run-command 'echo "stack:${IPMI_PASSWORD}" | chpasswd' \
     --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
+    --run-command 'echo -n > /root/.ssh/authorized_keys' \
+    --run-command 'echo -n > /home/stack/.ssh/authorized_keys' \
     --ssh-inject root:file:$ssh_public_key \
     --ssh-inject stack:file:$ssh_public_key \
     --selinux-relabel

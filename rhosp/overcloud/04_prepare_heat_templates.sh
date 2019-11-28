@@ -44,5 +44,11 @@ cat overcloud/environment-rhel-registration.yaml.template | envsubst >~/environm
 cat overcloud/contrail-parameters.yaml.template | envsubst >~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
-cp overcloud/roles_data_contrail_aio.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+if [[ "$SKIP_OVERCLOUD_NODE_INTROSPECTION" == false ]]; then
+   cp overcloud/roles_data_contrail_aio.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+else
+   cat overcloud/ctlplane-assignments.yaml.template | envsubst >~/ctlplane-assignments.yaml
+   cp overcloud/roles_data_contrail_aio_without_node_introspection.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+fi
+
 
