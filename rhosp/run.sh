@@ -35,8 +35,7 @@ if [[ "$SKIP_KVM_PROVISIONING" == false ]]; then
 fi
 
 if [[ "$SKIP_CREATING_ENVIRONMENT" == false ]]; then
-    #sudo ./01_create_env.sh
-    sudo ./01_create_env_without_vbmc.sh
+    sudo SKIP_OVERCLOUD_NODE_INTROSPECTION=${SKIP_OVERCLOUD_NODE_INTROSPECTION} ./01_create_env.sh
     wait_ssh ${mgmt_ip} ${ssh_private_key}
 fi
 
