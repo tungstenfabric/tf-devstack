@@ -51,8 +51,7 @@ function define_overcloud_vms() {
   local name=$1
   local mem=$2
   local vbmc_port=$3
-  local vcpu=${5:-2}
-  local number_re='^[0-9]+$'
+  local vcpu=${4:-2}
   local vol_name="rhosp13-overcloud-${name}"
   create_root_volume $vol_name
   local vm_name="$vol_name"
