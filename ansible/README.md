@@ -66,8 +66,8 @@ Complete deployments:
 
 Individual stages:
 - build - tf-dev-env container is fetched, TF is built and stored in local registry
-- k8s - kubernetes is deployed (unless ORCHESRATOR=openstack)
-- openstack - openstack is deployed (unless ORCHESRATOR=kubernetes)
+- k8s - kubernetes is deployed (unless ORCHESTRATOR=openstack)
+- openstack - openstack is deployed (unless ORCHESTRATOR=kubernetes)
 - tf - TF is deployed
 - wait - wait until contrail-status verifies that all components are active
 
