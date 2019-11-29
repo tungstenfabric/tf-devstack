@@ -65,7 +65,7 @@ function machines() {
 
     set_ssh_keys
 
-    sudo -E "$my_dir/../common/install_docker.sh"
+    "$my_dir/../common/install_docker.sh"
 
     fetch_deployer
 
