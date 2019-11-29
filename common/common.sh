@@ -33,4 +33,3 @@ if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
   exit 1
 fi
-
