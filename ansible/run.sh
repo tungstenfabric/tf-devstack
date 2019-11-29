@@ -42,7 +42,7 @@ function machines() {
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
-        sudo yum install -y python-setuptools iproute PyYAML
+        sudo yum install -y python-setuptools iproute
     elif [ "$DISTRO" == "ubuntu" ]; then
         sudo apt-get update
         sudo apt-get install -y python-setuptools iproute2 python-crypto
