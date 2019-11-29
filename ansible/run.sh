@@ -117,8 +117,13 @@ function tf() {
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
+
 function is_active() {
-    [ "$ORCHESTRATOR" == "kubernetes" ] && check_pods_active && check_tf_active
+    if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+        check_pods_active
+    fi
+
+    check_tf_active
 }
 
 run_stages $STAGE
