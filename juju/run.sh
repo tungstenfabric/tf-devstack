@@ -129,6 +129,7 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    cat /etc/hosts
     local status=`$(which juju) status`
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
