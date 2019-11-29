@@ -116,8 +116,8 @@ function tf() {
             # we need to wait while machine is up for aws deployment
             wait_cmd_success '$juju ssh $machine "uname -a"'
         fi
-        juju_node_ip=`$juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1`
-        juju_node_hostname=`$juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1`
+        juju_node_ip=`$juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        juju_node_hostname=`$juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         $juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
@@ -129,7 +129,6 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    cat /etc/hosts
     local status=`$(which juju) status`
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
