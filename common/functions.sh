@@ -150,7 +150,7 @@ function check_pods_active() {
 
 function check_tf_active() {
   local line=
-  for line in $(sudo contrail-status | egrep ": " | awk '{print $2}'); do
+  for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
     if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
       return 1
     fi
