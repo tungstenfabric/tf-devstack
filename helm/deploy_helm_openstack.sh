@@ -26,6 +26,7 @@ elif [ "$DISTRO" == "ubuntu" ]; then
   sudo apt-get install --no-install-recommends -y \
         wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev nfs-common
 fi
+sudo -H -E pip install setuptools
 pip3 install --user wheel setuptools
 pip3 install --user yq
 
