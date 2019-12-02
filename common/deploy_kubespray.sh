@@ -14,6 +14,8 @@ K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-}
 CNI=${CNI:-cni}
+IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
+
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
 [ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit 1
@@ -23,6 +25,12 @@ CNI=${CNI:-cni}
 if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
 elif [ "$DISTRO" == "ubuntu" ]; then
+    # Ensure updates repo is available
+    if [[ "$IGNORE_APT_UPDATES_REPO" != "false" ]] && ! apt-cache policy | grep http | awk '{print $2 $3}' | sort -u | grep -q updates; then
+        echo "Ubuntu updates repo could not be found! Please check your apt sources" 1>&2
+        echo "If you believe this to be a mistake and want to proceed, set IGNORE_APT_UPDATES_REPO=true and run again." 1>&2
+        exit 1
+    fi
     sudo apt-get update -y
     sudo apt-get -y purge unattended-upgrades || /bin/true
     sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev git
