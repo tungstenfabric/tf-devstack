@@ -45,3 +45,6 @@ Environment variable list:
 - KUBE_MANIFEST - use particular k8s manifest template or ready manifest 
 - CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
+
+## Known Issues
+- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine

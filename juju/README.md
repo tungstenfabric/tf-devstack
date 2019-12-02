@@ -129,3 +129,6 @@ Environment variable list:
 - ORCHESTRATOR - orchestrator for deployment, "openstack" and "kubernetes" (default) are supported
 - CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
+
+## Known Issues
+- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine

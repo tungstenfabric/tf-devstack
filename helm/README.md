@@ -61,3 +61,6 @@ Environment variable list:
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 - OPENSTACK_VERSION - version of Openstack, queens by default
 - CNI - CNI for kubernetes, calico by default for Openstack and TF for kubernetes
+
+## Known Issues
+- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine

@@ -99,7 +99,7 @@ For that you should:
 Then use the IP:Port/login/password displayed at the end of the output produced by run.sh
 
 ## Known issues
-
+- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
 - Deployment scripts are tested on CentOS 7 / Ubuntu 16.04 and AWS / Virtualbox
 - Occasional errors prevent deployment of Kubernetes on a VirtualBox machine, retry can help
 - One or more of Tungsten Fabric containers are in "Restarting" status after installation,
@@ -111,3 +111,4 @@ try using CLI (you need install python-openstackclient in virtualenv)
 - OpenStack/ocata can't find host to spawn VM,
 set virt_type=qemu in [libvirt] section of /etc/kolla/config/nova/nova-compute.conf file inside nova_compute container,
 then restart this container
+
