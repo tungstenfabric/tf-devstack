@@ -98,6 +98,16 @@ function k8s() {
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
             $ANSIBLE_DEPLOYER_DIR/playbooks/install_k8s.yml
+
+        # To use kubectl current user must have Kubernetes config
+        if [[ ! -d ~/.kube ]]; then
+          mkdir ~/.kube
+        fi
+
+        if [[ ! -f ~/.kube/config ]]; then
+          sudo cp /root/.kube/config ~/.kube/
+          sudo chown $USER ~/.kube/config
+        fi
     fi
 }
 
