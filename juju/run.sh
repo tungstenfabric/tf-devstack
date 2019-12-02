@@ -43,6 +43,8 @@ function build() {
 function logs() {
     collect_docker_logs
 
+    collect_juju_logs
+
     local cdir=`pwd`
     cd $WORKSPACE
     tar -czf logs.tgz logs
