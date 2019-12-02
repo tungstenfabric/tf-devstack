@@ -22,7 +22,6 @@ DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
 DEPLOYER_DIR="root"
 ANSIBLE_DEPLOYER_DIR="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
 export ANSIBLE_CONFIG=$ANSIBLE_DEPLOYER_DIR/ansible.cfg
-export ANSIBLE_PK_PATH=$HOME/.ssh/id_rsa
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
@@ -79,7 +78,7 @@ function machines() {
     export USER=$(whoami)
     python "$my_dir/../common/jinja2_render.py" < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
 
-    sudo -E ansible-playbook --private-key $ANSIBLE_PK_PATH -v -e orchestrator=$ORCHESTRATOR \
+    sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
         $ANSIBLE_DEPLOYER_DIR/playbooks/configure_instances.yml
     if [[ $? != 0 ]]; then
@@ -92,7 +91,7 @@ function k8s() {
     if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
         echo "INFO: Skipping k8s deployment"
     else
-        sudo -E ansible-playbook --private-key $ANSIBLE_PK_PATH -v -e orchestrator=$ORCHESTRATOR \
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
             $ANSIBLE_DEPLOYER_DIR/playbooks/install_k8s.yml
     fi
@@ -102,14 +101,14 @@ function openstack() {
     if [[ "$ORCHESTRATOR" != "openstack" ]]; then
         echo "INFO: Skipping openstack deployment"
     else
-        sudo -E ansible-playbook --private-key $ANSIBLE_PK_PATH -v -e orchestrator=$ORCHESTRATOR \
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
             $ANSIBLE_DEPLOYER_DIR/playbooks/install_openstack.yml
     fi
 }
 
 function tf() {
-    sudo -E ansible-playbook --private-key $ANSIBLE_PK_PATH -v -e orchestrator=$ORCHESTRATOR \
+    sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
         $ANSIBLE_DEPLOYER_DIR/playbooks/install_contrail.yml
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"

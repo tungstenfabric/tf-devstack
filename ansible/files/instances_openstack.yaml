@@ -2,6 +2,7 @@ provider_config:
   bms:
     ssh_user: "{{ USER }}"
     ssh_pwd:
+    ssh_private_key: "{{ HOME }}/.ssh/id_rsa"
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
