@@ -78,6 +78,10 @@ function machines() {
     export USER=$(whoami)
     python "$my_dir/../common/jinja2_render.py" < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
 
+    # create Ansible temporary dir under current user to avoid create it under root
+    ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
+    rm -rf /tmp/rekjreekrbjrekj.txt
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
         $ANSIBLE_DEPLOYER_DIR/playbooks/configure_instances.yml
