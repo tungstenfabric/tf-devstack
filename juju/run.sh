@@ -90,35 +90,34 @@ function tf() {
 
     $my_dir/../common/deploy_juju_bundle.sh
 
-    local juju=$(which juju)
     if [[ -n $DATA_NETWORK ]] ; then
-        $juju config contrail-controller data-network=$DATA_NETWORK
+        command juju config contrail-controller data-network=$DATA_NETWORK
     fi
 
     # add relations between orchestrator and Contrail
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        $juju add-relation contrail-keystone-auth keystone
-        $juju add-relation contrail-openstack neutron-api
-        $juju add-relation contrail-openstack heat
-        $juju add-relation contrail-openstack nova-compute
-        $juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        command juju add-relation contrail-keystone-auth keystone
+        command juju add-relation contrail-openstack neutron-api
+        command juju add-relation contrail-openstack heat
+        command juju add-relation contrail-openstack nova-compute
+        command juju add-relation contrail-agent:juju-info nova-compute:juju-info
     elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        $juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
-        $juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
-        $juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
-        $juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+        command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
+        command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
+        command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
+        command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
     fi
 
-    JUJU_MACHINES=`timeout -s 9 30 $juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+    JUJU_MACHINES=`timeout -s 9 30 command juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_cmd_success '$juju ssh $machine "uname -a"'
+            wait_cmd_success 'command juju ssh $machine "uname -a"'
         fi
-        juju_node_ip=`$juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
-        juju_node_hostname=`$juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
-        $juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+        juju_node_ip=`command juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        juju_node_hostname=`command juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
     # show results

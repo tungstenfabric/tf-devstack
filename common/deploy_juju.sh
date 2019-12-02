@@ -28,7 +28,7 @@ chmod 600 $HOME/.ssh/config
 
 if [[ $CLOUD == 'aws' ]] ; then
     # configure juju to authentificate itself to amazon
-    juju remove-credential aws aws &>/dev/null || /bin/true
+    juju remove-credential --client aws aws &>/dev/null || /bin/true
     creds_file="/tmp/creds.yaml"
     cat >"$creds_file" <<EOF
 credentials:
