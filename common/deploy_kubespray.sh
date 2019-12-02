@@ -15,6 +15,7 @@ K8S_POD_SUBNET=${K8S_POD_SUBNET:-}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
+LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
@@ -65,9 +66,27 @@ declare -a IPS=( $K8S_MASTERS $K8S_NODES )
 masters=( $K8S_MASTERS )
 echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
 export KUBE_MASTERS_MASTERS=${#masters[@]}
-CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
-sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
+    node_count=0
+    for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
+        declare -A IPS_WITH_HOSTNAMES
+        hostname=$(ssh $ssh_opts $ip hostname -s)
+        IPS_WITH_HOSTNAMES[$hostname]=$ip
+       ((node_count+=1))
+    done
+    # Test if all hostnames were unique
+    if [[ "${#IPS_WITH_HOSTNAMES[@]}" != "$node_count" ]]; then
+        echo "ERROR: Not all hosts have unique hostnames." 1>&2
+        echo "To use automatic host naming, set LOOKUP_NODE_HOSTNAMES=false" 1>&2
+        exit 1
+    fi
+    CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $(for host in "${!IPS_WITH_HOSTNAMES[@]}"; do echo -n "$host,${IPS_WITH_HOSTNAMES[$host]} ";done)
+else
+    CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+fi
 
+sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
 # DNS
