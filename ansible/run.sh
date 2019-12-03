@@ -6,11 +6,12 @@ my_dir="$(dirname "$my_file")"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
+source "$my_dir/../common/collect_logs.sh"
 
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build machines k8s openstack tf wait" \
+    ["all"]="build machines k8s openstack tf wait logs" \
     ["default"]="machines k8s openstack tf wait" \
     ["master"]="build machines k8s openstack tf wait" \
     ["platform"]="machines k8s openstack" \
@@ -32,6 +33,13 @@ cd $WORKSPACE
 
 function build() {
     "$my_dir/../common/dev_env.sh"
+}
+
+function logs() {
+    collect_docker_logs
+
+    tar -czf $WORKSPACE/logs.tgz $WORKSPACE/logs
+    rm -rf $WORKSPACE/logs
 }
 
 function machines() {
