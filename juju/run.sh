@@ -108,15 +108,15 @@ function tf() {
         command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
     fi
 
-    JUJU_MACHINES=`timeout -s 9 30 command juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_cmd_success 'command juju ssh $machine "uname -a"'
+            wait_cmd_success 'juju ssh $machine "uname -a"'
         fi
-        juju_node_ip=`command juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
-        juju_node_hostname=`command juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        juju_node_ip=`juju ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        juju_node_hostname=`juju ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
