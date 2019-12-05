@@ -9,7 +9,7 @@ source "$my_dir/../common/stages.sh"
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build juju machines k8s openstack tf wait" \
+    ["all"]="build juju machines k8s openstack tf wait logs" \
     ["default"]="juju machines k8s openstack tf wait" \
     ["master"]="build juju machines k8s openstack tf wait" \
     ["platform"]="juju k8s openstack" \
@@ -37,6 +37,13 @@ export NODE_IP
 
 function build() {
     "$my_dir/../common/dev_env.sh"
+}
+
+function logs() {
+    collect_docker_logs
+
+    tar -czf $WORKSPACE/logs.tgz $WORKSPACE/logs
+    rm -rf $WORKSPACE/logs
 }
 
 function juju() {

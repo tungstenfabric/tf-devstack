@@ -9,7 +9,7 @@ source "$my_dir/../common/stages.sh"
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build k8s manifest tf wait" \
+    ["all"]="build k8s manifest tf wait logs" \
     ["default"]="k8s manifest tf wait" \
     ["master"]="build k8s manifest tf wait" \
     ["platform"]="k8s" \
@@ -31,6 +31,13 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 function build() {
     "$my_dir/../common/dev_env.sh"
+}
+
+function logs() {
+    collect_docker_logs
+
+    tar -czf $WORKSPACE/logs.tgz $WORKSPACE/logs
+    rm -rf $WORKSPACE/logs
 }
 
 function k8s() {
