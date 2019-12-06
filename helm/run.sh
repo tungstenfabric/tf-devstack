@@ -42,8 +42,11 @@ function build() {
 function logs() {
     collect_docker_logs
 
-    tar -czf $WORKSPACE/logs.tgz $WORKSPACE/logs
-    rm -rf $WORKSPACE/logs
+    local cdir=`pwd`
+    cd $WORKSPACE
+    tar -czf logs.tgz logs
+    rm -rf logs
+    cd $cdir
 }
 
 function k8s() {
