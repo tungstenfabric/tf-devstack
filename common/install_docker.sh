@@ -8,11 +8,11 @@ source "$my_dir/common.sh"
 
 function install_docker_ubuntu() {
   export DEBIAN_FRONTEND=noninteractive
-  sudo apt-get update
-  sudo apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
+  sudo -E apt-get update
+  sudo -E apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  sudo apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
+  sudo -E apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
 }
 
 function install_docker_centos() {
