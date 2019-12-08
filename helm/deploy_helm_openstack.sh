@@ -23,7 +23,8 @@ if [ "$DISTRO" == "centos" ]; then
     sudo yum install -y epel-release
     sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils
 elif [ "$DISTRO" == "ubuntu" ]; then
-  sudo apt-get install --no-install-recommends -y \
+  export DEBIAN_FRONTEND=noninteractive
+  sudo -E apt-get install --no-install-recommends -y \
         wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev nfs-common
 fi
 sudo -H -E pip install setuptools

@@ -5,6 +5,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y git qemu-kvm iptables-persistent ufw virtinst uuid-runtime \
         qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager awscli python-dev hugepages gcc

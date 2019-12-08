@@ -32,9 +32,10 @@ elif [ "$DISTRO" == "ubuntu" ]; then
         echo "If you believe this to be a mistake and want to proceed, set IGNORE_APT_UPDATES_REPO=true and run again." 1>&2
         exit 1
     fi
-    sudo apt-get update -y
-    sudo apt-get -y purge unattended-upgrades || /bin/true
-    sudo apt-get install -y python3 python3-pip libyaml-dev python3-dev git
+    export DEBIAN_FRONTEND=noninteractive
+    sudo -E apt-get update -y
+    sudo -E apt-get -y purge unattended-upgrades || /bin/true
+    sudo -E apt-get install -y python3 python3-pip libyaml-dev python3-dev git
 
     ubuntu_release=`lsb_release -r | awk '{split($2,a,"."); print a[1]}'`
     if [ 16 -eq $ubuntu_release ]; then
