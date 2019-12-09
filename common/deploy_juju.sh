@@ -38,7 +38,7 @@ credentials:
       access-key: $AWS_ACCESS_KEY
       secret-key: $AWS_SECRET_KEY
 EOF
-    juju add-credential aws -f "$creds_file"
+    juju add-credential --client aws -f "$creds_file"
     rm -f "$creds_file"
     juju set-default-region aws $AWS_REGION
 fi
