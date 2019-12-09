@@ -40,6 +40,7 @@ function build() {
 }
 
 function logs() {
+
     collect_docker_logs
 
     local cdir=`pwd`
