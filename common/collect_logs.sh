@@ -66,3 +66,32 @@ function collect_juju_logs() {
     done
     sudo chown -R $USER $log_dir
 }
+
+function collect_kubernetes_logs() {
+    echo "INFO: === Collected kubernetes logs ==="
+    if [[ ! "$(sudo which kubectl)" ]]; then
+        echo "ERROR: There are no any kubernetes installed"
+        return 0
+    fi
+
+    mkdir -p $WORKSPACE/logs/kubernetes
+    local KUBE_LOG_DIR=$WORKSPACE/logs/kubernetes
+
+    declare -a namespaces
+    namespages=`kubectl get namespaces -o name | awk -F '/' '{ print $2 }'`
+    for namespace in $namespages
+    do
+        declare -a pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
+        for pod in $pods
+        do
+            local init_containers=$(kubectl get pod $POD -n ${namespace} -o json | jq -r '.spec.initContainers[]?.name')
+            local containers=$(kubectl get pod $pod -n ${namespace} -o json | jq -r '.spec.containers[].name')
+            for container in ${init_containers} ${containers}; do
+                echo "INFO: ${namespace}/${pod}/${container}"
+                mkdir -p "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}"
+                kubectl logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
+            done
+        done
+    done    
+
+}

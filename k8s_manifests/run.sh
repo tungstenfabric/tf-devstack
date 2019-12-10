@@ -39,6 +39,8 @@ function logs() {
 
     collect_docker_logs
 
+    collect_kubernetes_logs
+
     pushd $WORKSPACE
     tar -czf logs.tgz logs
     rm -rf logs
