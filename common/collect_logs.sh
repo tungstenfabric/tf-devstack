@@ -16,10 +16,10 @@ function collect_ps_logs(){
 }
 
 function collect_docker_logs() {
-    echo "=== Collected docker logs ==="
+    echo "INFO: === Collected docker logs ==="
 
     if [[ ! "$(sudo which docker)" ]]; then
-        echo "There are no any docker installed"
+        echo "ERROR: There are no any docker installed"
         return 0
     fi
 
@@ -41,28 +41,28 @@ function collect_docker_logs() {
 }
 
 function collect_juju_logs() {
-    echo "=== Collected juju logs ==="
+    echo "INFO: === Collected juju logs ==="
 
     local log_dir=$WORKSPACE/logs/juju
     mkdir $log_dir
 
-    echo "Save juju statuses to logs"
+    echo "INFO: Save juju statuses to logs"
     timeout -s 9 30 juju status --format yaml > $log_dir/juju_status.log
     timeout -s 9 30 juju status --format tabular > $log_dir/juju_status_tabular.log
 
-    echo "Save current juju configuration to logs"
+    echo "INFO: Save current juju configuration to logs"
     juju export-bundle --filename $log_dir/bundle.yaml
 
-    echo "Save unit statuses to logs"
+    echo "INFO: Save unit statuses to logs"
     for unit in `timeout -s 9 30 juju status $juju_model_arg --format oneline | awk '{print $2}' | sed 's/://g'` ; do
         if [[ -z "$unit" || "$unit" =~ "ubuntu/" || "$unit" =~ "ntp/" ]] ; then
             continue
         fi
-      echo "--------------------------------- $unit statuses log" >> $log_dir/juju_unit_statuses.log
+      echo "INFO: --------------------------------- $unit statuses log" >> $log_dir/juju_unit_statuses.log
       juju show-status-log $juju_model_arg --days 1 $unit >> $log_dir/juju_unit_statuses.log
     done
 
-    echo "Save logs"
+    echo "INFO: Save logs"
     for ldir in "$HOME/logs" '/etc/apache2' '/etc/apt' '/etc/contrail' '/etc/contrailctl' '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/var/log/contrail' '/etc/keystone' '/var/log/keystone' ; do
         if [ -d "$ldir" ] ; then
             sudo cp -r $ldir $log_dir
