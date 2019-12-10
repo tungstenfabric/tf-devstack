@@ -45,11 +45,10 @@ function logs() {
 
     collect_juju_logs
 
-    local cdir=`pwd`
-    cd $WORKSPACE
+    pushd $WORKSPACE
     tar -czf logs.tgz logs
     rm -rf logs
-    cd $cdir
+    popd
 }
 
 function juju() {

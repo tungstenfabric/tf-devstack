@@ -43,11 +43,10 @@ function logs() {
 
     collect_docker_logs
 
-    local cdir=`pwd`
-    cd $WORKSPACE
+    pushd $WORKSPACE
     tar -czf logs.tgz logs
     rm -rf logs
-    cd $cdir
+    popd
 }
 
 function k8s() {
