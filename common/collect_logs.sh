@@ -40,6 +40,27 @@ function collect_docker_logs() {
     sudo chown -R $USER $WORKSPACE/logs/docker
 }
 
+function collect_contrail_status() {
+    echo "INFO: === Collected contrail-status ==="
+    sudo contrail-status > $WORKSPACE/logs/contrail-status
+    sudo chown -R $USER $WORKSPACE/logs
+}
+
+function collect_system_stats() {
+    echo "INFO: === Collect system statistics for logs ==="
+
+    ps ax -H &> $WORKSPACE/logs/ps.log
+    netstat -lpn &> $WORKSPACE/logs/netstat.log
+    free -h &> $WORKSPACE/logs/mem.log
+
+    if which vif &>/dev/null ; then
+        sudo vif --list &>$WORKSPACE/logs/vif.log
+        ifconfig &>$WORKSPACE/logs/if.log
+        ip route &>$WORKSPACE/logs/route.log
+    fi
+    sudo chown -R $USER $WORKSPACE/logs
+}
+
 function collect_juju_logs() {
     echo "INFO: === Collected juju logs ==="
 

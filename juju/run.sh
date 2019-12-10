@@ -41,6 +41,7 @@ function build() {
 }
 
 function logs() {
+    create_log_dir
     collect_docker_logs
 
     collect_juju_logs
