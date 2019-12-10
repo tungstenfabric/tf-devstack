@@ -11,10 +11,6 @@ function create_log_dir() {
     mkdir -p $WORKSPACE/logs
 }
 
-function collect_ps_logs(){
-    sudo ps -aux > $WORKSPACE/logs/processes.txt
-}
-
 function collect_docker_logs() {
     echo "INFO: === Collected docker logs ==="
 
