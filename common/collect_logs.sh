@@ -56,18 +56,17 @@ function collect_system_stats() {
     sudo chown -R $USER $WORKSPACE/logs
 }
 
-function collect_juju_logs() {
-    echo "INFO: === Collecting juju logs ==="
+function collect_juju_status() {
+    echo "INFO: === Collected juju status ==="
 
-    local log_dir=$WORKSPACE/logs/juju
-    mkdir $log_dir
+    local log_dir=$WORKSPACE/logs/
 
     echo "INFO: Save juju statuses to logs"
     timeout -s 9 30 juju status --format yaml > $log_dir/juju_status.log
     timeout -s 9 30 juju status --format tabular > $log_dir/juju_status_tabular.log
 
     echo "INFO: Save current juju configuration to logs"
-    juju export-bundle --filename $log_dir/bundle.yaml
+    command juju export-bundle --filename $log_dir/bundle.yaml
 
     echo "INFO: Save unit statuses to logs"
     for unit in `timeout -s 9 30 juju status $juju_model_arg --format oneline | awk '{print $2}' | sed 's/://g'` ; do
@@ -75,16 +74,22 @@ function collect_juju_logs() {
             continue
         fi
       echo "INFO: --------------------------------- $unit statuses log" >> $log_dir/juju_unit_statuses.log
-      juju show-status-log $juju_model_arg --days 1 $unit >> $log_dir/juju_unit_statuses.log
+      command juju show-status-log $juju_model_arg --days 1 $unit >> $log_dir/juju_unit_statuses.log
     done
+}
 
-    echo "INFO: Save logs"
+function collect_juju_logs() {
+    echo "INFO: === Collected juju logs ==="
+    mkdir -p $WORKSPACE/logs/juju
+    sudo cp -r /var/log/juju/* $WORKSPACE/logs/juju/ 2>/dev/null
     for ldir in "$HOME/logs" '/etc/apache2' '/etc/apt' '/etc/contrail' '/etc/contrailctl' '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/var/log/contrail' '/etc/keystone' '/var/log/keystone' ; do
         if [ -d "$ldir" ] ; then
-            sudo cp -r $ldir $log_dir
+            echo "Save logs for $ldir"
+            mkdir -p $WORKSPACE/logs/juju/$ldir
+            sudo cp -r $ldir $WORKSPACE/logs/juju/$ldir
         fi
     done
-    sudo chown -R $USER $log_dir
+    sudo chown -R $USER $WORKSPACE/logs/juju/
 }
 
 function collect_kubernetes_logs() {
