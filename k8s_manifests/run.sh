@@ -35,10 +35,7 @@ function build() {
 }
 
 function logs() {
-
     create_log_dir
-
-    collect_ps_logs
 
     collect_docker_logs
 

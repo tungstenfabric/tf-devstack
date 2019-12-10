@@ -40,6 +40,7 @@ function build() {
 }
 
 function logs() {
+    create_log_dir
 
     collect_docker_logs
 
