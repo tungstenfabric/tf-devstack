@@ -35,7 +35,18 @@ if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   helm tiller start-ci
 fi
 
-(pgrep -f "helm serve" | xargs -n1 -r kill) || :
+function kill_helm_serve() {
+  (pgrep -f "helm serve" | xargs -n1 -r kill) || :
+}
+
+trap 'catch_errors' ERR
+function catch_errors() {
+  local exit_code=$?
+  kill_helm_serve
+  exit $exit_code
+}
+
+kill_helm_serve
 helm serve &
 sleep 5
 helm repo add local http://localhost:8879/charts
@@ -85,5 +96,8 @@ fi
 
 wait_nic_up vhost0
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
+
+trap - ERR
+kill_helm_serve
 
 echo "Contrail Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"

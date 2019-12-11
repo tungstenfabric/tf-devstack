@@ -56,7 +56,19 @@ sed -i "s/openstack_version:.*$/openstack_version: $OSH_OPENSTACK_RELEASE/" open
 # build infra charts
 helm init -c
 cd openstack-helm-infra
-[ $(pgrep -f "helm serve" | xargs -n1 -r kill) ] || true
+
+function kill_helm_serve() {
+  (pgrep -f "helm serve" | xargs -n1 -r kill) || :
+}
+
+trap 'catch_errors' ERR
+function catch_errors() {
+  local exit_code=$?
+  kill_helm_serve
+  exit $exit_code
+}
+
+kill_helm_serve
 helm serve &
 sleep 5
 helm repo add local http://localhost:8879/charts
@@ -90,3 +102,6 @@ cd ../openstack-helm
 ./tools/deployment/developer/nfs/120-glance.sh
 ./tools/deployment/developer/nfs/150-libvirt.sh
 ./tools/deployment/developer/nfs/160-compute-kit.sh
+
+trap - ERR
+kill_helm_serve
