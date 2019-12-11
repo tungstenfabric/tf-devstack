@@ -87,3 +87,5 @@ wait_nic_up vhost0
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 
 echo "Contrail Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"
+
+[ $(pgrep -f "helm serve" | xargs -n1 -r kill) ] || true

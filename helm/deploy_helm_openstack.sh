@@ -90,3 +90,5 @@ cd ../openstack-helm
 ./tools/deployment/developer/nfs/120-glance.sh
 ./tools/deployment/developer/nfs/150-libvirt.sh
 ./tools/deployment/developer/nfs/160-compute-kit.sh
+
+[ $(pgrep -f "helm serve" | xargs -n1 -r kill) ] || true
