@@ -37,6 +37,8 @@ function build() {
 
 function logs() {
     create_log_dir
+    collect_contrail_status
+    collect_system_stats
     collect_docker_logs
 
     pushd $WORKSPACE

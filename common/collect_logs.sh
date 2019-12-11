@@ -15,21 +15,20 @@ function collect_docker_logs() {
     echo "INFO: === Collecting docker logs ==="
 
     if [[ ! "$(sudo which docker)" ]]; then
-        echo "INFO: There are no any docker installed"
+        echo "INFO: There is no any docker installed"
         return 0
     fi
 
     mkdir -p $WORKSPACE/logs/docker/logs $WORKSPACE/logs/docker/inspects
 
-    local docker_ps_file=$WORKSPACE/logs/docker/docker-ps.txt
-    sudo docker ps -a --format '{{.ID}} {{.Names}} {{.Image}} "{{.Status}}"' > $docker_ps_file
-
+    sudo docker ps -a > $WORKSPACE/logs/docker/docker-ps.txt
+    containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
     while read -r line
     do
         read -r -a params <<< "$line"
         echo "Save logs for ${params[1]}"
-        sudo docker logs ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[0]}_${params[1]}
-        sudo docker inspect ${params[0]} &> $WORKSPACE/logs/docker/inspects/${params[0]}_${params[1]}
+        sudo docker logs ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.log
+        sudo docker inspect ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.inspect
     done < "$docker_ps_file"
 
     sudo chown -R $USER $WORKSPACE/logs/docker
@@ -44,16 +43,21 @@ function collect_contrail_status() {
 function collect_system_stats() {
     echo "INFO: === Collecting system statistics for logs ==="
 
-    ps ax -H &> $WORKSPACE/logs/ps.log
-    netstat -lpn &> $WORKSPACE/logs/netstat.log
-    free -h &> $WORKSPACE/logs/mem.log
+    syslogs="$WORKSPACE/logs/system"
+    mkdir -p "$syslogs"
+    ps ax -H &> $syslogs/ps.log
+    netstat -lpn &> $syslogs/netstat.log
+    free -h &> $syslogs/mem.log
+    df -h &> $syslogs/df.log
+    ifconfig &>$syslogs/if.log
+    ip addr &>$syslogs/ip_addr.log
+    ip link &>$syslogs/ip_link.log
+    ip route &>$syslogs/ip_route.log
 
     if which vif &>/dev/null ; then
-        sudo vif --list &>$WORKSPACE/logs/vif.log
-        ifconfig &>$WORKSPACE/logs/if.log
-        ip route &>$WORKSPACE/logs/route.log
+        sudo vif --list &>$syslogs/vif.log
     fi
-    sudo chown -R $USER $WORKSPACE/logs
+    sudo chown -R $USER $syslogs
 }
 
 function collect_juju_status() {
@@ -79,7 +83,7 @@ function collect_juju_status() {
 }
 
 function collect_juju_logs() {
-    echo "INFO: === Collected juju logs ==="
+    echo "INFO: === Collecting juju logs ==="
     mkdir -p $WORKSPACE/logs/juju
     sudo cp -r /var/log/juju/* $WORKSPACE/logs/juju/ 2>/dev/null
     for ldir in "$HOME/logs" '/etc/apache2' '/etc/apt' '/etc/contrail' '/etc/contrailctl' '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/var/log/contrail' '/etc/keystone' '/var/log/keystone' ; do
