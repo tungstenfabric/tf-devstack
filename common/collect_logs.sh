@@ -12,10 +12,10 @@ function create_log_dir() {
 }
 
 function collect_docker_logs() {
-    echo "INFO: === Collected docker logs ==="
+    echo "INFO: === Collecting docker logs ==="
 
     if [[ ! "$(sudo which docker)" ]]; then
-        echo "ERROR: There are no any docker installed"
+        echo "INFO: There are no any docker installed"
         return 0
     fi
 
@@ -30,20 +30,19 @@ function collect_docker_logs() {
         echo "Save logs for ${params[1]}"
         sudo docker logs ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[0]}_${params[1]}
         sudo docker inspect ${params[0]} &> $WORKSPACE/logs/docker/inspects/${params[0]}_${params[1]}
-
     done < "$docker_ps_file"
 
     sudo chown -R $USER $WORKSPACE/logs/docker
 }
 
 function collect_contrail_status() {
-    echo "INFO: === Collected contrail-status ==="
+    echo "INFO: === Collecting contrail-status ==="
     sudo contrail-status > $WORKSPACE/logs/contrail-status
     sudo chown -R $USER $WORKSPACE/logs
 }
 
 function collect_system_stats() {
-    echo "INFO: === Collect system statistics for logs ==="
+    echo "INFO: === Collecting system statistics for logs ==="
 
     ps ax -H &> $WORKSPACE/logs/ps.log
     netstat -lpn &> $WORKSPACE/logs/netstat.log
@@ -58,7 +57,7 @@ function collect_system_stats() {
 }
 
 function collect_juju_logs() {
-    echo "INFO: === Collected juju logs ==="
+    echo "INFO: === Collecting juju logs ==="
 
     local log_dir=$WORKSPACE/logs/juju
     mkdir $log_dir
@@ -89,9 +88,9 @@ function collect_juju_logs() {
 }
 
 function collect_kubernetes_logs() {
-    echo "INFO: === Collected kubernetes logs ==="
+    echo "INFO: === Collecting kubernetes logs ==="
     if [[ ! "$(sudo which kubectl)" ]]; then
-        echo "ERROR: There are no any kubernetes installed"
+        echo "INFO: There is no any kubernetes installed"
         return 0
     fi
 
@@ -100,11 +99,9 @@ function collect_kubernetes_logs() {
 
     declare -a namespaces
     namespages=`kubectl get namespaces -o name | awk -F '/' '{ print $2 }'`
-    for namespace in $namespages
-    do
+    for namespace in $namespages ; do
         declare -a pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
-        for pod in $pods
-        do
+        for pod in $pods ; do
             local init_containers=$(kubectl get pod $POD -n ${namespace} -o json | jq -r '.spec.initContainers[]?.name')
             local containers=$(kubectl get pod $pod -n ${namespace} -o json | jq -r '.spec.containers[].name')
             for container in ${init_containers} ${containers}; do
@@ -113,6 +110,5 @@ function collect_kubernetes_logs() {
                 kubectl logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
             done
         done
-    done    
-
+    done
 }

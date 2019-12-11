@@ -20,7 +20,7 @@ function ensure_insecure_registry_set() {
   local sudo_cmd=""
   [ "$(whoami)" != "root" ] && sudo_cmd="sudo"
   registry=`echo $registry | sed 's|^.*://||' | cut -d '/' -f 1`
-  if ! curl -s -I --connect-timeout 5 http://$registry/v2/ ; then
+  if ! curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
     # dockerhub is used or server doesn't respond by http. skip adding to insecure
     return
   fi
