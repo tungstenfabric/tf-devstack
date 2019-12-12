@@ -14,6 +14,7 @@ AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
 
 # install JuJu
+export DEBIAN_FRONTEND=noninteractive
 sudo add-apt-repository -yu ppa:juju/stable
 sudo apt install -y juju
 export PATH=$PATH:$(which juju)

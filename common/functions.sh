@@ -166,7 +166,7 @@ function setup_timeserver() {
        sudo systemctl enable ntpd
        sudo systemctl start ntpd
     elif [ "$DISTRO" == "ubuntu" ]; then
-
+       DEBIAN_FRONTEND=noninteractive
        # Check for Ubuntu 18
        sudo apt update -y
 
