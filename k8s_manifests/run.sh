@@ -35,8 +35,12 @@ function build() {
 }
 
 function logs() {
+    
     create_log_dir
+    collect_system_stats
+    collect_contrail_status
     collect_docker_logs
+    collect_kubernetes_objects_info
     collect_kubernetes_logs
 
     pushd $WORKSPACE
@@ -44,6 +48,7 @@ function logs() {
     rm -rf logs
     popd
 }
+
 
 function k8s() {
     export K8S_NODES=$AGENT_NODES
