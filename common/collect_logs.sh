@@ -19,7 +19,7 @@ function collect_docker_logs() {
         return 0
     fi
 
-    mkdir -p $WORKSPACE/logs/docker/logs $WORKSPACE/logs/docker/inspects
+    mkdir -p $WORKSPACE/logs/docker/logs
 
     sudo docker ps -a > $WORKSPACE/logs/docker/docker-ps.txt
     containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
@@ -29,7 +29,7 @@ function collect_docker_logs() {
         echo "Save logs for ${params[1]}"
         sudo docker logs ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.log
         sudo docker inspect ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.inspect
-    done < "$docker_ps_file"
+    done <<< "$containers"
 
     sudo chown -R $USER $WORKSPACE/logs/docker
 }
