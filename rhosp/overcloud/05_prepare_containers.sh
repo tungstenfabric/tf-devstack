@@ -24,7 +24,7 @@ openstack overcloud container image upload --config-file /home/stack/overcloud_c
 
 /home/stack/contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f /home/stack/contrail_containers.yaml -r docker.io/tungstenfabric -t latest
 
-sed -i /home/stack/contrail_containers.yaml -e 's/192.168.24.1/192.168.12.2/'
+sed -i /home/stack/contrail_containers.yaml -e "s/192.168.24.1/${prov_ip}/"
 
 cat /home/stack/contrail_containers.yaml
 

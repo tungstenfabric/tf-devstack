@@ -1,5 +1,5 @@
 [DEFAULT]
-local_ip = ${prov_subnet}.2/24
+local_ip = ${prov_ip}/24
 undercloud_public_host = ${prov_subnet}.10
 undercloud_admin_host = ${prov_subnet}.11
 local_interface = eth1
@@ -13,7 +13,7 @@ inspection_interface = br-ctlplane
 cidr = ${prov_subnet}.0/24
 dhcp_start = ${prov_subnet}.100
 dhcp_end = ${prov_subnet}.149
-gateway = ${prov_subnet}.2
+gateway = ${prov_ip}
 inspection_iprange = ${prov_subnet}.150,${prov_subnet}.170
 masquerade = true
 

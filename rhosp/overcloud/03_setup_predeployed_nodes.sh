@@ -33,8 +33,9 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 #setup default gateway (probably should be done in qcow2 image)
-sudo ip route add default via 192.168.12.2 dev eth0
-sudo sed -i s/192.168.12.1/8.8.8.8/ /etc/resolv.conf
+sudo ip route add default via ${prov_ip} dev eth0
+sed -i '/nameserver/d'  /etc/resolv.conf
+echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
 
 setenforce 0
