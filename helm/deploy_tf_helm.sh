@@ -36,6 +36,9 @@ if [ "$ORCHESTRATOR" == "kubernetes" ]; then
 fi
 
 function kill_helm_serve() {
+  if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+    helm tiller stop >/dev/null &2>&1 || :
+  fi
   (pgrep -f "helm serve" | xargs -n1 -r kill) || :
 }
 
