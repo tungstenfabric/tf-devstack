@@ -44,10 +44,8 @@ function logs() {
 
     collect_docker_logs
 
-    pushd $WORKSPACE
-    tar -czf logs.tgz logs
-    rm -rf logs
-    popd
+    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    rm -rf $TF_LOG_DIR
 }
 
 function k8s() {

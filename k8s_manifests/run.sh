@@ -35,7 +35,6 @@ function build() {
 }
 
 function logs() {
-    
     create_log_dir
     collect_system_stats
     collect_contrail_status
@@ -43,10 +42,9 @@ function logs() {
     collect_kubernetes_objects_info
     collect_kubernetes_logs
 
-    pushd $WORKSPACE
-    tar -czf logs.tgz logs
-    rm -rf logs
-    popd
+    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    rm -rf $TF_LOG_DIR
+
 }
 
 

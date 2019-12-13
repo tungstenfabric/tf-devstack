@@ -8,7 +8,7 @@ function create_log_dir() {
         return 1
     fi
 
-    mkdir -p $WORKSPACE/logs
+    mkdir -p $TF_LOG_DIR
 }
 
 function collect_docker_logs() {
@@ -19,31 +19,31 @@ function collect_docker_logs() {
         return 0
     fi
 
-    mkdir -p $WORKSPACE/logs/docker/logs
+    mkdir -p $TF_LOG_DIR/docker/logs
 
-    sudo docker ps -a > $WORKSPACE/logs/docker/docker-ps.txt
+    sudo docker ps -a > $TF_LOG_DIR/docker/docker-ps.txt
     containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
     while read -r line
     do
         read -r -a params <<< "$line"
         echo "Save logs for ${params[1]}"
-        sudo docker logs ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.log
-        sudo docker inspect ${params[0]} &> $WORKSPACE/logs/docker/logs/${params[1]}.inspect
+        sudo docker logs ${params[0]} &> $TF_LOG_DIR/docker/logs/${params[1]}.log
+        sudo docker inspect ${params[0]} &> $TF_LOG_DIRdocker/logs/${params[1]}.inspect
     done <<< "$containers"
 
-    sudo chown -R $USER $WORKSPACE/logs/docker
+    sudo chown -R $USER $TF_LOG_DIR/docker
 }
 
 function collect_contrail_status() {
     echo "INFO: === Collecting contrail-status ==="
-    sudo contrail-status > $WORKSPACE/logs/contrail-status
-    sudo chown -R $USER $WORKSPACE/logs
+    sudo contrail-status > $TF_LOG_DIR/contrail-status
+    sudo chown -R $USER $TF_LOG_DIR
 }
 
 function collect_system_stats() {
     echo "INFO: === Collecting system statistics for logs ==="
 
-    syslogs="$WORKSPACE/logs/system"
+    syslogs="$TF_LOG_DIR/system"
     mkdir -p "$syslogs"
     ps ax -H &> $syslogs/ps.log
     netstat -lpn &> $syslogs/netstat.log
@@ -63,7 +63,7 @@ function collect_system_stats() {
 function collect_juju_status() {
     echo "INFO: === Collected juju status ==="
 
-    local log_dir=$WORKSPACE/logs/
+    local log_dir=$TF_LOG_DIR
 
     echo "INFO: Save juju statuses to logs"
     timeout -s 9 30 juju status --format yaml > $log_dir/juju_status.log
@@ -84,16 +84,16 @@ function collect_juju_status() {
 
 function collect_juju_logs() {
     echo "INFO: === Collecting juju logs ==="
-    mkdir -p $WORKSPACE/logs/juju
-    sudo cp -r /var/log/juju/* $WORKSPACE/logs/juju/ 2>/dev/null
+    mkdir -p $TF_LOG_DIR/juju
+    sudo cp -r /var/log/juju/* $TF_LOG_DIR/juju/ 2>/dev/null
     for ldir in "$HOME/logs" '/etc/apache2' '/etc/apt' '/etc/contrail' '/etc/contrailctl' '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/var/log/contrail' '/etc/keystone' '/var/log/keystone' ; do
         if [ -d "$ldir" ] ; then
             echo "Save logs for $ldir"
-            mkdir -p $WORKSPACE/logs/juju/$ldir
-            sudo cp -r $ldir $WORKSPACE/logs/juju/$ldir
+            mkdir -p $TF_LOG_DIR/juju/$ldir
+            sudo cp -r $ldir $TF_LOG_DIR/juju/$ldir
         fi
     done
-    sudo chown -R $USER $WORKSPACE/logs/juju/
+    sudo chown -R $USER $TF_LOG_DIR/juju/
 }
 
 function collect_kubernetes_logs() {
@@ -103,7 +103,7 @@ function collect_kubernetes_logs() {
         return 0
     fi
 
-    local KUBE_LOG_DIR=$WORKSPACE/logs/kubernetes_logs
+    local KUBE_LOG_DIR=$TF_LOG_DIR/kubernetes_logs
     mkdir -p $KUBE_LOG_DIR
 
     declare -a namespaces
@@ -129,7 +129,7 @@ function collect_kubernetes_objects_info() {
         return 0
     fi
 
-    local KUBE_OBJ_DIR=$WORKSPACE/logs/kubernetes_obj_info
+    local KUBE_OBJ_DIR=$TF_LOG_DIR/kubernetes_obj_info
     mkdir -p $KUBE_OBJ_DIR
 
     declare -a namespaces
