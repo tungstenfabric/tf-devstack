@@ -45,7 +45,7 @@ function logs() {
 
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     for machine in $JUJU_MACHINES ; do
-        mkdir -p $WORKSPACE/logs/$machine
+        mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
         command juju ssh $machine "export WORKSPACE=/tmp/juju-logs; cd /tmp/juju-logs; source ./collect_logs.sh; \
@@ -55,18 +55,16 @@ function logs() {
                                    collect_system_stats; \
                                    cd logs ; tar -czf logs-$machine.tgz * ;  cd .. ; \
                                    cp logs/logs-$machine.tgz logs-$machine.tgz ; rm -rf logs"
-        command juju scp $machine:/tmp/juju-logs/logs-$machine.tgz $WORKSPACE/logs/$machine/
-        pushd $WORKSPACE/logs/$machine/
+        command juju scp $machine:/tmp/juju-logs/logs-$machine.tgz $TF_LOG_DIR/$machine/
+        pushd $TF_LOG_DIR/$machine/
         tar -xzf logs-$machine.tgz
         rm -rf logs-$machine.tgz
         popd $cdir
     done
     collect_juju_status
-
-    pushd $WORKSPACE
-    tar -czf logs.tgz logs
-    rm -rf logs
-    popd
+    
+    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    rm -rf $TF_LOG_DIR
 }
 
 function juju() {

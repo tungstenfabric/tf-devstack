@@ -41,10 +41,8 @@ function logs() {
     collect_system_stats
     collect_docker_logs
 
-    pushd $WORKSPACE
-    tar -czf logs.tgz logs
-    rm -rf logs
-    popd
+    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    rm -rf $TF_LOG_DIR
 }
 
 function machines() {
