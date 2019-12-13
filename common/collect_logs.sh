@@ -111,8 +111,8 @@ function collect_kubernetes_logs() {
     for namespace in $namespages ; do
         declare -a pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
         for pod in $pods ; do
-            local init_containers=$(kubectl get pod $POD -n ${namespace} -o json | jq -r '.spec.initContainers[]?.name')
-            local containers=$(kubectl get pod $pod -n ${namespace} -o json | jq -r '.spec.containers[].name')
+            local init_containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.initContainers[*].name}')
+            local containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.containers[*].name}')
             for container in ${init_containers} ${containers}; do
                 echo "INFO: ${namespace}/${pod}/${container}"
                 mkdir -p "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}"
