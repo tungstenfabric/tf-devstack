@@ -55,11 +55,11 @@ function machines() {
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
-        sudo yum install -y python-setuptools iproute jq
+        sudo yum install -y python-setuptools iproute
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq
+        sudo -E apt-get install -y python-setuptools iproute2 python-crypto
     else
         echo "Unsupported OS version"
         exit 1
