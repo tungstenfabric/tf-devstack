@@ -1,3 +1,13 @@
+function init_output_logging {
+  if [[ -n "$TF_LOG_DIR" ]]; then
+    mkdir -p $TF_LOG_DIR
+    exec &> >(tee -a "${TF_LOG_DIR}/output.log")
+    echo "=================== $(date) ==================="
+  else
+    echo "WARNING: TF_LOG_DIR is not set. output.log is not collected"
+  fi
+}
+
 function create_log_dir() {
     if [[ -z "$WORKSPACE" ]]; then
         echo "WORKSPACE must be set"

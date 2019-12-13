@@ -7,6 +7,8 @@ source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
 
+init_output_logging
+
 # stages declaration
 
 declare -A STAGES=( \
