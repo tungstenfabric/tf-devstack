@@ -21,7 +21,7 @@ declare -A STAGES=( \
 )
 
 # default env variables
-
+export DEPLOYER='helm'
 DEPLOYER_IMAGE="contrail-helm-deployer"
 DEPLOYER_DIR="root"
 

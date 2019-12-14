@@ -19,7 +19,7 @@ declare -A STAGES=( \
 )
 
 # constants
-
+export DEPLOYER='manifests'
 DEPLOYER_IMAGE="contrail-k8s-manifests"
 DEPLOYER_DIR="contrail-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
@@ -46,9 +46,7 @@ function logs() {
 
     tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
-
 }
-
 
 function k8s() {
     export K8S_NODES=$AGENT_NODES

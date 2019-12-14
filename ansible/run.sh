@@ -20,7 +20,7 @@ declare -A STAGES=( \
 )
 
 # default env variables
-
+export DEPLOYER='ansible'
 DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
 DEPLOYER_DIR="root"
 ANSIBLE_DEPLOYER_DIR="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"

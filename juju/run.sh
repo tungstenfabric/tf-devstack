@@ -19,7 +19,7 @@ declare -A STAGES=( \
 )
 
 # default env variables
-
+export DEPLOYER='juju'
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual

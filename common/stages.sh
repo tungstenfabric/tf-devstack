@@ -26,6 +26,7 @@ function save_tf_stack_profile() {
   echo '[update tf stack configuration]'
   mkdir -p "$(dirname $file)"
   cat <<EOF > $file
+DEPLOYER=${DEPLOYER}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
 CONTAINER_REGISTRY=${CONTAINER_REGISTRY}
 ORCHESTRATOR=${ORCHESTRATOR}
