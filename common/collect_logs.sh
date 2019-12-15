@@ -2,19 +2,15 @@ function init_output_logging {
   if [[ -n "$TF_LOG_DIR" ]]; then
     mkdir -p $TF_LOG_DIR
     exec &> >(tee -a "${TF_LOG_DIR}/output.log")
-    echo "=================== $(date) ==================="
+    echo "INFO: =================== $(date) ==================="
   else
     echo "WARNING: TF_LOG_DIR is not set. output.log is not collected"
   fi
 }
 
 function create_log_dir() {
-    if [[ -z "$WORKSPACE" ]]; then
-        echo "WORKSPACE must be set"
-        return 1
-    fi
-    if [[ ! -d "$WORKSPACE" ]]; then
-        echo "WORKSPACE must be set to an existing directory"
+    if [[ -z "$TF_LOG_DIR" ]]; then
+        echo "TF_LOG_DIR must be set"
         return 1
     fi
 
@@ -38,7 +34,7 @@ function collect_docker_logs() {
         read -r -a params <<< "$line"
         echo "Save logs for ${params[1]}"
         sudo docker logs ${params[0]} &> $TF_LOG_DIR/docker/logs/${params[1]}.log
-        sudo docker inspect ${params[0]} &> $TF_LOG_DIRdocker/logs/${params[1]}.inspect
+        sudo docker inspect ${params[0]} &> $TF_LOG_DIR/docker/logs/${params[1]}.inspect
     done <<< "$containers"
 
     sudo chown -R $USER $TF_LOG_DIR/docker
@@ -73,7 +69,8 @@ function collect_system_stats() {
 function collect_juju_status() {
     echo "INFO: === Collected juju status ==="
 
-    local log_dir=$TF_LOG_DIR
+    local log_dir="$TF_LOG_DIR/juju"
+    mkdir -p "$log_dir"
 
     echo "INFO: Save juju statuses to logs"
     timeout -s 9 30 juju status --format yaml > $log_dir/juju_status.log
@@ -96,13 +93,6 @@ function collect_juju_logs() {
     echo "INFO: === Collecting juju logs ==="
     mkdir -p $TF_LOG_DIR/juju
     sudo cp -r /var/log/juju/* $TF_LOG_DIR/juju/ 2>/dev/null
-    for ldir in "$HOME/logs" '/etc/apache2' '/etc/apt' '/etc/contrail' '/etc/contrailctl' '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/var/log/contrail' '/etc/keystone' '/var/log/keystone' ; do
-        if [ -d "$ldir" ] ; then
-            echo "Save logs for $ldir"
-            mkdir -p $TF_LOG_DIR/juju/$ldir
-            sudo cp -r $ldir $TF_LOG_DIR/juju/$ldir
-        fi
-    done
     sudo chown -R $USER $TF_LOG_DIR/juju/
 }
 
