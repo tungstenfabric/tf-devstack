@@ -42,6 +42,9 @@ function build() {
 }
 
 function logs() {
+    local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
+    set +e
+
     create_log_dir
     collect_contrail_status
     collect_system_stats
@@ -49,6 +52,11 @@ function logs() {
 
     tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
+
+    # Restore errexit state
+    if [[ $errexit_state == 1 ]]; then
+        set -e
+    fi
 }
 
 function machines() {
