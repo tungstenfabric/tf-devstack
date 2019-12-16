@@ -76,7 +76,7 @@ function logs() {
     done
     collect_juju_status
     
-    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
 
     # Restore errexit state
