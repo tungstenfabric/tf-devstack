@@ -28,10 +28,14 @@ export ANSIBLE_CONFIG=$ANSIBLE_DEPLOYER_DIR/ansible.cfg
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
+export AUTH_PASSWORD='contrail123'
 
 export DOMAINSUFFIX=${DOMAINSUFFIX-$(hostname -d)}
 
-cd $WORKSPACE
+# deployment related environment set by any stage and put to tf_stack_profile at the end
+declare -A DEPLOYMENT_ENV=( \
+    ['AUTH_PASSWORD']="$AUTH_PASSWORD" \
+)
 
 function build() {
     "$my_dir/../common/dev_env.sh"
@@ -141,7 +145,7 @@ function tf() {
         $ANSIBLE_DEPLOYER_DIR/playbooks/install_contrail.yml
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
-    echo "Use admin/contrail123 to log in"
+    echo "Use admin/$AUTH_PASSWORD to log in"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
@@ -152,6 +156,11 @@ function is_active() {
     fi
 
     check_tf_active
+}
+
+function collect_deployment_env() {
+    # no additinal info is needed
+    :
 }
 
 run_stages $STAGE

@@ -24,6 +24,7 @@ export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
 export DATA_NETWORK=${DATA_NETWORK:-}
+export AUTH_PASSWORD="password"
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -37,6 +38,14 @@ export CONTAINER_REGISTRY
 export NODE_IP
 
 # stages
+
+# deployment related environment set by any stage and put to tf_stack_profile at the end
+declare -A DEPLOYMENT_ENV=(\
+    ['AUTH_URL']=""
+    ['AUTH_PORT']="35357"
+    ['AUTH_DOMAIN']="admin_domain"
+    ['AUTH_PASSWORD']="$AUTH_PASSWORD"
+)
 
 function build() {
     "$my_dir/../common/dev_env.sh"
@@ -87,28 +96,32 @@ function machines() {
 function openstack() {
     if [[ "$ORCHESTRATOR" != "openstack" ]]; then
         echo "INFO: Skipping openstack deployment"
-    else
-        if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
-            export OPENSTACK_ORIGIN="distro"
-        else
-            export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
-        fi
-        if [ $CLOUD == 'manual' ] ; then
-            export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
-        else
-            export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
-        fi
-        $my_dir/../common/deploy_juju_bundle.sh
+        return
     fi
+
+    if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
+        export OPENSTACK_ORIGIN="distro"
+    else
+        export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
+    fi
+    if [ $CLOUD == 'manual' ] ; then
+        export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+    else
+        export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
+    fi
+    $my_dir/../common/deploy_juju_bundle.sh
+
+    #TODO: add wait
+    # ENV['AUTH_URL']="$(detect_auth_url)"
 }
 
 function k8s() {
     if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
         echo "INFO: Skipping k8s deployment"
-    else
-        export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
-        $my_dir/../common/deploy_juju_bundle.sh
+        return
     fi
+    export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
+    $my_dir/../common/deploy_juju_bundle.sh
 }
 
 function tf() {
@@ -165,6 +178,10 @@ function is_active() {
         exit 1
     fi
     [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+}
+
+function collect_deployment_env() {
+    DEPLOYMENT_ENV['AUTH_URL']="$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}')"
 }
 
 run_stages $STAGE

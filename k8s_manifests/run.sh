@@ -32,6 +32,9 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 # stages
 
+# deployment related environment set by any stage and put to tf_stack_profile at the end
+declare -A DEPLOYMENT_ENV
+
 function build() {
     "$my_dir/../common/dev_env.sh"
 }
@@ -89,6 +92,11 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
     check_pods_active && check_tf_active
+}
+
+function collect_deployment_env() {
+    # no additinal info is needed
+    :
 }
 
 run_stages $STAGE

@@ -29,6 +29,8 @@ CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-queens}
+# password is hardcoded in keystone/values.yaml (can be overriden) and in setup-clients.sh (can be hacked)
+export AUTH_PASSWORD="password"
 
 if [[ "$ORCHESTRATOR" == "openstack" ]]; then
   export CNI=${CNI:-calico}
@@ -36,6 +38,12 @@ elif [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
   echo "Set ORCHESTRATOR environment variable with value \"kubernetes\" or \"openstack\"  "
   exit 1
 fi
+
+# deployment related environment set by any stage and put to tf_stack_profile at the end
+declare -A DEPLOYMENT_ENV=( \
+    ['AUTH_URL']="http://keystone.openstack.svc.cluster.local:80/v3" \
+    ['AUTH_PASSWORD']="$AUTH_PASSWORD" \
+)
 
 function build() {
     "$my_dir/../common/dev_env.sh"
@@ -73,6 +81,11 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
      check_pods_active && check_tf_active
+}
+
+function collect_deployment_env() {
+    # no additinal info is needed
+    :
 }
 
 run_stages $STAGE

@@ -34,6 +34,9 @@ OPENSTACK_VERSION="$OPENSTACK_VERSION"
 CONTROLLER_NODES="$CONTROLLER_NODES"
 AGENT_NODES="$AGENT_NODES"
 EOF
+  for key in ${!DEPLOYMENT_ENV[@]} ; do
+    echo "${key}=${DEPLOYMENT_ENV[$key]}" >> $file
+  done
   echo "tf setup profile $file"
   cat ${file}
 }
@@ -59,6 +62,8 @@ function cleanup_stage() {
 
 function wait() {
   wait_cmd_success is_active 10 3000 0
+  # collect additional env information about deployment for saving to profile after successful run 
+  collect_deployment_env
 }
 
 function run_stages() {
