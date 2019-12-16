@@ -50,7 +50,7 @@ function logs() {
     collect_kubernetes_objects_info
     collect_kubernetes_logs
 
-    tar -czf logs.tgz -C ${TF_LOG_DIR}/.. logs
+    tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
 
     # Restore errexit state
