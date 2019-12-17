@@ -188,7 +188,9 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+        DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
+    fi
 }
 
 run_stages $STAGE
