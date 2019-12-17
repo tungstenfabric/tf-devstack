@@ -33,7 +33,7 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 #setup default gateway (probably should be done in qcow2 image)
-sudo ip route add default via ${prov_ip} dev eth0
+ip route add default via ${prov_ip} dev eth0
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
@@ -58,14 +58,14 @@ service ntpd start
 
 # install pip for future run of OS checks
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-sudo python get-pip.py
-sudo pip install -q virtualenv docker
+python get-pip.py
+pip install -q virtualenv docker
 
-sudo echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
-sudo systemctl restart docker
+echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
+systemctl restart docker
 
 #Heat Stack will fail if INSECURE_REGISTRY is presented in the file
 #so we delete it and let heat append this later
-sudo sed -i '$ d' /etc/sysconfig/docker
+sed -i '$ d' /etc/sysconfig/docker
 
 
