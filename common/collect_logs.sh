@@ -25,15 +25,20 @@ function collect_docker_logs() {
         return 0
     fi
 
-    mkdir -p $TF_LOG_DIR/docker/logs
+    local log_dir="$TF_LOG_DIR/docker"
+    mkdir -p $log_dir
 
-    sudo docker ps -a > $TF_LOG_DIR/docker/docker-ps.txt
-    containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
+    sudo docker ps -a > $log_dir/__docker-ps.txt
+    sudo docker images > $log_dir/__docker-images.txt
+    sudo docker volume ls > $log_dir/__docker-volumes.txt    
+    local containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
+    local line
+    local params
     while read -r line
     do
         read -r -a params <<< "$line"
-        sudo docker logs ${params[0]} &> $TF_LOG_DIR/docker/logs/${params[1]}.log
-        sudo docker inspect ${params[0]} &> $TF_LOG_DIR/docker/logs/${params[1]}.inspect
+        sudo docker logs ${params[0]} &> $log_dir/${params[1]}.log
+        sudo docker inspect ${params[0]} &> $log_dir/${params[1]}.inspect
     done <<< "$containers"
 
     sudo chown -R $USER $TF_LOG_DIR/docker
@@ -43,6 +48,79 @@ function collect_contrail_status() {
     echo "INFO: Collecting contrail-status"
     sudo contrail-status > $TF_LOG_DIR/contrail-status
     sudo chown -R $USER $TF_LOG_DIR
+}
+
+function collect_contrail_logs() {
+    set -x
+    echo "INFO: Collecting contrail logs"
+
+    local log_dir="$TF_LOG_DIR/contrail"
+    mkdir -p $log_dir
+
+    if [ -d /etc/contrail ]; then
+        mkdir -p $log_dir/etc_contrail
+        sudo cp -R /etc/contrail $log_dir/etc_contrail/
+    fi
+    if [ -d /etc/cni ]; then
+        mkdir -p $log_dir/etc_cni
+        sudo cp -R /etc/cni $log_dir/etc_cni/
+    fi
+    if [ -d /etc/kolla ]; then
+        mkdir -p $log_dir/kolla_etc
+        sudo cp -R /etc/kolla $log_dir/kolla_etc/
+    fi
+
+    local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
+    if [ -d $kl_path ]; then
+        mkdir -p $log_dir/kolla_logs
+        for ii in `ls $kl_path/`; do
+            sudo cp -R "$kl_path/$ii" $log_dir/kolla_logs/
+        done
+    fi
+
+    local cl_path='/var/log/contrail'
+    if [ -d $cl_path ]; then
+        mkdir -p $log_dir/contrail_logs
+        for ii in `ls $cl_path/`; do
+            sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
+        done
+    fi
+
+    mkdir -p $log_dir/introspect
+    local url=$(hostname -f)
+    save_introspect_info $log_dir/introspect $url HttpPortConfigNodemgr 8100
+    save_introspect_info $log_dir/introspect $url HttpPortControlNodemgr 8101
+    save_introspect_info $log_dir/introspect $url HttpPortVRouterNodemgr 8102
+    save_introspect_info $log_dir/introspect $url HttpPortDatabaseNodemgr 8103
+    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsNodemgr 8104
+    save_introspect_info $log_dir/introspect $url HttpPortKubeManager 8108
+    #save_introspect_info $log_dir $url HttpPortMesosManager 8109
+    save_introspect_info $log_dir/introspect $url HttpPortConfigDatabaseNodemgr 8112
+    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsAlarmNodemgr 8113
+    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsSNMPNodemgr 8114
+    save_introspect_info $log_dir/introspect $url HttpPortDeviceManagerNodemgr 8115
+    save_introspect_info $log_dir/introspect $url HttpPortControl 8083
+    save_introspect_info $log_dir/introspect $url HttpPortApiServer 8084
+    save_introspect_info $log_dir/introspect $url HttpPortAgent 8085
+    save_introspect_info $log_dir/introspect $url HttpPortSchemaTransformer 8087
+    save_introspect_info $log_dir/introspect $url HttpPortSvcMonitor 8088
+    save_introspect_info $log_dir/introspect $url HttpPortDeviceManager 8096
+    save_introspect_info $log_dir/introspect $url HttpPortCollector 8089
+    save_introspect_info $log_dir/introspect $url HttpPortOpserver 8090
+    save_introspect_info $log_dir/introspect $url HttpPortQueryEngine 8091
+    save_introspect_info $log_dir/introspect $url HttpPortDns 8092
+    save_introspect_info $log_dir/introspect $url HttpPortAlarmGenerator 5995
+    save_introspect_info $log_dir/introspect $url HttpPortSnmpCollector 5920
+    save_introspect_info $log_dir/introspect $url HttpPortTopology 5921
+
+    chown -R $USER $log_dir
+    chmod -R a+rw $log_dir
+}
+
+function save_introspect_info() {
+    if lsof -i ":$4" &>/dev/null ; then
+        timeout -s 9 30 curl -s http://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/introspect/$3.xml
+    fi
 }
 
 function collect_system_stats() {

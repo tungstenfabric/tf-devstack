@@ -66,6 +66,7 @@ function logs() {
                                    collect_juju_logs; \
                                    collect_contrail_status; \
                                    collect_system_stats; \
+                                   collect_contrail_logs; \
                                    cd logs ; tar -czf logs-$machine.tgz * ;  cd .. ; \
                                    cp logs/logs-$machine.tgz logs-$machine.tgz ; rm -rf logs"
         command juju scp $machine:/tmp/juju-logs/logs-$machine.tgz $TF_LOG_DIR/$machine/
