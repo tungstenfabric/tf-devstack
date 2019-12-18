@@ -33,3 +33,8 @@ contrail_configuration:
   VROUTER_ENCRYPTION: FALSE
   LOG_LEVEL: SYS_DEBUG
   CLOUD_ORCHESTRATOR: kubernetes
+  KUBERNETES_PUBLIC_FIP_POOL:
+    domain: default-domain
+    name: __fip_pool_public__
+    network: __public__
+    project: k8s-default
