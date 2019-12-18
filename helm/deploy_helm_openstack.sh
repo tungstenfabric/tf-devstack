@@ -97,8 +97,7 @@ cd ../openstack-helm
 ./tools/deployment/developer/nfs/060-rabbitmq.sh
 ./tools/deployment/developer/nfs/070-memcached.sh
 ./tools/deployment/developer/nfs/080-keystone.sh
-# Heat is not really supported by TF now
-#./tools/deployment/developer/nfs/090-heat.sh
+./tools/deployment/developer/nfs/090-heat.sh
 ./tools/deployment/developer/nfs/120-glance.sh
 ./tools/deployment/developer/nfs/150-libvirt.sh
 ./tools/deployment/developer/nfs/160-compute-kit.sh

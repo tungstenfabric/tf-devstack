@@ -51,7 +51,6 @@ function collect_contrail_status() {
 }
 
 function collect_contrail_logs() {
-    set -x
     echo "INFO: Collecting contrail logs"
 
     local log_dir="$TF_LOG_DIR/contrail"
@@ -113,12 +112,12 @@ function collect_contrail_logs() {
     save_introspect_info $log_dir/introspect $url HttpPortSnmpCollector 5920
     save_introspect_info $log_dir/introspect $url HttpPortTopology 5921
 
-    chown -R $USER $log_dir
-    chmod -R a+rw $log_dir
+    sudo chown -R $USER $log_dir
+    sudo chmod -R a+rw $log_dir
 }
 
 function save_introspect_info() {
-    if lsof -i ":$4" &>/dev/null ; then
+    if sudo lsof -i ":$4" &>/dev/null ; then
         timeout -s 9 30 curl -s http://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/introspect/$3.xml
     fi
 }
