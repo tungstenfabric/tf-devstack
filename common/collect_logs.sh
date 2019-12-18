@@ -118,7 +118,7 @@ function collect_contrail_logs() {
 
 function save_introspect_info() {
     if sudo lsof -i ":$4" &>/dev/null ; then
-        timeout -s 9 30 curl -s http://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml
+        timeout -s 9 30 curl -s http://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
 }
 
