@@ -2,14 +2,16 @@
 
 Bunch of scripts for deployment RHOSP on 4 VM (RHEL) running inside qemu-kvm host (Ubuntu).
 
-### Requirements:
+## Requirements
+
 Bare metal KVM host with >8 CPU and >=32GB Memory
 Red Hat account is needed for setting RHEL subscription.
 
-### Limitations:
+## Limitations
+
 Only RHOSP13 over Red Hat Enterprise Linux
 
-### Files descriptions
+## Files descriptions
 
 kvm-host/00_provision_kvm_host.sh             - Initial provisioning for KVM host
 kvm-host/01_create_env.sh                     - creating VMs, networks and setup vbmc
@@ -37,7 +39,7 @@ overcloud/environment-rhel-registration.yaml.template
 overcloud/misc_opts.yaml.template
 overcloud/roles_data_contrail_aio.yaml
 
-### Installation step by step guide
+## Installation step by step guide
 
 1) Setup KVM host
 2) Create environment
@@ -55,12 +57,8 @@ export RHEL_POOL_ID=8a85f99c68b939320168c7f5b5b2461c
 
 7) cd overcloud and run scripts one by one
 
-
 Known issues
 
 Sometimes node introspection doesn't work properly because nodes have *down* status in vbmc list.
 Solution:
 run vbmc start <node> on the KVM host for all the nodes and repeat node introspection on undercloud.
-
-
-
