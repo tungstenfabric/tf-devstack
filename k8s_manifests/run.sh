@@ -75,6 +75,7 @@ function manifest() {
     export HOST_IP=$NODE_IP
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     export LINUX_DISTR=$DISTRO
+    export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
     $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
 }
 
