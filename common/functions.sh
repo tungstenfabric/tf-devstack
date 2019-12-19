@@ -131,7 +131,11 @@ function label_nodes_by_ip() {
 
 function check_pods_active() {
   declare -a pods
-  readarray -t pods < <( kubectl get pods   --all-namespaces  | grep contrail   )
+  readarray -t pods < <( kubectl get pods --all-namespaces | grep contrail )
+
+  if [[ ${#pods[@]} == '0' ]]; then
+    return 1
+  fi
 
   #check if all pods are running
   for pod in "${pods[@]}" ; do
@@ -149,6 +153,9 @@ function check_pods_active() {
 }
 
 function check_tf_active() {
+  if ! command -v contrail-status ; then
+    return 1
+  fi
   local line=
   for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
     if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
