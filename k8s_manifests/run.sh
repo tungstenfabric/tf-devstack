@@ -19,7 +19,7 @@ declare -A STAGES=( \
 )
 
 # constants
-export DEPLOYER='manifests'
+export DEPLOYER='k8s_manifests'
 DEPLOYER_IMAGE="contrail-k8s-manifests"
 DEPLOYER_DIR="contrail-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
