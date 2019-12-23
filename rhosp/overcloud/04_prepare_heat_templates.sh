@@ -51,4 +51,13 @@ else
    cp overcloud/roles_data_contrail_aio_without_node_introspection.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
 fi
 
+#Auto-detect physnet MTU for cloud environments
+default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
+default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
+
+if (( ${default_iface_mtu} < 1500 )); then
+  echo "  NeutronGlobalPhysnetMtu: ${default_iface_mtu}" >> ~/contrail-parameters.yaml
+fi
+
+
 

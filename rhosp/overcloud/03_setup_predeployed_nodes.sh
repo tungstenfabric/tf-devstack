@@ -32,7 +32,13 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
    attach_opts="--pool $RHEL_POOL_ID"
 fi
 
-#setup default gateway (probably should be done in qcow2 image)
+#Removing default gateway if it's defined
+check_gateway=$(ip route list | grep -c default)
+if (( $check_gateway > 0 )); then
+   ip route delete default
+   echo default gateway deleted
+fi
+
 ip route add default via ${prov_ip} dev eth0
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
@@ -61,11 +67,19 @@ curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 python get-pip.py
 pip install -q virtualenv docker
 
+#Auto-detect physnet MTU for cloud environments
+default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
+default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
+
+if (( ${default_iface_mtu} < 1500 )); then
+  echo "{ \"mtu\": ${default_iface_mtu}, \"debug\":false }" > /etc/docker/daemon.json
+fi
+
 echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
 systemctl restart docker
 
 #Heat Stack will fail if INSECURE_REGISTRY is presented in the file
-#so we delete it and let heat append this later
+#so we delete it and let Heat to append this later
 sed -i '$ d' /etc/sysconfig/docker
 
 
