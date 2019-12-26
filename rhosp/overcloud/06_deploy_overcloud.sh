@@ -1,6 +1,7 @@
 #!/bin/bash
 
-cd
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
 
 if [[ `whoami` !=  'stack' ]]; then
    echo "This script must be run by user 'stack'"
@@ -14,10 +15,10 @@ else
    exit
 fi
 
-if [ -f ~/env.sh ]; then
-   source ~/env.sh
+if [ -f $my_dir/../config/env.sh ]; then
+   source $my_dir/../config/env.sh
 else
-   echo "File ~/env.sh not found"
+   echo "File $my_dir/../config/env.sh not found"
    exit
 fi
 

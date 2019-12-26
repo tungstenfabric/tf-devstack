@@ -1,17 +1,21 @@
 #!/bin/bash
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
 fi
 
-if [ -f /home/stack/env.sh ]; then
-   source /home/stack/env.sh
+if [ -f $my_dir/../config/env.sh ]; then
+   source $my_dir/../config/env.sh
 else
-   echo "File /home/stack/env.sh not found"
+   echo "File $my_dir/../config/env.sh not found"
    exit
 fi
 
+cd
 
 openstack overcloud container image prepare \
   --namespace registry.access.redhat.com/rhosp13  --prefix=openstack- --tag-from-label {version}-{release} \

@@ -1,21 +1,26 @@
 #!/bin/bash
 
+
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
+
 if [[ `whoami` !=  'stack' ]]; then
    echo "This script must be run by user 'stack'"
    exit 1
 fi
 
-if [ -f ~/rhel-account.rc ]; then
-   source ~/rhel-account.rc
+if [ -f $my_dir/../config/rhel-account.rc ]; then
+   source $my_dir/../config/rhel-account.rc
 else
-   echo "File ~/rhel-account not found"
+   echo "File $my_dir/../config/rhel-account.rc not found"
    exit
 fi
 
-if [ -f ~/env.sh ]; then
-   source ~/env.sh
+if [ -f $my_dir/../config/env.sh ]; then
+   source $my_dir/../config/env.sh
 else
-   echo "File ~/env.sh not found"
+   echo "File $my_dir/../config/env.sh not found"
    exit
 fi
 
@@ -23,7 +28,10 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-mkdir -p /home/stack/.ssh
+if [ ! -d /home/stack/.ssh ]; then
+   mkdir -p /home/stack/.ssh
+fi
+
 chmod 700 /home/stack/.ssh
 # Generate key-pair
 ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""

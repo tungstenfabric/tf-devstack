@@ -25,8 +25,8 @@ export IPMI_USER="stack"
 export IPMI_PASSWORD="qwe123QWE"
 
 #SSH public key for user stack
-export ssh_private_key="/home/ggalkin/.ssh/id_rsa"
-export ssh_public_key="/home/ggalkin/.ssh/id_rsa.pub"
+export ssh_private_key="/home/jenkins/.ssh/id_rsa"
+export ssh_public_key="/home/jenkins/.ssh/id_rsa.pub"
 
 
 # VBMC base port for IPMI management
