@@ -12,30 +12,30 @@ Minimal:
 - Ubuntu 18.04
 - CentOS 7.x
 
-## Quick start for Openstack all-in-one node
-
-Clone and run the run.sh script for Helm
-
-``` bash
-sudo yum install -y git
-git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/helm/run.sh
-```
-
-You'll have Kubernetes deployed with Calico and Helm Openstack deployed with TF
-
 ## Quick start for Kubernetes all-in-one node
 
 Clone and run the run.sh script for Helm after setting orchestrator to kubernetes.
 
 ``` bash
 sudo yum install -y git
-export ORCHESTRATOR=kubernetes
 git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/helm/run.sh
 ```
 
 You'll have Kubernetes deployed with TF as its CNI networking.
+
+## Quick start for Openstack all-in-one node
+
+Clone and run the run.sh script for Helm
+
+``` bash
+sudo yum install -y git
+export ORCHESTRATOR=openstack
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/helm/run.sh
+```
+
+You'll have Kubernetes deployed with Calico and Helm Openstack deployed with TF
 
 ## Customized deployments and deployment steps
 
