@@ -61,10 +61,14 @@ function cleanup_stage() {
 }
 
 function wait() {
+  # too much output with debug on
+  local xtrace_save=$(set +o | grep 'xtrace')
+  set +o xtrace
   local timeout=${WAIT_TIMEOUT:-1200}
-  wait_cmd_success is_active 10 $((timeout/10)) 0
-  # collect additional env information about deployment for saving to profile after successful run 
+  wait_cmd_success is_active 10 $((timeout/10))
+  # collect additional env information about deployment for saving to profile after successful run
   collect_deployment_env
+  $xtrace_save
 }
 
 function run_stages() {

@@ -71,23 +71,23 @@ function wait_cmd_success() {
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
-  local silent=${4:-1}
+  local silent_cmd=${4:-1}
   local i=0
-  if [[ "$silent" != "0" ]]; then
+  if [[ "$silent_cmd" != "0" ]]; then
     local to_dev_null="&>/dev/null"
   else
     local to_dev_null=""
   fi
   while ! eval "$cmd" "$to_dev_null"; do
-    if [[ "$silent" != "0" ]]; then
-      printf "."
-    fi
+    printf "."
     i=$((i + 1))
     if (( i > max )) ; then
       return 1
     fi
     sleep $interval
   done
+  echo ""
+  echo "INFO: done in $((i*10))s"
 }
 
 function wait_nic_up() {
@@ -114,21 +114,6 @@ function set_ssh_keys() {
   grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 }
 
-function label_nodes_by_ip() {
-  local label=$1
-  shift
-  local node_ips=$*
-  local retries=5
-  local interval=2
-  local silent=0
-  for node in $(wait_cmd_success "kubectl get nodes --no-headers" $retries $interval $silent | cut -d' ' -f1 ); do
-    local nodeip=$(wait_cmd_success "kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}'" $retries $interval $silent)
-    if echo $node_ips | tr ' ' '\n' | grep -F $nodeip; then
-      wait_cmd_success "kubectl label node --overwrite $node $label" $retries $interval $silent
-    fi
-  done
-}
-
 function check_pods_active() {
   declare -a pods
   readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
@@ -139,11 +124,14 @@ function check_pods_active() {
 
   #check if all pods are running
   for pod in "${pods[@]}" ; do
-    if [ "$( echo $pod | awk '{print $4}')" != "Running" ] ; then
+    local status="$(echo $pod | awk '{print $4}')"
+    if [[ "$status" == 'Completed' ]]; then
+      continue
+    elif [[ "$status" != "Running" ]] ; then
       return 1
     else
-      containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
-      containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+      local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
+      local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
       if [ "$containers_running" != "$containers_total" ] ; then
         return 1
       fi
