@@ -22,6 +22,8 @@ declare -A STAGES=( \
 
 # default env variables
 export DEPLOYER='rhosp13'
+# max wait in seconds after deployment
+export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
 export PROVIDER=${PROVIDER:-'vexx'}
 SKIP_OVERCLOUD_NODE_INTROSPECTION=${SKIP_OVERCLOUD_NODE_INTROSPECTION:-true}

@@ -20,6 +20,8 @@ declare -A STAGES=( \
 
 # constants
 export DEPLOYER='k8s_manifests'
+# max wait in seconds after deployment
+export WAIT_TIMEOUT=600
 DEPLOYER_IMAGE="contrail-k8s-manifests"
 DEPLOYER_DIR="contrail-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
