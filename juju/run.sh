@@ -20,8 +20,8 @@ declare -A STAGES=( \
 
 # default env variables
 export DEPLOYER='juju'
-# max wait in seconds after deployment
-export WAIT_TIMEOUT=1200
+# max wait in seconds after deployment (openstack ~ 1300, k8s ~ 3100)
+export WAIT_TIMEOUT=3600
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
