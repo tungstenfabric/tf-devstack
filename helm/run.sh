@@ -22,7 +22,7 @@ declare -A STAGES=( \
 
 # default env variables
 export DEPLOYER='helm'
-# max wait in seconds after deployment
+# max wait in seconds after deployment (helm_os=600)
 export WAIT_TIMEOUT=1200
 DEPLOYER_IMAGE="contrail-helm-deployer"
 DEPLOYER_DIR="root"
