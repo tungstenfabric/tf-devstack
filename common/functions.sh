@@ -114,6 +114,21 @@ function set_ssh_keys() {
   grep "$(<~/.ssh/id_rsa.pub)" ~/.ssh/authorized_keys -q || cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
 }
 
+function label_nodes_by_ip() {
+  local label=$1
+  shift
+  local node_ips=$(echo $* | tr ' ' '\n')
+  local retries=5
+  local interval=2
+  wait_cmd_success "kubectl get nodes --no-headers" $retries $interval
+  for node in $(kubectl get nodes --no-headers $retries $interval | cut -d ' ' -f 1) ; do
+    local nodeip=$(kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type==\"InternalIP\")].address}')
+    if echo $node_ips | grep -F $nodeip; then
+      kubectl label node --overwrite $node $label
+    fi
+  done
+}
+
 function check_pods_active() {
   declare -a pods
   readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
