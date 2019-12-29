@@ -131,7 +131,7 @@ function label_nodes_by_ip() {
 
 function check_pods_active() {
   declare -a pods
-  readarray -t pods < <( kubectl get pods --all-namespaces )
+  readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
 
   if [[ ${#pods[@]} == '0' ]]; then
     return 1
