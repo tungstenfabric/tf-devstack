@@ -5,20 +5,10 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -f /home/stack/env.sh ]; then
-   source /home/stack/env.sh
+if [ -f /home/stack/rhosp-environment.sh ]; then
+   source /home/stack/rhosp-environment.sh
 else
-   echo "File /home/stack/env.sh not found"
-   exit
-fi
-
-
-# RHEL Registration
-set +x
-if [ -f /home/stack/rhel-account.rc ]; then
-   source /home/stack/rhel-account.rc
-else
-   echo "File home/stack/rhel-account.rc not found"
+   echo "File /home/stack/rhosp-environment.sh not found"
    exit
 fi
 

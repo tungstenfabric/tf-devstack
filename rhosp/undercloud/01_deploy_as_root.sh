@@ -19,4 +19,4 @@ yum install -y rhosp-director-images
 #python get-pip.py
 #pip install -q virtualenv
 
-
+#Creating user stack
