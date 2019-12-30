@@ -49,10 +49,14 @@ EOF
 }
 
 function ensure_kube_api_ready() {
+  local xtrace_save=$(set +o | grep 'xtrace')
+  set +o xtrace
   if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
     echo "ERROR: kubernetes is not ready. Exiting..."
+    $xtrace_save
     exit 1
   fi
+  $xtrace_save
 }
 
 function fetch_deployer() {
@@ -95,9 +99,17 @@ function wait_cmd_success() {
 
 function wait_nic_up() {
   local nic=$1
+  # too much output with debug on
+  local xtrace_save=$(set +o | grep 'xtrace')
+  set +o xtrace
   printf "INFO: wait for $nic is up"
-  wait_cmd_success "nic_has_ip $nic" || { echo -e "\nERROR: $nic is not up" && return 1; }
-  echo -e "\nINFO: $nic is up"
+  if ! wait_cmd_success "nic_has_ip $nic" 10 60; then
+    echo "ERROR: $nic is not up"
+    $xtrace_save
+    return 1
+  fi
+  echo "INFO: $nic is up"
+  $xtrace_save
 }
 
 function nic_has_ip() {
