@@ -10,17 +10,10 @@ if [[ `whoami` !=  'stack' ]]; then
    exit 1
 fi
 
-if [ -f $my_dir/../config/rhel-account.rc ]; then
-   source $my_dir/../config/rhel-account.rc
+if [ -f /home/stack/rhosp-environment.sh ]; then
+   source /home/stack/rhosp-environment.sh
 else
-   echo "File $my_dir/../config/rhel-account.rc not found"
-   exit
-fi
-
-if [ -f $my_dir/../config/env.sh ]; then
-   source $my_dir/../config/env.sh
-else
-   echo "File $my_dir/../config/env.sh not found"
+   echo "File /home/stack/rhosp-environment.sh not found"
    exit
 fi
 

@@ -8,10 +8,10 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -f $my_dir/../config/env.sh ]; then
-   source $my_dir/../config/env.sh
+if [ -f $my_dir/../config/rhosp-environment.sh ]; then
+   source $my_dir/../config/rhosp-environment.sh
 else
-   echo "File $my_dir/../config/env.sh not found"
+   echo "File $my_dir/../config/rhosp-environment.sh not found"
    exit
 fi
 

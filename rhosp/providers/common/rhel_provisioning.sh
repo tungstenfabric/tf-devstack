@@ -1,5 +1,8 @@
 #!/bin/bash
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
@@ -7,10 +10,11 @@ fi
 
 # RHEL Registration
 set +x
-if [ -f /home/stack/rhel-account.rc ]; then
-   source /home/stack/rhel-account.rc
+if [ -f /home/stack/rhosp-environment.sh ]; then
+   source /home/stack/rhosp-environment.sh
 else
-   echo "File home/stack/rhel-account.rc not found"
+   echo "File /home/stack/rhosp-environment.sh not found"
+   echo "Please put variables RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID into /home/stack/rhosp-environment.sh";
    exit
 fi
 
@@ -23,7 +27,6 @@ attach_opts='--auto'
 if [[ -n "$RHEL_POOL_ID" ]] ; then
    attach_opts="--pool $RHEL_POOL_ID"
 fi
-
 
 setenforce 0
 sed -i "s/SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config

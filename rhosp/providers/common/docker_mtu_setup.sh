@@ -5,10 +5,10 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -f /home/stack/env.sh ]; then
-   source /home/stack/env.sh
+if [ -f /home/stack/rhosp-environment.sh ]; then
+   source /home/stack/rhosp-environment.sh
 else
-   echo "File /home/stack/env.sh not found"
+   echo "File /home/stack/rhosp-environment.sh not found"
    exit
 fi
 
