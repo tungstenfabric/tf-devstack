@@ -49,14 +49,10 @@ EOF
 }
 
 function ensure_kube_api_ready() {
-  local xtrace_save=$(set +o | grep 'xtrace')
-  set +o xtrace
   if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
     echo "ERROR: kubernetes is not ready. Exiting..."
-    $xtrace_save
     exit 1
   fi
-  $xtrace_save
 }
 
 function fetch_deployer() {
@@ -70,12 +66,16 @@ function fetch_deployer() {
 }
 
 function wait_cmd_success() {
-  # silent mode = don't print dots for each attempt. Just print command output
-  set -o pipefail
+  # silent mode = don't print output of input cmd for each attempt.
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
   local silent_cmd=${4:-1}
+
+  local xtrace_save=$(set +o | grep 'xtrace')
+  set +o xtrace
+  local pipefail_save=$(set +o | grep 'pipefail')
+  set -o pipefail
   local i=0
   if [[ "$silent_cmd" != "0" ]]; then
     local to_dev_null="&>/dev/null"
@@ -88,28 +88,26 @@ function wait_cmd_success() {
     if (( i > max )) ; then
       echo ""
       echo "ERROR: wait failed in $((i*10))s"
-      $cmd
+      eval "$cmd"
+      $xtrace_save
       return 1
     fi
     sleep $interval
   done
   echo ""
   echo "INFO: done in $((i*10))s"
+  $xtrace_save
+  $pipefail_save
 }
 
 function wait_nic_up() {
   local nic=$1
-  # too much output with debug on
-  local xtrace_save=$(set +o | grep 'xtrace')
-  set +o xtrace
   printf "INFO: wait for $nic is up"
   if ! wait_cmd_success "nic_has_ip $nic" 10 60; then
     echo "ERROR: $nic is not up"
-    $xtrace_save
     return 1
   fi
   echo "INFO: $nic is up"
-  $xtrace_save
 }
 
 function nic_has_ip() {
