@@ -1,5 +1,5 @@
 resource_registry:
-  OS::TripleO::DeployedServer::ControlPlanePort: /home/stack/tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
+  OS::TripleO::DeployedServer::ControlPlanePort: /home/${user}/tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
 
 parameter_defaults:
   DeployedServerPortMap:

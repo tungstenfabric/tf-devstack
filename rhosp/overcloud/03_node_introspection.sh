@@ -2,23 +2,18 @@
 
 cd
 
-if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'"
-   exit 1
-fi
-
 
 if [ -f ~/stackrc ]; then
    source ~/stackrc
 else
-   echo "File /home/stack/stackrc not found"
+   echo "File ~/stackrc not found"
    exit
 fi
 
 if [ -f ~/instackenv.json ]; then
    echo Using ~/instackenv.json
 else
-   echo "File /home/stack/instackenv.json not found"
+   echo "File ~/instackenv.json not found"
    exit
 fi
 

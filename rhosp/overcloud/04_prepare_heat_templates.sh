@@ -3,15 +3,12 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'"
-   exit 1
-fi
+export user=$(whoami)
 
-if [ -f $my_dir/../config/rhosp-environment.sh ]; then
-   source $my_dir/../config/rhosp-environment.sh
+if [ -f ~/rhosp-environment.sh ]; then
+   source ~/rhosp-environment.sh
 else
-   echo "File $my_dir/../config/rhosp-environment.sh not found"
+   echo "File ~/rhosp-environment.sh not found"
    exit
 fi
 

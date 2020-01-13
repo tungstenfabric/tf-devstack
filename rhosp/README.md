@@ -1,10 +1,10 @@
 # tf-devstack/rhosp
 
-Bunch of scripts for deployment RHOSP on 4 VM (RHEL) running inside qemu-kvm host (Ubuntu).
+Bunch of scripts for deployment RHOSP on 4 VM (RHEL)
+
 
 ## Requirements
 
-Bare metal KVM host with >8 CPU and >=32GB Memory
 Red Hat account is needed for setting RHEL subscription.
 
 ## Limitations
@@ -14,6 +14,13 @@ Only RHOSP13 over Red Hat Enterprise Linux 7.7
 
 ## VEXX installation step by step guide
 
+Create networks, instances and setup port security. It can be done with scripts from tf-devstack/rhosp/providers/vexx/
+or manually
+Script create_env.sh creates all network and instances and shows variables for deployment. You have to put these variables into the file
+$HOME/tf-devstack/rhosp/config/env_vexx.sh before running run.sh
+
+
+Manual steps (These steps can be done with openstack CLI or with Openstack Dashboard UI)
 1) Create public network rhosp13-mgmt
 2) Create private network rhosp13-prov
 3) Create instance rhosp13-undercloud with primary network interface rhosp13-mgmt and secondary network interface rhosp13-prov (4 CPU, RAM 16Gb, HDD 30Gb)
@@ -23,20 +30,24 @@ Only RHOSP13 over Red Hat Enterprise Linux 7.7
 7) Assign floating ip on the instance rhosp13-undercloud and login to the instance
 8) Disable port security on rhosp13-prov interfaces for all instances
 
-All other step must be run on undercloud node
+All other steps must be run on undercloud node
 
-9) Clone tf-devstack repo git clone https://github.com/tungstenfabric/tf-devstack.git
-10) Create file  $HOME/tf-devstack/rhosp/config/rhel-account.rc
+9) Put private ssh key on undercloud instance. Undercloud need private ssh key to authorize on overcloud nodes.
+
+10) Clone tf-devstack repo git clone https://github.com/tungstenfabric/tf-devstack.git
+11) Define RHEL credential variables RHEL_USER and RHEL_PASSWORD
 export RHEL_USER=<login>
 export RHEL_PASSWORD=<password>
-export RHEL_POOL_ID=8a85f99c68b939320168c7f5b5b2461c
 
-11) Put appropriate IP addresses and ssh credentials to file $HOME/tf-devstack/rhosp/config/env_vexx.sh
+12) Put appropriate IP addresses and ssh credentials to file $HOME/tf-devstack/rhosp/config/env_vexx.sh
 
-12) Run ./run.sh machines. This stage would create user stack and move repo tf-devstack to /home/stack and provision undercloud node
-13) Run ./run.sh undercloud. This stage would deploy undercloud.
-14) Run ./run.sh overcloud. This stage would provision overcloud nodes
-15) Run ./run.sh tf. This stage would deploy overcloud
+13) Run ./run.sh without options for full deployment or you can run it stage by stage
+
+Stage by stage order
+ - Run ./run.sh machines. This stage would create user stack and move repo tf-devstack to /home/stack and provision undercloud node
+ - Run ./run.sh undercloud. This stage would deploy undercloud.
+ - Run ./run.sh overcloud. This stage would provision overcloud nodes
+ - Run ./run.sh tf. This stage would deploy overcloud
 
 
 ## KVM installation step by step guide
@@ -46,7 +57,7 @@ export RHEL_POOL_ID=8a85f99c68b939320168c7f5b5b2461c
 3) Create file instackenv.json
 4) Upload files to undercloud node: env_desc.sh, instackenv.json, undercloud/* overcloud/*
 
-All other step must be run on undercloud node
+All other steps must be run on undercloud node
 
 5) Create file ~/rhel-account.rc
 export RHEL_USER=<login>

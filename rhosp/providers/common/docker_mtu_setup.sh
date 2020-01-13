@@ -5,13 +5,6 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -f /home/stack/rhosp-environment.sh ]; then
-   source /home/stack/rhosp-environment.sh
-else
-   echo "File /home/stack/rhosp-environment.sh not found"
-   exit
-fi
-
 
 #Auto-detect physnet MTU for cloud environments
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`

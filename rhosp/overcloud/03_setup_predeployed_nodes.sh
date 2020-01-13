@@ -5,22 +5,28 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ -f /home/stack/rhosp-environment.sh ]; then
-   source /home/stack/rhosp-environment.sh
+if [[ -z ${SUDO_USER+x} ]]; then
+   echo "Stop. Please run this scripts with sudo"
+   exit 1
+fi
+
+if [ -f /home/$SUDO_USER/rhosp-environment.sh ]; then
+   source /home/$SUDO_USER/rhosp-environment.sh
 else
-   echo "File /home/stack/rhosp-environment.sh not found"
+   echo "File /home/$SUDO_USER/rhosp-environment.sh not found"
    exit
 fi
 
-if [ ! -f /home/stack/rhel_provisioning.sh ]; then
-   echo "File /home/stack/rhel_provisioning.sh not found"
+if [ ! -f /home/$SUDO_USER/docker_mtu_setup.sh ]; then
+   echo "File /home/$SUDO_USER/docker_mtu_setup.sh not found"
    exit
 fi
 
-if [ ! -f /home/stack/docker_mtu_setup.sh ]; then
-   echo "File /home/stack/docker_mtu_setup.sh not found"
+if [ ! -f /home/$SUDO_USER/rhel_provisioning.sh ]; then
+   echo "File /home/$SUDO_USER/rhel_provisioning.sh not found"
    exit
 fi
+
 
 
 
@@ -35,8 +41,8 @@ ip route add default via ${prov_ip} dev eth0
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
-/home/stack/rhel_provisioning.sh
-/home/stack/docker_mtu_setup.sh
+/home/$SUDO_USER/rhel_provisioning.sh
+/home/$SUDO_USER/docker_mtu_setup.sh
 
 echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
 systemctl restart docker

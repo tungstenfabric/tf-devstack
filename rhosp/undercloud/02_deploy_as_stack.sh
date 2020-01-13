@@ -5,15 +5,10 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-if [[ `whoami` !=  'stack' ]]; then
-   echo "This script must be run by user 'stack'"
-   exit 1
-fi
-
-if [ -f /home/stack/rhosp-environment.sh ]; then
-   source /home/stack/rhosp-environment.sh
+if [ -f ~/rhosp-environment.sh ]; then
+   source ~/rhosp-environment.sh
 else
-   echo "File /home/stack/rhosp-environment.sh not found"
+   echo "File ~/rhosp-environment.sh not found"
    exit
 fi
 
@@ -21,31 +16,31 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-if [ ! -d /home/stack/.ssh ]; then
-   mkdir -p /home/stack/.ssh
+if [ ! -d ~/.ssh ]; then
+   mkdir -p ~/.ssh
 fi
 
-chmod 700 /home/stack/.ssh
+chmod 700 ~/.ssh
 # Generate key-pair
 ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
 
 # ssh config to do not check host keys and avoid garbadge in known hosts files
-cat <<EOF >/home/stack/.ssh/config
+cat <<EOF >~/.ssh/config
 Host *
 StrictHostKeyChecking no
 UserKnownHostsFile=/dev/null
 EOF
-chown stack:stack /home/stack/.ssh/config
-chmod 644 /home/stack/.ssh/config
+chmod 644 ~/.ssh/config
 
 cd $my_dir
-cat undercloud.conf.template | envsubst >/home/stack/undercloud.conf
+cat undercloud.conf.template | envsubst >~/undercloud.conf
 
 openstack undercloud install
 
-#Adding stack to group docker
-sudo usermod -a -G docker stack
+#Adding user to group docker
+user=$(whoami)
+sudo usermod -a -G docker $user
 
-echo User 'stack' has been added to group 'docker'. Please relogin
+echo User "$user" has been added to group "docker". Please relogin
 
 

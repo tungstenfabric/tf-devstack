@@ -8,14 +8,9 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# RHEL Registration
-set +x
-if [ -f /home/stack/rhosp-environment.sh ]; then
-   source /home/stack/rhosp-environment.sh
-else
-   echo "File /home/stack/rhosp-environment.sh not found"
-   echo "Please put variables RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID into /home/stack/rhosp-environment.sh";
-   exit
+if [[ -z ${RHEL_USER+x} && -z ${RHEL_PASSWORD+x} && -z ${RHEL_POOL_ID+x} ]]; then
+   echo "Stop. Please define variables RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID"
+   exit 1
 fi
 
 #set -x
