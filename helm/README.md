@@ -61,7 +61,7 @@ Environment variable list:
 
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
-- ORCHESTRATOR - orchestrator for deployment, "openstack" (default) and "kubernetes" are supported
+- ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default) and "openstack" are supported
 - CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 - OPENSTACK_VERSION - version of Openstack, queens by default
