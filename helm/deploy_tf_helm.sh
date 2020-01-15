@@ -65,6 +65,8 @@ done
 cat << EOF > tf-devstack-values.yaml
 global:
   contrail_env:
+    CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
+    CONTRAIL_CONTAINER_TAG: ${CONTRAIL_CONTAINER_TAG}
     CONTROLLER_NODES: "$(echo $CONTROLLER_NODES | tr ' ' ',')"
     JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
     BGP_PORT: "1179"
