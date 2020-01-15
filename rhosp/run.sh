@@ -54,9 +54,8 @@ if [[ -z ${RHEL_PASSWORD+x} ]]; then
 fi
 
 #Put RHEL credentials into ~/rhosp-environment.sh
-#this sed does 'change or append'
-sed -i "/^export RHEL_USER=/{h;s/=.*/=${RHEL_USER}/};${x;/^$/{s//export RHEL_USER=${RHEL_USER}/;H};x}" ~/rhosp-environment.sh
-sed -i "/^export RHEL_PASSWORD=/{h;s/=.*/=${RHEL_PASSWORD}/};${x;/^$/{s//export RHEL_PASSWORD=${RHEL_PASSWORD}/;H};x}" ~/rhosp-environment.sh
+egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
+egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
 
 #source $my_dir/providers/kvm/virsh_functions
 
