@@ -1,7 +1,3 @@
-#!/bin/sh
-
-#Password for user stack
-#export IPMI_PASSWORD="qwe123QWE"
 
 #export SSH_USER='cloud-user'
 #export SSH_PUBLIC_KEY='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCqFitjdvlQlaVJ8oBTkm3Qt48XCNh8ikbYN38WofGJk5oGXtC35H9eBBJ8giv42Lw4JXzBmVSEceMPEmTnIM3JPEhl/uNgn+Y+0e+pInq6bt3+DjjZxLvhun7G3LP8RgwYMvMWUkNEHnwLaCKipjfzrPkp0uD/1ZQVjY799gSyDX2PylneiLNSSWQxvOwNe8dzLyVTxlS2jFzNmMX5I5a9/z2Dw9PTB8FdFQbAKc7ZqaiYBrp3kaTcBlQh2pRpKEGGhosKhp4DPHoQV/f3myfl3sAZNGfpbFLzBxLyY/nHIJ3w2AsWahxKnxdGSxhmmp5KJ6zl4+OhJdNZEb2glK2l jenkins@slave'

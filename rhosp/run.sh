@@ -21,7 +21,7 @@ declare -A STAGES=( \
 )
 
 # default env variables
-export DEPLOYER='rhosp13'
+export DEPLOYER='rhosp'
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
@@ -53,6 +53,10 @@ if [[ -z ${RHEL_PASSWORD+x} ]]; then
   echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
 fi
 
+#Put RHEL credentials into ~/rhosp-environment.sh
+#this sed does 'change or append'
+sed -i "/^export RHEL_USER=/{h;s/=.*/=${RHEL_USER}/};${x;/^$/{s//export RHEL_USER=${RHEL_USER}/;H};x}" ~/rhosp-environment.sh
+sed -i "/^export RHEL_PASSWORD=/{h;s/=.*/=${RHEL_PASSWORD}/};${x;/^$/{s//export RHEL_PASSWORD=${RHEL_PASSWORD}/;H};x}" ~/rhosp-environment.sh
 
 #source $my_dir/providers/kvm/virsh_functions
 
@@ -62,15 +66,6 @@ ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function machines() {
   cd $my_dir
-  #undercloud node provisioning
-  #if [[ `whoami` !=  'stack' ]]; then
-    #cat providers/common/add_user_stack.sh.template | envsubst > providers/common/add_user_stack.sh
-    #chmod 755 providers/common/add_user_stack.sh
-    #providers/common/add_user_stack.sh
-    #sudo mv ~/rhosp-environment.sh ~/tf-devstack ~/.tf /home/stack
-    #sudo chown -R stack:stack /home/stack/tf-devstack /home/stack/.tf /home/stack/rhosp-environment.sh
-    #echo Directory tf-devstack was moved to /home/stack. Please run next stages with user 'stack'
-  #fi
   sudo bash -c "source /home/$user/rhosp-environment.sh; $my_dir/undercloud/00_provision.sh"
 }
 
