@@ -49,7 +49,7 @@ function catch_errors() {
   exit $exit_code
 }
 
-kill_helm_serve
+(pgrep -f "helm serve" | xargs -n1 -r kill) || :
 helm serve &
 sleep 5
 helm repo add local http://localhost:8879/charts
