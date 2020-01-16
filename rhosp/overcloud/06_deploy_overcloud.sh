@@ -21,7 +21,7 @@ fi
 
 cd
 
-if [[ "$SKIP_OVERCLOUD_NODE_INTROSPECTION" == false ]]; then
+if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
   openstack overcloud deploy --templates tripleo-heat-templates/ \
             --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml \
             -e environment-rhel-registration.yaml \

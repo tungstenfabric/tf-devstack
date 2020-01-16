@@ -44,7 +44,7 @@ cat $my_dir/environment-rhel-registration.yaml.template | envsubst >~/environmen
 cat $my_dir/contrail-parameters.yaml.template | envsubst >~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
-if [[ "$SKIP_OVERCLOUD_NODE_INTROSPECTION" == false ]]; then
+if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
    cp $my_dir/roles_data_contrail_aio.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
 else
    cat $my_dir/ctlplane-assignments.yaml.template | envsubst >~/ctlplane-assignments.yaml

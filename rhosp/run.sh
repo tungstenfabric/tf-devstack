@@ -33,8 +33,8 @@ cd $my_dir
 ##### Creating ~/rhosp-environment.sh #####
 if [[ ! -f ~/rhosp-environment.sh ]]; then
   cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
-  cat $my_dir/config/env_${PROVIDER}.sh >>~/rhosp-environment.sh
-  echo "export SKIP_OVERCLOUD_NODE_INTROSPECTION=true" >> ~/rhosp-environment.sh
+  cat $my_dir/config/env_${PROVIDER}.sh | grep '^export' >> ~/rhosp-environment.sh
+  echo "export USE_PREDEPLOYED_NODES=true" >> ~/rhosp-environment.sh
 fi
 
 source ~/rhosp-environment.sh
