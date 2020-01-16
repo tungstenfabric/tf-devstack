@@ -26,6 +26,8 @@ export DEPLOYER='rhosp'
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
 export PROVIDER=${PROVIDER:-'vexx'}
+#IPMI_PASSOWORD (also it's AdminPassword for TripleO)
+export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
 user=$(whoami)
 
 cd $my_dir
@@ -34,6 +36,7 @@ cd $my_dir
 if [[ ! -f ~/rhosp-environment.sh ]]; then
   cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
   cat $my_dir/config/env_${PROVIDER}.sh | grep '^export' >> ~/rhosp-environment.sh
+  echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
   echo "export USE_PREDEPLOYED_NODES=true" >> ~/rhosp-environment.sh
 fi
 
