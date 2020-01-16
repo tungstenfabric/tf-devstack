@@ -92,7 +92,7 @@ chmod 755 cleanup.sh
 
 #Creating overcloud nodes and disabling port security
 for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
-    nova boot --flavor v2-standard-4 --security-groups allow_all --key-name=gleb \
+    nova boot --flavor v2-standard-4 --security-groups allow_all --key-name=${key_name} \
               --nic net-name=${provider_network_name} \
               --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=30,bootindex=0 \
               --poll $instance_name
