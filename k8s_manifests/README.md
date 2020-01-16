@@ -6,10 +6,13 @@ Kubernetes manifests deployer provides deployment for TF with Kubernetes by mean
 
 Minimal:
 
-- instance with 2 virtual CPU, 10 GB of RAM and 120 GB of disk space to deploy with Kubernetes
+- instance with 2 virtual CPU, 12 GB of RAM and 120 GB of disk space to deploy with Kubernetes
 
 - Ubuntu 18.04
 - CentOS 7.x
+
+Recommended:
+- instance with 4 virtual CPU, 16 GB of RAM and 120 GB of disk space to deploy with Kubernetes
 
 ## Quick start for k8s all-in-one node
 
