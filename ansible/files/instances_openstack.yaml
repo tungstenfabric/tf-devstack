@@ -37,6 +37,9 @@ contrail_configuration:
   OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
   AUTH_MODE: keystone
   KEYSTONE_AUTH_URL_VERSION: /v3
+  SSL_ENABLE: "{{ SSL_ENABLE }}"
+  RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
+  CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
 
 kolla_config:
   kolla_globals:
