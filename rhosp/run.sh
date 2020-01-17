@@ -36,8 +36,9 @@ cd $my_dir
 if [[ ! -f ~/rhosp-environment.sh ]]; then
   cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
   cat $my_dir/config/env_${PROVIDER}.sh | grep '^export' >> ~/rhosp-environment.sh
-  echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
   echo "export USE_PREDEPLOYED_NODES=true" >> ~/rhosp-environment.sh
+  echo "set +x" >> >> ~/rhosp-environment.sh
+  echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 fi
 
 source ~/rhosp-environment.sh
