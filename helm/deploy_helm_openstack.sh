@@ -9,7 +9,7 @@ source "$my_dir/../common/functions.sh"
 
 # parameters
 
-HELM_OPENSTACK_URL=${HELM_OPENSTACK_URL:-https://review.opendev.org/changes/663390/revisions/ce7ee2188228d6ab3ff6aaaa6ab5ba0cd1717ba1/archive?format=tgz}
+HELM_OPENSTACK_URL=${HELM_OPENSTACK_URL:-https://review.opendev.org/changes/663390/revisions/3fbd11b77b7007f5db6cb3533d2ce50d04a14f3d/archive?format=tgz}
 #HELM_OPENSTACK_INFRA_URL=https://github.com/openstack/openstack-helm-infra/archive/24c1cd4514384fe22f3a882d41cf927588b03f2b.tar.gz
 export OPENSTACK_RELEASE=${OPENSTACK_VERSION:-queens}
 export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
