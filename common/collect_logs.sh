@@ -20,7 +20,7 @@ function create_log_dir() {
 function collect_docker_logs() {
     echo "INFO: Collecting docker logs"
 
-    if [[ ! "$(sudo which docker)" ]]; then
+    if ! which docker &>/dev/null ; then
         echo "INFO: There is no any docker installed"
         return 0
     fi
@@ -174,7 +174,7 @@ function collect_juju_logs() {
 
 function collect_kubernetes_logs() {
     echo "INFO: Collecting kubernetes logs"
-    if [[ ! "$(sudo which kubectl)" ]]; then
+    if ! which kubectl &>/dev/null ; then
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
@@ -199,7 +199,7 @@ function collect_kubernetes_logs() {
 
 function collect_kubernetes_objects_info() {
     echo "INFO: Collecting kubernetes object info"
-    if [[ ! "$(sudo which kubectl)" ]]; then
+    if ! which kubectl &>/dev/null ; then
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
