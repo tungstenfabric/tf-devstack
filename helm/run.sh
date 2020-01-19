@@ -56,7 +56,7 @@ function logs() {
     set +e
 
     create_log_dir
-
+    cp $WORKSPACE/tf-devstack-values.yaml ${TF_LOG_DIR}/
     collect_docker_logs
     collect_contrail_status
     collect_system_stats

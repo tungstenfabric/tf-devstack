@@ -62,7 +62,7 @@ for node in $(kubectl get nodes --no-headers | cut -d' ' -f1); do
 done
 
 # Refactor BGP_PORT for OpenStack and Kubernetes modes
-cat << EOF > tf-devstack-values.yaml
+cat << EOF > $WORKSPACE/tf-devstack-values.yaml
 global:
   contrail_env:
     CONTAINER_REGISTRY: ${CONTAINER_REGISTRY}
@@ -99,7 +99,7 @@ fi
 sudo mkdir -p /var/log/contrail
 
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f tf-devstack-values.yaml $host_var
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   kubectl -n kube-system scale deployment tiller-deploy --replicas=1

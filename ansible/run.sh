@@ -48,6 +48,7 @@ function logs() {
     set +e
 
     create_log_dir
+    cp $ANSIBLE_DEPLOYER_DIR/instances.yaml ${TF_LOG_DIR}/
     collect_contrail_status
     collect_system_stats
     collect_docker_logs

@@ -46,6 +46,7 @@ function logs() {
     set +e
 
     create_log_dir
+    cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
     collect_system_stats
     collect_contrail_status
     collect_docker_logs
@@ -78,7 +79,7 @@ function manifest() {
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     export LINUX_DISTR=$DISTRO
     export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > contrail.yaml
+    $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
 }
 
 function tf() {
@@ -86,7 +87,7 @@ function tf() {
     ensure_kube_api_ready
 
     # label nodes
-    labels=( $(grep "key: \"node-role." contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
+    labels=( $(grep "key: \"node-role." $WORKSPACE/contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
     label_nodes_by_ip $AGENT_LABEL $AGENT_NODES
     for label in ${labels[@]}
     do
@@ -94,7 +95,7 @@ function tf() {
     done
 
     # apply manifests
-    kubectl apply -f contrail.yaml
+    kubectl apply -f $WORKSPACE/contrail.yaml
 
     # show results
     echo "Contrail Web UI will be available at https://$NODE_IP:8143"
