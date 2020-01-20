@@ -3,17 +3,17 @@ resource_registry:
 
 parameter_defaults:
   DeployedServerPortMap:
-    rhosp13-overcloud-cont-ctlplane:
+    ${overcloud_cont_instance}-ctlplane:
       fixed_ips:
         - ip_address: ${overcloud_cont_prov_ip}
       subnets:
         - cidr: 24
-    rhosp13-overcloud-compute-ctlplane:
+    ${overcloud_compute_instance}-ctlplane:
       fixed_ips:
         - ip_address: ${overcloud_compute_prov_ip}
       subnets:
         - cidr: 24
-    rhosp13-overcloud-ctrlcont-ctlplane:
+    ${overcloud_ctrlcont_instance}-ctlplane:
       fixed_ips:
         - ip_address: ${overcloud_ctrlcont_prov_ip}
       subnets:

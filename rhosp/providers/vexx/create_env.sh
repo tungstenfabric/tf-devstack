@@ -128,6 +128,12 @@ echo export mgmt_ip=\""${undercloud_mgmt_ip}"\" >> $vexxrc
 echo export prov_ip=\""${undercloud_prov_ip}"\" >> $vexxrc
 echo export fixed_vip=\""${prov_subnet}.200"\" >> $vexxrc
 echo export fixed_controller_ip=\""${prov_subnet}.211"\" >> $vexxrc
+
+echo export undercloud_instance=\"${undercloud_instance}\" >> $vexxrc
+echo export overcloud_cont_instance=\"${overcloud_cont_instance}\" >> $vexxrc
+echo export overcloud_compute_instance=\"${overcloud_compute_instance}\" >> $vexxrc
+echo export overcloud_ctrlcont_instance=\"${overcloud_ctrlcont_instance}\" >> $vexxrc
+
 echo export overcloud_cont_prov_ip=\""${overcloud_cont_ip}"\" >> $vexxrc
 echo export overcloud_compute_prov_ip=\""${overcloud_compute_ip}"\" >> $vexxrc
 echo export overcloud_ctrlcont_prov_ip=\""${overcloud_ctrlcont_ip}"\" >> $vexxrc

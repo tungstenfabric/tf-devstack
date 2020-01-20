@@ -30,8 +30,6 @@ git clone https://github.com/juniper/contrail-tripleo-heat-templates -b stable/q
 
 cp -r ~/contrail-tripleo-heat-templates/* ~/tripleo-heat-templates
 
-role_file='tripleo-heat-templates/roles_data_contrail_aio.yaml'
-
 export SSH_PRIVATE_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa`
 export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa.pub`
 
