@@ -104,6 +104,7 @@ Then use the IP:Port/login/password displayed at the end of the output produced 
 
 ## Known issues
 
+- When the system is installed, after running cleanup.sh, repeated run.sh leads to an error
 - For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
 - Deployment scripts are tested on CentOS 7 / Ubuntu 16.04 and AWS / Virtualbox
 - Occasional errors prevent deployment of Kubernetes on a VirtualBox machine, retry can help
