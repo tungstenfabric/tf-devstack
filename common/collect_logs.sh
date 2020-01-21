@@ -1,3 +1,7 @@
+# This can be used in 2 ways:
+# 1) including as library (source common/collect_logs.sh; collect_docker_logs)
+# 2) running as script (../common/collect_logs.sh collect_docker_logs)
+
 function init_output_logging {
   if [[ -n "$TF_LOG_DIR" ]]; then
     mkdir -p $TF_LOG_DIR
@@ -221,3 +225,8 @@ function collect_kubernetes_objects_info() {
         done
     done
 }
+
+if [[ "${0}" == *"collect_logs.sh" ]] && [[ -z "${1+x}" ]]; then
+   $1
+fi
+
