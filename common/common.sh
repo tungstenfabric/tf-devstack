@@ -29,6 +29,7 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-}
 export CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
 export AGENT_NODES=${AGENT_NODES:-$NODE_IP}
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
+export SSL_ENABLE=${SSL_ENABLE:-false}
 
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user

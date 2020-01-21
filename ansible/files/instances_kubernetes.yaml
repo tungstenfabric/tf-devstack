@@ -38,3 +38,6 @@ contrail_configuration:
     name: __fip_pool_public__
     network: __public__
     project: k8s-default
+  SSL_ENABLE: "{{ SSL_ENABLE }}"
+  RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
+  CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
