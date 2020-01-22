@@ -135,4 +135,7 @@ echo export overcloud_cont_prov_ip=\""${overcloud_cont_ip}"\" >> $vexxrc
 echo export overcloud_compute_prov_ip=\""${overcloud_compute_ip}"\" >> $vexxrc
 echo export overcloud_ctrlcont_prov_ip=\""${overcloud_ctrlcont_ip}"\" >> $vexxrc
 
+#Instance ip for sanity test
+echo export instance_ip=\"${undercloud_mgmt_ip}\" >> $vexxrc
+
 cat $vexxrc
