@@ -226,7 +226,7 @@ function collect_kubernetes_objects_info() {
     done
 }
 
-if [[ "${0}" == *"collect_logs.sh" ]] && [[ -z "${1+x}" ]]; then
+if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi
 
