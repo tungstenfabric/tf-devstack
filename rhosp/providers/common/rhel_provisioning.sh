@@ -13,7 +13,7 @@ if [[ -z ${RHEL_USER+x} && -z ${RHEL_PASSWORD+x} && -z ${RHEL_POOL_ID+x} ]]; the
    exit 1
 fi
 
-#set -x
+set +x
 register_opts=''
 [ -n "$RHEL_USER" ] && register_opts+=" --username $RHEL_USER"
 [ -n "$RHEL_PASSWORD" ] && register_opts+=" --password $RHEL_PASSWORD"
@@ -23,6 +23,7 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
    attach_opts="--pool $RHEL_POOL_ID"
 fi
 
+cd
 setenforce 0
 sed -i "s/SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config
 getenforce
@@ -31,6 +32,8 @@ subscription-manager unregister || true
 echo subscription-manager register ...
 subscription-manager register $register_opts
 subscription-manager attach $attach_opts
+
+set -x
 
 subscription-manager repos --disable=*
 subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-rh-common-rpms --enable=rhel-ha-for-rhel-7-server-rpms --enable=rhel-7-server-openstack-13-rpms

@@ -117,7 +117,7 @@ function logs() {
         ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/${SSH_USER}/logs" ./collect_logs.sh collect_contrail_logs
         hostname=$(ssh $ssh_opts $SSH_USER@$ip hostname -s)
         mkdir ${TF_LOG_DIR}/${hostname}
-        scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${hostname}/ 
+        scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${hostname}/
     done
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs

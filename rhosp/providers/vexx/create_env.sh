@@ -85,10 +85,6 @@ openstack server show ${undercloud_instance}
 
 floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating IP Address")
 
-#Creating cleanup script
-export floating_ip undercloud_instance overcloud_cont_instance overcloud_compute_instance overcloud_ctrlcont_instance provider_network_name
-cat "${my_dir}/cleanup.sh.template" | envsubst > cleanup.sh
-chmod 755 cleanup.sh
 
 #Creating overcloud nodes and disabling port security
 for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
@@ -112,8 +108,6 @@ overcloud_cont_ip=$(openstack server show ${overcloud_cont_instance} -f value -c
 overcloud_compute_ip=$(openstack server show ${overcloud_compute_instance} -f value -c addresses | cut -d '=' -f 2)
 overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
 
-
-
 vexxrc="${my_dir}/../../config/env_vexx.sh"
 
 echo Undercloud is available by floating ip: $floating_ip
@@ -128,6 +122,9 @@ echo export mgmt_ip=\""${undercloud_mgmt_ip}"\" >> $vexxrc
 echo export prov_ip=\""${undercloud_prov_ip}"\" >> $vexxrc
 echo export fixed_vip=\""${prov_subnet}.200"\" >> $vexxrc
 echo export fixed_controller_ip=\""${prov_subnet}.211"\" >> $vexxrc
+
+echo export floating_ip=\"${floating_ip}\" >> $vexxrc
+echo export provider_network_name=\"${provider_network_name}\" >> $vexxrc
 
 echo export undercloud_instance=\"${undercloud_instance}\" >> $vexxrc
 echo export overcloud_cont_instance=\"${overcloud_cont_instance}\" >> $vexxrc
