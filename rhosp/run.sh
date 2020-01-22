@@ -135,6 +135,7 @@ function logs() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    return 0
 }
 
 function collect_deployment_env() {
