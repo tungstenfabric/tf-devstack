@@ -110,8 +110,7 @@ function logs() {
     collect_system_stats
     hostname=$(hostname -s)
     mkdir ${TF_LOG_DIR}/${hostname}
-    mv ${TF_LOG_DIR}/* ${TF_LOG_DIR}/${hostname}/
-    cp $WORKSPACE/tf-devstack-values.yaml ${TF_LOG_DIR}/
+    mv ${TF_LOG_DIR}/* ${TF_LOG_DIR}/${hostname}/ || true
 
     #Collecting overcloud logs
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do

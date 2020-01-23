@@ -10,7 +10,8 @@ if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; t
 fi
 
 
-flavor=${vm_type:-'v2-standard-4'}
+default_flavor=${vm_type:-'v2-standard-4'}
+contrail_flavor='v2-highcpu-32'    #16 Gb is not enough (TODO investigate memory options for JVM_EXTRA_OPTS="-Xms1g -Xmx2g" etc)
 key_name=${key_name:-'worker'}
 management_network_name="rhosp13-mgmt"
 provider_network_base_name="rhosp13-prov"
@@ -49,7 +50,7 @@ image_name=$(openstack image list  -f value -c Name | grep template-rhel-7 | tai
 image_id=$(openstack image list --name ${image_name} -f value -c ID)
 
 
-nova boot --flavor ${flavor} \
+nova boot --flavor ${default_flavor} \
           --security-groups allow_all \
           --key-name=${key_name} \
           --nic net-name=${management_network_name} \
@@ -88,12 +89,19 @@ floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating
 
 #Creating overcloud nodes and disabling port security
 for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
-    nova boot --flavor v2-standard-4 --security-groups allow_all --key-name=${key_name} \
+
+    if [[ "${instance_name}" == "${overcloud_ctrlcont_instance}" ]]; then
+        flavor=${contrail_flavor}
+    else 
+        flavor=${default_flavor}
+    fi
+
+    nova boot --flavor ${flavor} --security-groups allow_all --key-name=${key_name} \
               --nic net-name=${provider_network_name} \
               --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=30,bootindex=0 \
-              --poll $instance_name
-    port_id=$(openstack port list --server $instance_name --network ${provider_network_name} -f value -c id)
-    openstack port set --no-security-group --disable-port-security $port_id
+              --poll ${instance_name}
+    port_id=$(openstack port list --server ${instance_name} --network ${provider_network_name} -f value -c id)
+    openstack port set --no-security-group --disable-port-security ${port_id}
 done
 
 
