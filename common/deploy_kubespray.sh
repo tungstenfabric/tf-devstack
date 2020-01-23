@@ -112,8 +112,15 @@ echo "upstream_dns_servers: ['$nameserver']" >> inventory/mycluster/group_vars/k
 echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 # Fix coredns deployment on single node
 echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 # enable docker live restore option
-echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+#
+# set live-restore via config file to avoid conflicts between command line and 
+# config file parametrs (docker fails to start if a parameter is in both places).
+# tf-dev-env and deployment methods (not using kubespray) use config file approach.
+#    the way via kubespray:
+#    echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml  
+sudo -E $my_dir/create_docker_config.sh
 
 extra_vars=""
 [[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"

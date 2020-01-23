@@ -21,6 +21,8 @@ function install_docker_centos() {
     sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
   fi
   sudo yum install -y docker-ce-18.03.1.ce
+  sudo systemctl start docker
+  sudo systemctl stop firewalld || true
 }
 
 function install_docker_rhel() {
@@ -28,59 +30,18 @@ function install_docker_rhel() {
     --enable rhel-7-server-extras-rpms \
     --enable rhel-7-server-optional-rpms
   sudo yum install -y docker device-mapper-libs device-mapper-event-libs
-}
-
-function check_docker_value() {
-  local name=$1
-  local value=$2
-  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -qi "$value"
+  sudo systemctl start docker
+  sudo systemctl stop firewalld || true
 }
 
 echo
 echo '[docker install]'
-echo $DISTRO detected.
-if [ x"$DISTRO" == x"centos" ]; then
-  which docker || install_docker_centos
-  sudo systemctl start docker
-  sudo systemctl stop firewalld || true
-elif [ x"$DISTRO" == x"rhel" ]; then
-  which docker || install_docker_rhel
-  sudo systemctl start docker
-  sudo systemctl stop firewalld || true
-elif [ x"$DISTRO" == x"ubuntu" ]; then
-  which docker || install_docker_ubuntu
-fi
-sudo mkdir -p /etc/docker
-sudo touch /etc/docker/daemon.json
-
-echo
-echo '[docker setup]'
-default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
-default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
-
-docker_reload=0
-if ! check_docker_value mtu "$default_iface_mtu" || ! check_docker_value "live-restore" "true" ; then
-  sudo python <<EOF
-import json
-data=dict()
-try:
-  with open("/etc/docker/daemon.json") as f:
-    data = json.load(f)
-except Exception:
-  pass
-data["mtu"] = $default_iface_mtu
-data["live-restore"] = True
-with open("/etc/docker/daemon.json", "w") as f:
-  data = json.dump(data, f, sort_keys=True, indent=4)
-EOF
-  docker_reload=1
+echo $DISTRO detected
+if ! which docker ; then
+  echo "Install docker"
+  sudo $my_dir/create_docker_config.sh
+  install_docker_$DISTRO
+else
+  echo "Docker is already installed .. skip docker installation and its initial config" 
 fi
 
-runtime_docker_mtu=`sudo docker network inspect --format='{{index .Options "com.docker.network.driver.mtu"}}' bridge`
-if [[ "$default_iface_mtu" != "$runtime_docker_mtu" || "$docker_reload" == '1' ]]; then
-  if [ x"$DISTRO" == x"centos" ]; then
-    sudo systemctl restart docker
-  elif [ x"$DISTRO" == x"ubuntu" ]; then
-    sudo service docker reload
-  fi
-fi
