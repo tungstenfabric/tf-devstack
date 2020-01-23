@@ -15,7 +15,7 @@ init_output_logging
 
 declare -A STAGES=( \
     ["all"]="build machines undercloud overcloud tf wait logs" \
-    ["default"]="machines undercloud overcloud tf" \
+    ["default"]="machines undercloud overcloud tf wait" \
     ["master"]="build machines undercloud overcloud tf wait" \
     ["platform"]="machines undercloud overcloud" \
 )
