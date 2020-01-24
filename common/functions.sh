@@ -1,50 +1,14 @@
 #!/bin/bash
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname "$my_file")"
+
 function ensure_root() {
   local me=$(whoami)
   if [ "$me" != 'root' ] ; then
     echo "ERROR: this script requires root, run it like this:"
     echo "       sudo -E $0"
     exit 1;
-  fi
-}
-
-function check_docker_value() {
-  local name=$1
-  local value=$2
-  python -c "import json; f=open('/etc/docker/daemon.json'); data=json.load(f); print(data.get('$name'));" 2>/dev/null| grep -qi "$value"
-}
-
-function ensure_insecure_registry_set() {
-  local registry=$1
-  local sudo_cmd=""
-  [ "$(whoami)" != "root" ] && sudo_cmd="sudo"
-  registry=`echo $registry | sed 's|^.*://||' | cut -d '/' -f 1`
-  if ! curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
-    # dockerhub is used or server doesn't respond by http. skip adding to insecure
-    return
-  fi
-  if check_docker_value "insecure-registries" "${registry}" ; then
-    # already set
-    return
-  fi
-
-  $sudo_cmd python <<EOF
-import json
-data=dict()
-try:
-  with open("/etc/docker/daemon.json") as f:
-    data = json.load(f)
-except Exception:
-  pass
-data.setdefault("insecure-registries", list()).append("${registry}")
-with open("/etc/docker/daemon.json", "w") as f:
-  data = json.dump(data, f, sort_keys=True, indent=4)
-EOF
-  if [ x"$DISTRO" == x"centos" ]; then
-    $sudo_cmd systemctl restart docker
-  elif [ x"$DISTRO" == x"ubuntu" ]; then
-    $sudo_cmd service docker reload
   fi
 }
 
@@ -57,7 +21,6 @@ function ensure_kube_api_ready() {
 
 function fetch_deployer() {
   sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
-  ensure_insecure_registry_set $CONTAINER_REGISTRY
   local image="$CONTAINER_REGISTRY/$DEPLOYER_IMAGE"
   [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
   sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $image

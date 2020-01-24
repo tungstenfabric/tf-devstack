@@ -106,7 +106,7 @@ function machines() {
     export CONTRAIL_CONTAINER_TAG
     export OPENSTACK_VERSION
     export USER=$(whoami)
-    python "$my_dir/../common/jinja2_render.py" < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
+    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
 
     # create Ansible temporary dir under current user to avoid create it under root
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost

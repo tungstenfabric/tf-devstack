@@ -83,7 +83,6 @@ function manifest() {
 }
 
 function tf() {
-    ensure_insecure_registry_set $CONTAINER_REGISTRY
     ensure_kube_api_ready
 
     # label nodes
