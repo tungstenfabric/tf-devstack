@@ -19,7 +19,7 @@ export DOCKER_INSECURE_REGISTRIES=$(python -c "import json; f=open('$docker_conf
 if [[ -n "$CONTAINER_REGISTRY" ]] ; then
   registry=`echo $CONTAINER_REGISTRY | sed 's|^.*://||' | cut -d '/' -f 1`
   if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
-    DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | sort | uniq)
+    DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
   fi
 fi
 
