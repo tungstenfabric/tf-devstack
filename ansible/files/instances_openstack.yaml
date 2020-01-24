@@ -40,8 +40,9 @@ contrail_configuration:
   SSL_ENABLE: "{{ SSL_ENABLE }}"
   RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
   CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
+# Default counfiguration params in the section below will be set as ENV variables for all proviosioner containers
 default_configuration:
-  VXLAN_VN_ID_MODE: automatic
+#  VXLAN_VN_ID_MODE: automatic
 kolla_config:
   kolla_globals:
     enable_haproxy: no
