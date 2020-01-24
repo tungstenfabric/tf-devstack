@@ -39,7 +39,7 @@ echo '[docker install]'
 echo $DISTRO detected
 if ! which docker ; then
   echo "Install docker"
-  sudo $my_dir/create_docker_config.sh
+  sudo -E $my_dir/create_docker_config.sh
   install_docker_$DISTRO
 else
   echo "Docker is already installed .. skip docker installation and its initial config" 
