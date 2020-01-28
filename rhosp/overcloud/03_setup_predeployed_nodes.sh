@@ -51,4 +51,9 @@ systemctl restart docker
 #so we delete it and let Heat to append this later
 sed -i '$ d' /etc/sysconfig/docker
 
+#Adding current ip and hostname into /etc/hosts
+#it's workaround for cassandra UnknownHostException issue on contrail controller
+NODE_IP=$(ip addr show dev eth0 | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1)
+HOSTNAME=$(hostname)
+echo $NODE_IP $HOSTNAME >> /etc/hosts
 

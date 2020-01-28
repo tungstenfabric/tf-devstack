@@ -39,7 +39,7 @@ subscription-manager repos --disable=*
 subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-rh-common-rpms --enable=rhel-ha-for-rhel-7-server-rpms --enable=rhel-7-server-openstack-13-rpms
 yum update -y
 
-yum install -y  ntp wget yum-utils vim python-heat-agent*
+yum install -y  ntp wget yum-utils vim iproute net-tools python-heat-agent*
 
 chkconfig ntpd on
 service ntpd start
@@ -48,5 +48,4 @@ service ntpd start
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 python get-pip.py
 pip install -q virtualenv docker
-
 
