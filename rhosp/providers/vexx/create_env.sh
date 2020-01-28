@@ -11,7 +11,8 @@ fi
 
 
 default_flavor=${vm_type:-'v2-standard-4'}
-contrail_flavor='v2-highcpu-32'    #16 Gb is not enough (TODO investigate memory options for JVM_EXTRA_OPTS="-Xms1g -Xmx2g" etc)
+#contrail_flavor='v2-highcpu-32'
+contrail_flavor='v2-standard-4'
 key_name=${key_name:-'worker'}
 management_network_name="rhosp13-mgmt"
 provider_network_base_name="rhosp13-prov"
