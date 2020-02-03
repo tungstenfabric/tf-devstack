@@ -63,12 +63,14 @@ function logs() {
         mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
-        command juju ssh $machine "export WORKSPACE=/tmp/juju-logs; cd /tmp/juju-logs; source ./collect_logs.sh; \
+        command juju ssh $machine "export WORKSPACE=/tmp/juju-logs; export TF_LOG_DIR=/tmp/juju-logs/logs; \
+                                   cd /tmp/juju-logs; source ./collect_logs.sh; \
                                    collect_docker_logs; \
                                    collect_juju_logs; \
                                    collect_contrail_status; \
                                    collect_system_stats; \
                                    collect_contrail_logs; \
+                                   sudo chmod -R 644 ./logs
                                    cd logs ; tar -czf logs-$machine.tgz * ;  cd .. ; \
                                    cp logs/logs-$machine.tgz logs-$machine.tgz ; rm -rf logs"
         command juju scp $machine:/tmp/juju-logs/logs-$machine.tgz $TF_LOG_DIR/$machine/
@@ -78,7 +80,7 @@ function logs() {
         popd $cdir
     done
     collect_juju_status
-    
+
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
 

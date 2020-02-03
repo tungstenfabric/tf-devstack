@@ -34,7 +34,7 @@ function collect_docker_logs() {
 
     sudo docker ps -a > $log_dir/__docker-ps.txt
     sudo docker images > $log_dir/__docker-images.txt
-    sudo docker volume ls > $log_dir/__docker-volumes.txt    
+    sudo docker volume ls > $log_dir/__docker-volumes.txt
     local containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
     local line
     local params
@@ -50,7 +50,7 @@ function collect_docker_logs() {
 
 function collect_contrail_status() {
     echo "INFO: Collecting contrail-status"
-    sudo contrail-status > $TF_LOG_DIR/contrail-status
+    sudo contrail-status &> $TF_LOG_DIR/contrail-status
     sudo chown -R $USER $TF_LOG_DIR
 }
 
