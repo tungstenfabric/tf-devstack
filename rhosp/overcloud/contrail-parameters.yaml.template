@@ -1,9 +1,13 @@
 parameter_defaults:
   ContrailRegistryInsecure: true
   ContrailRegistry: ${prov_ip}:8787/tungstenfabric
-  ContrailImageTag: latest
+  ContrailImageTag: ${CONTRAIL_VERSION}
   ControlPlaneDefaultRoute: ${prov_ip}
   EC2MetadataIp: ${prov_ip}
   DnsServers: [ "8.8.8.8", "8.8.4.4" ]
   NtpServer: 3.europe.pool.ntp.org
+
+  #Custome Contrail container configuration settings
+  ContrailSettings:
+    VROUTER_GATEWAY: ${prov_ip}
 
