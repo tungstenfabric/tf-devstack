@@ -94,7 +94,7 @@ for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${
 
     if [[ "${instance_name}" == "${overcloud_ctrlcont_instance}" ]]; then
         flavor=${contrail_flavor}
-    else 
+    else
         flavor=${default_flavor}
     fi
 
