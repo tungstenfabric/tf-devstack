@@ -35,8 +35,8 @@ for i in $(seq 12 50); do
      _start=$"${prov_subnet_base_prefix}.$rhosp_id.50"
      _end=$"${prov_subnet_base_prefix}.$rhosp_id.70"
      echo subnet range $cidr is available. Creating
-     openstack network create ${provider_network_name}
-     openstack subnet create ${provider_network_name} --network ${provider_network_name} --subnet-range ${cidr} --allocation-pool start=${_start},end=${_end} --gateway none
+     openstack network create --tag "PipelineBuildTag=${PIPELINE_BUILD_TAG}" --tag "SLAVE=vexxhost" ${provider_network_name}
+     openstack subnet create --tag "PipelineBuildTag=${PIPELINE_BUILD_TAG}" --tag "SLAVE=vexxhost" ${provider_network_name} --network ${provider_network_name} --subnet-range ${cidr} --allocation-pool start=${_start},end=${_end} --gateway none
      break;
   fi
 done
@@ -52,6 +52,7 @@ image_id=$(openstack image list --name ${image_name} -f value -c ID)
 
 
 nova boot --flavor ${default_flavor} \
+          --tags "PipelineBuildTag=${PIPELINE_BUILD_TAG},SLAVE=vexxhost" \
           --security-groups allow_all \
           --key-name=${key_name} \
           --nic net-name=${management_network_name} \
@@ -98,6 +99,7 @@ for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${
     fi
 
     nova boot --flavor ${flavor} --security-groups allow_all --key-name=${key_name} \
+              --tags "PipelineBuildTag=${PIPELINE_BUILD_TAG},SLAVE=vexxhost" \
               --nic net-name=${provider_network_name} \
               --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=30,bootindex=0 \
               --poll ${instance_name}
