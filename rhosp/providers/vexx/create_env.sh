@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+#Assign floating ip address to undercloud node (disabled by default)
+
+ASSIGN_FLOATING_IP=false
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
@@ -67,27 +72,28 @@ port_id=$(openstack port list --server ${undercloud_instance} --network ${provid
 openstack port set --no-security-group --disable-port-security $port_id
 
 #Assigning floating ip
-port_id=$(openstack port list --server ${undercloud_instance} --network ${management_network_name} -f value -c id)
-floating_ip_check=$(openstack floating ip list --port ${port_id} -f value -c ID)
+if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
+    port_id=$(openstack port list --server ${undercloud_instance} --network ${management_network_name} -f value -c id)
+    floating_ip_check=$(openstack floating ip list --port ${port_id} -f value -c ID)
 
-i="0"
-limit="10"
-while [[ "$floating_ip_check" == "" ]]; do
-  i=$(( $i+1 ))
-  echo Try $i out of $limit. floating_ip_check="$floating_ip_check"
-  floating_ip=$(openstack floating ip create 0048fce6-c715-4106-a810-473620326cb0 -f value -c name)
-  openstack server add floating ip ${undercloud_instance} $floating_ip
-  floating_ip_check=$(openstack floating ip list --port ${port_id} -f value -c ID)
-  sleep 3
-  if (( $i > $limit)); then
-    break
-  fi
-done
+    i="0"
+    limit="10"
+    while [[ "$floating_ip_check" == "" ]]; do
+      i=$(( $i+1 ))
+      echo Try $i out of $limit. floating_ip_check="$floating_ip_check"
+      floating_ip=$(openstack floating ip create 0048fce6-c715-4106-a810-473620326cb0 -f value -c name)
+      openstack server add floating ip ${undercloud_instance} $floating_ip
+      floating_ip_check=$(openstack floating ip list --port ${port_id} -f value -c ID)
+      sleep 3
+      if (( $i > $limit)); then
+        break
+      fi
+    done
 
-openstack server show ${undercloud_instance}
+    openstack server show ${undercloud_instance}
 
-floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating IP Address")
-
+    floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating IP Address")
+fi
 
 #Creating overcloud nodes and disabling port security
 for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
@@ -121,7 +127,9 @@ overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f 
 
 vexxrc="${my_dir}/../../config/env_vexx.sh"
 
-echo Undercloud is available by floating ip: $floating_ip
+if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
+    echo Undercloud is available by floating ip: $floating_ip
+fi
 echo
 echo file tf-devstack/config/env_vexx.sh was updated
 echo ==================================================================================
@@ -134,7 +142,9 @@ echo export prov_ip=\""${undercloud_prov_ip}"\" >> $vexxrc
 echo export fixed_vip=\""${prov_subnet}.200"\" >> $vexxrc
 echo export fixed_controller_ip=\""${prov_subnet}.211"\" >> $vexxrc
 
-echo export floating_ip=\"${floating_ip}\" >> $vexxrc
+if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
+    echo export floating_ip=\"${floating_ip}\" >> $vexxrc
+fi
 echo export provider_network_name=\"${provider_network_name}\" >> $vexxrc
 
 echo export undercloud_instance=\"${undercloud_instance}\" >> $vexxrc

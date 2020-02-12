@@ -6,14 +6,16 @@ if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; t
    exit 1
 fi
 
-if [[ -z ${undercloud_instance+x}  && -z ${floating_ip+x} && -z ${provider_network_name+x} ]]; then
+if [[ -z ${undercloud_instance+x} && -z ${provider_network_name+x} ]]; then
    echo "Please export variables for cleanup first";
    echo Exiting
    exit 1
 fi
 
-echo Removing floating ip ${floating_ip} from server ${undercloud_instance}
-openstack server remove floating ip ${undercloud_instance} ${floating_ip}
+if [[ -z ${floating_ip+x} ]]; then
+    echo Removing floating ip ${floating_ip} from server ${undercloud_instance}
+    openstack server remove floating ip ${undercloud_instance} ${floating_ip}
+fi
 
 echo Deleting server ${undercloud_instance}
 openstack server delete ${undercloud_instance}
