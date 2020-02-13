@@ -15,6 +15,7 @@ fi
 if [[ -z ${floating_ip+x} ]]; then
     echo Removing floating ip ${floating_ip} from server ${undercloud_instance}
     openstack server remove floating ip ${undercloud_instance} ${floating_ip}
+    openstack floating ip delete ${floating_ip}
 fi
 
 echo Deleting server ${undercloud_instance}
