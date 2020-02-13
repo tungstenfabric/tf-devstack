@@ -20,6 +20,8 @@ else
    exit
 fi
 
+CONTRAIL_VERSION=${CONTRAIL_VERSION:-'latest'}
+
 cd /home/$SUDO_USER
 
 openstack overcloud container image prepare \
@@ -31,7 +33,7 @@ openstack overcloud container image prepare \
 echo openstack overcloud container image upload --config-file ./overcloud_containers.yaml
 openstack overcloud container image upload --config-file ./overcloud_containers.yaml
 
-./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t latest
+./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_VERSION
 
 sed -i ./contrail_containers.yaml -e "s/192.168.24.1/${prov_ip}/"
 

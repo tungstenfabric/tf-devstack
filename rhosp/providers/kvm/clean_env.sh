@@ -1,10 +1,16 @@
 #!/bin/bash -x
 
+if [[ $EUID -ne 0 ]]; then
+   echo "This script must be run by root"
+   exit 1
+fi
+
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-source "$my_dir/env.sh"
+source "/home/$SUDO_USER/rhosp-environment.sh"
 source "$my_dir/virsh_functions"
 
 # delete stack to unregister nodes

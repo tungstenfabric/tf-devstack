@@ -1,8 +1,6 @@
 #!/bin/bash
 
 cd
-
-
 if [ -f ~/stackrc ]; then
    source ~/stackrc
 else

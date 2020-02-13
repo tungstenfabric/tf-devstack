@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
+   echo "This script must be run by root"
    exit 1
 fi
 
@@ -15,15 +15,15 @@ my_dir="$(dirname $my_file)"
 
 OS_MEM=${OS_MEM:8192}
 CTRL_MEM=${CTRL_MEM:8192}
-COMP_MEM=${COMP_MEM:4096}
+COMP_MEM=${COMP_MEM:8192}
 
 vm_disk_size=${vm_disk_size:30G}
 net_driver=${net_driver:-virtio}
 
-source "$my_dir/env.sh"
+source "/home/$SUDO_USER/rhosp-environment.sh"
 source "$my_dir/virsh_functions"
 
-image_customize ${BASE_IMAGE} undercloud /home/ggalkin/.ssh/id_rsa.pub
+image_customize ${BASE_IMAGE} undercloud $ssh_public_key
 
 # check if environment is present
 assert_env_exists $undercloud_vmname

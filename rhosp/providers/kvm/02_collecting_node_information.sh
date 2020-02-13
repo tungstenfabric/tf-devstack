@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
+   echo "This script must be run by root. Please use sudo"
    exit 1
 fi
 
@@ -11,7 +11,7 @@ my_dir="$(dirname $my_file)"
 
 #BASE_IMAGE="/home/ubuntu/rhel-7.7.qcow2"
 
-source "$my_dir/env.sh"
+source "/home/$SUDO_USER/rhosp-environment.sh"
 cd $my_dir
 
 # collect MAC addresses of overcloud machines
