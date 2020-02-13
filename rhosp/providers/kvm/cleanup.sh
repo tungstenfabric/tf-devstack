@@ -39,3 +39,5 @@ for vol in `virsh vol-list $poolname | awk "/rhosp13-overcloud-/ {print \$1}"` ;
 done
 
 for i in `virsh list --all | grep rhosp13 | awk '{print $2}'`; do virsh destroy $i; virsh undefine $i; done
+
+rm -f "/home/$SUDO_USER/rhosp-environment.sh"

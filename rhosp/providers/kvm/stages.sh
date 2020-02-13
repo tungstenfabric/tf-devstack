@@ -26,14 +26,14 @@ function kvm() {
 
 function machines() {
     cd $my_dir
-    scp -r $ssh_opts ~/rhosp-environment.sh /home/tf-devstack stack@${mgmt_ip}:
-    ssh $ssh_opts stack@${mgmt_ip} sudo bash -c "source /home/stack/rhosp-environment.sh && $my_dir/undercloud/00_provision.sh"
+    scp -r $ssh_opts ~/rhosp-environment.sh ~/tf-devstack stack@${mgmt_ip}:
+    ssh $ssh_opts stack@${mgmt_ip} "source /home/stack/rhosp-environment.sh; sudo -E /home/stack/tf-devstack/rhosp/undercloud/00_provision.sh"
 }
 
 function undercloud() {
     cd $my_dir
-    ssh $ssh_opts stack@${mgmt_ip} sudo ./undercloud/01_deploy_as_root.sh
-    ssh $ssh_opts stack@${mgmt_ip} ./undercloud/02_deploy_as_stack.sh
+    ssh $ssh_opts stack@${mgmt_ip} sudo /home/stack/tf-devstack/rhosp/undercloud/01_deploy_as_root.sh
+    ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/undercloud/02_deploy_as_stack.sh
 }
 
 #Overcloud nodes provisioning
@@ -41,12 +41,12 @@ function overcloud() {
     cd $my_dir
 
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-        ssh  $ssh_opts stack@${mgmt_ip} ./overcloud/01_extract_overcloud_images.sh
+        ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/01_extract_overcloud_images.sh
         #Checking vbmc statuses and fix 'down'
         for vm in $(vbmc list -f value -c 'Domain name' -c Status | grep down | awk '{print $1}'); do
             vbmc start ${vm}
         done
-        ssh  $ssh_opts stack@${mgmt_ip} ./overcloud/03_node_introspection.sh
+        ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh
     else
         #Copying keypair to the undercloud
         scp $ssh_opts $ssh_private_key $ssh_public_key stack@${mgmt_ip}:.ssh/

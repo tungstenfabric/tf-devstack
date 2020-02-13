@@ -18,7 +18,11 @@ export DEPLOYER='rhosp'
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
 export PROVIDER=${PROVIDER:-'vexx'}
-export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
+if [[ "$PROVIDER" == "kvm" ]]; then
+    export USE_PREDEPLOYED_NODES=false
+else
+    export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
+fi   
 #IPMI_PASSOWORD (also it's AdminPassword for TripleO)
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
 user=$(whoami)

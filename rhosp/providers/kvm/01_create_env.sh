@@ -13,11 +13,11 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-OS_MEM=${OS_MEM:8192}
-CTRL_MEM=${CTRL_MEM:8192}
-COMP_MEM=${COMP_MEM:8192}
+OS_MEM=${OS_MEM:-8192}
+CTRL_MEM=${CTRL_MEM:-8192}
+COMP_MEM=${COMP_MEM:-8192}
 
-vm_disk_size=${vm_disk_size:30G}
+vm_disk_size=${vm_disk_size:-30G}
 net_driver=${net_driver:-virtio}
 
 source "/home/$SUDO_USER/rhosp-environment.sh"

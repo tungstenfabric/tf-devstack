@@ -8,7 +8,6 @@ export undercloud_prefix="undercloud"
 export undercloud_vmname="rhosp13-undercloud"
 
 export BASE_IMAGE="/home/ggalkin/rhel_7.7.qcow2"
-export SKIP_OVERCLOUD_NODE_INTROSPECTION=false
 
 #define virtual machine's volumes
 
