@@ -45,9 +45,10 @@ export fixed_vip="${prov_subnet}.200"
 export fixed_controller_ip="${prov_subnet}.211"
 
 #Undercloud MAC addresses
-undercloud_mgmt_mac="00:16:00:00:08:02"
-undercloud_prov_mac="00:16:00:00:08:03"
-undercloud_instance="undercloud"
+export undercloud_mgmt_mac="00:16:00:00:08:02"
+export undercloud_prov_mac="00:16:00:00:08:03"
+export undercloud_instance="undercloud"
+export domain="localdomain"
 
 
 #ip addresses for overcloud nodes

@@ -19,14 +19,14 @@ function kvm() {
     wait_ssh ${mgmt_ip} ${ssh_private_key}
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
         sudo ./02_collecting_node_information.sh
-    else 
-        sudo touch instackenv.json
+    else
+        sudo touch ~/instackenv.json
     fi
 }
 
 function machines() {
     cd $my_dir
-    scp -r $ssh_opts ~/rhosp-environment.sh ~/tf-devstack stack@${mgmt_ip}:
+    scp -r $ssh_opts ~/rhosp-environment.sh ~/instackenv.json ~/tf-devstack stack@${mgmt_ip}:
     ssh $ssh_opts stack@${mgmt_ip} "source /home/stack/rhosp-environment.sh; sudo -E /home/stack/tf-devstack/rhosp/undercloud/00_provision.sh"
 }
 

@@ -24,3 +24,4 @@
 #export overcloud_compute_prov_ip="${prov_subnet}.9"
 #export overcloud_ctrlcont_prov_ip="${prov_subnet}.48"
 
+#export domain=vexxhost.local

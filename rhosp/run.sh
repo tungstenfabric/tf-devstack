@@ -22,7 +22,7 @@ if [[ "$PROVIDER" == "kvm" ]]; then
     export USE_PREDEPLOYED_NODES=false
 else
     export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
-fi   
+fi
 #IPMI_PASSOWORD (also it's AdminPassword for TripleO)
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
 user=$(whoami)
