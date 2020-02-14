@@ -40,4 +40,5 @@ done
 
 for i in `virsh list --all | grep rhosp13 | awk '{print $2}'`; do virsh destroy $i; virsh undefine $i; done
 
-rm -f "/home/$SUDO_USER/rhosp-environment.sh"
+rm -rf "/home/$SUDO_USER/rhosp-environment.sh /home/$SUDO_USER/instackenv.json /home/$SUDO_USER/.tf" 
+

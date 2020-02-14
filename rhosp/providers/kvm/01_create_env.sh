@@ -76,7 +76,7 @@ function define_overcloud_vms_without_vbmc() {
 
 
 # just define overcloud machines
-if [[ "$SKIP_OVERCLOUD_NODE_INTROSPECTION" == false ]]; then
+if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
 vbmc_port=$VBMC_PORT_BASE
   define_overcloud_vms 'cont' $OS_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
