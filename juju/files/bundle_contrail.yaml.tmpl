@@ -79,7 +79,8 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-      cluster_name: test_cluster
+      cluster_name: "k8s"
+      public_fip_pool: "{'domain':'default-domain','project':'k8s-default','name':'__fip_pool_public__','network':'__public__'}"
   contrail-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"
     charm: {{ JUJU_REPO }}/contrail-kubernetes-node
