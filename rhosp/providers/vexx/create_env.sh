@@ -133,8 +133,9 @@ fi
 echo
 echo file tf-devstack/config/env_vexx.sh was updated
 echo ==================================================================================
+echo >> $vexxrc
 
-echo export domain=\"${domain}\"
+echo export domain=\"${domain}\" >> $vexxrc
 echo export mgmt_subnet=\""${mgmt_subnet}"\" >> $vexxrc
 echo export prov_subnet=\""${prov_subnet}"\" >> $vexxrc
 echo export mgmt_gateway=\""${mgmt_subnet_gateway_ip}"\" >> $vexxrc
