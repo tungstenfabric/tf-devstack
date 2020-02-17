@@ -67,7 +67,7 @@ function machines() {
     # install required packages
 
     echo "$DISTRO detected"
-    if [ "$DISTRO" == "centos" ]; then
+    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
