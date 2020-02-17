@@ -23,7 +23,7 @@ LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
 
 # install required packages
 
-if [ "$DISTRO" == "centos" ]; then
+if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
 elif [ "$DISTRO" == "ubuntu" ]; then
     # Ensure updates repo is available

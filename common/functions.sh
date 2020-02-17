@@ -145,7 +145,7 @@ function check_tf_active() {
 #TODO time sync restart needed when startup from snapshot
 function setup_timeserver() {
   # install timeserver
-  if [ "$DISTRO" == "centos" ]; then
+  if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
     sudo yum install -y ntp
     sudo systemctl enable ntpd
     sudo systemctl start ntpd
