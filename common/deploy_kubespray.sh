@@ -9,6 +9,7 @@ source "$my_dir/functions.sh"
 
 # parameters
 
+KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.12"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
@@ -58,7 +59,7 @@ setup_timeserver
 
 # deploy kubespray
 
-[ ! -d kubespray ] && git clone --depth 1 --single-branch https://github.com/kubernetes-sigs/kubespray.git
+[ ! -d kubespray ] && git clone --depth 1 --single-branch --branch=${KUBESPRAY_TAG} https://github.com/kubernetes-sigs/kubespray.git
 cd kubespray/
 sudo pip3 install -r requirements.txt
 
