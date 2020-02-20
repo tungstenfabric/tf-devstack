@@ -85,3 +85,9 @@ function tf() {
     ssh  $ssh_opts stack@${mgmt_ip} sudo /home/stack/tf-devstack/rhosp/overcloud/05_prepare_containers.sh
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/06_deploy_overcloud.sh
 }
+
+# This is_active function is called in wait stage defined in common/stages.sh
+function is_active() {
+    return 0
+}
+

@@ -20,6 +20,7 @@ function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
+    sudo ./providers/common/docker_mtu_setup.sh
 }
 
 #Overcloud nodes provisioning

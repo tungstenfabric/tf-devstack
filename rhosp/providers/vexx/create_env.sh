@@ -2,7 +2,7 @@
 
 
 #Assign floating ip address to undercloud node (disabled by default)
-ASSIGN_FLOATING_IP=false
+ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"

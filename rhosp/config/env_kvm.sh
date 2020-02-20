@@ -7,7 +7,7 @@ export poolname="rdimages"
 export undercloud_prefix="undercloud"
 export undercloud_vmname="rhosp13-undercloud"
 
-export BASE_IMAGE="/home/ggalkin/rhel_7.7.qcow2"
+export BASE_IMAGE=${BASE_IMAGE:-"/home/jenkins/rhel_7.7.qcow2"}
 
 #define virtual machine's volumes
 
