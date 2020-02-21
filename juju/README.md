@@ -99,6 +99,35 @@ git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/run.sh
 ```
 
+## Quick start on an MAAS on base of Openstack
+
+1. Set environment variables:
+
+``` bash
+export ORCHESTRATOR='openstack'
+export CLOUD='maas'
+export MAAS_ENDPOINT="*maas_endpoint_url*"
+export MAAS_API_KEY="*maas_user_api_key*"
+```
+2. For deploying with the high availability need seven virtual addresses. These IP addresses must be on the same MAAS subnet where the applications will be deployed, do not overlap with the DHCP range or be reserved. Specify the first IP of seven range addresses in the CIDR notation (the following six IP also will be used) or all seven VIP separated by spaces.
+Example:
+
+``` bash
+export VIRTUAL_IPS="192.168.51.201/24"
+```
+or
+
+``` bash
+export VIRTUAL_IPS="192.168.51.201 192.168.51.211 192.168.51.214 192.168.51.215 192.168.51.217 192.168.51.228 192.168.51.230"
+```
+
+1. Clone this repository and run the startup script:
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/juju/run.sh
+```
+
 ## Cleanup
 
 1. Set environment variables:

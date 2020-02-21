@@ -11,6 +11,11 @@ CONTROLLER_NODES=${CONTROLLER_NODES:-}
 
 CONTROLLER_NODES=`echo $CONTROLLER_NODES | tr ',' ' '`
 # add machines
+if [[ $CLOUD == 'maas' ]] ;then
+    juju add-machine -n 4
+    exit
+fi
+
 if [[ -n "$CONTROLLER_NODES" ]]; then
     for node in $CONTROLLER_NODES ; do
         juju add-machine ssh:ubuntu@$node
