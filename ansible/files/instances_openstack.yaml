@@ -44,10 +44,11 @@ default_configuration:
   VXLAN_VN_ID_MODE: automatic
 kolla_config:
   kolla_globals:
-    enable_haproxy: no
-    enable_ironic: no
-    enable_swift: no
-    enable_barbican: no
     nova_compute_virt_type: qemu
+    enable_haproxy: no
+    enable_ironic: 'no'
+    enable_ironic_notifications: 'no'
+    openstack_service_workers: 1
+    kolla_base_distro: "centos"
   kolla_passwords:
     keystone_admin_password: contrail123
