@@ -17,6 +17,7 @@ fi
 default_flavor=${vm_type:-'v2-standard-4'}
 #contrail_flavor='v2-highcpu-32'
 contrail_flavor='v2-standard-4'
+disk_size_gb=100
 key_name=${key_name:-'worker'}
 management_network_name="rhosp13-mgmt"
 provider_network_base_name="rhosp13-prov"
@@ -62,7 +63,7 @@ nova boot --flavor ${default_flavor} \
           --key-name=${key_name} \
           --nic net-name=${management_network_name} \
           --nic net-name=${provider_network_name} \
-          --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=40,bootindex=0 \
+          --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=$disk_size_gb},bootindex=0 \
           --poll \
           ${undercloud_instance}
 
@@ -107,7 +108,7 @@ for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${
     nova boot --flavor ${flavor} --security-groups allow_all --key-name=${key_name} \
               --tags "PipelineBuildTag=${PIPELINE_BUILD_TAG},SLAVE=vexxhost" \
               --nic net-name=${provider_network_name} \
-              --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=30,bootindex=0 \
+              --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=${disk_size_gb},bootindex=0 \
               --poll ${instance_name}
     port_id=$(openstack port list --server ${instance_name} --network ${provider_network_name} -f value -c id)
     openstack port set --no-security-group --disable-port-security ${port_id}
