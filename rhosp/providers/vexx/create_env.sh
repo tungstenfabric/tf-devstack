@@ -63,7 +63,7 @@ nova boot --flavor ${default_flavor} \
           --key-name=${key_name} \
           --nic net-name=${management_network_name} \
           --nic net-name=${provider_network_name} \
-          --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=$disk_size_gb},bootindex=0 \
+          --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=${disk_size_gb},bootindex=0 \
           --poll \
           ${undercloud_instance}
 
