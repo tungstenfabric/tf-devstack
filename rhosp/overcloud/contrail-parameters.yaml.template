@@ -6,6 +6,7 @@ parameter_defaults:
   EC2MetadataIp: ${prov_ip}
   DnsServers: [ "8.8.8.8", "8.8.4.4" ]
   NtpServer: 3.europe.pool.ntp.org
+  NovaComputeLibvirtType: ${overcloud_virt_type}
 
   #Custome Contrail container configuration settings
   ContrailSettings:

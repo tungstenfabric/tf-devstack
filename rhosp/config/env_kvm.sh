@@ -71,3 +71,4 @@ export COMP_MEM=8192
 export vm_disk_size="30G"
 
 export net_driver="virtio"
+export overcloud_virt_type="kvm"
