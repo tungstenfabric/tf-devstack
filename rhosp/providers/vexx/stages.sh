@@ -84,6 +84,7 @@ function collect_deployment_env() {
         AGENT_NODES="${overcloud_compute_prov_ip}"
         DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
         DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
+        DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
     else
         echo "No file ~/overcloudrc"
         return 1
