@@ -16,19 +16,19 @@ cd $my_dir
 
 # collect MAC addresses of overcloud machines
 function get_macs() {
-  local type=$1
-  truncate -s 0 /tmp/nodes-$type.txt
-  virsh domiflist rhosp13-overcloud-$type | awk '$3 ~ "prov" {print $5};'
+  local name=$1
+  truncate -s 0 /tmp/nodes-$name.txt
+  virsh domiflist $name | awk '$3 ~ "prov" {print $5};'
 }
 
 function get_vbmc_ip() {
-  local type=$1
-  vbmc list | grep rhosp13-overcloud-$type | awk -F\| '{print $4}'
+  local name=$1
+  vbmc list | grep $name | awk -F\| '{print $4}'
 }
 
 function get_vbmc_port() {
-  local type=$1
-  vbmc list | grep rhosp13-overcloud-$type | awk -F\| '{print $5}'
+  local name=$1
+  vbmc list | grep $name | awk -F\| '{print $5}'
 }
 
 
@@ -64,17 +64,32 @@ cat << EOF > instackenv.json
   "nodes": [
 EOF
 
-declare -A longname=( ["cont"]="controller" ["compute"]="compute" ["ctrlcont"]="contrail-controller" )
-
 unset vbmc_ip
 unset vbmc_port
 unset mac
-for node in 'cont' 'compute' 'ctrlcont'; do
-  vbmc_ip=$(get_vbmc_ip $node)
-  vbmc_port=$(get_vbmc_port $node)
-  mac=$(get_macs $node)
-  define_machine "profile:${longname[$node]},boot_option:local" $mac $vbmc_ip $vbmc_port
-done
+
+node=$overcloud_cont_instance
+node_type=controller
+vbmc_ip=$(get_vbmc_ip $node)
+vbmc_port=$(get_vbmc_port $node)
+mac=$(get_macs $node)
+define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+
+
+node=$overcloud_compute_instance
+node_type=compute
+vbmc_ip=$(get_vbmc_ip $node)
+vbmc_port=$(get_vbmc_port $node)
+mac=$(get_macs $node)
+define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+
+
+node=$overcloud_ctrlcont_instance
+node_type=contrail-controller
+vbmc_ip=$(get_vbmc_ip $node)
+vbmc_port=$(get_vbmc_port $node)
+mac=$(get_macs $node)
+define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
 
 # remove last comma
 head -n -1 instackenv.json > instackenv.json.tmp
@@ -88,7 +103,8 @@ EOF
 mv instackenv.json /home/$SUDO_USER/
 
 # check this json (it's optional)
-#curl --silent -O https://raw.githubusercontent.com/rthallisey/clapper/master/instackenv-validator.py
-#python instackenv-validator.py -f ~/instackenv.json
+# curl --silent -O https://raw.githubusercontent.com/rthallisey/clapper/master/instackenv-validator.py
+# python instackenv-validator.py -f ~/instackenv.json
+
 
 

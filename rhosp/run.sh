@@ -68,4 +68,9 @@ egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_
 source $my_dir/providers/${PROVIDER}/stages.sh
 
 
+function collect_deployment_env() {
+    # no additinal info is needed
+    :
+}
+
 run_stages $STAGE
