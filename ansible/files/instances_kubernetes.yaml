@@ -25,9 +25,8 @@ instances:
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
-# Default counfiguration params in the section below will be set as ENV variables for all proviosioner containers
 default_configuration:
-#  VXLAN_VN_ID_MODE: automatic
+  VXLAN_VN_ID_MODE: automatic
 contrail_configuration:
   CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
   CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
