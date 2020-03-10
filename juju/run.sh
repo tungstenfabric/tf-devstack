@@ -61,6 +61,7 @@ function logs() {
     # removed ' | grep -v \/lxd\/'
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
     for machine in $JUJU_MACHINES ; do
+        tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
         mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
@@ -72,12 +73,12 @@ function logs() {
                                    collect_system_stats; \
                                    collect_contrail_logs; \
                                    chmod -R a+r logs; \
-                                   cd logs ; tar -czf logs-$machine.tgz * ;  cd .. ; \
-                                   cp logs/logs-$machine.tgz logs-$machine.tgz ; rm -rf logs"
-        command juju scp $machine:/tmp/juju-logs/logs-$machine.tgz $TF_LOG_DIR/$machine/
+                                   cd logs ; tar -czf $tgz_name * ;  cd .. ; \
+                                   cp logs/$tgz_name $tgz_name ; rm -rf logs"
+        command juju scp $machine:/tmp/juju-logs/$tgz_name $TF_LOG_DIR/$machine/
         pushd $TF_LOG_DIR/$machine/
-        tar -xzf logs-$machine.tgz
-        rm -rf logs-$machine.tgz
+        tar -xzf $tgz_name
+        rm -rf $tgz_name
         popd $cdir
     done
     collect_juju_status
