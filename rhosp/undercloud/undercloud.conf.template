@@ -1,7 +1,7 @@
 [DEFAULT]
 local_ip = ${prov_ip}/24
-local_interface = eth1
-local_mtu = 1450
+local_interface = ${undercloud_local_interface}
+local_mtu = ${local_mtu}
 overcloud_domain_name = ${domain}
 undercloud_nameservers = 8.8.8.8
 undercloud_hostname = ${undercloud_instance}.${domain}
