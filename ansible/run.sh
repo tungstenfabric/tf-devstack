@@ -23,10 +23,13 @@ declare -A STAGES=( \
 export DEPLOYER='ansible'
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=300
-DEPLOYER_IMAGE="contrail-kolla-ansible-deployer"
-DEPLOYER_DIR="root"
-ANSIBLE_DEPLOYER_DIR="$WORKSPACE/$DEPLOYER_DIR/contrail-ansible-deployer"
-export ANSIBLE_CONFIG=$ANSIBLE_DEPLOYER_DIR/ansible.cfg
+
+tf_deployer_dir=${WORKSPACE}/tf-ansible-deployer
+openstack_deployer_dir=${WORKSPACE}/tf-kolla-ansible
+tf_deployer_image=${TF_ANSIBLE_DEPLOYER:-"tf-ansible-deployer-src"}
+openstack_deployer_image=${OPENSTACK_DEPLOYER:-"tf-kolla-ansible-src"}
+
+export ANSIBLE_CONFIG=$tf_deployer_dir/ansible.cfg
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
@@ -48,7 +51,7 @@ function logs() {
     set +e
 
     create_log_dir
-    cp $ANSIBLE_DEPLOYER_DIR/instances.yaml ${TF_LOG_DIR}/
+    cp $tf_deployer_dir/instances.yaml ${TF_LOG_DIR}/
     collect_contrail_status
     collect_system_stats
     collect_docker_logs
@@ -97,7 +100,12 @@ function machines() {
 
     "$my_dir/../common/install_docker.sh"
 
-    fetch_deployer
+    if [[ "$ORCHESTRATOR" == "kubernetes" ]] ; then
+        fetch_deployer  $tf_deployer_image $tf_deployer_dir
+    elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then
+        fetch_deployer $openstack_deployer_image $openstack_deployer_dir
+        fetch_deployer $tf_deployer_image $tf_deployer_dir
+    fi
 
     # generate inventory file
 
@@ -106,16 +114,16 @@ function machines() {
     export CONTRAIL_CONTAINER_TAG
     export OPENSTACK_VERSION
     export USER=$(whoami)
-    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $ANSIBLE_DEPLOYER_DIR/instances.yaml
+    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
 
     # create Ansible temporary dir under current user to avoid create it under root
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
     rm -rf /tmp/rekjreekrbjrekj.txt
 
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-        -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-        $ANSIBLE_DEPLOYER_DIR/playbooks/configure_instances.yml
-    if [[ $? != 0 ]]; then
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/configure_instances.yml
+    if [[ $? != 0 ]] ; then
         echo "Installation aborted. Instances preparation failed."
         exit 1
     fi
@@ -126,8 +134,8 @@ function k8s() {
         echo "INFO: Skipping k8s deployment"
     else
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-            -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-            $ANSIBLE_DEPLOYER_DIR/playbooks/install_k8s.yml
+            -e config_file=$tf_deployer_dir/instances.yaml \
+            $tf_deployer_dir/playbooks/install_k8s.yml
 
         # To use kubectl current user must have Kubernetes config
         if [[ ! -d ~/.kube ]]; then
@@ -146,15 +154,15 @@ function openstack() {
         echo "INFO: Skipping openstack deployment"
     else
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-            -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-            $ANSIBLE_DEPLOYER_DIR/playbooks/install_openstack.yml
+            -e config_file=$tf_deployer_dir/instances.yaml \
+            $tf_deployer_dir/playbooks/install_openstack.yml
     fi
 }
 
 function tf() {
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-        -e config_file=$ANSIBLE_DEPLOYER_DIR/instances.yaml \
-        $ANSIBLE_DEPLOYER_DIR/playbooks/install_contrail.yml
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/install_contrail.yml
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
     echo "Use admin/$AUTH_PASSWORD to log in"

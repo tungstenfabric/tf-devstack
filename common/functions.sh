@@ -19,13 +19,28 @@ function ensure_kube_api_ready() {
   fi
 }
 
+# pull deployer src container locally and extract files to path
+# Functions get two required params:
+#  - deployer image
+#  - directory path deployer have to be extracted to
 function fetch_deployer() {
-  sudo rm -rf "$WORKSPACE/$DEPLOYER_DIR"
-  local image="$CONTAINER_REGISTRY/$DEPLOYER_IMAGE"
+
+  if [[ $# != 2 ]] ; then
+    echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
+    exit 1
+  fi
+
+  local deployer_image=$1
+  local deployer_dir=$2
+
+  sudo rm -rf $deployer_dir
+
+  local image="$CONTAINER_REGISTRY/$deployer_image"
   [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
-  sudo docker create --name $DEPLOYER_IMAGE --entrypoint /bin/true $image
-  sudo docker cp $DEPLOYER_IMAGE:$DEPLOYER_DIR - | tar -x -C $WORKSPACE
-  sudo docker rm -fv $DEPLOYER_IMAGE
+  sudo docker create --name $deployer_image --entrypoint /bin/true $image
+  sudo docker cp $deployer_image:/src $deployer_dir
+  sudo docker rm -fv $deployer_image
+  sudo chown -R $UID $deployer_dir
 }
 
 function wait_cmd_success() {

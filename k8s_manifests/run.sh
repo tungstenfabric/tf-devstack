@@ -22,13 +22,13 @@ declare -A STAGES=( \
 export DEPLOYER='k8s_manifests'
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=600
-DEPLOYER_IMAGE="contrail-k8s-manifests"
-DEPLOYER_DIR="contrail-container-builder"
+deployer_image="tf-container-builder-src"
+deployer_dir="tf-container-builder"
 AGENT_LABEL="node-role.opencontrail.org/agent="
 
 # default env variables
 
-KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
+KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
@@ -72,14 +72,14 @@ function k8s() {
 }
 
 function manifest() {
-    fetch_deployer
+    fetch_deployer $deployer_image $deployer_dir
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     export LINUX_DISTR=$DISTRO
     export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    $WORKSPACE/$DEPLOYER_DIR/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    $WORKSPACE/$deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
 }
 
 function tf() {
