@@ -52,7 +52,7 @@ function define_overcloud_vms() {
   local mem=$2
   local vbmc_port=$3
   local vcpu=${4:-2}
-  local vol_name="rhosp13-overcloud-${name}"
+  local vol_name=$name
   create_root_volume $vol_name
   local vm_name="$vol_name"
   define_machine $vm_name $vcpu $mem rhel7 $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
@@ -65,7 +65,7 @@ function define_overcloud_vms_without_vbmc() {
   local mac=$3
   local ip=$4
   local vcpu=${5:-2}
-  local vol_name="rhosp13-overcloud-${name}"
+  local vol_name=$name
   #create_root_volume $vol_name
   local vm_name="$vol_name"
   image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
@@ -78,16 +78,16 @@ function define_overcloud_vms_without_vbmc() {
 # just define overcloud machines
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
 vbmc_port=$VBMC_PORT_BASE
-  define_overcloud_vms 'cont' $OS_MEM $vbmc_port 4
+  define_overcloud_vms $overcloud_cont_instance $OS_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
-  define_overcloud_vms 'compute' $COMP_MEM $vbmc_port 4
+  define_overcloud_vms $overcloud_compute_instance $COMP_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
-  define_overcloud_vms 'ctrlcont' $CTRL_MEM $vbmc_port 4
+  define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
 else
-  define_overcloud_vms_without_vbmc 'cont' $OS_MEM $overcloud_cont_prov_mac $overcloud_cont_prov_ip 4
-  define_overcloud_vms_without_vbmc 'compute' $COMP_MEM $overcloud_compute_prov_mac $overcloud_compute_prov_ip 4
-  define_overcloud_vms_without_vbmc 'ctrlcont' $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
+  define_overcloud_vms_without_vbmc $overcloud_cont_instance $OS_MEM $overcloud_cont_prov_mac $overcloud_cont_prov_ip 4
+  define_overcloud_vms_without_vbmc $overcloud_compute_instance $COMP_MEM $overcloud_compute_prov_mac $overcloud_compute_prov_ip 4
+  define_overcloud_vms_without_vbmc $overcloud_ctrlcont_instance $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
 fi
 
 # copy image for undercloud and resize them
@@ -124,4 +124,5 @@ function _start_vm() {
 
 _start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac
+
 

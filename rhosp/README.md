@@ -43,12 +43,18 @@ Stage by stage order
 ## KVM installation
 All steps must be done on kvm host
 
+If You are going to deploy multiple environments on single libvirt/kvm host - You shoud export variable DEPLOY_POSTFIX.
+It sets management network as `192.168.${DEPLOY_POSTFIX}` and provider network as `192.168.${DEPLOY_POSTFIX_INC}`.
+Also, note that mac addresses are based on `DEPLOY_POSTFIX`, as in `00:16:00:00:${DEPLOY_POSTFIX}:02`.
+DEPLOY_POSTFIX_INC equals DEPLOY_POSTFIX_INC + 1.
+
 1. Setup KVM host
 1. Login to KVM host
 1. git clone https://github.com/tungstenfabric/tf-devstack.git
 1. cd tf-devstack/rhosp
 1. edit file config/env_kvm.sh (set correct ssh keys, BASE_IMAGE, etc)
 1. export PROVIDER=kvm
+1. export DEPLOY_POSTFIX=20
 1. export RHEL_USER=...
 1. export RHEL_PASSWORD=...
 1. ./run.sh
@@ -62,4 +68,5 @@ Stage by stage order
  - Run ./run.sh undercloud. This stage deploys undercloud.
  - Run ./run.sh overcloud. This stage provisions overcloud nodes
  - Run ./run.sh tf. This stage deploys overcloud
+
 

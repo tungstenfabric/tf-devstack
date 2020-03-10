@@ -2,21 +2,6 @@
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
-function get_network_name() {
-  local type=$1
-  case "$type" in
-    management)
-      echo "rhosp13-mgmt"
-      ;;
-    provisioning)
-      echo "rhosp13-prov"
-      ;;
-    *)
-      return 1
-  esac
-}
-
-
 function build_network_xml() {
   local type="$1"
   local nname="$2"
@@ -80,18 +65,17 @@ EOF
 }
 
 function delete_network() {
-  local type="$1"
-  local network_name=`get_network_name $type`
+  local network_name="$1"
   virsh net-destroy $network_name 2> /dev/null || true
   virsh net-undefine $network_name 2> /dev/null || true
 }
 
 function create_network() {
   local type="$1"
+  local network_name="$2"
 
-  delete_network $type
+  delete_network $network_name
 
-  local network_name=`get_network_name $type`
   local fxml=`build_network_xml $type $network_name`
   virsh net-define $fxml
   rm $fxml
@@ -410,3 +394,4 @@ function start_vbmc() {
     delete_vbmc $domain
   done
 }
+
