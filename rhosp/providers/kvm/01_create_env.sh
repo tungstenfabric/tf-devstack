@@ -53,8 +53,9 @@ function define_overcloud_vms() {
   local vbmc_port=$3
   local vcpu=${4:-2}
   local vol_name=$name
-  create_root_volume $vol_name
   local vm_name="$vol_name"
+  image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
+  create_root_volume $vol_name
   define_machine $vm_name $vcpu $mem rhel7 $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
 }
