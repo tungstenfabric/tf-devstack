@@ -54,7 +54,6 @@ export fixed_controller_ip="${prov_subnet}.211"
 export undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"
 export undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
 export undercloud_instance="undercloud-${DEPLOY_POSTFIX}"
-export undercloud_local_interface=${undercloud_local_interface:-"eth1"}
 export domain="localdomain"
 
 

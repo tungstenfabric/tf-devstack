@@ -8,7 +8,7 @@ fi
 
 
 #yum -y install python-tripleoclient python-rdomanager-oscplugin  openstack-utils
-yum -y install python-tripleoclient python-rdomanager-oscplugin
+yum -y install python-tripleoclient python-rdomanager-oscplugin iproute
 
 
 yum-config-manager --enable rhelosp-rhel-7-server-opt
