@@ -39,6 +39,10 @@ cd $my_dir
 if [[ ! -f ~/rhosp-environment.sh ]]; then
     cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
     cat $my_dir/config/env_${PROVIDER}.sh | grep '^export' >> ~/rhosp-environment.sh
+    #Overwrite DEPLOY_POSTFIX if it's defined
+    if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
+        sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
+    fi
     echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
     echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
