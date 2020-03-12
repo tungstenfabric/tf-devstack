@@ -28,7 +28,7 @@ AGENT_LABEL="node-role.opencontrail.org/agent="
 
 # default env variables
 
-KUBE_MANIFEST=${KUBE_MANIFEST:-$WORKSPACE/$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
+KUBE_MANIFEST=${KUBE_MANIFEST:-$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
@@ -79,7 +79,7 @@ function manifest() {
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     export LINUX_DISTR=$DISTRO
     export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    $WORKSPACE/$deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
 }
 
 function tf() {

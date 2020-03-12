@@ -100,11 +100,11 @@ function machines() {
 
     "$my_dir/../common/install_docker.sh"
 
-    if [[ "$ORCHESTRATOR" == "kubernetes" ]] ; then
-        fetch_deployer  $tf_deployer_image $tf_deployer_dir
-    elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then
+    fetch_deployer $tf_deployer_image $tf_deployer_dir
+    pushd $tf_deployer_dir ; git log -5 --oneline || /bin/true ; git branch -v || /bin/true ; popd
+    if [[ "$ORCHESTRATOR" == "openstack" ]] ; then
         fetch_deployer $openstack_deployer_image $openstack_deployer_dir
-        fetch_deployer $tf_deployer_image $tf_deployer_dir
+        pushd $openstack_deployer_dir ; git log -5 --oneline || /bin/true ; git branch -v || /bin/true ; popd
     fi
 
     # generate inventory file
