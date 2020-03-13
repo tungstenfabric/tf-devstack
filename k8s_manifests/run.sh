@@ -71,8 +71,24 @@ function k8s() {
     $my_dir/../common/deploy_kubespray.sh
 }
 
+# There are three fetch_deployer functions/methods now:
+# - fetch_deployer_no_docker - the most advanced function - fetch deployer src container without installing docker. In the future she will replace all the others
+# - fetch_deployer - function fetch deployer src container using docker. Needs docker to be installed on host
+# - old_XXX_fetch_deployer - deprecated deployer method saved for backward compatibility. Will be removed in the future.
+
+function old_k8s_fetch_deployer() {
+    local deployer_image="contrail-k8s-manifests"
+    local deployer_dir="$WORKSPACE/tf-container-builder"
+    local image="$CONTAINER_REGISTRY/$deployer_image"
+    sudo rm -rf $deployer_dir
+    [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
+    sudo docker create --name $deployer_image --entrypoint /bin/true $image
+    sudo docker cp $deployer_image:contrail-container-builder $deployer_dir
+    sudo docker rm -fv $deployer_image
+}
+
 function manifest() {
-    fetch_deployer $deployer_image $deployer_dir
+    fetch_deployer $deployer_image $deployer_dir || old_k8s_fetch_deployer
     export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
     export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
     export HOST_IP=$NODE_IP
