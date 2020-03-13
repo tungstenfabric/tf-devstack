@@ -120,9 +120,9 @@ function machines() {
 
     "$my_dir/../common/install_docker.sh"
 
-    fetch_deployer $tf_deployer_image $tf_deployer_dir || old_ansible_fetch_deployer
-
-    if [[ "$ORCHESTRATOR" == "openstack" ]] ; then
+    if ! fetch_deployer $tf_deployer_image $tf_deployer_dir ; then
+        old_ansible_fetch_deployer
+    elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then
         fetch_deployer $openstack_deployer_image $openstack_deployer_dir
     fi
 
