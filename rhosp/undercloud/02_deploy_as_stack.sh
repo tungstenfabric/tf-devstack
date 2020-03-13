@@ -33,7 +33,7 @@ EOF
 chmod 644 ~/.ssh/config
 
 cd $my_dir
-export local_mtu=`ip link show $undercloud_local_interface | grep -o "mtu.*" | awk '{print $2}'`
+export local_mtu=`/sbin/ip link show $undercloud_local_interface | grep -o "mtu.*" | awk '{print $2}'`
 cat undercloud.conf.template | envsubst >~/undercloud.conf
 
 openstack undercloud install

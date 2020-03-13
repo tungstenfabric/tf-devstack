@@ -44,6 +44,7 @@ if [[ ! -f ~/rhosp-environment.sh ]]; then
         sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
     fi
     echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
+    echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
     echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 fi
