@@ -1,0 +1,227 @@
+{% set JUJU_MACHINES = JUJU_MACHINES.split(',') -%}
+{% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
+
+heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[0] }}"
+glance-vip:          &glance-vip          "{{ VIRTUAL_IPS[1] }}"
+keystone-vip:        &keystone-vip        "{{ VIRTUAL_IPS[2] }}"
+mysql-vip:           &mysql-vip           "{{ VIRTUAL_IPS[3] }}"
+neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[4] }}"
+nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
+
+machines:
+  "{{ JUJU_MACHINES[0] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=32G cores=8 root-disk=300G
+  "{{ JUJU_MACHINES[1] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=32G cores=8 root-disk=300G
+  "{{ JUJU_MACHINES[2] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=32G cores=8 root-disk=300G
+  "{{ JUJU_MACHINES[3] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=15G cores=2 root-disk=100G
+  "{{ JUJU_MACHINES[4] }}":
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=15G cores=2 root-disk=100G
+
+series: "{{ UBUNTU_SERIES }}"
+services:
+  hacluster-mysql:
+    charm: cs:hacluster
+  hacluster-keystone:
+    charm: cs:hacluster
+  hacluster-nova:
+    charm: cs:hacluster
+  hacluster-heat:
+    charm: cs:hacluster
+  hacluster-neutron:
+    charm: cs:hacluster
+  hacluster-glance:
+    charm: cs:hacluster
+  glance:
+    charm: "cs:{{ UBUNTU_SERIES }}/glance"
+    num_units: 3
+    options:
+      vip: *glance-vip
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  ceph-mon:
+    charm: cs:ceph-mon
+    num_units: 3
+    options:
+      expected-osd-count: 3
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  ceph-osd:
+    charm: cs:ceph-osd
+    num_units: 3
+    options:
+      osd-devices: /var/lib/ceph/storage
+    to:
+      - "{{ JUJU_MACHINES[0] }}"
+      - "{{ JUJU_MACHINES[1] }}"
+      - "{{ JUJU_MACHINES[2] }}"
+  keystone:
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
+    num_units: 3
+    options:
+      vip: *keystone-vip
+      admin-password: "{{ AUTH_PASSWORD }}"
+      admin-role: "admin"
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      preferred-api-version: "3"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  mysql:
+    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
+    num_units: 3
+    options:
+      vip: *mysql-vip
+      min-cluster-size: 3
+      root-password: "password"
+      max-connections: 1500
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  rabbitmq-server:
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
+    num_units: 3
+    options:
+      min-cluster-size: 3
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  neutron-api:
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
+    num_units: 3
+    options:
+      vip: *neutron-api-vip
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      manage-neutron-plugin-legacy-mode: false
+      neutron-security-groups: "true"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  heat:
+    charm: "cs:heat"
+    num_units: 3
+    options:
+      vip: *heat-vip
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  nova-cloud-controller:
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
+    num_units: 3
+    options:
+      vip: *nova-cc-vip
+      network-manager: "Neutron"
+      console-access-protocol: "novnc"
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  memcached:
+    charm: "cs:{{ UBUNTU_SERIES }}/memcached"
+    num_units: 3
+    options:
+      allow-ufw-ip6-softfail: "True"
+    to:
+      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[1] }}"
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+  nova-compute:
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    series: {{ UBUNTU_SERIES }}
+    num_units: 2
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      virt-type: "qemu"
+      enable-resize: "true"
+      enable-live-migration: "true"
+      migration-auth-type: "ssh"
+    to:
+      - "{{ JUJU_MACHINES[3] }}"
+      - "{{ JUJU_MACHINES[4] }}"
+  openstack-dashboard:
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
+    num_units: 1
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - "lxd:{{ JUJU_MACHINES[2] }}"
+
+  # misc
+
+  ubuntu:
+    charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
+    num_units: 5
+    to:
+      - "{{ JUJU_MACHINES[0] }}"
+      - "{{ JUJU_MACHINES[1] }}"
+      - "{{ JUJU_MACHINES[2] }}"
+      - "{{ JUJU_MACHINES[3] }}"
+      - "{{ JUJU_MACHINES[4] }}"
+  ntp:
+    charm: "cs:{{ UBUNTU_SERIES }}/ntp"
+
+
+relations:
+
+- [ nova-compute:amqp, rabbitmq-server:amqp ]
+- [ keystone:shared-db, mysql:shared-db ]
+- [ nova-cloud-controller:identity-service, keystone:identity-service ]
+- [ glance:identity-service, keystone:identity-service ]
+- [ neutron-api:identity-service, keystone:identity-service ]
+- [ neutron-api:shared-db, mysql:shared-db ]
+- [ neutron-api:amqp, rabbitmq-server:amqp ]
+- [ glance:shared-db, mysql:shared-db ]
+- [ glance:amqp, rabbitmq-server:amqp ]
+- [ nova-cloud-controller:image-service, glance:image-service ]
+- [ nova-compute:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
+- [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
+- [ openstack-dashboard:identity-service, keystone:identity-service ]
+- [ nova-cloud-controller:shared-db, mysql:shared-db ]
+- [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
+- [ heat:shared-db, mysql:shared-db ]
+- [ heat:amqp, rabbitmq-server:amqp ]
+- [ heat, keystone ]
+- [ ubuntu, ntp ]
+- [ mysql, hacluster-mysql ]
+- [ keystone, hacluster-keystone ]
+- [ heat, hacluster-heat ]
+- [ glance, hacluster-glance ]
+- [ neutron-api, hacluster-neutron ]
+- [ nova-cloud-controller, hacluster-nova ]
+- [ glance, ceph-mon ]
+- [ nova-cloud-controller, memcached ]
+- [ ceph-osd, ceph-mon ]
+- [ nova-cloud-controller:memcache, memcached:cache ]

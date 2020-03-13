@@ -12,11 +12,13 @@ CLOUD=${CLOUD:-'local'}
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
+MAAS_ENDPOINT=${MAAS_ENDPOINT:-''}
+MAAS_API_KEY=${MAAS_API_KEY:-''}
 
-# install JuJu
+# install JuJu and tools
 export DEBIAN_FRONTEND=noninteractive
 sudo add-apt-repository -yu ppa:juju/stable
-sudo apt install -y juju
+sudo apt install -y juju netmask prips
 export PATH=$PATH:$(which juju)
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
@@ -44,11 +46,35 @@ EOF
     juju set-default-region aws $AWS_REGION
 fi
 
+if [[ $CLOUD == 'maas' ]] ; then
+    juju remove-credential --client maas tf-maas-cloud-creds &>/dev/null || /bin/true
+    juju remove-cloud --client maas &>/dev/null || /bin/true
+    cloud_file="/tmp/maas_cloud.yaml"
+    creds_file="/tmp/maas_creds.yaml"
+    cat >"$cloud_file" <<EOF
+clouds:
+  maas:
+    type: maas
+    auth-types: [oauth1]
+    endpoint: $MAAS_ENDPOINT
+EOF
+    cat >"$creds_file" <<EOF
+credentials:
+  maas:
+    tf-maas-cloud-creds:
+      auth-type: oauth1
+      maas-oauth: $MAAS_API_KEY
+EOF
+    juju add-cloud --local maas -f $cloud_file
+    juju add-credential --client maas -f $creds_file
+    rm -f "$cloud_file $creds_file"
+fi
+
 # prepare ssh key authorization for running bootstrap on the same node
 set_ssh_keys
 
 # bootstrap JuJu-controller
-if [[ $CLOUD == 'aws' ]] ; then
+if [[ $CLOUD == 'aws' ]] || [[ $CLOUD == 'maas' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
 else
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller

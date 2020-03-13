@@ -21,7 +21,7 @@ declare -A STAGES=( \
 # default env variables
 export DEPLOYER='juju'
 # max wait in seconds after deployment (openstack ~ 1300, k8s ~ 3100)
-export WAIT_TIMEOUT=3600
+export WAIT_TIMEOUT=${WAIT_TIMEOUT:-3600}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
@@ -32,12 +32,16 @@ AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
 
+MAAS_ENDPOINT=${MAAS_ENDPOINT:-''}
+MAAS_API_KEY=${MAAS_API_KEY:-''}
+
 export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 
 export CONTAINER_REGISTRY
 export NODE_IP
+export VIRTUAL_IPS
 
 # stages
 
@@ -105,6 +109,9 @@ function machines() {
         fi
         $my_dir/../common/add_juju_machines.sh
     fi
+    if [[ $CLOUD == 'maas' ]] ;then
+        $my_dir/../common/add_juju_machines.sh
+    fi
 }
 
 function openstack() {
@@ -123,6 +130,19 @@ function openstack() {
     else
         export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
     fi
+    if [ $CLOUD == 'maas' ] ; then
+        IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
+        if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
+            echo "We support deploy with 7 virtual ip addresses only now."
+            echo "You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
+            exit 0
+        fi
+        if [[ "$IPS_COUNT" = 1 ]] ; then
+            export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS}/23 | tr -d "[:space:]") | \
+                grep "^${VIRTUAL_IPS}$" -A 6 | tr '\n' ' ')
+        fi
+        export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
+    fi
     $my_dir/../common/deploy_juju_bundle.sh
 
     #TODO: add wait
@@ -139,8 +159,12 @@ function k8s() {
 }
 
 function tf() {
-    export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
-
+    if [ $CLOUD == 'maas' ] ; then
+        TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
+        export BUNDLE="$my_dir/files/bundle_contrail_maas_ha.yaml.tmpl"
+    else
+        export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
+    fi
     # get contrail-charms
     [ -d $JUJU_REPO ] || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
     cd $JUJU_REPO
@@ -178,8 +202,8 @@ function tf() {
     done
 
     # show results
-
-    echo "Contrail Web UI will be available at https://$NODE_IP:8143"
+    TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
+    echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
     echo "Use admin/password to log in"
 }
 

@@ -10,8 +10,12 @@ export CLOUD=${CLOUD:-local}  # aws | local | manual
 
 CONTROLLER_NODES=${CONTROLLER_NODES:-}
 
+rm -rf ~/.tf/.stages
+
 echo "Destroying tf-$CLOUD-controller controller, machines, applications and data."
 juju kill-controller -y tf-$CLOUD-controller
+
+[[ $CLOUD == 'maas' ]] && echo "Cleanup is over." && exit
 
 echo "Clean up the juju-controller-node."
 sudo rm -rf /var/lib/juju
@@ -25,7 +29,5 @@ if [[ $CLOUD == 'manual' && -n "$CONTROLLER_NODES" ]]; then
         ssh ubuntu@$machine "sudo rm -rf /var/lib/juju ; sudo rm -rf /lib/systemd/system/juju* ; sudo rm -rf /run/systemd/units/invocation:juju* ; sudo rm -rf /etc/systemd/system/juju*"
     done
 fi
-
-rm -rf ~/.tf/.stages
 
 echo "Cleanup is over."
