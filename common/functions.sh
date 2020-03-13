@@ -1,7 +1,7 @@
 #!/bin/bash
 
-my_file="$(readlink -e "$0")"
-my_dir="$(dirname "$my_file")"
+fmy_file="${BASH_SOURCE[0]}"
+fmy_dir="$(dirname $fmy_file)"
 
 function ensure_root() {
   local me=$(whoami)
@@ -41,6 +41,25 @@ function fetch_deployer() {
   sudo docker cp $deployer_image:/src $deployer_dir
   sudo docker rm -fv $deployer_image
   sudo chown -R $UID $deployer_dir
+}
+
+function fetch_deployer_no_docker() {
+
+    if [[ $# != 2 ]] ; then
+      echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
+      exit 1
+    fi
+
+    local deployer_image=$1
+    local deployer_dir=$2
+    local tmp_deployer_layers_dir=$WORKSPACE/tmp_deployer_layers_dir
+
+    rm -rf $tmp_deployer_layers_dir
+    mkdir -p $tmp_deployer_layers_dir
+    ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
+    tar xf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]')
+    rm -rf $deployer_dir
+    mv src $deployer_dir
 }
 
 function wait_cmd_success() {

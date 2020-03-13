@@ -7,6 +7,8 @@ source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
 
+tf_charms_image=tf-charms-src
+
 init_output_logging
 
 # stages declaration
@@ -22,7 +24,7 @@ declare -A STAGES=( \
 export DEPLOYER='juju'
 # max wait in seconds after deployment (openstack ~ 1300, k8s ~ 3100)
 export WAIT_TIMEOUT=${WAIT_TIMEOUT:-3600}
-export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/contrail-charms}
+export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
 export DATA_NETWORK=${DATA_NETWORK:-}
@@ -112,6 +114,8 @@ function machines() {
     if [[ $CLOUD == 'maas' ]] ;then
         $my_dir/../common/add_juju_machines.sh
     fi
+
+    sudo apt-get update -u && sudo apt-get install -y jq
 }
 
 function openstack() {
@@ -166,7 +170,7 @@ function tf() {
         export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
     # get contrail-charms
-    [ -d $JUJU_REPO ] || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
+    [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO
     cd $JUJU_REPO
 
     $my_dir/../common/deploy_juju_bundle.sh
