@@ -66,6 +66,26 @@ function logs() {
     fi
 }
 
+# There are three fetch_deployer functions/methods now:
+# - fetch_deployer_no_docker - the most advanced function - fetch deployer src container without installing docker. In the future it will replace all the others
+# - fetch_deployer - function fetch deployer src container using docker. Needs docker to be installed on host
+# - old_XXX_fetch_deployer - deprecated deployer method saved for backward compatibility. Will be removed in the future.
+
+function old_ansible_fetch_deployer() {
+
+    local deployer_image="contrail-kolla-ansible-deployer"
+    sudo rm -rf "$tf_deployer_dir"
+    sudo rm -rf "$openstack_deployer_dir"
+    local image="$CONTAINER_REGISTRY/$deployer_image"
+    [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
+    sudo docker create --name $deployer_image --entrypoint /bin/true $image
+    sudo docker cp $deployer_image:root - | tar -x -C $WORKSPACE
+    sudo mv $WORKSPACE/root/contrail-ansible-deployer $tf_deployer_dir
+    sudo mv $WORKSPACE/root/contrail-kolla-ansible $openstack_deployer_dir
+    sudo docker rm -fv $deployer_image
+    sudo rm -rf $WORKSPACE/root
+}
+
 function machines() {
     # install required packages
 
@@ -100,7 +120,8 @@ function machines() {
 
     "$my_dir/../common/install_docker.sh"
 
-    fetch_deployer $tf_deployer_image $tf_deployer_dir
+    fetch_deployer $tf_deployer_image $tf_deployer_dir || old_ansible_fetch_deployer
+
     if [[ "$ORCHESTRATOR" == "openstack" ]] ; then
         fetch_deployer $openstack_deployer_image $openstack_deployer_dir
     fi

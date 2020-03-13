@@ -37,7 +37,7 @@ function fetch_deployer() {
 
   local image="$CONTAINER_REGISTRY/$deployer_image"
   [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
-  sudo docker create --name $deployer_image --entrypoint /bin/true $image
+  sudo docker create --name $deployer_image --entrypoint /bin/true $image || return 1
   sudo docker cp $deployer_image:/src $deployer_dir
   sudo docker rm -fv $deployer_image
   sudo chown -R $UID $deployer_dir
