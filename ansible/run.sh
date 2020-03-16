@@ -94,11 +94,12 @@ function machines() {
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
-        sudo yum install -y python-setuptools iproute
+        sudo yum install -y epel-release
+        sudo yum install -y python-setuptools iproute jq
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools iproute2 python-crypto
+        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq
     else
         echo "Unsupported OS version"
         exit 1
@@ -118,12 +119,10 @@ function machines() {
 
     set_ssh_keys
 
-    "$my_dir/../common/install_docker.sh"
-
-    if ! fetch_deployer $tf_deployer_image $tf_deployer_dir ; then
+    if ! fetch_deployer_no_docker $tf_deployer_image $tf_deployer_dir ; then
         old_ansible_fetch_deployer
     elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then
-        fetch_deployer $openstack_deployer_image $openstack_deployer_dir
+        fetch_deployer_no_docker $openstack_deployer_image $openstack_deployer_dir
     fi
 
     # generate inventory file
