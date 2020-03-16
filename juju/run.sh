@@ -170,7 +170,8 @@ function tf() {
         export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
     # get contrail-charms
-    [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO
+    [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO \
+                      || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
     cd $JUJU_REPO
 
     $my_dir/../common/deploy_juju_bundle.sh
