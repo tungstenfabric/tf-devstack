@@ -95,11 +95,11 @@ function machines() {
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
         sudo yum install -y epel-release
-        sudo yum install -y python-setuptools iproute jq
+        sudo yum install -y python-setuptools iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq
+        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq dnsutils
     else
         echo "Unsupported OS version"
         exit 1

@@ -115,7 +115,7 @@ function machines() {
         $my_dir/../common/add_juju_machines.sh
     fi
 
-    sudo apt-get update -u && sudo apt-get install -y jq
+    sudo apt-get update -u && sudo apt-get install -y jq dnsutils
 }
 
 function openstack() {
