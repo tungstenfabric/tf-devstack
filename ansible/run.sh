@@ -120,6 +120,7 @@ function machines() {
     set_ssh_keys
 
     if ! fetch_deployer_no_docker $tf_deployer_image $tf_deployer_dir ; then
+        "$my_dir/../common/install_docker.sh"
         old_ansible_fetch_deployer
     elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then
         fetch_deployer_no_docker $openstack_deployer_image $openstack_deployer_dir
