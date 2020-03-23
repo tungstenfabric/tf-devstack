@@ -23,7 +23,6 @@ net_driver=${net_driver:-virtio}
 source "/home/$SUDO_USER/rhosp-environment.sh"
 source "$my_dir/virsh_functions"
 
-image_customize ${BASE_IMAGE} undercloud $ssh_public_key
 
 # check if environment is present
 assert_env_exists $undercloud_vmname
@@ -122,6 +121,8 @@ function _start_vm() {
     --network network=$NET_NAME_PROV,model=$net_driver,mac=$prov_mac \
     --graphics vnc,listen=0.0.0.0
 }
+
+image_customize ${BASE_IMAGE} undercloud $ssh_public_key
 
 _start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac

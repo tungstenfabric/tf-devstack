@@ -6,6 +6,8 @@ Bunch of scripts for deployment RHOSP on 4 VM (RHEL)
 ## Requirements
 
 Red Hat account is needed for setting RHEL subscription.
+KVM host that can run 4 instances with 2 virtual CPU, 8GB of RAM and 120 GB of disk space
+
 
 ## Limitations
 
