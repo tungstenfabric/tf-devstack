@@ -22,7 +22,8 @@ declare -A STAGES=( \
 # default env variables
 export DEPLOYER='ansible'
 # max wait in seconds after deployment
-export WAIT_TIMEOUT=300
+# 300 is small sometimes - NTP sync can be an issue
+export WAIT_TIMEOUT=600
 
 tf_deployer_dir=${WORKSPACE}/tf-ansible-deployer
 openstack_deployer_dir=${WORKSPACE}/tf-kolla-ansible
