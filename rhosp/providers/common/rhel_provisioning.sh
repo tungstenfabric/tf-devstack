@@ -2,6 +2,7 @@
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
@@ -28,17 +29,20 @@ setenforce 0
 sed -i "s/SELINUX=.*/SELINUX=disabled/g" /etc/selinux/config
 getenforce
 cat /etc/selinux/config
-subscription-manager unregister || true
-echo subscription-manager register ...
-subscription-manager register $register_opts
-subscription-manager attach $attach_opts
+if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
+   subscription-manager unregister || true
+   echo subscription-manager register ...
+   subscription-manager register $register_opts
+   subscription-manager attach $attach_opts
+   
+   set -x
 
-set -x
+   subscription-manager repos --disable=*
+   subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms \
+   --enable=rhel-7-server-rh-common-rpms --enable=rhel-ha-for-rhel-7-server-rpms --enable=rhel-7-server-openstack-13-rpms
+fi
 
-subscription-manager repos --disable=*
-subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms --enable=rhel-7-server-rh-common-rpms --enable=rhel-ha-for-rhel-7-server-rpms --enable=rhel-7-server-openstack-13-rpms
 yum update -y
-
 yum install -y  ntp wget yum-utils vim iproute net-tools python-heat-agent*
 
 chkconfig ntpd on

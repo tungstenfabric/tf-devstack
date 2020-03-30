@@ -32,15 +32,15 @@ cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
 
 cd
 fetch_deployer ${tf_rhosp_image} ${contrail_heat_templates_dir} \
-|| git clone https://github.com/juniper/contrail-tripleo-heat-templates -b ${rhosp_branch} #TODO: remove branch when src images allow checkout
+|| git clone https://github.com/juniper/contrail-tripleo-heat-templates
 
-###TODO: checkout is not working for src images. Comment for now
-# pushd ${contrail_heat_templates_dir}
-# git fetch
-# git checkout ${rhosp_branch}
-# popd
-###
-
+pushd ${contrail_heat_templates_dir}
+git checkout ${rhosp_branch}
+if [[ $? != 0 ]] ; then
+   echo "ERROR: Checkout to ${rhosp_branch} is finished with error"
+   exit 1
+fi
+popd
 
 cp -r ${contrail_heat_templates_dir}/* ~/tripleo-heat-templates
 
