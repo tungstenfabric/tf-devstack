@@ -20,6 +20,8 @@ declare -A STAGES=( \
 
 # constants
 export DEPLOYER='openshift'
+export OPENSHIFT_VERSION=${OPENSHIFT_VERSION-"release-3.11-contrail"}
+
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=600
 deployer_image=tf-openshift-ansible-src
@@ -78,6 +80,9 @@ function logs() {
 function platform() {
     fetch_deployer_no_docker $deployer_image $deployer_dir
     cd $deployer_dir
+    if [[ -n "$OPENSHIFT_VERSION" ]] ; then 
+        git checkout $OPENSHIFT_VERSION
+    fi
     sudo ansible-playbook -i $settings_file \
         -i inventory/hosts.aio.contrail playbooks/prerequisites.yml
 }
