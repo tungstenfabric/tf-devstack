@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../../common/functions.sh"
@@ -9,7 +9,7 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
 export user=$(whoami)
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
-contrail_heat_templates_dir="~/contrail-tripleo-heat-templates"
+contrail_heat_templates_dir="${my_dir}/contrail-tripleo-heat-templates"
 if [ -f ~/rhosp-environment.sh ]; then
    source ~/rhosp-environment.sh
 else
@@ -34,13 +34,18 @@ cd
 fetch_deployer ${tf_rhosp_image} ${contrail_heat_templates_dir} \
 || git clone https://github.com/juniper/contrail-tripleo-heat-templates
 
-pushd ${contrail_heat_templates_dir}
-git checkout ${rhosp_branch}
-if [[ $? != 0 ]] ; then
-   echo "ERROR: Checkout to ${rhosp_branch} is finished with error"
+if [[ -d "${contrail_heat_templates_dir}" ]] ; then
+   pushd ${contrail_heat_templates_dir}
+   git checkout ${rhosp_branch}
+   if [[ $? != 0 ]] ; then
+      echo "ERROR: Checkout to ${rhosp_branch} is finished with error"
+      exit 1
+   fi
+   popd
+else
+   echo "ERROR: The directory with src ${contrail_heat_templates_dir} is not found. Exit with error"
    exit 1
 fi
-popd
 
 cp -r ${contrail_heat_templates_dir}/* ~/tripleo-heat-templates
 
