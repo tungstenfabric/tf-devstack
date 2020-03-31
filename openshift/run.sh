@@ -78,6 +78,7 @@ function logs() {
 }
 
 function platform() {
+    sudo yum install -y wget jq git
     if ! fetch_deployer_no_docker $deployer_image $deployer_dir ; then
         git clone https://github.com/Juniper/openshift-ansible $deployer_dir
     fi
