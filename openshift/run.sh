@@ -78,7 +78,9 @@ function logs() {
 }
 
 function platform() {
-    fetch_deployer_no_docker $deployer_image $deployer_dir
+    if ! fetch_deployer_no_docker $deployer_image $deployer_dir ; then
+        git clone https://github.com/Juniper/openshift-ansible $deployer_dir
+    fi
     cd $deployer_dir
     if [[ -n "$OPENSHIFT_VERSION" ]] ; then 
         git checkout $OPENSHIFT_VERSION
