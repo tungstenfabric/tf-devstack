@@ -26,7 +26,7 @@ export DEPLOYER='ansible'
 export WAIT_TIMEOUT=600
 
 tf_deployer_dir=${WORKSPACE}/tf-ansible-deployer
-openstack_deployer_dir=${WORKSPACE}/tf-kolla-ansible
+openstack_deployer_dir=${WORKSPACE}/contrail-kolla-ansible
 tf_deployer_image=${TF_ANSIBLE_DEPLOYER:-"tf-ansible-deployer-src"}
 openstack_deployer_image=${OPENSTACK_DEPLOYER:-"tf-kolla-ansible-src"}
 
