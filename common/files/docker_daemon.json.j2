@@ -7,5 +7,7 @@
   "insecure-registries": [  "{{ reg_list | join('","') }}" ],
   {% endif %}
   "debug": true,
+  {%- if CONFIGURE_DOCKER_LIVERESTORE == 'true' %}
   "live-restore": true
+  {% endif %}
 }

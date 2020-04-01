@@ -1,5 +1,6 @@
 #Stages for VEXX deployment (it's part of run.sh)
 
+export CONFIGURE_DOCKER_LIVERESTORE='false'
 
 # stages declaration
 declare -A STAGES=( \
@@ -20,14 +21,17 @@ function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
-    sudo ./providers/common/docker_mtu_setup.sh
+    sudo -E $my_dir/../../../common/create_docker_config.sh
+    sudo systemctl restart docker
 }
 
 #Overcloud nodes provisioning
 function overcloud() {
     cd $my_dir
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
-        scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh $SSH_USER@$ip:
+        scp $ssh_opts ~/rhosp-environment.sh  ../common/collect_logs.sh ../common/create_docker_config.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh $SSH_USER@$ip:
+        ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
+        scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/docker_daemon_json.j2
         ssh $ssh_opts $SSH_USER@$ip sudo ./03_setup_predeployed_nodes.sh &
     done
 }

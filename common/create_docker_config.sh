@@ -13,8 +13,8 @@ touch $docker_config
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
 default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
 echo MTU $default_iface_mtu detected
-export DOCKER_MTU=$default_iface_mtu 
-
+export DOCKER_MTU=$default_iface_mtu
+export CONFIGURE_DOCKER_LIVERESTORE=${CONFIGURE_DOCKER_LIVERESTORE:-'true'}
 export DOCKER_INSECURE_REGISTRIES=$(python -c "import json; f=open('$docker_config'); r=json.load(f).get('insecure-registries', []); print('\n'.join(r))" 2>/dev/null)
 if [[ -n "$CONTAINER_REGISTRY" ]] ; then
   registry=`echo $CONTAINER_REGISTRY | sed 's|^.*://||' | cut -d '/' -f 1`

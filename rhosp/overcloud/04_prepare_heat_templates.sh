@@ -29,10 +29,9 @@ fi
 
 
 cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
-
 cd
 fetch_deployer ${tf_rhosp_image} ${contrail_heat_templates_dir} \
-|| git clone https://github.com/juniper/contrail-tripleo-heat-templates
+|| git clone https://github.com/juniper/contrail-tripleo-heat-templates ${contrail_heat_templates_dir}
 
 if [[ -d "${contrail_heat_templates_dir}" ]] ; then
    pushd ${contrail_heat_templates_dir}

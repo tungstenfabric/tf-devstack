@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export CONFIGURE_DOCKER_LIVERESTORE='false'
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
@@ -16,9 +18,8 @@ else
    echo "File /home/$SUDO_USER/rhosp-environment.sh not found"
    exit
 fi
-
-if [ ! -f /home/$SUDO_USER/docker_mtu_setup.sh ]; then
-   echo "File /home/$SUDO_USER/docker_mtu_setup.sh not found"
+if [ ! -f /home/$SUDO_USER/create_docker_config.sh ]; then
+   echo "File /home/$SUDO_USER/create_docker_config.sh not found"
    exit
 fi
 
@@ -42,8 +43,7 @@ sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
 /home/$SUDO_USER/rhel_provisioning.sh
-/home/$SUDO_USER/docker_mtu_setup.sh
-
+/home/$SUDO_USER/create_docker_config.sh
 echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
 systemctl restart docker
 
