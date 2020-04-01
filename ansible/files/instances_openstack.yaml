@@ -50,5 +50,8 @@ kolla_config:
     enable_ironic_notifications: 'no'
     openstack_service_workers: 1
     kolla_base_distro: "centos"
+    nova_logging_debug: "True"
+    neutron_logging_debug: "True"
+    heat_logging_debug: "True"
   kolla_passwords:
     keystone_admin_password: contrail123
