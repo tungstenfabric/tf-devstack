@@ -78,7 +78,11 @@ function logs() {
 }
 
 function platform() {
-    sudo yum install -y wget jq git iproute bind-utils
+    sudo yum install -y jq iproute \
+        wget git tcpdump net-tools bind-utils yum-utils iptables-services \
+        bridge-utils bash-completion kexec-tools sos psacct python-netaddr \
+        openshift-ansible
+
     if ! fetch_deployer_no_docker $deployer_image $deployer_dir ; then
         git clone https://github.com/Juniper/openshift-ansible $deployer_dir
     fi
