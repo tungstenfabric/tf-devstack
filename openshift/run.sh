@@ -35,6 +35,8 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 settings_file=${WORKSPACE}/tf_openhift_settings
 cat <<EOF > $settings_file
+[OSEv3:vars]
+oreg_url=$RHEL_OPENSHIFT_REGISTRY
 oreg_auth_user=$RHEL_USER
 oreg_auth_password=$RHEL_PASSWORD
 contrail_container_tag="$CONTRAIL_CONTAINER_TAG"
