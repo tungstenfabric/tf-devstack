@@ -12,7 +12,11 @@ services:
     num_units: 1
     options:
       log-level: "SYS_DEBUG"
+{%- if ORCHESTRATOR == 'openstack' %}
       auth-mode: "rbac"
+{%- else %}
+      auth-mode: "no-auth"
+{%- endif %}
       cassandra-minimum-diskgb: "4"
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
