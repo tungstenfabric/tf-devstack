@@ -60,31 +60,32 @@ function collect_contrail_logs() {
     local log_dir="$TF_LOG_DIR/contrail"
     mkdir -p $log_dir
 
-    if [ -d /etc/contrail ]; then
+    if sudo ls /etc/contrail ; then
         mkdir -p $log_dir/etc_contrail
         sudo cp -R /etc/contrail $log_dir/etc_contrail/
     fi
-    if [ -d /etc/cni ]; then
+    if sudo ls /etc/cni ; then
         mkdir -p $log_dir/etc_cni
         sudo cp -R /etc/cni $log_dir/etc_cni/
     fi
-    if [ -d /etc/kolla ]; then
+    if sudo ls /etc/kolla ; then
         mkdir -p $log_dir/kolla_etc
-        sudo cp -R /etc/kolla $log_dir/kolla_etc/
+        sudo cp -R /etc/kolla $log_dir/
+        sudo mv $log_dir/kolla $log_dir/kolla_etc
     fi
 
     local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
-    if [ -d $kl_path ]; then
+    if sudo ls $kl_path ; then
         mkdir -p $log_dir/kolla_logs
-        for ii in `ls $kl_path/`; do
+        for ii in `sudo ls $kl_path/`; do
             sudo cp -R "$kl_path/$ii" $log_dir/kolla_logs/
         done
     fi
 
     local cl_path='/var/log/contrail'
-    if [ -d $cl_path ]; then
+    if sudo ls $cl_path ; then
         mkdir -p $log_dir/contrail_logs
-        for ii in `ls $cl_path/`; do
+        for ii in `sudo ls $cl_path/`; do
             sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
         done
     fi
