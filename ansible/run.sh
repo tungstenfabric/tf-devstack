@@ -94,13 +94,13 @@ function machines() {
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
-        sudo yum autoremove -y python-yaml python-requests python-urllib3
+        sudo yum autoremove -y python-yaml python-requests python-urllib3 lsof
         sudo yum install -y epel-release
         sudo yum install -y python-setuptools iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq dnsutils
+        sudo -E apt-get install -y python-setuptools iproute2 python-crypto jq dnsutils lsof
     else
         echo "Unsupported OS version"
         exit 1

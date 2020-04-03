@@ -72,6 +72,7 @@ function logs() {
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
         command juju ssh $machine "export WORKSPACE=/tmp/juju-logs; export TF_LOG_DIR=/tmp/juju-logs/logs; \
+                                   sudo apt-get install -y lsof; \
                                    cd /tmp/juju-logs; source ./collect_logs.sh; \
                                    collect_docker_logs; \
                                    collect_juju_logs; \
