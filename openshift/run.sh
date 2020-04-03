@@ -20,7 +20,8 @@ declare -A STAGES=( \
 
 # constants
 export DEPLOYER='openshift'
-export OPENSHIFT_VERSION=${OPENSHIFT_VERSION-"release-3.11-contrail"}
+export OPENSHIFT_VERSION=${OPENSHIFT_VERSION-"3.11"}
+[ -n "$OPENSHIFT_VERSION" ] && openshift_image_tag="v$OPENSHIFT_VERSION"
 
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=600
@@ -30,20 +31,20 @@ deployer_dir=${WORKSPACE}/tf-openshift-ansible-src
 # default env variables
 
 INVENTORY_FILE=${INVENTORY_FILE:-"$deployer_dir/inventory/hosts.aio.contrail"}
-CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
-CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 settings_file=${WORKSPACE}/tf_openhift_settings
 cat <<EOF > $settings_file
 [OSEv3:vars]
-oreg_url=$RHEL_OPENSHIFT_REGISTRY
+oreg_url="$RHEL_OPENSHIFT_REGISTRY_URL"
 oreg_auth_user=$RHEL_USER
 oreg_auth_password=$RHEL_PASSWORD
+
+openshift_install_examples=false
+openshift_image_tag=$openshift_image_tag
+system_images_registry="$RHEL_OPENSHIFT_REGISTRY"
+
 contrail_container_tag="$CONTRAIL_CONTAINER_TAG"
 contrail_registry="$CONTAINER_REGISTRY"
-service_subnets="$CONTRAIL_SERVICE_SUBNET"
-pod_subnets="$CONTRAIL_POD_SUBNET"
-#ip_fabric_subnets="10.64.0.0/12"
 contrail_analyticsdb_jvm_extra_opts="-Xms2g -Xmx4g"
 contrail_configdb_jvm_extra_opts="-Xms1g -Xmx2g"
 EOF
@@ -89,8 +90,8 @@ function platform() {
         git clone https://github.com/Juniper/openshift-ansible $deployer_dir
     fi
     cd $deployer_dir
-    if [[ -n "$OPENSHIFT_VERSION" ]] ; then 
-        git checkout $OPENSHIFT_VERSION
+    if [[ -n "$OPENSHIFT_VERSION" ]] ; then
+        git checkout release-$OPENSHIFT_VERSION-contrail
     fi
     sudo ansible-playbook -i $settings_file \
         -i inventory/hosts.aio.contrail playbooks/prerequisites.yml
