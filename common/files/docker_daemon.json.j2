@@ -4,10 +4,10 @@
   {% endif %}
   {%- if DOCKER_INSECURE_REGISTRIES is defined and DOCKER_INSECURE_REGISTRIES|length %}
   {%- set reg_list = DOCKER_INSECURE_REGISTRIES.split('\n') %}
-  "insecure-registries": [  "{{ reg_list | join('","') }}" ],
+  "insecure-registries": [ "{{ reg_list | join('","') }}" ],
   {% endif %}
-  "debug": true,
   {%- if CONFIGURE_DOCKER_LIVERESTORE == 'true' %}
-  "live-restore": true
+  "live-restore": true,
   {% endif %}
+  "debug": true
 }
