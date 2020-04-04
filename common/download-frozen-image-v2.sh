@@ -3,7 +3,6 @@
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
 
 set -eo pipefail
-set -x
 
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
@@ -103,7 +102,7 @@ fetch_blob() {
       auth_header="-H \"Authorization: Bearer $token\""
     fi
 
-   curlString="curl -S "${curlArgs[@]}" \
+   curlString="curl -s -S "${curlArgs[@]}" \
 			$auth_header \
 			"$registryBase/v2/$image/blobs/$digest" \
 			-o "$targetFile" \
