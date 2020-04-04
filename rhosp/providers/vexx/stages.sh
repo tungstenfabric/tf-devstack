@@ -21,7 +21,9 @@ function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
-    sudo -E $my_dir/../common/create_docker_config.sh
+    # No needs to have container registry on undercloud.
+    # For now overcloud nodes download them directly from $CONTAINER_REGISTRY
+    sudo -E CONTAINER_REGISTRY="" CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../../../common/create_docker_config.sh
     if ! sudo systemctl restart docker ; then
         systemctl status docker.service
         journalctl -xe
