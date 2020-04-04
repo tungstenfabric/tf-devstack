@@ -34,7 +34,7 @@ INVENTORY_FILE=${INVENTORY_FILE:-"$deployer_dir/inventory/hosts.aio.contrail"}
 
 settings_file=${WORKSPACE}/tf_openhift_settings
 cat <<EOF > $settings_file
-[OSEv3:vars]
+[all:vars]
 oreg_url="$RHEL_OPENSHIFT_REGISTRY_URL"
 oreg_auth_user=$RHEL_USER
 oreg_auth_password=$RHEL_PASSWORD

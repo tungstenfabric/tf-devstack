@@ -31,3 +31,5 @@ deployer_dir=${WORKSPACE}/tf-openshift-ansible-src
 cd $deployer_dir
 sudo ansible-playbook -i $settings_file \
     -i inventory/hosts.aio.contrail playbooks/adhoc/uninstall_openshift.yml
+
+sudo ifdown vhost0
