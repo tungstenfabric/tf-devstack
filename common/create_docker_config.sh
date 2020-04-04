@@ -24,3 +24,5 @@ if [[ -n "$CONTAINER_REGISTRY" ]] ; then
 fi
 
 ${my_dir}/jinja2_render.py <"${my_dir}/files/docker_daemon.json.j2" > $docker_config
+
+cat $docker_config
