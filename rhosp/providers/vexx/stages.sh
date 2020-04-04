@@ -21,7 +21,7 @@ function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
-    sudo -E $my_dir/../../../common/create_docker_config.sh
+    sudo -E $my_dir/../common/create_docker_config.sh
     sudo systemctl restart docker
 }
 
