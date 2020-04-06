@@ -121,11 +121,50 @@ or
 export VIRTUAL_IPS="192.168.51.201 192.168.51.211 192.168.51.214 192.168.51.215 192.168.51.217 192.168.51.228 192.168.51.230"
 ```
 
-1. Clone this repository and run the startup script:
+3. Clone this repository and run the startup script:
 
 ``` bash
 git clone http://github.com/tungstenfabric/tf-devstack
 tf-devstack/juju/run.sh
+```
+
+Quick Maas deployment for use with Juju
+
+Prerequisites:
+
+- A subnet of at least 500 IP addresses with the Internet connectivity without using DHCP.
+- Host for MAAS system: 8GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage.
+- Five servers preconfigured for boot using IPMI.
+
+1. Set environment variables:
+
+
+``` bash
+# Mandatory. List of IP addresses IPMI of servers. Example:
+export IPMI_IPS="192.168.51.20 192.168.51.21 192.168.51.22 192.168.51.23 192.168.51.24" # IPMI IP adresses
+# Optional
+IPMI_POWER_DRIVER (Default: "LAN_2_0") # "LAN_2_0" for IPMI v2.0 or "LAN" for IPMI v1.5
+IPMI_USER (Default: "ADMIN")
+IPMI_PASS (Default: "ADMIN")
+MAAS_ADMIN (Default: "admin")
+MAAS_PASS (Default: "admin")
+MAAS_ADMIN_MAIL (Default: "admin@maas.tld")
+UPSTREAM_DNS (Default: "8.8.8.8")
+```
+
+2. Clone this repository and run the scripts:
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/common/deploy_maas.sh
+```
+
+3. Use variables from script output for juju deployment on MAAS cloud.
+
+``` bash
+export MAAS_ENDPOINT="*maas_endpoint_url*"
+export MAAS_API_KEY="*maas_user_api_key*"
+export VIRTUAL_IPS="*ip_1 ip_2 ip_3 ip_4 ip_5 ip_6 ip_7*"
 ```
 
 ## Cleanup

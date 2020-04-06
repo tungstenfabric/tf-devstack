@@ -143,8 +143,8 @@ function openstack() {
             exit 0
         fi
         if [[ "$IPS_COUNT" = 1 ]] ; then
-            export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS}/23 | tr -d "[:space:]") | \
-                grep "^${VIRTUAL_IPS}$" -A 6 | tr '\n' ' ')
+            export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS} | tr -d "[:space:]") | \
+                grep -P "^${VIRTUAL_IPS%/*}$"  -A6 | tr '\n' ' ')
         fi
         export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
     fi
