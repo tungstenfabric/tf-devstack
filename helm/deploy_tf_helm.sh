@@ -106,9 +106,9 @@ elif [[ $ORCHESTRATOR == "openstack" ]] ; then
   #upgrade of neutron and nova containers with tf ones
   pushd $my_dir
   helm upgrade neutron openstack-helm/neutron --namespace=openstack \
-  --set images.tags.opencontrail_compute_init=$CONTAINER_REGISTRY/contrail-openstack-neutron-init:${CONTRAIL_CONTAINER_TAG}
+  --set images.tags.tf_neutron_init=$CONTAINER_REGISTRY/contrail-openstack-neutron-init:${CONTRAIL_CONTAINER_TAG}
   helm upgrade nova openstack-helm/nova --namespace=openstack \
-  --set images.tags.opencontrail_compute_init=$CONTAINER_REGISTRY/contrail-openstack-compute-init:${CONTRAIL_CONTAINER_TAG}
+  --set images.tags.tf_compute_init=$CONTAINER_REGISTRY/contrail-openstack-compute-init:${CONTRAIL_CONTAINER_TAG}
   popd
 fi
 
