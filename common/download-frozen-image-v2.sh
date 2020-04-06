@@ -3,7 +3,7 @@
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
 
 set -eo pipefail
-
+set -x
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
 	if ! command -v $cmd &> /dev/null; then
@@ -301,6 +301,7 @@ if [ -z "$doNotGenerateManifestJson" ] && [ "${#manifestJsonEntries[@]}" -gt 0 ]
 else
 	rm -f "$dir/manifest.json"
 fi
+
 
 echo "Download of images into '$dir' complete."
 echo "Use something like the following to load the result into a Docker daemon:"

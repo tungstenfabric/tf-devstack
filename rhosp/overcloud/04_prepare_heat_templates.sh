@@ -9,7 +9,7 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
 export user=$(whoami)
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
-contrail_heat_templates_dir="${my_dir}/contrail-tripleo-heat-templates"
+contrail_heat_templates_dir="~/contrail-tripleo-heat-templates"
 if [ -f ~/rhosp-environment.sh ]; then
    source ~/rhosp-environment.sh
 else
