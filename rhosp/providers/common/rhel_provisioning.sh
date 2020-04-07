@@ -43,7 +43,7 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
 fi
 
 yum update -y
-yum install -y  ntp wget yum-utils vim iproute net-tools python-heat-agent*
+yum install -y  ntp wget yum-utils vim iproute jq curl bind-utils bridge-utils net-tools python-heat-agent*
 
 chkconfig ntpd on
 service ntpd start

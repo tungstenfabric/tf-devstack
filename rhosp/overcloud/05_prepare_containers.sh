@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
@@ -33,7 +33,7 @@ openstack overcloud container image prepare \
 echo openstack overcloud container image upload --config-file ./overcloud_containers.yaml
 openstack overcloud container image upload --config-file ./overcloud_containers.yaml
 
-./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_VERSION
+[ -d ~/contrail-tripleo-heat-templates ] && ~/contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_VERSION
 
 sed -i ./contrail_containers.yaml -e "s/192.168.24.1/${prov_ip}/"
 
