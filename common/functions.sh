@@ -53,13 +53,18 @@ function fetch_deployer_no_docker() {
     local deployer_image=$1
     local deployer_dir=$2
     local tmp_deployer_layers_dir=$WORKSPACE/tmp_deployer_layers_dir
-
-    rm -rf $tmp_deployer_layers_dir
-    mkdir -p $tmp_deployer_layers_dir
+    local archive_tmp_dir=$WORKSPACE/archive_tmp
+    rm -rf ${tmp_deployer_layers_dir} ${archive_tmp_dir}
+    mkdir -p ${archive_tmp_dir} ${tmp_deployer_layers_dir}
     ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
-    tar xf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]')
+    tar xvf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]') -C ${archive_tmp_dir}
     rm -rf $deployer_dir
-    mv src $deployer_dir
+    if [[ ! -d "${archive_tmp_dir}/src" ]] ; then
+      echo "No src folder in ${archive_tmp_dir}/src. Exit"
+      exit 1
+    fi
+    mv ${archive_tmp_dir}/src $deployer_dir
+    rm -rf ${archive_tmp_dir} ${tmp_deployer_layers_dir}
 }
 
 function wait_cmd_success() {
