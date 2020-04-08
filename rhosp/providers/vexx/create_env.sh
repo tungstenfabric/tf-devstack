@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#All in one deployment
+DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 
 #Assign floating ip address to undercloud node (disabled by default)
 ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
@@ -19,7 +21,7 @@ default_flavor=${vm_type:-'v2-standard-4'}
 contrail_flavor='v2-standard-4'
 disk_size_gb=100
 key_name=${key_name:-'worker'}
-management_network_name="rhosp13-mgmt"
+management_network_name=${management_network_name:-'rhosp13-mgmt'}
 provider_network_base_name="rhosp13-prov"
 domain="vexxhost.local"
 
@@ -48,14 +50,9 @@ for i in $(seq 12 50); do
 done
 
 undercloud_instance="rhosp13-undercloud-${rhosp_id}"
-overcloud_cont_instance="rhosp13-overcloud-cont-${rhosp_id}"
-overcloud_compute_instance="rhosp13-overcloud-compute-${rhosp_id}"
-overcloud_ctrlcont_instance="rhosp13-overcloud-ctrlcont-${rhosp_id}"
-
 #Get latest rhel image
 image_name=$(openstack image list  -f value -c Name | grep template-rhel-7 | tail -1)
 image_id=$(openstack image list --name ${image_name} -f value -c ID)
-
 
 nova boot --flavor ${default_flavor} \
           --tags "PipelineBuildTag=${PIPELINE_BUILD_TAG},SLAVE=vexxhost" \
@@ -96,6 +93,16 @@ if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating IP Address")
 fi
 
+overcloud_cont_instance="rhosp13-overcloud-cont-${rhosp_id}"
+overcloud_compute_instance=
+overcloud_ctrlcont_instance=
+if $DEPLOY_COMPACT_AIO; then
+  default_flavor=v2-standard-8
+else
+  overcloud_compute_instance="rhosp13-overcloud-compute-${rhosp_id}"
+  overcloud_ctrlcont_instance="rhosp13-overcloud-ctrlcont-${rhosp_id}"
+fi
+
 #Creating overcloud nodes and disabling port security
 for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
 
@@ -119,12 +126,16 @@ mgmt_subnet=$(openstack subnet list --name ${management_network_name} -f value -
 mgmt_subnet_gateway_ip=$(openstack subnet show ${management_network_name} -f value -c gateway_ip)
 prov_subnet=$(openstack subnet list --name ${provider_network_name} -f value -c Subnet | egrep -o '([0-9]{1,3}\.){2}[0-9]{1,3}')
 undercloud_ip_addresses=$(openstack server show ${undercloud_instance} -f value -c addresses)
-undercloud_mgmt_ip=$(echo ${undercloud_ip_addresses} | egrep -o 'rhosp13-mgmt=.[0-9.]*' | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}')
-undercloud_prov_ip=$(echo ${undercloud_ip_addresses} | egrep -o 'rhosp13-prov-[0-9]{2}=.[0-9.]*' | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}')
+undercloud_mgmt_ip=$(echo ${undercloud_ip_addresses} | egrep -o ${management_network_name}'=.[0-9.]*' | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}')
+undercloud_prov_ip=$(echo ${undercloud_ip_addresses} | egrep -o ${provider_network_base_name}'-[0-9]{2}=.[0-9.]*' | egrep -o '([0-9]{1,3}\.){3}[0-9]{1,3}')
 
 overcloud_cont_ip=$(openstack server show ${overcloud_cont_instance} -f value -c addresses | cut -d '=' -f 2)
-overcloud_compute_ip=$(openstack server show ${overcloud_compute_instance} -f value -c addresses | cut -d '=' -f 2)
-overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
+overcloud_compute_ip=
+overcloud_ctrlcont_ip=
+if ! $DEPLOY_COMPACT_AIO; then
+  overcloud_compute_ip=$(openstack server show ${overcloud_compute_instance} -f value -c addresses | cut -d '=' -f 2)
+  overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
+fi
 
 vexxrc="${my_dir}/../../config/env_vexx.sh"
 

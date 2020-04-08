@@ -33,10 +33,15 @@ if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
             -e contrail-parameters.yaml \
             -e docker_registry.yaml
 else
-  export OVERCLOUD_ROLES="Controller Compute ContrailController"
-  export Controller_hosts="${overcloud_cont_prov_ip}"
-  export Compute_hosts="${overcloud_compute_prov_ip}"
-  export ContrailController_hosts="${overcloud_ctrlcont_prov_ip}"
+  if [[ -z "${overcloud_compute_prov_ip}" ]]; then
+    export OVERCLOUD_ROLES="ContrailAio"
+    export ContrailAio_hosts="${overcloud_cont_prov_ip}"
+  else
+    export OVERCLOUD_ROLES="Controller Compute ContrailController"
+    export Controller_hosts="${overcloud_cont_prov_ip}"
+    export Compute_hosts="${overcloud_compute_prov_ip}"
+    export ContrailController_hosts="${overcloud_ctrlcont_prov_ip}"
+  fi
   nohup tripleo-heat-templates/deployed-server/scripts/get-occ-config.sh &
 
   openstack overcloud deploy --templates tripleo-heat-templates/ \
@@ -52,6 +57,6 @@ else
             -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml \
             -e misc_opts.yaml \
             -e contrail-parameters.yaml \
-	    -e ctlplane-assignments.yaml \
+            -e ctlplane-assignments.yaml \
             -e docker_registry.yaml
 fi

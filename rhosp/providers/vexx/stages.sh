@@ -14,7 +14,7 @@ ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function machines() {
     cd $my_dir
-    sudo bash -c "source /home/$user/rhosp-environment.sh; $my_dir/undercloud/00_provision.sh"
+    sudo -E bash -c "source /home/$user/rhosp-environment.sh; $my_dir/undercloud/00_provision.sh"
 }
 
 function undercloud() {
@@ -34,6 +34,7 @@ function undercloud() {
 #Overcloud nodes provisioning
 function overcloud() {
     cd $my_dir
+    ./overcloud/03_setup_predeployed_nodes_access.sh
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
         scp $ssh_opts ~/rhosp-environment.sh  ../common/collect_logs.sh ../common/create_docker_config.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh $SSH_USER@$ip:
         ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
