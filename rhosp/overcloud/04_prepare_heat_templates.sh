@@ -1,16 +1,14 @@
 #!/bin/bash
-set -x
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../../common/functions.sh"
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"${prov_ip}:8787/tungstenfabric"}
-export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
-export user=$(whoami)
+
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
-contrail_heat_templates_dir=~/contrail-tripleo-heat-templates
+
 if [ -f ~/rhosp-environment.sh ]; then
    source ~/rhosp-environment.sh
 else
@@ -23,31 +21,30 @@ if [ -d ~/tripleo-heat-templates ] ; then
    rm -rf ~/tripleo-heat-templates
 fi
 
-if [ -d "${contrail_heat_templates_dir}" ] ; then
-   echo "Old directory ${contrail_heat_templates_dir} found. Cleaning"
-   rm -rf ${contrail_heat_templates_dir}
+if [ -d ~/contrail-tripleo-heat-templates ] ; then
+   echo "Old directory ~/contrail-tripleo-heat-templates found. Cleaning"
+   rm -rf ~/contrail-tripleo-heat-templates
 fi
 
 
 cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
 cd
-fetch_deployer_no_docker ${tf_rhosp_image} ${contrail_heat_templates_dir} \
-|| git clone https://github.com/juniper/contrail-tripleo-heat-templates ${contrail_heat_templates_dir}
+fetch_deployer_no_docker ${tf_rhosp_image} ~/contrail-tripleo-heat-templates \
+|| git clone https://github.com/juniper/contrail-tripleo-heat-templates ~/contrail-tripleo-heat-templates
 
-if [[ -d "${contrail_heat_templates_dir}" ]] ; then
-   pushd ${contrail_heat_templates_dir}
-   git checkout ${rhosp_branch}
-   if [[ $? != 0 ]] ; then
-      echo "ERROR: Checkout to ${rhosp_branch} is finished with error"
-      exit 1
-   fi
-   popd
-else
-   echo "ERROR: The directory with src ${contrail_heat_templates_dir} is not found. Exit with error"
+if [[ -d ~/contrail-tripleo-heat-templates ]] ; then
+   echo "ERROR: The directory with src ~/contrail-tripleo-heat-templates is not found. Exit with error"
    exit 1
 fi
+pushd ~/contrail-tripleo-heat-templates
+git checkout ${rhosp_branch}
+if [[ $? != 0 ]] ; then
+   echo "ERROR: Checkout to ${rhosp_branch} is finished with error"
+   exit 1
+fi
+popd
 
-cp -r ${contrail_heat_templates_dir}/* ~/tripleo-heat-templates
+cp -r ~/contrail-tripleo-heat-templates/* ~/tripleo-heat-templates
 
 export SSH_PRIVATE_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa`
 export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa.pub`

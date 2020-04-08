@@ -55,7 +55,9 @@ function overcloud() {
 
         for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
            wait_ssh ${ip} ${ssh_private_key}
-           scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
+           scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh ../common/common.sh ../common/create_docker_config.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
+           ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
+           scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/docker_daemon_json.j2
         done
 
         #parallel ssh
@@ -82,7 +84,7 @@ function tf() {
     cd $my_dir
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/02_manage_overcloud_flavors.sh
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/04_prepare_heat_templates.sh
-    ssh  $ssh_opts stack@${mgmt_ip} sudo /home/stack/tf-devstack/rhosp/overcloud/05_prepare_containers.sh
+    ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/05_prepare_containers.sh
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/06_deploy_overcloud.sh
 }
 
