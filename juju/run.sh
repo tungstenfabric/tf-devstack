@@ -17,7 +17,7 @@ declare -A STAGES=( \
     ["all"]="build juju machines k8s openstack tf wait logs" \
     ["default"]="juju machines k8s openstack tf wait" \
     ["master"]="build juju machines k8s openstack tf wait" \
-    ["platform"]="juju k8s openstack" \
+    ["platform"]="juju machines k8s openstack" \
 )
 
 # default env variables
