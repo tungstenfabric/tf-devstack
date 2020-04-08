@@ -107,7 +107,7 @@ while [ $i -le 30 ] ; do
       echo "Set variables to use with juju deployment:"
       echo "export MAAS_ENDPOINT=$MAAS_ENDPOINT"
       echo "export MAAS_API_KEY=$MAAS_API_KEY"
-      echo "export VIRTUAL_IPS=$VIRTUAL_IPS"
+      echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\""
       break
     fi
   fi
