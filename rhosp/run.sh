@@ -14,6 +14,12 @@ init_output_logging
 
 # default env variables
 export DEPLOYER='rhosp'
+export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
+if [[ "$RHOSP_VERSION" == "rhosp16" ]]; then
+    export RHEL_VERSION='rhel8'
+else 
+    export RHEL_VERSION='rhel7'
+fi
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
@@ -25,7 +31,7 @@ else
 fi
 #IPMI_PASSOWORD (also it's AdminPassword for TripleO)
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
-export CONTRAIL_VERSION=${CONTRAIL_VERSION:-"latest"}
+export CONTRAIL_VERSION=${CONTRAIL_VERSION:-'latest'}
 user=$(whoami)
 
 # deployment related environment set by any stage and put to tf_stack_profile at the end
@@ -46,6 +52,8 @@ if [[ ! -f ~/rhosp-environment.sh ]]; then
     fi
     echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
     echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
+    echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
+    echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
     echo "export CONTRAIL_VERSION=$CONTRAIL_VERSION" >> ~/rhosp-environment.sh
     echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh

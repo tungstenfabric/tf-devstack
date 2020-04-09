@@ -6,6 +6,8 @@
 export DEPLOY_POSTFIX=${DEPLOY_POSTFIX:-20}
 export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
 
+export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
+
 export BASE_IMAGE=${BASE_IMAGE:-"/home/jenkins/rhel_7.7.qcow2"}
 
 # SSH public key for user stack
@@ -17,7 +19,7 @@ export poolname="rdimages_${DEPLOY_POSTFIX}"
 
 # define undercloud virtual machine's names
 export undercloud_prefix="undercloud"
-export undercloud_vmname="rhosp13-undercloud-${DEPLOY_POSTFIX}"
+export undercloud_vmname="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
 
 
 # define virtual machine's volumes
@@ -65,16 +67,16 @@ export overcloud_ctrlcont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:12"
 export overcloud_cont_prov_ip="${prov_subnet}.10"
 export overcloud_compute_prov_ip="${prov_subnet}.11"
 export overcloud_ctrlcont_prov_ip="${prov_subnet}.12"
-export overcloud_cont_instance="rhosp13-overcloud-cont-${DEPLOY_POSTFIX}"
-export overcloud_compute_instance="rhosp13-overcloud-compute-${DEPLOY_POSTFIX}"
-export overcloud_ctrlcont_instance="rhosp13-overcloud-ctrlcont-${DEPLOY_POSTFIX}"
+export overcloud_cont_instance="$RHOSP_VERSION-overcloud-cont-${DEPLOY_POSTFIX}"
+export overcloud_compute_instance="$RHOSP_VERSION-overcloud-compute-${DEPLOY_POSTFIX}"
+export overcloud_ctrlcont_instance="$RHOSP_VERSION-overcloud-ctrlcont-${DEPLOY_POSTFIX}"
 
 
 # VM nodes
 export OS_MEM=8192
 export CTRL_MEM=8192
 export COMP_MEM=8192
-export vm_disk_size="30G"
+export vm_disk_size="60G"
 
 export net_driver="virtio"
 export overcloud_virt_type="kvm"

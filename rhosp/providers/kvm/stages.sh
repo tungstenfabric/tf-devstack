@@ -51,7 +51,7 @@ function overcloud() {
         #Copying keypair to the undercloud
         scp $ssh_opts $ssh_private_key $ssh_public_key stack@${mgmt_ip}:.ssh/
         #start overcloud VMs
-        for domain in $(virsh list --name --all | grep rhosp13-overcloud); do virsh start $domain; done
+        for domain in $(virsh list --name --all | grep $RHOSP_VERSION-overcloud-$DEPLOY_POSTFIX); do virsh start $domain; done
 
         for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
            wait_ssh ${ip} ${ssh_private_key}
