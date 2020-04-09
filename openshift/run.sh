@@ -71,7 +71,7 @@ EOF
     [ -n "$RHEL_PASSWORD" ] && echo "oreg_auth_password=\"$RHEL_PASSWORD\"" >> $settings_file
     echo "INFO: config $settings_file created:"
     cat $settings_file | sed 's/password=.*$/password=*****/g' | sed 's/user=.*$/user=*****/g'
-fi
+}
 
 # stages
 
