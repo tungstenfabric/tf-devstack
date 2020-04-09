@@ -1,5 +1,6 @@
 #!/bin/bash
 set -x
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../../common/functions.sh"
@@ -9,7 +10,7 @@ export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"${CONTRAIL_VERSION}"}
 export user=$(whoami)
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
-contrail_heat_templates_dir="~/contrail-tripleo-heat-templates"
+contrail_heat_templates_dir=~/contrail-tripleo-heat-templates
 if [ -f ~/rhosp-environment.sh ]; then
    source ~/rhosp-environment.sh
 else
@@ -63,8 +64,15 @@ cat $my_dir/contrail-parameters.yaml.template | envsubst > ~/contrail-parameters
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
    cp $my_dir/roles_data_contrail_aio.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
 else
-   cat $my_dir/ctlplane-assignments.yaml.template | envsubst >~/ctlplane-assignments.yaml
-   cp $my_dir/roles_data_contrail_aio_without_node_introspection.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+   if [[ -z "${overcloud_compute_prov_ip}" ]]; then
+      sed  '${/^$/d;}' tripleo-heat-templates/roles/ContrailAio.yaml > tripleo-heat-templates/roles_data_contrail_aio.yaml
+      sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+      sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+      cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >~/ctlplane-assignments.yaml
+   else
+      cp $my_dir/roles_data_contrail_aio_without_node_introspection.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+      cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
+   fi
 fi
 
 #Auto-detect physnet MTU for cloud environments

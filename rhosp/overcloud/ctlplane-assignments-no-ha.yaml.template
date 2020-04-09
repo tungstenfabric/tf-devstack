@@ -1,5 +1,5 @@
 resource_registry:
-  OS::TripleO::DeployedServer::ControlPlanePort: /home/${user}/tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
+  OS::TripleO::DeployedServer::ControlPlanePort: tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
 
 parameter_defaults:
   DeployedServerPortMap:
@@ -18,4 +18,3 @@ parameter_defaults:
         - ip_address: ${overcloud_ctrlcont_prov_ip}
       subnets:
         - cidr: 24
-
