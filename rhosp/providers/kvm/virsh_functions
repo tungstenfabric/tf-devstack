@@ -249,21 +249,9 @@ function delete_domain() {
     sleep 2
     virsh undefine $name || true
   fi
+  delete_vbmc $name
 }
 
-function delete_domains() {
-  local domname=${1:-rhosp13-overcloud-}
-  declare name
-  for name in `virsh list --all | grep "$domname" | awk '{print $2}'` ; do
-    delete_domain $name
-  done
-
-  delete_domain rhosp13-undercloud
-
-  for name in $(call_vbmc list | grep "$domname" | awk '{print($2)}') ; do
-    delete_vbmc $name
-  done
-}
 
 function delete_volume() {
   local volname=$1

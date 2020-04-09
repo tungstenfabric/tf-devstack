@@ -25,11 +25,11 @@ for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont
     ssh -T $ssh_opts stack@${ip} "sudo subscription-manager unregister"
 done
 
-delete_domains $overcloud_cont_instance
-delete_domains $overcloud_compute_instance
-delete_domains $overcloud_ctrlcont_instance
+delete_domain $overcloud_cont_instance
+delete_domain $overcloud_compute_instance
+delete_domain $overcloud_ctrlcont_instance
 
-delete_domains $undercloud_vmname
+delete_domain $undercloud_vmname
 
 delete_volume $undercloud_vm_volume $poolname
 
