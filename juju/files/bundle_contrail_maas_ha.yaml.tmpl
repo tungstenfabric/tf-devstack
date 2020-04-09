@@ -30,6 +30,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      local-rabbitmq-hostname-resolution: true
     expose: true
     to:
       - "{{ JUJU_MACHINES[0] }}"

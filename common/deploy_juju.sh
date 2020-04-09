@@ -18,7 +18,7 @@ MAAS_API_KEY=${MAAS_API_KEY:-''}
 # install JuJu and tools
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
-sudo -E apt-get install netmask prips python3-jinja2 software-properties-common -y
+sudo -E apt-get install netmask prips python3-jinja2 software-properties-common curl jq -y
 sudo -E add-apt-repository -yu ppa:juju/stable
 sudo -E apt install -y juju
 export PATH=$PATH:$(which juju)
