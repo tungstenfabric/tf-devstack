@@ -8,6 +8,7 @@ source "$my_dir/common.sh"
 source "$my_dir/functions.sh"
 
 # Install MAAS and tools
+export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
 sudo -E apt-get install snapd jq prips netmask -y
 sudo -E snap install maas --channel=2.7
@@ -102,12 +103,18 @@ while [ $i -le 30 ] ; do
   if echo "$MACHINES_STATUS" | grep -q "Ready"; then
     READY_COUNT=`echo "$MACHINES_STATUS" | grep -c "Ready"`
     if [ "$READY_COUNT" -ge "$MACHINES_COUNT" ]; then
-      echo "INFO: MAAS is ready "
-      echo "INFO: MAAS web ui $MAAS_ENDPOINT"
-      echo "Set variables to use with juju deployment:"
-      echo "export MAAS_ENDPOINT=$MAAS_ENDPOINT"
-      echo "export MAAS_API_KEY=$MAAS_API_KEY"
-      echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\""
+      if [ -n "$1" ]; then
+        echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\"" >> "$1"
+        echo "export MAAS_API_KEY=\"$MAAS_API_KEY\"" >> "$1"
+        echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\"" >> "$1"
+      else
+        echo "INFO: MAAS is ready "
+        echo "INFO: MAAS web ui $MAAS_ENDPOINT"
+        echo "Set variables to use with juju deployment:"
+        echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\""
+        echo "export MAAS_API_KEY=\"$MAAS_API_KEY\""
+        echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\""
+      fi
       break
     fi
   fi
