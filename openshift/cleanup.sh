@@ -9,9 +9,12 @@ source "$my_dir/../common/common.sh"
 
 deployer_dir=${WORKSPACE}/tf-openshift-ansible-src
 settings_file=${WORKSPACE}/tf_openhift_settings
-pushd $deployer_dir
-ansible-playbook -i $settings_file \
-  -i inventory/hosts.aio.contrail playbooks/adhoc/uninstall_openshift.yml
-popd
+
+if [ -d "$deployer_dir" ] ; then
+  pushd $deployer_dir
+  ansible-playbook -i $settings_file \
+    -i inventory/hosts.aio.contrail playbooks/adhoc/uninstall_openshift.yml
+  popd
+fi
 
 sudo -E $my_dir/cleanup-root.sh
