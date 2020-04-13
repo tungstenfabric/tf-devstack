@@ -45,7 +45,8 @@ cd $my_dir
 ##### Creating ~/rhosp-environment.sh #####
 if [[ ! -f ~/rhosp-environment.sh ]]; then
     cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
-    cat $my_dir/config/env_${PROVIDER}.sh | grep '^export' >> ~/rhosp-environment.sh
+    cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' >> ~/rhosp-environment.sh
+    cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' >> ~/rhosp-environment.sh
     #Overwrite DEPLOY_POSTFIX if it's defined
     if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
         sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh

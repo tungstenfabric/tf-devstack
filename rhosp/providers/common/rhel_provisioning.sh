@@ -32,22 +32,15 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
    echo subscription-manager register ...
    subscription-manager register $register_opts
    subscription-manager attach $attach_opts
-   
+
    set -x
 
    subscription-manager repos --disable=*
-   subscription-manager repos --enable=rhel-7-server-rpms --enable=rhel-7-server-extras-rpms \
-   --enable=rhel-7-server-rh-common-rpms --enable=rhel-ha-for-rhel-7-server-rpms --enable=rhel-7-server-openstack-13-rpms
+
+   enable_repo_list=''
+   for r in $RHEL_REPOS; do enable_repo_list+=" --enable=${r}"; done
+   subscription-manager repos $enable_repo_list
 fi
 
-yum update -y
-yum install -y  ntp wget yum-utils vim iproute jq curl bind-utils bridge-utils net-tools python-heat-agent*
-
-chkconfig ntpd on
-service ntpd start
-
-# install pip for future run of OS checks
-curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
-python get-pip.py
-pip install -q virtualenv docker
+$my_dir/${RHEL_VERSION}_provisioning.sh
 
