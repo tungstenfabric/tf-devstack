@@ -52,10 +52,8 @@ function fetch_deployer_no_docker() {
 
     local deployer_image=$1
     local deployer_dir=$2
-    local tmp_deployer_layers_dir=$WORKSPACE/tmp_deployer_layers_dir
-    local archive_tmp_dir=$WORKSPACE/archive_tmp
-    rm -rf ${tmp_deployer_layers_dir} ${archive_tmp_dir}
-    mkdir -p ${archive_tmp_dir} ${tmp_deployer_layers_dir}
+    local tmp_deployer_layers_dir="$(mktemp -d)"
+    local archive_tmp_dir="$(mktemp -d)"
     ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
     tar xvf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]') -C ${archive_tmp_dir}
     rm -rf $deployer_dir
@@ -64,7 +62,6 @@ function fetch_deployer_no_docker() {
       exit 1
     fi
     mv ${archive_tmp_dir}/src $deployer_dir
-    rm -rf ${archive_tmp_dir} ${tmp_deployer_layers_dir}
 }
 
 function wait_cmd_success() {

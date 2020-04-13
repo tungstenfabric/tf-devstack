@@ -31,7 +31,6 @@ else
 fi
 #IPMI_PASSOWORD (also it's AdminPassword for TripleO)
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
-export CONTRAIL_VERSION=${CONTRAIL_VERSION:-'latest'}
 user=$(whoami)
 
 # deployment related environment set by any stage and put to tf_stack_profile at the end
@@ -54,7 +53,7 @@ if [[ ! -f ~/rhosp-environment.sh ]]; then
     echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
     echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
-    echo "export CONTRAIL_VERSION=$CONTRAIL_VERSION" >> ~/rhosp-environment.sh
+    echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
     echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 fi

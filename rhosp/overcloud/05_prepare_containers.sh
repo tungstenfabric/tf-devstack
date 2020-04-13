@@ -3,27 +3,14 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
+if [[ ! -f ~/rhosp-environment.sh ]] ; then
+   echo "File ~/rhosp-environment.sh not found"
    exit 1
 fi
 
-if [[ -z ${SUDO_USER+x} ]]; then
-   echo "Stop. Please run this scripts with sudo"
-   exit 1
-fi
+source ~/rhosp-environment.sh
 
-if [ -f /home/$SUDO_USER/rhosp-environment.sh ]; then
-   source /home/$SUDO_USER/rhosp-environment.sh
-else
-   echo "File /home/$SUDO_USER/rhosp-environment.sh not found"
-   exit
-fi
-
-CONTRAIL_VERSION=${CONTRAIL_VERSION:-'latest'}
-
-cd /home/$SUDO_USER
-
+cd
 if [[ ! -f ./overcloud_containers.yaml || ! -f ./docker_registry.yaml ]] ; then
     error "ERROR: overcloud_containers.yaml or ./docker_registry.yaml are not found. Exit"
     exit 1
@@ -42,10 +29,10 @@ if [[ $? != 0 ]] ; then
     exit 1
 fi
 
-./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_VERSION
+./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_CONTAINER_TAG
 
-if [[ ! -f  ./contrail_containers.yaml ]] ; then
-    error "ERROR: contrail_containers.yaml is not found. Exit"
+if [[ $? != 0 ]] ; then
+    echo "ERROR: import_contrail_container.sh finished with error. Exit"
     exit 1
 fi
 

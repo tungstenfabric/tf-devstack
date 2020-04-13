@@ -47,7 +47,7 @@ function overcloud() {
 function tf() {
     cd $my_dir
     ./overcloud/04_prepare_heat_templates.sh
-    sudo ./overcloud/05_prepare_containers.sh
+    ./overcloud/05_prepare_containers.sh
     ./overcloud/06_deploy_overcloud.sh
 }
 
