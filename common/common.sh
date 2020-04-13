@@ -25,7 +25,8 @@ DEV_ENV=${DEV_ENV:-false}
 # If not set will be default 'tungstenfabric'
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-}
 # If not set will be default 'latest'
-export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-latest}
+#(it is set in load_tf_devenv_profile)
+export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-}
 export CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
 export AGENT_NODES=${AGENT_NODES:-$NODE_IP}
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
