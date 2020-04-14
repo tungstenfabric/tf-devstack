@@ -3,11 +3,6 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../../common/functions.sh"
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
-export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"${prov_ip}:8787/tungstenfabric"}
-
-rhosp_branch="stable/${OPENSTACK_VERSION}"
-tf_rhosp_image="tf-tripleo-heat-templates-src"
 
 if [ -f ~/rhosp-environment.sh ]; then
    source ~/rhosp-environment.sh
@@ -25,6 +20,13 @@ if [ -d ~/contrail-tripleo-heat-templates ] ; then
    echo "Old directory ~/contrail-tripleo-heat-templates found. Cleaning"
    rm -rf ~/contrail-tripleo-heat-templates
 fi
+
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
+export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"${prov_ip}:8787/tungstenfabric"}
+export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
+rhosp_branch="stable/${OPENSTACK_VERSION}"
+tf_rhosp_image="tf-tripleo-heat-templates-src"
+
 
 
 cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
