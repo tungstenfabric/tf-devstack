@@ -16,12 +16,10 @@ openstack overcloud container image prepare \
 echo 'openstack overcloud container image upload --config-file ./overcloud_containers.yaml'
 openstack overcloud container image upload --config-file ./overcloud_containers.yaml
 
-./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh -f ./contrail_containers.yaml -r docker.io/tungstenfabric -t $CONTRAIL_CONTAINER_TAG
-
-if [[ $? != 0 ]] ; then
-    echo "ERROR: import_contrail_container.sh finished with error. Exit"
-    exit 1
-fi
+registry=${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'}
+tag=${CONTRAIL_CONTAINER_TAG:-'latest'}
+./contrail-tripleo-heat-templates/tools/contrail/import_contrail_container.sh \
+    -f ./contrail_containers.yaml -r $registry -t $tag
 
 sed -i ./contrail_containers.yaml -e "s/192.168.24.1/${prov_ip}/"
 cat ./contrail_containers.yaml
