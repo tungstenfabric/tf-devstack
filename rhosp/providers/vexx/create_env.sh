@@ -6,6 +6,9 @@ DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 #Assign floating ip address to undercloud node (disabled by default)
 ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
 
+workspace=${WORKSPACE:-$(pdw)}
+vexxrc=${vexxrc:-"${workspace}/vexxrc"}
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
@@ -138,13 +141,11 @@ if ! $DEPLOY_COMPACT_AIO; then
   overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
 fi
 
-vexxrc="${my_dir}/../../config/env_vexx.sh"
-
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo Undercloud is available by floating ip: $floating_ip
 fi
 echo
-echo file tf-devstack/config/env_vexx.sh was updated
+echo update vexxrc file $vexxrc
 echo ==================================================================================
 echo >> $vexxrc
 
