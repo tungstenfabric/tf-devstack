@@ -65,7 +65,7 @@ fi
 
 source ~/rhosp-environment.sh
 
-if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; 
+if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     if [[ -z ${RHEL_USER+x} ]]; then
         echo "Please enter you Red Hat Credentials. RHEL_USER="
         read -sr RHEL_USER_INPUT
