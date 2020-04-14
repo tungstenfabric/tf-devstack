@@ -16,15 +16,9 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 
-if [ ! -d ~/.ssh ]; then
-   mkdir -p ~/.ssh
-fi
-
-chmod 700 ~/.ssh
-# Generate key-pair
-ssh-keygen -b 2048 -t rsa -f /tmp/sshkey -q -N ""
-
 # ssh config to do not check host keys and avoid garbadge in known hosts files
+mkdir -p ~/.ssh
+chmod 700 ~/.ssh
 cat <<EOF >~/.ssh/config
 Host *
 StrictHostKeyChecking no

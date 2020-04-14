@@ -41,27 +41,25 @@ declare -A DEPLOYMENT_ENV=(\
 
 cd $my_dir
 
-##### Creating ~/rhosp-environment.sh #####
-if [[ ! -f ~/rhosp-environment.sh ]]; then
-    cp -f $my_dir/config/common.sh ~/rhosp-environment.sh
-    cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' >> ~/rhosp-environment.sh
-    cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' >> ~/rhosp-environment.sh
-    #Overwrite DEPLOY_POSTFIX if it's defined
-    if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
-        sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
-    fi
-    echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
-    echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
-    echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
-    echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
-    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
-
-    echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
-    echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
-    
-    echo "set +x" >> ~/rhosp-environment.sh
-    echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
+##### Always creating ~/rhosp-environment.sh #####
+rm -f ~/rhosp-environment.sh
+cp $my_dir/config/common.sh ~/rhosp-environment.sh
+cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' >> ~/rhosp-environment.sh || true
+cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' >> ~/rhosp-environment.sh || true
+#Overwrite DEPLOY_POSTFIX if it's defined
+if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
+    sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
 fi
+echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
+echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
+echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
+echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
+echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
+echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
+echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
+echo "set +x" >> ~/rhosp-environment.sh
+echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
+
 
 source ~/rhosp-environment.sh
 
