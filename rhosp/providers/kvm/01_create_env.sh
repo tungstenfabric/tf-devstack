@@ -23,6 +23,10 @@ net_driver=${net_driver:-virtio}
 source "/home/$SUDO_USER/rhosp-environment.sh"
 source "$my_dir/virsh_functions"
 
+if [[ $RHEL_VERSION == 'rhel8' ]]; then
+   rhel_version_libvirt='rhl8.0'
+fi
+
 
 # check if environment is present
 assert_env_exists $undercloud_vmname
@@ -55,7 +59,7 @@ function define_overcloud_vms() {
   local vm_name="$vol_name"
   image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
   create_root_volume $vol_name
-  define_machine $vm_name $vcpu $mem rhel7 $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
+  define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
 }
 
@@ -71,7 +75,7 @@ function define_overcloud_vms_without_vbmc() {
   image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
   cp -p $BASE_IMAGE $pool_path/$vol_name.qcow2
   update_network_dhcp $NET_NAME_PROV $vm_name $mac $ip
-  define_machine $vm_name $vcpu $mem rhel7 $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
+  define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
 }
 
 
@@ -89,6 +93,8 @@ else
   define_overcloud_vms_without_vbmc $overcloud_compute_instance $COMP_MEM $overcloud_compute_prov_mac $overcloud_compute_prov_ip 4
   define_overcloud_vms_without_vbmc $overcloud_ctrlcont_instance $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
 fi
+
+image_customize ${BASE_IMAGE} undercloud $ssh_public_key
 
 # copy image for undercloud and resize them
 cp -p $BASE_IMAGE $pool_path/$undercloud_vm_volume
@@ -112,7 +118,7 @@ function _start_vm() {
     --cpu host \
     --memorybacking hugepages=on \
     --os-type=linux \
-    --os-variant=rhel7 \
+    --os-variant=$rhel_version_libvirt \
     --virt-type=kvm \
     --disk "path=$image",size=40,cache=writeback,bus=virtio \
     --boot hd \
@@ -122,9 +128,7 @@ function _start_vm() {
     --graphics vnc,listen=0.0.0.0
 }
 
-image_customize ${BASE_IMAGE} undercloud $ssh_public_key
 
 _start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac
-
 

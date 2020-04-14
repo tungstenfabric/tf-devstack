@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export RHEL_POOL_ID=8a85f99970453685017057d235142b3b
 
