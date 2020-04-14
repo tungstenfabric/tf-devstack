@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export CONFIGURE_DOCKER_LIVERESTORE='false'
-
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
@@ -28,8 +26,13 @@ if [ ! -f /home/$SUDO_USER/rhel_provisioning.sh ]; then
    exit
 fi
 
-
-
+function is_registry_insecure() {
+    local registry=`echo $1 | sed 's|^.*://||' | cut -d '/' -f 1`
+    if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
+        return 0
+    fi
+    return 1
+}
 
 #Removing default gateway if it's defined
 check_gateway=$(ip route list | grep -c default)
@@ -43,8 +46,13 @@ sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
 /home/$SUDO_USER/rhel_provisioning.sh
-/home/$SUDO_USER/create_docker_config.sh
-echo INSECURE_REGISTRY="--insecure-registry ${prov_ip}:8787" >> /etc/sysconfig/docker
+CONTAINER_REGISTRY="" CONFIGURE_DOCKER_LIVERESTORE=false /home/$SUDO_USER/create_docker_config.sh
+
+insecure_registries="--insecure-registry ${prov_ip}:8787"
+if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
+   insecure_registries+=" --insecure-registry $CONTAINER_REGISTRY"
+fi
+echo INSECURE_REGISTRY="$insecure_registries" >> /etc/sysconfig/docker
 systemctl restart docker
 
 #Heat Stack will fail if INSECURE_REGISTRY is presented in the file

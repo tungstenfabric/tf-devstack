@@ -54,30 +54,36 @@ if [[ ! -f ~/rhosp-environment.sh ]]; then
     echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
     echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
+    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
+
     echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
+    echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
+    
     echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 fi
 
 source ~/rhosp-environment.sh
 
-if [[ -z ${RHEL_USER+x} ]]; then
-    echo "Please enter you Red Hat Credentials. RHEL_USER="
-    read -sr RHEL_USER_INPUT
-    export RHEL_USER=$RHEL_USER_INPUT
-    echo "export RHEL_USER=$RHEL_USER" >> ~/rhosp-environment.sh
-fi
+if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; 
+    if [[ -z ${RHEL_USER+x} ]]; then
+        echo "Please enter you Red Hat Credentials. RHEL_USER="
+        read -sr RHEL_USER_INPUT
+        export RHEL_USER=$RHEL_USER_INPUT
+        echo "export RHEL_USER=$RHEL_USER" >> ~/rhosp-environment.sh
+    fi
 
-if [[ -z ${RHEL_PASSWORD+x} ]]; then
-    echo "Please enter you Red Hat Credentials. RHEL_PASSWORD="
-    read -sr RHEL_PASSWORD_INPUT
-    export RHEL_PASSWORD=$RHEL_PASSWORD_INPUT
-    echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
-fi
+    if [[ -z ${RHEL_PASSWORD+x} ]]; then
+        echo "Please enter you Red Hat Credentials. RHEL_PASSWORD="
+        read -sr RHEL_PASSWORD_INPUT
+        export RHEL_PASSWORD=$RHEL_PASSWORD_INPUT
+        echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
+    fi
 
-#Put RHEL credentials into ~/rhosp-environment.sh
-egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
-egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
+    #Put RHEL credentials into ~/rhosp-environment.sh
+    egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
+    egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
+fi
 
 #Continue deployment stages with environment specific script
 source $my_dir/providers/${PROVIDER}/stages.sh
