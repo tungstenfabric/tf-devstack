@@ -2,19 +2,10 @@
 
 source $my_dir/providers/kvm/virsh_functions
 
-# stages declaration
-declare -A STAGES=( \
-    ["all"]="build kvm machines undercloud overcloud tf wait logs" \
-    ["default"]="kvm machines undercloud overcloud tf wait" \
-    ["master"]="build kvm machines undercloud overcloud tf wait" \
-    ["platform"]="kvm machines undercloud overcloud" \
-)
-
 ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function kvm() {
     cd $my_dir/providers/kvm
-    #sudo ./00_provision_kvm_host.sh
     sudo ./01_create_env.sh
     wait_ssh ${mgmt_ip} ${ssh_private_key}
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
@@ -27,7 +18,7 @@ function kvm() {
 function machines() {
     cd $my_dir
     scp -r $ssh_opts ~/rhosp-environment.sh ~/instackenv.json ~/tf-devstack stack@${mgmt_ip}:
-    ssh $ssh_opts stack@${mgmt_ip} "source /home/stack/rhosp-environment.sh; sudo -E /home/stack/tf-devstack/rhosp/undercloud/00_provision.sh"
+    ssh $ssh_opts stack@${mgmt_ip} -- bash -c "source ./rhosp-environment.sh; sudo -E ./tf-devstack/rhosp/undercloud/00_provision.sh"
 }
 
 function undercloud() {
@@ -55,9 +46,11 @@ function overcloud() {
 
         for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
            wait_ssh ${ip} ${ssh_private_key}
-           scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh ../common/common.sh ../common/create_docker_config.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
+           scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh ../common/common.sh \
+            ../common/create_docker_config.sh ../common/jinja2_render.py \
+            providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
            ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
-           scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/docker_daemon_json.j2
+           scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/
         done
 
         #parallel ssh
@@ -69,7 +62,7 @@ function overcloud() {
         done
         echo Parallel pre-instatallation overcloud nodes. pids: $jobs. Waiting...
         for i in $jobs ; do
-            wait $i || res=1
+            command wait $i || res=1
         done
         if [[ "${res}" == 1 ]]; then
             echo errors appeared during overcloud nodes pre-installation. Exiting
@@ -93,3 +86,7 @@ function is_active() {
     return 0
 }
 
+function collect_deployment_env() {
+    # no additinal info is needed
+    :
+}

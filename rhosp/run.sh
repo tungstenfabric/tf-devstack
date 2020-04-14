@@ -11,6 +11,13 @@ source "$my_dir/../common/collect_logs.sh"
 
 init_output_logging
 
+# stages declaration
+declare -A STAGES=( \
+    ["all"]="build machines undercloud overcloud tf wait logs" \
+    ["default"]="machines undercloud overcloud tf wait" \
+    ["master"]="build machines undercloud overcloud tf wait" \
+    ["platform"]="machines undercloud overcloud" \
+)
 
 # default env variables
 export DEPLOYER='rhosp'
@@ -38,58 +45,51 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
 )
 
-
-cd $my_dir
-
-##### Always creating ~/rhosp-environment.sh #####
-rm -f ~/rhosp-environment.sh
-cp $my_dir/config/common.sh ~/rhosp-environment.sh
-cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
-cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
-#Overwrite DEPLOY_POSTFIX if it's defined
-if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
-    sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
-fi
-echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
-echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
-echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
-echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
-echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
-echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
-echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
-echo "set +x" >> ~/rhosp-environment.sh
-echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
-
-
-source ~/rhosp-environment.sh
-
-if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
-    if [[ -z ${RHEL_USER+x} ]]; then
-        echo "Please enter you Red Hat Credentials. RHEL_USER="
-        read -sr RHEL_USER_INPUT
-        export RHEL_USER=$RHEL_USER_INPUT
-        echo "export RHEL_USER=$RHEL_USER" >> ~/rhosp-environment.sh
-    fi
-
-    if [[ -z ${RHEL_PASSWORD+x} ]]; then
-        echo "Please enter you Red Hat Credentials. RHEL_PASSWORD="
-        read -sr RHEL_PASSWORD_INPUT
-        export RHEL_PASSWORD=$RHEL_PASSWORD_INPUT
-        echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
-    fi
-
-    #Put RHEL credentials into ~/rhosp-environment.sh
-    egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
-    egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
-fi
-
 #Continue deployment stages with environment specific script
 source $my_dir/providers/${PROVIDER}/stages.sh
 
+function prepare_rhosp_env_file() {
+    ##### Always creating ~/rhosp-environment.sh #####
+    rm -f ~/rhosp-environment.sh
+    cp $my_dir/config/common.sh ~/rhosp-environment.sh
+    cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
+    cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
+    #Overwrite DEPLOY_POSTFIX if it's defined
+    if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
+        sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
+    fi
+    echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
+    echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
+    echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
+    echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
+    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
+    echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
+    echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
+    echo "set +x" >> ~/rhosp-environment.sh
+    echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 
-function collect_deployment_env() {
-    # no additinal info is needed
-    :
+    if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
+        if [[ -z ${RHEL_USER+x} ]]; then
+            echo "Please enter you Red Hat Credentials. RHEL_USER="
+            read -sr RHEL_USER_INPUT
+            export RHEL_USER=$RHEL_USER_INPUT
+            echo "export RHEL_USER=$RHEL_USER" >> ~/rhosp-environment.sh
+        fi
+
+        if [[ -z ${RHEL_PASSWORD+x} ]]; then
+            echo "Please enter you Red Hat Credentials. RHEL_PASSWORD="
+            read -sr RHEL_PASSWORD_INPUT
+            export RHEL_PASSWORD=$RHEL_PASSWORD_INPUT
+            echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
+        fi
+
+        #Put RHEL credentials into ~/rhosp-environment.sh
+        egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
+        egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
+    fi
 }
+
+#TODO move inside stage to allow overwrite values by dev-env
+prepare_rhosp_env_file
 
 run_stages $STAGE

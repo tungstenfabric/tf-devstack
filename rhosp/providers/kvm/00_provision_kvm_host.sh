@@ -1,4 +1,6 @@
 #!/bin/bash
+#
+# hepling script to prepare new kvm host, to called manually once
 
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"

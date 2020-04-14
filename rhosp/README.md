@@ -59,6 +59,7 @@ DEPLOY_POSTFIX_INC equals DEPLOY_POSTFIX_INC + 1.
 1. export DEPLOY_POSTFIX=20
 1. export RHEL_USER=...
 1. export RHEL_PASSWORD=...
+1. ./run.sh kvm
 1. ./run.sh
 
 run.sh without parameters will do all the stages sequentially.
