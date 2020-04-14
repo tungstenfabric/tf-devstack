@@ -25,6 +25,8 @@ source "$my_dir/virsh_functions"
 
 if [[ $RHEL_VERSION == 'rhel8' ]]; then
    rhel_version_libvirt='rhl8.0'
+else
+   rhel_version_libvirt=$RHEL_VERSION
 fi
 
 
