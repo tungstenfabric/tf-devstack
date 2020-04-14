@@ -51,8 +51,9 @@ done
 
 undercloud_instance="rhosp13-undercloud-${rhosp_id}"
 #Get latest rhel image
-image_name=$(openstack image list  -f value -c Name | grep template-rhel-7 | tail -1)
-image_id=$(openstack image list --name ${image_name} -f value -c ID)
+image_name=$(openstack image list --status active -c Name -f value | grep "prepared-rhel7" | sort -nr | head -n 1)
+image_id=$(openstack image show -c id -f value "$image_name")
+
 
 nova boot --flavor ${default_flavor} \
           --tags "PipelineBuildTag=${PIPELINE_BUILD_TAG},SLAVE=vexxhost" \

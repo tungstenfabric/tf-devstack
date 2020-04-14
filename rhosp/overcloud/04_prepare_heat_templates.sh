@@ -32,7 +32,7 @@ cd
 fetch_deployer_no_docker ${tf_rhosp_image} ~/contrail-tripleo-heat-templates \
 || git clone https://github.com/juniper/contrail-tripleo-heat-templates ~/contrail-tripleo-heat-templates
 
-if [[ -d ~/contrail-tripleo-heat-templates ]] ; then
+if [[ ! -d ~/contrail-tripleo-heat-templates ]] ; then
    echo "ERROR: The directory with src ~/contrail-tripleo-heat-templates is not found. Exit with error"
    exit 1
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 
 my_file="$(readlink -e "$0")"
