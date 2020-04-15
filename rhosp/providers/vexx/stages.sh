@@ -2,14 +2,6 @@
 
 export CONFIGURE_DOCKER_LIVERESTORE='false'
 
-# stages declaration
-declare -A STAGES=( \
-    ["all"]="build machines undercloud overcloud tf wait logs" \
-    ["default"]="machines undercloud overcloud tf wait" \
-    ["master"]="build machines undercloud overcloud tf wait" \
-    ["platform"]="machines undercloud overcloud" \
-)
-
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function machines() {
@@ -35,12 +27,26 @@ function undercloud() {
 function overcloud() {
     cd $my_dir
     ./overcloud/03_setup_predeployed_nodes_access.sh
+    local jobs=""
+    local res=0
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
-        scp $ssh_opts ~/rhosp-environment.sh  ../common/collect_logs.sh ../common/create_docker_config.sh providers/common/* overcloud/03_setup_predeployed_nodes.sh $SSH_USER@$ip:
+        scp $ssh_opts ~/rhosp-environment.sh  ../common/collect_logs.sh \
+            ../common/create_docker_config.sh ../common/jinja2_render.py \
+            providers/common/* overcloud/03_setup_predeployed_nodes.sh $SSH_USER@$ip:
         ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
-        scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/docker_daemon_json.j2
+        scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/
         ssh $ssh_opts $SSH_USER@$ip sudo ./03_setup_predeployed_nodes.sh &
+        jobs+=" $!"
     done
+    echo Parallel pre-installation overcloud nodes. pids: $jobs. Waiting...
+    local i
+    for i in $jobs ; do
+        command wait $i || res=1
+    done
+    if [[ "${res}" == 1 ]]; then
+        echo errors appeared during overcloud nodes pre-installation. Exiting
+        exit 1
+    fi
 }
 
 #Overcloud stage
