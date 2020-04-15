@@ -1,5 +1,5 @@
 [DEFAULT]
-local_ip = ${prov_ip}/24
+local_ip = ${prov_ip_cidr}
 local_interface = ${undercloud_local_interface}
 local_mtu = ${local_mtu}
 overcloud_domain_name = ${domain}
@@ -9,7 +9,7 @@ discovery_iprange = ${prov_subnet}.150,${prov_subnet}.170
 subnets = ctlplane-subnet
 inspection_interface = br-ctlplane
 [ctlplane-subnet]
-cidr = ${prov_subnet}.0/24
+cidr = ${prov_cidr}
 dhcp_start = ${prov_subnet}.100
 dhcp_end = ${prov_subnet}.149
 gateway = ${prov_ip}

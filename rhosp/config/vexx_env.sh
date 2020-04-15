@@ -11,11 +11,13 @@ export mgmt_gateway=${mgmt_gateway}
 #Undercloud mgmt ip
 export mgmt_ip=${mgmt_ip}
 
+export prov_cidr=${prov_cidr}
 export prov_subnet=${prov_subnet}
 export prov_gateway=${prov_gateway}
 
 #Undercloud prov ip
 export prov_ip=${prov_ip}
+export prov_ip_cidr=${prov_ip_cidr}
 
 export fixed_vip=${fixed_vip}
 export fixed_controller_ip=${fixed_controller_ip}
