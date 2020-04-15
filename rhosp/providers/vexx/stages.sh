@@ -100,17 +100,17 @@ function is_active() {
 }
 
 function collect_deployment_env() {
+    CONTROLLER_NODES="${overcloud_ctrlcont_prov_ip}"
+    if $DEPLOY_COMPACT_AIO ; then
+        AGENT_NODES="${overcloud_ctrlcont_prov_ip}"
+    else
+        AGENT_NODES="${overcloud_compute_prov_ip}"
+    fi
     if [[ -f ~/overcloudrc ]]; then
         source ~/overcloudrc
-        ORCHESTRATOR='openstack'
-        CONTROLLER_NODES="${overcloud_ctrlcont_prov_ip}"
-        AGENT_NODES="${overcloud_compute_prov_ip}"
         DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
         DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
         DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
-    else
-        echo "No file ~/overcloudrc"
-        return 1
     fi
 }
 

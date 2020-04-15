@@ -176,6 +176,8 @@ echo update vexxrc file $vexxrc
 echo ==================================================================================
 echo >> $vexxrc
 
+echo export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO >> $vexxrc
+
 echo export management_network_name=\"$management_network_name\" >> $vexxrc
 echo export provision_network_name=\"$provision_network_name\" >> $vexxrc
 echo export router_name=\"$router_name\" >> $vexxrc

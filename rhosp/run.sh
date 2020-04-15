@@ -20,6 +20,9 @@ declare -A STAGES=( \
 )
 
 # default env variables
+export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
+export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export DEPLOYER='rhosp'
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
