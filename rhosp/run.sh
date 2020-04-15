@@ -22,6 +22,7 @@ declare -A STAGES=( \
 # default env variables
 export DEPLOYER='rhosp'
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
+export SSH_USER=${SSH_USER:-'cloud-user'}
 if [[ "$RHOSP_VERSION" == "rhosp16" ]]; then
     export RHEL_VERSION='rhel8'
 else 
