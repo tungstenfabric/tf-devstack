@@ -16,7 +16,14 @@ source ./rhosp-environment.sh
 
 #Set default gateway to undercloud
 default_dev=$(ip route get $prov_ip | grep -o "dev.*" | awk '{print $2}')
-ip route change default via ${prov_ip} dev $default_dev
+if [ -z "$default_dev" ] ; then
+   echo "ERROR: undercloud node is not reachable from overcloud via prov network"
+   exit 1
+fi
+ip route replace default via ${prov_ip} dev $default_dev
+echo GATEWAYDEV=$default_dev >> /etc/sysconfig/network
+echo GATEWAY=$prov_ip >> /etc/sysconfig/network
+
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
