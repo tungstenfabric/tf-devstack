@@ -1,36 +1,20 @@
-#!/bin/bash
+#!/bin/bash -e
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+
+source ~/rhosp-environment.sh
 source "$my_dir/../../common/functions.sh"
-
-if [ -f ~/rhosp-environment.sh ]; then
-   source ~/rhosp-environment.sh
-else
-   echo "File ~/rhosp-environment.sh not found"
-   exit
-fi
-
-if [ -d ~/tripleo-heat-templates ] ; then
-   echo Old directory ~/tripleo-heat-templates found. Cleaning
-   rm -rf ~/tripleo-heat-templates
-fi
-
-if [ -d ~/contrail-tripleo-heat-templates ] ; then
-   echo "Old directory ~/contrail-tripleo-heat-templates found. Cleaning"
-   rm -rf ~/contrail-tripleo-heat-templates
-fi
+source "$my_dir/../providers/common/functions.sh"
 
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
-export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"${prov_ip}:8787/tungstenfabric"}
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
 
-
-
-cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
 cd
+rm -rf ~/tripleo-heat-templates ~/contrail-tripleo-heat-templates
+cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
 fetch_deployer_no_docker ${tf_rhosp_image} ~/contrail-tripleo-heat-templates \
 || git clone https://github.com/juniper/contrail-tripleo-heat-templates ~/contrail-tripleo-heat-templates
 

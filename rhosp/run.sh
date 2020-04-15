@@ -46,6 +46,7 @@ declare -A DEPLOYMENT_ENV=(\
 )
 
 #Continue deployment stages with environment specific script
+source $my_dir/providers/common/functions.sh
 source $my_dir/providers/${PROVIDER}/stages.sh
 
 function prepare_rhosp_env_file() {

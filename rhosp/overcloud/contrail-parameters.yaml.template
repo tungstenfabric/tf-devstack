@@ -1,6 +1,6 @@
 parameter_defaults:
   ContrailRegistryInsecure: true
-  ContrailRegistry: ${CONTAINER_REGISTRY}
+  ContrailRegistry: ${prov_ip}:8787
   ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
   ControlPlaneDefaultRoute: ${prov_ip}
   EC2MetadataIp: ${prov_ip}

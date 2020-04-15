@@ -1,6 +1,6 @@
 parameter_defaults:
   ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
-  CloudDomain: tf-devstack
+  CloudDomain: ${domain}
   GlanceBackend: file
   RabbitUserName: contrail
   RabbitPassword: contrail

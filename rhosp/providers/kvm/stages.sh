@@ -30,46 +30,54 @@ function undercloud() {
 #Overcloud nodes provisioning
 function overcloud() {
     cd $my_dir
-
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-        ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/01_extract_overcloud_images.sh
+        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/01_extract_overcloud_images.sh || return 1
         #Checking vbmc statuses and fix 'down'
+        local vm
         for vm in $(vbmc list -f value -c 'Domain name' -c Status | grep down | awk '{print $1}'); do
-            vbmc start ${vm}
+            vbmc start ${vm} || return 1
         done
-        ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh
-    else
-        #Copying keypair to the undercloud
-        scp $ssh_opts $ssh_private_key $ssh_public_key stack@${mgmt_ip}:.ssh/
-        #start overcloud VMs
-        for domain in $(virsh list --name --all | grep $RHOSP_VERSION-overcloud-$DEPLOY_POSTFIX); do virsh start $domain; done
-
-        for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
-           wait_ssh ${ip} ${ssh_private_key}
-           scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh ../common/common.sh \
-            ../common/create_docker_config.sh ../common/jinja2_render.py \
-            providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
-           ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
-           scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/
-        done
-
-        #parallel ssh
-        jobs=''
-        res=0
-        for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
-            ssh $ssh_opts stack@${ip} sudo ./03_setup_predeployed_nodes.sh &
-            jobs+=" $!"
-        done
-        echo Parallel pre-instatallation overcloud nodes. pids: $jobs. Waiting...
-        for i in $jobs ; do
-            command wait $i || res=1
-        done
-        if [[ "${res}" == 1 ]]; then
-            echo errors appeared during overcloud nodes pre-installation. Exiting
-            exit 1
-        fi
+        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh || return 1
+        return
     fi
 
+    # Predeployed nodes
+    #
+    #Copying keypair to the undercloud
+    scp $ssh_opts $ssh_private_key $ssh_public_key stack@${mgmt_ip}:.ssh/
+    #start overcloud VMs
+    for domain in $(virsh list --name --all | grep $RHOSP_VERSION-overcloud-$DEPLOY_POSTFIX) ; do
+        virsh start $domain
+    done
+    # copy prepare scripts
+    local ip
+    for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
+        wait_ssh ${ip} ${ssh_private_key}
+        scp $ssh_opts ~/rhosp-environment.sh ../common/collect_logs.sh ../common/common.sh \
+        ../common/create_docker_config.sh ../common/jinja2_render.py \
+        providers/common/* overcloud/03_setup_predeployed_nodes.sh stack@$ip:
+        ssh $ssh_opts $SSH_USER@$ip mkdir -p ./files
+        scp $ssh_opts ../common/files/docker_daemon.json.j2 $SSH_USER@$ip:files/
+    done
+    #parallel ssh
+    local jobs=''
+    for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
+        ssh $ssh_opts stack@${ip} sudo ./03_setup_predeployed_nodes.sh &
+        jobs+=" $!"
+    done
+    echo Parallel pre-instatallation overcloud nodes. pids: $jobs. Waiting...
+    local res=0
+    local i
+    for i in $jobs ; do
+        command wait $i || {
+            echo "ERROR: job $i failed"
+            res=1
+        }
+    done
+    if [[ "${res}" == 1 ]]; then
+        echo "errors appeared during overcloud nodes pre-installation."
+    fi
+    return $res
 }
 
 #Overcloud stage
