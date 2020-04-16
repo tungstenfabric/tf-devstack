@@ -3,6 +3,7 @@ parameter_defaults:
   ContrailRegistry: ${prov_ip}:8787
   ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
   ControlPlaneDefaultRoute: ${prov_ip}
+  ControlPlaneSubnetCidr: ${prov_subnet_len}
   EC2MetadataIp: ${prov_ip}
   DnsServers: [ "8.8.8.8", "8.8.4.4" ]
   NtpServer: 3.europe.pool.ntp.org
