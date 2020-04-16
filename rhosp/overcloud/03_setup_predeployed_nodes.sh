@@ -16,13 +16,14 @@ source ./rhosp-environment.sh
 
 #Set default gateway to undercloud
 default_dev=$(ip route get $prov_ip | grep -o "dev.*" | awk '{print $2}')
-if [ -z "$default_dev" ] ; then
+if [[ -z "$default_dev" || 'lo' == "$default_dev" ]] ; then
    echo "ERROR: undercloud node is not reachable from overcloud via prov network"
    exit 1
 fi
 ip route replace default via ${prov_ip} dev $default_dev
-echo GATEWAYDEV=$default_dev >> /etc/sysconfig/network
-echo GATEWAY=$prov_ip >> /etc/sysconfig/network
+cfg_file="/etc/sysconfig/network-scripts/ifcfg-$default_dev"
+sed -i '/^GATEWAY[ ]*=/d' $cfg_file
+echo "GATEWAY=${prov_ip}" >> $cfg_file
 
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
@@ -41,3 +42,7 @@ if ! systemctl restart docker ; then
    journalctl -xe
    exit 1
 fi
+
+# to avoid slow ssh connect if dns is not available
+sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
+service sshd reload
