@@ -27,6 +27,19 @@ export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export DEPLOYER='rhosp'
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
+
+if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
+    if [[ -z ${RHEL_USER+x} ]]; then
+        echo "There is no Red Hat Credentials. Please export variable RHEL_USER "
+        exit 1
+    fi
+
+    if [[ -z ${RHEL_PASSWORD+x} ]]; then
+        echo "There is no Red Hat Credentials. Please export variable RHEL_PASSWORD "
+        exit 1
+    fi
+fi
+
 if [[ "$RHOSP_VERSION" == "rhosp16" ]]; then
     export RHEL_VERSION='rhel8'
 else 
@@ -58,7 +71,7 @@ function prepare_rhosp_env_file() {
     ##### Always creating ~/rhosp-environment.sh #####
     rm -f ~/rhosp-environment.sh
     source $my_dir/config/common.sh
-    cat $my_dir/config/common.sh | grep ^export | envsubst >~/rhosp-environment.sh || true
+    cat $my_dir/config/common.sh | envsubst >>~/rhosp-environment.sh || true
     source $my_dir/config/${RHEL_VERSION}_env.sh
     cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
     source $my_dir/config/${PROVIDER}_env.sh
@@ -70,20 +83,8 @@ function prepare_rhosp_env_file() {
     echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
     echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
     echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
-    echo "set +x" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
 
-    if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
-        if [[ -z ${RHEL_USER+x} ]]; then
-            echo "There is no Red Hat Credentials. Please export variable RHEL_USER "
-            exit 1
-        fi
-
-        if [[ -z ${RHEL_PASSWORD+x} ]]; then
-            echo "There is no Red Hat Credentials. Please export variable RHEL_PASSWORD "
-            exit 1
-        fi
-    fi
 }
 
 #TODO move inside stage to allow overwrite values by dev-env
