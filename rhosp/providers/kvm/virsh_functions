@@ -281,7 +281,7 @@ function image_customize() {
     --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
     --run-command 'echo "stack:${IPMI_PASSWORD}" | chpasswd' \
     --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
-    --run-command 'echo -n > /root/.ssh/authorized_keys' \
+    --run-command 'stat /home/stack/.ssh || mkdir /home/stack/.ssh && chown stack:stack /home/stack/.ssh && chmod 700 /home/stack/.ssh' \
     --run-command 'echo -n > /home/stack/.ssh/authorized_keys' \
     --ssh-inject root:file:$ssh_public_key \
     --ssh-inject stack:file:$ssh_public_key \
