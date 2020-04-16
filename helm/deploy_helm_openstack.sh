@@ -9,7 +9,7 @@ source "$my_dir/../common/functions.sh"
 
 # parameters
 
-HELM_OPENSTACK_URL=${HELM_OPENSTACK_URL:-https://review.opendev.org/changes/663390/revisions/d5ec69c78eded1fcd408f523fbf3602319aa6626/archive?format=tgz}
+HELM_OPENSTACK_URL=${HELM_OPENSTACK_URL:-https://review.opendev.org/changes/663390/revisions/602747ac7ca361928f7dd1498da70ebdd4fbb157/archive?format=tgz}
 #HELM_OPENSTACK_INFRA_URL=https://github.com/openstack/openstack-helm-infra/archive/24c1cd4514384fe22f3a882d41cf927588b03f2b.tar.gz
 export OPENSTACK_RELEASE=${OPENSTACK_VERSION:-queens}
 export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
@@ -28,8 +28,8 @@ elif [ "$DISTRO" == "ubuntu" ]; then
         wget ca-certificates git make jq nmap curl uuid-runtime bc python-pip python-dev nfs-common
 fi
 sudo -H -E pip install setuptools
-pip3 install --user wheel setuptools
-pip3 install --user yq
+sudo -H -E pip3 install setuptools
+sudo -H -E pip3 install yq
 
 # label nodes
 label_nodes_by_ip openstack-control-plane=enabled $CONTROLLER_NODES
