@@ -7,14 +7,14 @@ parameter_defaults:
       fixed_ips:
         - ip_address: ${overcloud_cont_prov_ip}
       subnets:
-        - cidr: 24
+        - cidr: ${prov_subnet_len}
     ${overcloud_compute_instance}-ctlplane:
       fixed_ips:
         - ip_address: ${overcloud_compute_prov_ip}
       subnets:
-        - cidr: 24
+        - cidr: ${prov_subnet_len}
     ${overcloud_ctrlcont_instance}-ctlplane:
       fixed_ips:
         - ip_address: ${overcloud_ctrlcont_prov_ip}
       subnets:
-        - cidr: 24
+        - cidr: ${prov_subnet_len}

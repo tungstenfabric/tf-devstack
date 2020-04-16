@@ -12,6 +12,8 @@ export mgmt_gateway=${mgmt_gateway}
 export mgmt_ip=${mgmt_ip}
 
 export prov_cidr=${prov_cidr}
+export prov_subnet_len=${prov_subnet_len}
+
 export prov_subnet=${prov_subnet}
 export prov_gateway=${prov_gateway}
 

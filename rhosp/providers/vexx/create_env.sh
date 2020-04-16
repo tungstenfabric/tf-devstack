@@ -158,7 +158,8 @@ undercloud_prov_ip=$(echo ${undercloud_ip_addresses} | egrep -o ${provision_netw
 mgmt_subnet_gateway_ip=$(openstack subnet show ${management_network_name} -f value -c gateway_ip)
 mgmt_subnet=$(echo $management_network_cidr | egrep -o '([0-9]{1,3}\.){2}[0-9]{1,3}')
 prov_subnet=$(echo $provision_network_cidr | egrep -o '([0-9]{1,3}\.){2}[0-9]{1,3}')
-prov_ip_cidr=${undercloud_prov_ip}/$(echo ${provision_network_cidr} | cut -d '/' -f 2)
+prov_subnet_len=$(echo ${provision_network_cidr} | cut -d '/' -f 2)
+prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
 
 overcloud_cont_ip=$(openstack server show ${overcloud_cont_instance} -f value -c addresses | cut -d '=' -f 2)
 overcloud_compute_ip=
@@ -195,6 +196,7 @@ echo export fixed_vip="\"${prov_subnet}.200"\" >> $vexxrc
 echo export fixed_controller_ip="\"${prov_subnet}.211"\" >> $vexxrc
 echo export prov_ip_cidr="\"${prov_ip_cidr}"\" >> $vexxrc
 echo export prov_cidr="\"${provision_network_cidr}\"" >> $vexxrc
+echo export prov_subnet_len="\"${prov_subnet_len}\"" >> $vexxrc
 
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo export floating_ip=\"${floating_ip}\" >> $vexxrc

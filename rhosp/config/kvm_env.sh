@@ -50,6 +50,7 @@ export mgmt_ip="${mgmt_subnet}.2"
 export prov_subnet="192.168.${DEPLOY_POSTFIX_INC}"
 export prov_gateway="${prov_subnet}.1"
 export prov_cidr="${prov_subnet}.0/24"
+export prov_subnet_len=24
 export prov_ip="${prov_subnet}.2"
 export prov_ip_cidr="${prov_ip}/24"
 

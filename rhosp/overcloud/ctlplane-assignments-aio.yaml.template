@@ -7,4 +7,4 @@ parameter_defaults:
       fixed_ips:
         - ip_address: ${overcloud_cont_prov_ip}
       subnets:
-        - cidr: 24
+        - cidr: ${prov_subnet_len}
