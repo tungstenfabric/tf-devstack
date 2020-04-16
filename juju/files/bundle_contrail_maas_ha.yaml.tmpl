@@ -94,7 +94,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "lxd:{{ JUJU_MACHINES[0] }}"
   contrail-openstack:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
