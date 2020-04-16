@@ -20,6 +20,7 @@ declare -A STAGES=( \
 )
 
 # default env variables
+export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
 export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
@@ -57,12 +58,10 @@ function prepare_rhosp_env_file() {
     ##### Always creating ~/rhosp-environment.sh #####
     rm -f ~/rhosp-environment.sh
     cp $my_dir/config/common.sh ~/rhosp-environment.sh
+    source $my_dir/config/${RHEL_VERSION}_env.sh
     cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
+    source $my_dir/config/${PROVIDER}_env.sh
     cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
-    #Overwrite DEPLOY_POSTFIX if it's defined
-    if [[ ! -z ${DEPLOY_POSTFIX+x} ]]; then
-        sed -i "s/export DEPLOY_POSTFIX=.*/export DEPLOY_POSTFIX=${DEPLOY_POSTFIX}/"  ~/rhosp-environment.sh
-    fi
     echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
     echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
     echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh

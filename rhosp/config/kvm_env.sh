@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # DEPLOY_POSTFIX is used for environment isolation:
 # vm names, pools, management and provider networks,
@@ -29,10 +29,10 @@ export undercloud_vmname="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
 export undercloud_vm_volume="$undercloud_prefix.qcow2"
 
 # network names and settings
-export BRIDGE_NAME_MGMT=${BRIDGE_NAME_MGMT:-"mgmt-${DEPLOY_POSTFIX}"}
-export BRIDGE_NAME_PROV=${BRIDGE_NAME_PROV:-"prov-${DEPLOY_POSTFIX}"}
-export NET_NAME_MGMT=${NET_NAME_MGMT:-${BRIDGE_NAME_MGMT}}
-export NET_NAME_PROV=${NET_NAME_PROV:-${BRIDGE_NAME_PROV}}
+export BRIDGE_NAME_MGMT="mgmt-${DEPLOY_POSTFIX}"
+export BRIDGE_NAME_PROV="prov-${DEPLOY_POSTFIX}"
+export NET_NAME_MGMT=${BRIDGE_NAME_MGMT}
+export NET_NAME_PROV=${BRIDGE_NAME_PROV}
 
 
 # IPMI
