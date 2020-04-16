@@ -43,16 +43,6 @@ conf:
   test:
     node_selector_key: openstack-control-plane
     node_selector_value: enabled
-network:
-  backend:
-    - tungstenfabric
-dependencies:
-  dynamic:
-    targeted:
-      tungstenfabric:
-        compute:
-          daemonset: []
-conf:
   rootwrap: |
     # Configuration for nova-rootwrap
     # This file should be owned by (and only-writeable by) the root user
@@ -81,4 +71,12 @@ conf:
     # INFO means log all usage
     # ERROR means only log unsuccessful attempts
     syslog_log_level=ERROR
-
+network:
+  backend:
+    - tungstenfabric
+dependencies:
+  dynamic:
+    targeted:
+      tungstenfabric:
+        compute:
+          daemonset: []

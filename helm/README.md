@@ -70,3 +70,4 @@ Environment variable list:
 ## Known Issues
 
 - For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
+- Helm Openstack deploys Contrail plugins (tf-neutron-init and tf-compute-init) taking them from the dockerhub at the moment and deployment of TF does not upgrade them to the freshly built containers which complicates development of these two particular pieces.

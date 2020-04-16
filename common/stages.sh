@@ -44,6 +44,8 @@ EOF
 function run_stage() {
   if ! finished_stage $1 ; then
     $1 $2
+  else
+    echo "Skipping stage $1 because it's finished"
   fi
   if [[ $1 != "wait" ]]; then
     mkdir -p $TF_STAGES_DIR
