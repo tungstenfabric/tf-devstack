@@ -57,7 +57,8 @@ source $my_dir/providers/${PROVIDER}/stages.sh
 function prepare_rhosp_env_file() {
     ##### Always creating ~/rhosp-environment.sh #####
     rm -f ~/rhosp-environment.sh
-    cp $my_dir/config/common.sh ~/rhosp-environment.sh
+    source $my_dir/config/common.sh
+    cat $my_dir/config/common.sh | grep ^export | envsubst >~/rhosp-environment.sh || true
     source $my_dir/config/${RHEL_VERSION}_env.sh
     cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | envsubst >> ~/rhosp-environment.sh || true
     source $my_dir/config/${PROVIDER}_env.sh
@@ -74,22 +75,14 @@ function prepare_rhosp_env_file() {
 
     if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
         if [[ -z ${RHEL_USER+x} ]]; then
-            echo "Please enter you Red Hat Credentials. RHEL_USER="
-            read -sr RHEL_USER_INPUT
-            export RHEL_USER=$RHEL_USER_INPUT
-            echo "export RHEL_USER=$RHEL_USER" >> ~/rhosp-environment.sh
+            echo "There is no Red Hat Credentials. Please export variable RHEL_USER "
+            exit 1
         fi
 
         if [[ -z ${RHEL_PASSWORD+x} ]]; then
-            echo "Please enter you Red Hat Credentials. RHEL_PASSWORD="
-            read -sr RHEL_PASSWORD_INPUT
-            export RHEL_PASSWORD=$RHEL_PASSWORD_INPUT
-            echo "export RHEL_PASSWORD=$RHEL_PASSWORD" >> ~/rhosp-environment.sh
+            echo "There is no Red Hat Credentials. Please export variable RHEL_PASSWORD "
+            exit 1
         fi
-
-        #Put RHEL credentials into ~/rhosp-environment.sh
-        egrep -c '^export RHEL_USER=.+$' ~/rhosp-environment.sh || echo export RHEL_USER=\"$RHEL_USER\" >> ~/rhosp-environment.sh
-        egrep -c '^export RHEL_PASSWORD=.+$' ~/rhosp-environment.sh || echo export RHEL_PASSWORD=\"$RHEL_PASSWORD\" >> ~/rhosp-environment.sh
     fi
 }
 
