@@ -46,3 +46,17 @@ fi
 # to avoid slow ssh connect if dns is not available
 sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
 service sshd reload
+
+fqdn=$(hostname -f)
+short_name=$(hostname)
+hosts_names=$fqdn
+[[ "$short_name" != "$short_name" ]] && hosts_names+=" $short_name"
+if ! gerp -q "$hosts_names" /etc/hosts ; then
+   default_ip=$(ip addr show dev $default_dev | awk '/inet /{print($2)}' | cut -d '/' -f 1)
+   echo "INFO: add resolving $hosts_names to $default_ip"
+   [ -n "$default_ip" ] || {
+      echo "ERROR: failed to detect ip addr for dev $default_dev"
+      exit 1
+   }
+   echo "$default_ip" >> /etc/hosts
+fi
