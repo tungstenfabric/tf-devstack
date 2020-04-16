@@ -47,16 +47,22 @@ fi
 sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
 service sshd reload
 
+undercloud_hosts_entry="$prov_ip    $undercloud_instance"
+[ -n "$domain" ] && undercloud_hosts_entry+=".$domain    $undercloud_instance"
+if ! grep -q "$undercloud_hosts_entry" /etc/hosts ; then
+   echo "$undercloud_hosts_entry" >> /etc/hosts
+fi
+
 fqdn=$(hostname -f)
 short_name=$(hostname)
 hosts_names=$fqdn
-[[ "$short_name" != "$short_name" ]] && hosts_names+=" $short_name"
-if ! gerp -q "$hosts_names" /etc/hosts ; then
+[[ "$short_name" != "$short_name" ]] && hosts_names+="    $short_name"
+if ! grep -q "$hosts_names" /etc/hosts ; then
    default_ip=$(ip addr show dev $default_dev | awk '/inet /{print($2)}' | cut -d '/' -f 1)
    echo "INFO: add resolving $hosts_names to $default_ip"
    [ -n "$default_ip" ] || {
       echo "ERROR: failed to detect ip addr for dev $default_dev"
       exit 1
    }
-   echo "$default_ip" >> /etc/hosts
+   echo "$default_ip    $hosts_names" >> /etc/hosts
 fi
