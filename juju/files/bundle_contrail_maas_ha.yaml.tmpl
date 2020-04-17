@@ -31,6 +31,7 @@ services:
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       local-rabbitmq-hostname-resolution: true
+      min-cluster-size: 3
     expose: true
     to:
       - "{{ JUJU_MACHINES[0] }}"
@@ -47,6 +48,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: 3
     expose: true
     to:
       - "{{ JUJU_MACHINES[0] }}"
@@ -61,6 +63,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: 3
     expose: true
     to:
       - "{{ JUJU_MACHINES[0] }}"
