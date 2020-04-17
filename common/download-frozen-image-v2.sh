@@ -3,7 +3,6 @@
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
 
 set -eo pipefail
-set -x
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
 	if ! command -v $cmd &> /dev/null; then

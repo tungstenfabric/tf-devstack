@@ -24,7 +24,6 @@ function ensure_kube_api_ready() {
 #  - deployer image
 #  - directory path deployer have to be extracted to
 function fetch_deployer() {
-
   if [[ $# != 2 ]] ; then
     echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
     exit 1
@@ -44,24 +43,23 @@ function fetch_deployer() {
 }
 
 function fetch_deployer_no_docker() {
+  if [[ $# != 2 ]] ; then
+    echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
+    exit 1
+  fi
 
-    if [[ $# != 2 ]] ; then
-      echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
-      exit 1
-    fi
-
-    local deployer_image=$1
-    local deployer_dir=$2
-    local tmp_deployer_layers_dir="$(mktemp -d)"
-    local archive_tmp_dir="$(mktemp -d)"
-    ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
-    tar xvf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]') -C ${archive_tmp_dir}
-    rm -rf $deployer_dir
-    if [[ ! -d "${archive_tmp_dir}/src" ]] ; then
-      echo "No src folder in ${archive_tmp_dir}/src. Exit"
-      exit 1
-    fi
-    mv ${archive_tmp_dir}/src $deployer_dir
+  local deployer_image=$1
+  local deployer_dir=$2
+  local tmp_deployer_layers_dir="$(mktemp -d)"
+  local archive_tmp_dir="$(mktemp -d)"
+  ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
+  tar xf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]') -C ${archive_tmp_dir}
+  rm -rf $deployer_dir
+  if [[ ! -d "${archive_tmp_dir}/src" ]] ; then
+    echo "No src folder in ${archive_tmp_dir}/src. Exit"
+    exit 1
+  fi
+  mv ${archive_tmp_dir}/src $deployer_dir
 }
 
 function wait_cmd_success() {
