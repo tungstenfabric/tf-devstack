@@ -5,9 +5,11 @@ my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
-TF_HELM_FOLDER=${TF_HELM_FOLDER:-tf-helm-deployer}
 TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer}
 ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
+
+deployer_image=tf-helm-deployer-src
+deployer_dir=${WORKSPACE}/tf-helm-deployer
 
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   CONTRAIL_CHART="contrail-k8s"
@@ -15,9 +17,7 @@ else
   CONTRAIL_CHART="contrail"
 fi
 
-if [ ! -d "$TF_HELM_FOLDER" ] ; then
-    git clone "$TF_HELM_URL" "$TF_HELM_FOLDER"
-fi
+fetch_deployer $deployer_image $deployer_dir || git clone "$TF_HELM_URL" $deployer_dir
 
 # label nodes
 label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $AGENT_NODES
