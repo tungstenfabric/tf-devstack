@@ -140,6 +140,9 @@ function collect_system_stats() {
     ip addr &>$syslogs/ip_addr.log
     ip link &>$syslogs/ip_link.log
     ip route &>$syslogs/ip_route.log
+    cat /etc/hosts &>$syslogs/etc_hosts
+    ip /etc/resolv.conf &>$syslogs/etc_resolv.conf
+    ls -la /etc/ &>$syslogs/ls_etc.log
 
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
@@ -158,7 +161,7 @@ function collect_juju_status() {
     timeout -s 9 30 juju status --format tabular > $log_dir/juju_status_tabular.log
 
     echo "INFO: Save current juju configuration to logs"
-    command juju export-bundle --filename $log_dir/bundle.yaml
+    command juju export-bundle > $log_dir/bundle.yaml
 
     echo "INFO: Save unit statuses to logs"
     for unit in `timeout -s 9 30 juju status $juju_model_arg --format oneline | awk '{print $2}' | sed 's/://g'` ; do
