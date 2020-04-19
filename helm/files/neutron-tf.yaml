@@ -34,7 +34,7 @@ conf:
   plugins:
     tungstenfabric:
       APISERVER:
-        api_server_ip: config-api-server.tf
+        api_server_ip: config-api-server.tungsten-fabric.svc.cluster.local
         api_server_port: 8082
         contrail_extensions: "ipam:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_ipam.NeutronPluginContrailIpam,policy:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_policy.NeutronPluginContrailPolicy,route-table:neutron_plugin_contrail.plugins.opencontrail.contrail_plugin_vpc.NeutronPluginContrailVpc,contrail:None,service-interface:None,vf-binding:None"
         multi_tenancy: True
@@ -42,7 +42,7 @@ conf:
         insecure: True
     tf_vnc_api_lib:
       global:
-        WEB_SERVER: config-api-server.tf
+        WEB_SERVER: config-api-server.tungsten-fabric.svc.cluster.local
         WEB_PORT: 8082
       auth:
         AUTHN_TYPE: keystone
