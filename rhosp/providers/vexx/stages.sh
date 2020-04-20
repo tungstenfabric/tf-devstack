@@ -100,10 +100,11 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    CONTROLLER_NODES="${overcloud_ctrlcont_prov_ip}"
     if $DEPLOY_COMPACT_AIO ; then
-        AGENT_NODES="${overcloud_ctrlcont_prov_ip}"
+        CONTROLLER_NODES="${overcloud_cont_ip}"
+        AGENT_NODES="${overcloud_cont_ip}"
     else
+        CONTROLLER_NODES="${overcloud_ctrlcont_prov_ip}"
         AGENT_NODES="${overcloud_compute_prov_ip}"
     fi
     if [[ -f ~/overcloudrc ]]; then
