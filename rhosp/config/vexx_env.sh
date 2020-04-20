@@ -28,6 +28,10 @@ export fixed_controller_ip=${fixed_controller_ip}
 export undercloud_instance=${undercloud_instance}
 export domain=${domain}
 
+#RHOSP16 additional parameters for undercloud.conf
+export undercloud_admin_host="${prov_subnet}.3"
+export undercloud_public_host="${prov_subnet}.4"
+
 #Prov IPs for overcloud nodes
 export overcloud_cont_prov_ip=${overcloud_cont_prov_ip}
 export overcloud_compute_prov_ip=${overcloud_compute_prov_ip}

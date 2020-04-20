@@ -1,0 +1,21 @@
+[DEFAULT]
+container_images_file = containers-prepare-parameter.yaml
+local_ip = ${prov_ip_cidr}
+local_interface = ${undercloud_local_interface}
+local_mtu = ${local_mtu}
+overcloud_domain_name = ${domain}
+undercloud_nameservers = 8.8.8.8
+undercloud_hostname = ${undercloud_instance}.${domain}
+undercloud_admin_host = ${undercloud_admin_host}
+undercloud_public_host = ${undercloud_public_host}
+discovery_iprange = ${prov_subnet}.150,${prov_subnet}.170
+subnets = ctlplane-subnet
+inspection_interface = br-ctlplane
+[ctlplane-subnet]
+cidr = ${prov_cidr}
+dhcp_start = ${prov_subnet}.100
+dhcp_end = ${prov_subnet}.149
+gateway = ${prov_ip}
+inspection_iprange = ${prov_subnet}.150,${prov_subnet}.170
+masquerade = true
+

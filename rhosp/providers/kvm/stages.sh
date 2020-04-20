@@ -18,7 +18,7 @@ function kvm() {
 function machines() {
     cd $my_dir
     scp -r $ssh_opts ~/rhosp-environment.sh ~/instackenv.json ~/tf-devstack stack@${mgmt_ip}:
-    ssh $ssh_opts stack@${mgmt_ip} -- bash -c "source ./rhosp-environment.sh; sudo -E ./tf-devstack/rhosp/undercloud/00_provision.sh"
+    ssh $ssh_opts stack@${mgmt_ip} -- bash -c "cd; source ./rhosp-environment.sh; sudo -E ./tf-devstack/rhosp/undercloud/00_provision.sh"
 }
 
 function undercloud() {

@@ -63,10 +63,6 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
 )
 
-#Continue deployment stages with environment specific script
-source $my_dir/providers/common/functions.sh
-source $my_dir/providers/${PROVIDER}/stages.sh
-
 function prepare_rhosp_env_file() {
     ##### Always creating ~/rhosp-environment.sh #####
     rm -f ~/rhosp-environment.sh
@@ -89,5 +85,12 @@ function prepare_rhosp_env_file() {
 
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
+
+source ~/rhosp-environment.sh
+
+#Continue deployment stages with environment specific script
+source $my_dir/providers/common/functions.sh
+source $my_dir/providers/${PROVIDER}/stages.sh
+
 
 run_stages $STAGE

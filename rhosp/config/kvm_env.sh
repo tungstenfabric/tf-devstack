@@ -63,6 +63,9 @@ export undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
 export undercloud_instance="undercloud-${DEPLOY_POSTFIX}"
 export domain="localdomain"
 
+#RHOSP16 additional parameters for undercloud.conf
+export undercloud_admin_host="${prov_subnet}.3"
+export undercloud_public_host="${prov_subnet}.4"
 
 # ip addresses for overcloud nodes
 export overcloud_cont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:10"
