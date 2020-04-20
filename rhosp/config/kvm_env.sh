@@ -16,6 +16,8 @@ export BASE_IMAGE=${BASE_IMAGE:-"/home/jenkins/rhel_7.7.qcow2"}
 export ssh_private_key="/home/jenkins/.ssh/id_rsa"
 export ssh_public_key="/home/jenkins/.ssh/id_rsa.pub"
 
+export ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
 
 export poolname="rdimages_${DEPLOY_POSTFIX}"
 
@@ -63,6 +65,9 @@ export undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
 export undercloud_instance="undercloud-${DEPLOY_POSTFIX}"
 export domain="localdomain"
 
+#RHOSP16 additional parameters for undercloud.conf
+export undercloud_admin_host="${prov_subnet}.3"
+export undercloud_public_host="${prov_subnet}.4"
 
 # ip addresses for overcloud nodes
 export overcloud_cont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:10"

@@ -67,6 +67,7 @@ declare -A DEPLOYMENT_ENV=(\
 source $my_dir/providers/common/functions.sh
 source $my_dir/providers/${PROVIDER}/stages.sh
 
+
 function prepare_rhosp_env_file() {
     ##### Always creating ~/rhosp-environment.sh #####
     rm -f ~/rhosp-environment.sh
@@ -89,5 +90,6 @@ function prepare_rhosp_env_file() {
 
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
+
 
 run_stages $STAGE

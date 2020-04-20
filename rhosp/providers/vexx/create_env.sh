@@ -192,6 +192,9 @@ echo export prov_subnet="\"${prov_subnet}"\" >> $vexxrc
 echo export mgmt_gateway="\"${mgmt_subnet_gateway_ip}"\" >> $vexxrc
 echo export mgmt_ip="\"${undercloud_mgmt_ip}"\" >> $vexxrc
 echo export prov_ip="\"${undercloud_prov_ip}"\" >> $vexxrc
+echo export undercloud_admin_host=\"${prov_subnet}.3\" >> $vexxrc
+echo export undercloud_public_host=\"${prov_subnet}.4\" >> $vexxrc
+
 echo export fixed_vip="\"${prov_subnet}.200"\" >> $vexxrc
 echo export fixed_controller_ip="\"${prov_subnet}.211"\" >> $vexxrc
 echo export prov_ip_cidr="\"${prov_ip_cidr}"\" >> $vexxrc
