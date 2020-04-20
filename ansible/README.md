@@ -27,7 +27,7 @@ NOTE: Windows and MacOS deployments are not supported, please use VM (like Virtu
 
 - CentOS 7 (x86_64) - with Updates HVM
 - t2.xlarge instance type
-- 50 GiB disk Storage
+- 120 GiB disk Storage
 
 2. Install git to clone this repository:
 
@@ -55,7 +55,7 @@ export OPENSTACK_VERSION=queens
 ./run.sh
 ```
 
-OpenStack version may be selected from queens (default), ocata or rocky.
+OpenStack version may be selected from queens (default), ocata, rocky, train.
 
 ## Customized deployments and deployment steps
 
