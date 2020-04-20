@@ -1,6 +1,6 @@
 #!/bin/bash
 
-workspace=${WORKSPACE:-$(pdw)}
+workspace=${WORKSPACE:-$(pwd)}
 vexxrc=${vexxrc:-"${workspace}/vexxrc"}
 source $vexxrc
 
@@ -22,17 +22,10 @@ if [[ -n ${floating_ip} ]]; then
     openstack floating ip delete ${floating_ip}
 fi
 
-echo Deleting server ${undercloud_instance}
-openstack server delete ${undercloud_instance}
-
-echo Deleting server ${overcloud_cont_instance}
-openstack server delete ${overcloud_cont_instance}
-
-echo Deleting server ${overcloud_compute_instance}
-openstack server delete ${overcloud_compute_instance}
-
-echo Deleting server ${overcloud_ctrlcont_instance}
-openstack server delete ${overcloud_ctrlcont_instance}
+for i in ${overcloud_cont_instance} ${overcloud_ctrlcont_instance} ${overcloud_compute_instance} ${undercloud_instance} ; do
+   echo Deleting server $i
+   openstack server delete $i
+done
 
 if [[ "$prov_net_cleanup" == 'true' ]] ; then
    echo Deleting subnet ${provision_network_name}
