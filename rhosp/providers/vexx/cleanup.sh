@@ -1,6 +1,6 @@
 #!/bin/bash
 
-workspace=${WORKSPACE:-$(pdw)}
+workspace=${WORKSPACE:-$(pwd)}
 vexxrc=${vexxrc:-"${workspace}/vexxrc"}
 source $vexxrc
 

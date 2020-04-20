@@ -6,7 +6,7 @@ DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 #Assign floating ip address to undercloud node (disabled by default)
 ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
 
-workspace=${WORKSPACE:-$(pdw)}
+workspace=${WORKSPACE:-$(pwd)}
 vexxrc=${vexxrc:-"${workspace}/vexxrc"}
 
 my_file="$(readlink -e "$0")"
