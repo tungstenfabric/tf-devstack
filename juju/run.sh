@@ -207,6 +207,16 @@ function tf() {
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
+    # collect CONTROLLER_NODES and AGENT_NODES for stack profile
+    controller_nodes=`juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`
+    if [[ -n $controller_nodes ]] ; then
+        export CONTROLLER_NODES=`echo $controller_nodes | sed 's/"//g'`
+    fi
+    agent_nodes=`juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`
+    if [[ -n $agent_nodes ]] ; then
+        export AGENT_NODES=`echo $agent_nodes | sed 's/"//g'`
+    fi
+
     # show results
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
     echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
