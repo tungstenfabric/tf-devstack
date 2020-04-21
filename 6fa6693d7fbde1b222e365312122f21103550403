@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9c5257ae_2b9a7d67",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T16:21:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47961de1_d184f7ba",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eefd36ba_b6447781",
         "filename": "rhosp/config/vexx_env.sh",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "6fa6693d7fbde1b222e365312122f21103550403",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41d0bb63_fa1ffa82",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T16:21:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eefd36ba_b6447781",
+      "range": {
+        "startLine": 33,
+        "startChar": 30,
+        "endLine": 33,
+        "endChar": 48
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "5de8b6bd_edf73f5b",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T16:21:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eeafb6a7_8293f70c",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 29
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d266a074_43cda3f7",
         "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "6fa6693d7fbde1b222e365312122f21103550403",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d6a9313_155806ff",
+        "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T16:21:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d266a074_43cda3f7",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 36
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
