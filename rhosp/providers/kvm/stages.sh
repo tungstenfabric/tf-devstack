@@ -31,13 +31,13 @@ function undercloud() {
 function overcloud() {
     cd $my_dir
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/01_extract_overcloud_images.sh || return 1
+        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/01_extract_overcloud_images.sh
         #Checking vbmc statuses and fix 'down'
         local vm
         for vm in $(vbmc list -f value -c 'Domain name' -c Status | grep down | awk '{print $1}'); do
-            vbmc start ${vm} || return 1
+            vbmc start ${vm}
         done
-        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh || return 1
+        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh
         return
     fi
 
@@ -76,8 +76,8 @@ function overcloud() {
     done
     if [[ "${res}" == 1 ]]; then
         echo "errors appeared during overcloud nodes pre-installation."
+        exit 1
     fi
-    return $res
 }
 
 #Overcloud stage
