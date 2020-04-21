@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "84578848_4ced2411",
+        "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T15:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "926725b3_595e4b6e",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 48
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bb6d9934_ba4a3170",
         "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "8916c4b9_6a4a086a",
+        "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T15:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb6d9934_ba4a3170",
+      "range": {
+        "startLine": 3,
+        "startChar": 22,
+        "endLine": 3,
+        "endChar": 24
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5048e0c3_737b45d4",
         "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "0057e262d869139624a39fe95410188dffe3371d",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35de0235_944c9bac",
+        "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-04-21T15:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5048e0c3_737b45d4",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 26
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
