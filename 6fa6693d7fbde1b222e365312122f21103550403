@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "47961de1_d184f7ba",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T15:28:53Z",
+      "side": 1,
+      "message": "$undercloud_admin_host\n\nto allow create_env fill this variable according to created setup and networks",
+      "range": {
+        "startLine": 32,
+        "startChar": 29,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eefd36ba_b6447781",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T15:28:53Z",
+      "side": 1,
+      "message": "$undercloud_public_host",
+      "range": {
+        "startLine": 33,
+        "startChar": 30,
+        "endLine": 33,
+        "endChar": 48
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeafb6a7_8293f70c",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T15:28:53Z",
+      "side": 1,
+      "message": "what for?  if this file is created based on current env?",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 89,
+        "endChar": 29
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d266a074_43cda3f7",
+        "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T15:28:53Z",
+      "side": 1,
+      "message": "does it work w/o sudo ?",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 36
+      },
+      "revId": "6fa6693d7fbde1b222e365312122f21103550403",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
