@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "926725b3_595e4b6e",
+        "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T08:20:28Z",
+      "side": 1,
+      "message": "what about vexx?\nwhy not to put in in config/rhel7_env.sh rhel8_env.sh",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 48
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb6d9934_ba4a3170",
+        "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T08:20:28Z",
+      "side": 1,
+      "message": "no harcode please, there is special variable, check for rhel7",
+      "range": {
+        "startLine": 3,
+        "startChar": 22,
+        "endLine": 3,
+        "endChar": 24
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5048e0c3_737b45d4",
+        "filename": "rhosp/undercloud/rhel8_undercloud.conf.template",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-04-21T08:20:28Z",
+      "side": 1,
+      "message": "there is special cidr variable",
+      "range": {
+        "startLine": 15,
+        "startChar": 6,
+        "endLine": 15,
+        "endChar": 26
+      },
+      "revId": "0057e262d869139624a39fe95410188dffe3371d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
