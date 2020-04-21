@@ -177,6 +177,8 @@ echo update vexxrc file $vexxrc
 echo ==================================================================================
 echo >> $vexxrc
 
+echo export PROVIDER=$PROVIDER >> $vexxrc
+echo export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION >> $vexxrc
 echo export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO >> $vexxrc
 
 echo export management_network_name=\"$management_network_name\" >> $vexxrc
