@@ -60,7 +60,8 @@ fi
 ishost=true
 namespace=""
 registry_url=""
-host ${host} || ishost=false
+
+command host ${host} ||  getent hosts ${host} || ishost=false
 if [[ $ishost == true ]] ; then
         IFS='/' read -ra host_port <<< $url
         registry_url=${host_port[0]}
