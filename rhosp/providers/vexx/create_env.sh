@@ -18,12 +18,18 @@ if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; t
    exit 1
 fi
 
-
+# instances params
 default_flavor=${vm_type:-'v2-standard-4'}
-#contrail_flavor='v2-highcpu-32'
 contrail_flavor='v2-standard-4'
 disk_size_gb=100
-key_name=${key_name:-'worker'}
+
+#ssh options
+SSH_USER=${SSH_USER:-'cloud-user'}
+ssh_key_name=${ssh_key_name:-'worker'}
+ssh_private_key=${ssh_private_key:-"~/.ssh/workers"}
+ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+# cluster options
 rhosp_id=${rhosp_id:-${RANDOM}}
 management_network_name=${management_network_name:-"rhosp13-mgmt"}
 management_network_cidr=${management_network_cidr:-}
@@ -31,6 +37,8 @@ provision_network_name=${provision_network_name:-"rhosp13-prov"}
 provision_network_cidr=${provision_network_cidr:-}
 router_name=${router_name:-'router1'}
 domain=${domain:-'vexxhost.local'}
+
+# tags
 PIPELINE_BUILD_TAG=${PIPELINE_BUILD_TAG:-}
 SLAVE=${SLAVE:-}
 
@@ -88,7 +96,7 @@ instance_tags=""
 
 nova boot --flavor ${default_flavor} ${instance_tags} \
           --security-groups allow_all \
-          --key-name=${key_name} \
+          --key-name=${ssh_key_name} \
           --nic net-name=${management_network_name} \
           --nic net-name=${provision_network_name} \
           --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=${disk_size_gb},bootindex=0 \
@@ -143,7 +151,7 @@ for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${
         flavor=${default_flavor}
     fi
 
-    nova boot --flavor ${flavor} --security-groups allow_all --key-name=${key_name} ${instance_tags} \
+    nova boot --flavor ${flavor} --security-groups allow_all --key-name=${ssh_key_name} ${instance_tags} \
               --nic net-name=${provision_network_name} \
               --block-device source=image,id=${image_id},dest=volume,shutdown=remove,size=${disk_size_gb},bootindex=0 \
               --poll ${instance_name}
@@ -172,6 +180,12 @@ fi
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo Undercloud is available by floating ip: $floating_ip
 fi
+
+# Copy ssh key to undercloud
+rsync -a -e "ssh $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
+ssh $ssh_opts $SSH_USER@$undercloud_mgmt_ip bash -c 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+
+# Update vexxrc
 echo
 echo update vexxrc file $vexxrc
 echo ==================================================================================

@@ -11,21 +11,26 @@ function machines() {
 
 function undercloud() {
     cd $my_dir
-    sudo ./undercloud/01_deploy_as_root.sh || return 1
-    ./undercloud/02_deploy_as_stack.sh || return 1
+    sudo ./undercloud/01_deploy_as_root.sh
+    ./undercloud/02_deploy_as_stack.sh
     # No needs to have container registry on undercloud.
     # For now overcloud nodes download them directly from $CONTAINER_REGISTRY
-    sudo -E CONTAINER_REGISTRY="" CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../common/create_docker_config.sh || return 1
+    sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../common/create_docker_config.sh"
     local insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
+    echo "INFO: current insecure_registries=$insecure_registries CONTAINER_REGISTRY=$CONTAINER_REGISTRY"
     if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
+        echo "INFO: add CONTAINER_REGISTRY=$CONTAINER_REGISTRY to insecure list"
        insecure_registries+=" --insecure-registry $CONTAINER_REGISTRY"
     fi
     sudo sed -i '/^INSECURE_REGISTRY/d' /etc/sysconfig/docker
     echo "INSECURE_REGISTRY=\"$insecure_registries\""  | sudo tee -a /etc/sysconfig/docker
+    echo "INFO: /etc/sysconfig/docker"
+    sudo cat /etc/sysconfig/docker
     if ! sudo systemctl restart docker ; then
-        systemctl status docker.service
-        journalctl -xe
-        return 1
+        echo "ERROR: sudo systemctl restart docker failed"
+        sudo systemctl status docker.service
+        sudo journalctl -xe
+        exit 1
     fi
 }
 
