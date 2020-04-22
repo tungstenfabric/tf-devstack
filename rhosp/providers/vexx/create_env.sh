@@ -68,9 +68,9 @@ prov_net_cleanup=${prov_net_cleanup:-}
 if ! openstack network show ${provision_network_name} >/dev/null 2>&1 ; then
   [ -z "$prov_net_cleanup" ] && prov_net_cleanup=true
   provision_network_cidr=${provision_network_cidr:-'192.168.20.0/24'}
-  prov_subnet=$(echo $provision_network_cidr | cut -d '/' -f1 | cut -d '.' -f1,2,3)
-  _start="${prov_subnet}.50"
-  _end="${prov_subnet}.70"
+  _prov_subnet=$(echo $provision_network_cidr | cut -d '/' -f1 | cut -d '.' -f1,2,3)
+  _start="${_prov_subnet}.50"
+  _end="${_prov_subnet}.70"
   echo "INFO: create network $provision_network_name"
   openstack network create $net_tags ${provision_network_name}
   echo "INFO: create subnet $provision_network_name with cidr=${provision_network_cidr} and allocation pool: $_start - $_end"
@@ -165,7 +165,22 @@ undercloud_prov_ip=$(echo ${undercloud_ip_addresses} | egrep -o ${provision_netw
 
 mgmt_subnet_gateway_ip=$(openstack subnet show ${management_network_name} -f value -c gateway_ip)
 mgmt_subnet=$(echo $management_network_cidr | egrep -o '([0-9]{1,3}\.){2}[0-9]{1,3}')
-prov_subnet=$(echo $provision_network_cidr | egrep -o '([0-9]{1,3}\.){2}[0-9]{1,3}')
+
+prov_allocation_pool=$(openstack subnet show -f json -c allocation_pools $provision_network_name)
+prov_end_addr=$(echo "$prov_allocation_pool" | jq -rc '.allocation_pools[0].end')
+prov_subnet=$(echo $prov_end_addr | cut -d '.' -f1,2,3)
+prov_inspection_iprange_start=$(echo $prov_end_addr | cut -d '.' -f 4)
+if (( prov_inspection_iprange_start > 200 )) ; then
+  echo "ERROR: prov_allocation_pool=$prov_allocation_pool"
+  echo "ERROR: subnet must have at least 50 addresses avaialble in latest octet"
+  exit 1
+fi
+(( prov_inspection_iprange_start+=1 ))
+prov_inspection_iprange_end=$(( prov_inspection_iprange_start + 20))
+prov_inspection_iprange="${prov_inspection_iprange_start},${prov_inspection_iprange_end}"
+prov_dhcp_start=$(( prov_inspection_iprange_end + 1))
+prov_dhcp_end=$(( prov_dhcp_start + 20 ))
+
 prov_subnet_len=$(echo ${provision_network_cidr} | cut -d '/' -f 2)
 prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
 
@@ -213,6 +228,9 @@ echo export fixed_controller_ip="\"${prov_subnet}.211"\" >> $vexxrc
 echo export prov_ip_cidr="\"${prov_ip_cidr}"\" >> $vexxrc
 echo export prov_cidr="\"${provision_network_cidr}\"" >> $vexxrc
 echo export prov_subnet_len="\"${prov_subnet_len}\"" >> $vexxrc
+echo export prov_inspection_iprange=${prov_inspection_iprange}
+echo export prov_dhcp_start=${prov_dhcp_start}
+echo export prov_dhcp_end=${prov_dhcp_end}
 
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo export floating_ip=\"${floating_ip}\" >> $vexxrc
