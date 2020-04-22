@@ -15,6 +15,9 @@ export prov_subnet_len=${prov_subnet_len}
 
 export prov_subnet=${prov_subnet}
 export prov_gateway=${prov_gateway}
+export prov_inspection_iprange=${prov_inspection_iprange}
+export prov_dhcp_start=${prov_dhcp_start}
+export prov_dhcp_end=${prov_dhcp_end}
 
 #Undercloud prov ip
 export prov_ip=${prov_ip}
