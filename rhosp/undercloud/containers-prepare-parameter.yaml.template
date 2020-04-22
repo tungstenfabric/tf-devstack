@@ -1,0 +1,17 @@
+parameter_defaults:
+  ContainerImagePrepare:
+  - push_destination: true
+    excludes:
+      - ceph
+    set:
+      name_prefix: openstack-
+      name_suffix: ''
+      namespace: registry.redhat.io/rhosp-rhel8
+      neutron_driver: ovn
+      rhel_containers: false
+      tag: '16.0'
+    tag_from_label: '{version}-{release}'
+  ContainerImageRegistryCredentials:
+    registry.redhat.io:
+      ${RHEL_USER}: '${RHEL_PASSWORD}'
+

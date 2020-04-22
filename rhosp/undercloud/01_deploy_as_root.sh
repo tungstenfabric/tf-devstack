@@ -1,13 +1,13 @@
 #!/bin/bash -e
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
 if [[ $EUID -ne 0 ]]; then
    echo "This script must be run as root"
    exit 1
 fi
 
-if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
-   yum-config-manager --enable rhelosp-rhel-7-server-opt
-fi
 
-#yum -y install python-tripleoclient python-rdomanager-oscplugin  openstack-utils
-yum -y install python-tripleoclient python-rdomanager-oscplugin iproute rhosp-director-images
+#Specific part of deployment
+source $my_dir/${RHEL_VERSION}_deploy_as_root.sh
