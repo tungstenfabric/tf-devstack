@@ -4,5 +4,6 @@ cat containers-prepare-parameter.yaml.template | envsubst >~/containers-prepare-
 
 cat ${RHEL_VERSION}_undercloud.conf.template | envsubst >~/undercloud.conf
 
+cd
 openstack undercloud install
 
