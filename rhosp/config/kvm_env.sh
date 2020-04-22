@@ -55,6 +55,9 @@ export prov_cidr="${prov_subnet}.0/24"
 export prov_subnet_len=24
 export prov_ip="${prov_subnet}.2"
 export prov_ip_cidr="${prov_ip}/24"
+export prov_inspection_iprange="${prov_subnet}.150,${prov_subnet}.170"
+export prov_dhcp_start = ${prov_subnet}.100
+export prov_dhcp_end = ${prov_subnet}.149
 
 export fixed_vip="${prov_subnet}.200"
 export fixed_controller_ip="${prov_subnet}.211"
