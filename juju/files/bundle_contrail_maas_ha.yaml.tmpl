@@ -32,6 +32,9 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       local-rabbitmq-hostname-resolution: true
       min-cluster-size: 3
+{%- if DATA_NETWORK %}
+      data-network: "{{ DATA_NETWORK }}"
+{%- endif %}
     expose: true
     to:
       - "{{ JUJU_MACHINES[0] }}"
@@ -115,5 +118,22 @@ relations:
 - [ contrail-controller:https-services, haproxy:reverseproxy ]
 - [ contrail-analytics:http-services, haproxy:reverseproxy ]
 - [ keepalived:juju-info, haproxy:juju-info ]
+
+{%- if ORCHESTRATOR == 'openstack' %}
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
+# to openstack
+- [ contrail-keystone-auth, keystone]
+- [ contrail-openstack, neutron-api]
+- [ contrail-openstack, heat]
+- [ contrail-openstack, nova-compute]
+- [ contrail-agent:juju-info nova-compute:juju-info
+{%- elif ORCHESTRATOR == 'kubernetes' %}
+- [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
+- [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
+# to kubernetes
+- [ contrail-kubernetes-node:cni, kubernetes-master:cni]
+- [ contrail-kubernetes-node:cni, kubernetes-worker:cni]
+- [ contrail-kubernetes-master:kube-api-endpoint, kubernetes-master:kube-api-endpoint]
+- [ contrail-agent:juju-info, kubernetes-worker:juju-info]
+{%- endif %}

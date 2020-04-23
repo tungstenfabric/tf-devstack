@@ -149,9 +149,6 @@ function openstack() {
         export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
     fi
     $my_dir/../common/deploy_juju_bundle.sh
-
-    #TODO: add wait
-    # ENV['AUTH_URL']="$(detect_auth_url)"
 }
 
 function k8s() {
@@ -177,24 +174,6 @@ function tf() {
 
     $my_dir/../common/deploy_juju_bundle.sh
 
-    if [[ -n $DATA_NETWORK ]] ; then
-        command juju config contrail-controller data-network=$DATA_NETWORK
-    fi
-
-    # add relations between orchestrator and Contrail
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
-        command juju add-relation contrail-keystone-auth keystone
-        command juju add-relation contrail-openstack neutron-api
-        command juju add-relation contrail-openstack heat
-        command juju add-relation contrail-openstack nova-compute
-        command juju add-relation contrail-agent:juju-info nova-compute:juju-info
-    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
-        command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
-        command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
-        command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
-        command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
-    fi
-
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
@@ -206,16 +185,6 @@ function tf() {
         juju_node_hostname=`$(which juju) ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
-
-    # collect CONTROLLER_NODES and AGENT_NODES for stack profile
-    controller_nodes=`juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`
-    if [[ -n $controller_nodes ]] ; then
-        export CONTROLLER_NODES=`echo $controller_nodes | sed 's/"//g' | sed 's/ /,/g'`
-    fi
-    agent_nodes=`juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`
-    if [[ -n $agent_nodes ]] ; then
-        export AGENT_NODES=`echo $agent_nodes | sed 's/"//g' | sed 's/ /,/g'`
-    fi
 
     # show results
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
