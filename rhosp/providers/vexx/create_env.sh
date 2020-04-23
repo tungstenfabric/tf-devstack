@@ -179,10 +179,10 @@ fi
 prov_inspection_iprange_end=$(( prov_inspection_iprange_start + 20 ))
 prov_inspection_iprange="${prov_subnet}.${prov_inspection_iprange_start},${prov_subnet}.${prov_inspection_iprange_end}"
 prov_dhcp_start="${prov_subnet}.$(( prov_inspection_iprange_end + 1 ))"
-prov_dhcp_end="${prov_subnet}.$(( prov_dhcp_start + 20 ))"
+prov_dhcp_end="${prov_subnet}.$(( prov_inspection_iprange_end + 21 ))"
 
-undercloud_admin_host=$(( prov_dhcp_end + 1 ))
-undercloud_public_host=$(( undercloud_admin_host + 1 ))
+undercloud_admin_host="${prov_subnet}.$(( prov_inspection_iprange_end + 22 ))"
+undercloud_public_host="${prov_subnet}.$(( prov_inspection_iprange_end + 23 ))"
 
 prov_subnet_len=$(echo ${provision_network_cidr} | cut -d '/' -f 2)
 prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
