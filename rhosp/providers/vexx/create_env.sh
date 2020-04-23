@@ -177,9 +177,9 @@ if (( prov_inspection_iprange_start > 200 )) ; then
 fi
 (( prov_inspection_iprange_start+=1 ))
 prov_inspection_iprange_end=$(( prov_inspection_iprange_start + 20 ))
-prov_inspection_iprange="${prov_inspection_iprange_start},${prov_inspection_iprange_end}"
-prov_dhcp_start=$(( prov_inspection_iprange_end + 1 ))
-prov_dhcp_end=$(( prov_dhcp_start + 20 ))
+prov_inspection_iprange="${prov_subnet}.${prov_inspection_iprange_start},${prov_subnet}.${prov_inspection_iprange_end}"
+prov_dhcp_start="${prov_subnet}.$(( prov_inspection_iprange_end + 1 ))"
+prov_dhcp_end="${prov_subnet}.$(( prov_dhcp_start + 20 ))"
 
 undercloud_admin_host=$(( prov_dhcp_end + 1 ))
 undercloud_public_host=$(( undercloud_admin_host + 1 ))
