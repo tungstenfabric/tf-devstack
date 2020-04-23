@@ -1,6 +1,8 @@
 #RHEL7 undercloud install
 
 cat ${RHEL_VERSION}_undercloud.conf.template | envsubst >~/undercloud.conf
+echo "INFO: undercloud.conf"
+cat ~/undercloud.conf
 
 openstack undercloud install
 
