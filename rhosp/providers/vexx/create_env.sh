@@ -239,9 +239,9 @@ echo export fixed_controller_ip="\"${overcloud_fixed_controller_ip}"\" >> $vexxr
 echo export prov_ip_cidr="\"${prov_ip_cidr}"\" >> $vexxrc
 echo export prov_cidr="\"${provision_network_cidr}\"" >> $vexxrc
 echo export prov_subnet_len="\"${prov_subnet_len}\"" >> $vexxrc
-echo export prov_inspection_iprange=${prov_inspection_iprange}
-echo export prov_dhcp_start=${prov_dhcp_start}
-echo export prov_dhcp_end=${prov_dhcp_end}
+echo export prov_inspection_iprange=${prov_inspection_iprange} >> $vexxrc
+echo export prov_dhcp_start=${prov_dhcp_start} >> $vexxrc
+echo export prov_dhcp_end=${prov_dhcp_end} >> $vexxrc
 
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo export floating_ip=\"${floating_ip}\" >> $vexxrc
