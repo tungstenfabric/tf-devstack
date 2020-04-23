@@ -174,6 +174,20 @@ function tf() {
 
     $my_dir/../common/deploy_juju_bundle.sh
 
+    # add relations between orchestrator and Contrail
+    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+        command juju add-relation contrail-keystone-auth keystone
+        command juju add-relation contrail-openstack neutron-api
+        command juju add-relation contrail-openstack heat
+        command juju add-relation contrail-openstack nova-compute
+        command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
+        command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
+        command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
+        command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
+        command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+    fi
+
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
