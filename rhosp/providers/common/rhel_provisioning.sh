@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -43,4 +43,3 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
 fi
 
 $my_dir/${RHEL_VERSION}_provisioning.sh
-

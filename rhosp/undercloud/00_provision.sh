@@ -8,11 +8,4 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-if [ ! -f $my_dir/../providers/common/rhel_provisioning.sh ]; then
-   echo "File $my_dir/../providers/common/rhel_provisioning.sh not found"
-   exit
-fi
-
 $my_dir/../providers/common/rhel_provisioning.sh
-
-
