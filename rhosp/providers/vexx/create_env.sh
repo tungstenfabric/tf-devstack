@@ -195,6 +195,10 @@ if ! $DEPLOY_COMPACT_AIO; then
   overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
 fi
 
+overcloud_fixed_vip=$overcloud_cont_ip
+overcloud_fixed_controller_ip=$overcloud_cont_ip
+
+
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo Undercloud is available by floating ip: $floating_ip
 fi
@@ -229,8 +233,9 @@ echo export prov_ip="\"${undercloud_prov_ip}"\" >> $vexxrc
 echo export undercloud_admin_host=\"${undercloud_admin_host}\" >> $vexxrc
 echo export undercloud_public_host=\"${undercloud_public_host}\" >> $vexxrc
 
-echo export fixed_vip="\"${prov_subnet}.200"\" >> $vexxrc
-echo export fixed_controller_ip="\"${prov_subnet}.211"\" >> $vexxrc
+echo export fixed_vip="\"${overcloud_fixed_vip}"\" >> $vexxrc
+echo export fixed_controller_ip="\"${overcloud_fixed_controller_ip}"\" >> $vexxrc
+
 echo export prov_ip_cidr="\"${prov_ip_cidr}"\" >> $vexxrc
 echo export prov_cidr="\"${provision_network_cidr}\"" >> $vexxrc
 echo export prov_subnet_len="\"${prov_subnet_len}\"" >> $vexxrc

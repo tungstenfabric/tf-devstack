@@ -8,14 +8,14 @@ undercloud_nameservers = 8.8.8.8
 undercloud_hostname = ${undercloud_instance}.${domain}
 undercloud_admin_host = ${undercloud_admin_host}
 undercloud_public_host = ${undercloud_public_host}
-discovery_iprange = ${prov_subnet}.150,${prov_subnet}.170
+discovery_iprange = ${prov_inspection_iprange}
 subnets = ctlplane-subnet
 inspection_interface = br-ctlplane
 [ctlplane-subnet]
 cidr = ${prov_cidr}
-dhcp_start = ${prov_subnet}.100
-dhcp_end = ${prov_subnet}.149
+dhcp_start = ${prov_dhcp_start}
+dhcp_end = ${prov_dhcp_end}
 gateway = ${prov_ip}
-inspection_iprange = ${prov_subnet}.150,${prov_subnet}.170
+inspection_iprange = ${prov_inspection_iprange}
 masquerade = true
 
