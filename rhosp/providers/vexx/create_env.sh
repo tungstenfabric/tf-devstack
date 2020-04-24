@@ -26,8 +26,8 @@ disk_size_gb=100
 #ssh options
 SSH_USER=${SSH_USER:-'cloud-user'}
 ssh_key_name=${ssh_key_name:-'worker'}
-ssh_private_key=${ssh_private_key:-"~/.ssh/workers"}
-ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+ssh_private_key=${ssh_private_key:-~/.ssh/workers}
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 # cluster options
 rhosp_id=${rhosp_id:-${RANDOM}}
@@ -204,8 +204,8 @@ if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
 fi
 
 # Copy ssh key to undercloud
-rsync -a -e "ssh $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
-ssh $ssh_opts $SSH_USER@$undercloud_mgmt_ip bash -c 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
+ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip bash -c 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 
 # Update vexxrc
 echo
