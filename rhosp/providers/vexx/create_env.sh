@@ -205,7 +205,7 @@ fi
 
 # Copy ssh key to undercloud
 rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
-ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip bash -c 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 
 # Update vexxrc
 echo
