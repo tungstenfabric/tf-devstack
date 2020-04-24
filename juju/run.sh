@@ -79,6 +79,7 @@ function logs() {
                                    collect_contrail_status; \
                                    collect_system_stats; \
                                    collect_contrail_logs; \
+                                   collect_openstack_logs; \
                                    chmod -R a+r logs; \
                                    cd logs ; tar -czf $tgz_name * ;  cd .. ; \
                                    cp logs/$tgz_name $tgz_name ; rm -rf logs"

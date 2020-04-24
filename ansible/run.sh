@@ -57,6 +57,7 @@ function logs() {
     collect_system_stats
     collect_docker_logs
     collect_contrail_logs
+    collect_kolla_logs
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR

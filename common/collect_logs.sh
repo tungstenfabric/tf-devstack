@@ -54,6 +54,46 @@ function collect_contrail_status() {
     sudo chown -R $USER $TF_LOG_DIR
 }
 
+function collect_kolla_logs() {
+    echo "INFO: Collecting kolla logs"
+
+    local log_dir="$TF_LOG_DIR/openstack"
+    mkdir -p $log_dir
+
+    if sudo ls /etc/kolla ; then
+        mkdir -p $log_dir/kolla_etc
+        sudo cp -R /etc/kolla $log_dir/
+        sudo mv $log_dir/kolla $log_dir/kolla_etc
+    fi
+
+    local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
+    if sudo ls $kl_path ; then
+        mkdir -p $log_dir/kolla_logs
+        for ii in `sudo ls $kl_path/`; do
+            sudo cp -R "$kl_path/$ii" $log_dir/kolla_logs/
+        done
+    fi
+
+    sudo chown -R $USER $log_dir
+    sudo chmod -R a+rw $log_dir
+}
+
+function collect_openstack_logs() {
+    echo "INFO: Collecting kolla logs"
+
+    local log_dir="$TF_LOG_DIR/openstack"
+    mkdir -p $log_dir
+    
+    for ldir in '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/etc/keystone' '/var/log/keystone' '/etc/heat' '/var/log/heat' '/etc/octavia' '/var/log/octavia' ; do
+        if sudo ls "$ldir" ; then
+            sudo cp -R $ldir $log_dir/
+        fi
+    done
+
+    sudo chown -R $USER $log_dir
+    sudo chmod -R a+rw $log_dir
+}
+
 function collect_contrail_logs() {
     echo "INFO: Collecting contrail logs"
 
@@ -67,19 +107,6 @@ function collect_contrail_logs() {
     if sudo ls /etc/cni ; then
         mkdir -p $log_dir/etc_cni
         sudo cp -R /etc/cni $log_dir/etc_cni/
-    fi
-    if sudo ls /etc/kolla ; then
-        mkdir -p $log_dir/kolla_etc
-        sudo cp -R /etc/kolla $log_dir/
-        sudo mv $log_dir/kolla $log_dir/kolla_etc
-    fi
-
-    local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
-    if sudo ls $kl_path ; then
-        mkdir -p $log_dir/kolla_logs
-        for ii in `sudo ls $kl_path/`; do
-            sudo cp -R "$kl_path/$ii" $log_dir/kolla_logs/
-        done
     fi
 
     local cl_path='/var/log/contrail'
@@ -116,9 +143,6 @@ function collect_contrail_logs() {
     save_introspect_info $log_dir/introspect $url HttpPortAlarmGenerator 5995
     save_introspect_info $log_dir/introspect $url HttpPortSnmpCollector 5920
     save_introspect_info $log_dir/introspect $url HttpPortTopology 5921
-
-    sudo chown -R $USER $log_dir
-    sudo chmod -R a+rw $log_dir
 }
 
 function save_introspect_info() {
