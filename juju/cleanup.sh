@@ -13,7 +13,7 @@ CONTROLLER_NODES=${CONTROLLER_NODES:-}
 rm -rf ~/.tf/.stages
 
 echo "Destroying tf-$CLOUD-controller controller, machines, applications and data."
-juju kill-controller -y tf-$CLOUD-controller
+juju kill-controller -y tf-$CLOUD-controller || juju unregister -y tf-$CLOUD-controller
 
 [[ $CLOUD == 'maas' ]] && echo "Cleanup is over." && exit
 
