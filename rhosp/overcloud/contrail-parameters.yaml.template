@@ -24,4 +24,3 @@ parameter_defaults:
   #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
   #   n \"log-dir\" from group \"DEFAULT\"."
   EnableOnlineDataMigrations: false
-  

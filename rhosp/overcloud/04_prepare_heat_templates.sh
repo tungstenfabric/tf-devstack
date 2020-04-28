@@ -63,5 +63,5 @@ default_iface=`/sbin/ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
 default_iface_mtu=`/sbin/ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`
 
 if (( ${default_iface_mtu} < 1500 )); then
-  echo "  NeutronGlobalPhysnetMtu: ${default_iface_mtu}" >> ~/contrail-parameters.yaml
+  echo -e "\n  NeutronGlobalPhysnetMtu: ${default_iface_mtu}" >> ~/contrail-parameters.yaml
 fi
