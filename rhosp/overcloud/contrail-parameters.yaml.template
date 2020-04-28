@@ -15,3 +15,13 @@ parameter_defaults:
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
     # custom port to avoid conflict in aio deploy with openstack
     REDIS_SERVER_PORT: 6389
+
+
+  # Disable online data migration
+  # It has a race inside that appear as an error:
+  #   /usr/bin/bootstrap_host_exec cinder_api su cinder -s /bin/bash -c 'cinder-manage db online_data_migrations'",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stdout: Running batches of 50 until complete.",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
+  #   n \"log-dir\" from group \"DEFAULT\"."
+  EnableOnlineDataMigrations: false
+  
