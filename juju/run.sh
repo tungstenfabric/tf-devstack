@@ -230,6 +230,7 @@ function collect_deployment_env() {
     if [[ -n $agent_nodes ]] ; then
         export AGENT_NODES=`echo $agent_nodes | sed 's/"//g' | sed 's/ /,/g'`
     fi
+    DEPLOYMENT_ENV['SSH_USER']="ubuntu"
 }
 
 run_stages $STAGE
