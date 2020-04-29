@@ -22,7 +22,7 @@ fetch_deployer $deployer_image $deployer_dir || git clone "$TF_HELM_URL" $deploy
 # label nodes
 label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $AGENT_NODES
 
-cd tf-helm-deployer
+cd $WORKSPACE/tf-helm-deployer
 
 helm init --client-only
 
@@ -99,11 +99,15 @@ fi
 sudo mkdir -p /var/log/contrail
 
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric $CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   kubectl -n kube-system scale deployment tiller-deploy --replicas=1
-#elif [[ $ORCHESTRATOR == "openstack" ]] ; then
-  #TODO: upgrade of neutron and nova containers with tf ones
+elif [[ $ORCHESTRATOR == "openstack" ]] ; then
+  # upgrade of neutron and nova containers with tf ones
+  helm upgrade neutron $WORKSPACE/openstack-helm/neutron --namespace=openstack \
+    --set images.tags.tf_neutron_init=$CONTAINER_REGISTRY/contrail-openstack-neutron-init:${CONTRAIL_CONTAINER_TAG}
+  helm upgrade nova $WORKSPACE/openstack-helm/nova --namespace=openstack \
+    --set images.tags.tf_compute_init=$CONTAINER_REGISTRY/contrail-openstack-compute-init:${CONTRAIL_CONTAINER_TAG}
 fi
 
 wait_nic_up vhost0
