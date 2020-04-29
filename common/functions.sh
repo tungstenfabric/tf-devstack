@@ -38,16 +38,18 @@ function fetch_deployer_no_docker() {
     echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
     return 1
   fi
-
   local deployer_image=$1
   local deployer_dir=$2
   local tmp_deployer_layers_dir="$(mktemp -d)"
   local archive_tmp_dir="$(mktemp -d)"
-  ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG}
+  if ! ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG} ; then
+    echo "ERROR: Image could not be downloaded."
+    return 1
+  fi
   tar xf ${tmp_deployer_layers_dir}/$(cat ${tmp_deployer_layers_dir}/manifest.json | jq --raw-output '.[0].Layers[0]') -C ${archive_tmp_dir}
   rm -rf $deployer_dir
   if [[ ! -d "${archive_tmp_dir}/src" ]] ; then
-    echo "No src folder in ${archive_tmp_dir}/src. Exit"
+    echo "ERROR: No src folder in ${archive_tmp_dir}/src. Exit"
     return 1
   fi
   mv ${archive_tmp_dir}/src $deployer_dir
@@ -60,9 +62,8 @@ function wait_cmd_success() {
   local max=${3:-300}
   local silent_cmd=${4:-1}
 
-  local xtrace_save=$(set +o | grep 'xtrace')
+  local state_save=$(set +o)
   set +o xtrace
-  local pipefail_save=$(set +o | grep 'pipefail')
   set -o pipefail
   local i=0
   if [[ "$silent_cmd" != "0" ]]; then
@@ -77,15 +78,14 @@ function wait_cmd_success() {
       echo ""
       echo "ERROR: wait failed in $((i*10))s"
       eval "$cmd"
-      $xtrace_save
+      eval "$state_save"
       return 1
     fi
     sleep $interval
   done
   echo ""
   echo "INFO: done in $((i*10))s"
-  $xtrace_save
-  $pipefail_save
+  eval "$state_save"
 }
 
 function wait_nic_up() {
