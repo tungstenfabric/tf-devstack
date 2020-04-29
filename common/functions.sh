@@ -3,19 +3,10 @@
 fmy_file="${BASH_SOURCE[0]}"
 fmy_dir="$(dirname $fmy_file)"
 
-function ensure_root() {
-  local me=$(whoami)
-  if [ "$me" != 'root' ] ; then
-    echo "ERROR: this script requires root, run it like this:"
-    echo "       sudo -E $0"
-    exit 1;
-  fi
-}
-
 function ensure_kube_api_ready() {
   if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
     echo "ERROR: kubernetes is not ready. Exiting..."
-    exit 1
+    return 1
   fi
 }
 
@@ -26,7 +17,7 @@ function ensure_kube_api_ready() {
 function fetch_deployer() {
   if [[ $# != 2 ]] ; then
     echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
-    exit 1
+    return 1
   fi
 
   local deployer_image=$1
@@ -45,7 +36,7 @@ function fetch_deployer() {
 function fetch_deployer_no_docker() {
   if [[ $# != 2 ]] ; then
     echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
-    exit 1
+    return 1
   fi
 
   local deployer_image=$1
@@ -57,7 +48,7 @@ function fetch_deployer_no_docker() {
   rm -rf $deployer_dir
   if [[ ! -d "${archive_tmp_dir}/src" ]] ; then
     echo "No src folder in ${archive_tmp_dir}/src. Exit"
-    exit 1
+    return 1
   fi
   mv ${archive_tmp_dir}/src $deployer_dir
 }
@@ -196,6 +187,6 @@ function setup_timeserver() {
     fi
   else
     echo "Unsupported OS version"
-    exit 1
+    return 1
   fi
 }

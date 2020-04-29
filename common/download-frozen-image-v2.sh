@@ -2,11 +2,12 @@
 
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
 
+set -x
 set -eo pipefail
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
 	if ! command -v $cmd &> /dev/null; then
-		echo >&2 "error: \"$cmd\" not found!"
+		echo >&2 "error: '$cmd' not found!"
 		exit 1
 	fi
 done
@@ -102,7 +103,7 @@ fetch_blob() {
       auth_header="-H \"Authorization: Bearer $token\""
     fi
 
-   curlString="curl -s -S "${curlArgs[@]}" \
+    curlString="curl -s -S "${curlArgs[@]}" \
 			$auth_header \
 			"$registryBase/v2/$image/blobs/$digest" \
 			-o "$targetFile" \
