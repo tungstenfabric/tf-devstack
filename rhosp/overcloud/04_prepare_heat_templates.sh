@@ -38,6 +38,11 @@ export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa.
 cat $my_dir/misc_opts.yaml.template | envsubst > ~/misc_opts.yaml
 
 #Creating environment-rhel-registration.yaml
+if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
+   export RHEL_REG_METHOD="disable"
+else
+   export RHEL_REG_METHOD="portal"
+fi
 cat $my_dir/environment-rhel-registration.yaml.template | envsubst > ~/environment-rhel-registration.yaml
 
 #Creating environment-rhel-registration.yaml
