@@ -184,6 +184,9 @@ prov_dhcp_end="${prov_subnet}.$(( prov_inspection_iprange_end + 21 ))"
 undercloud_admin_host="${prov_subnet}.$(( prov_inspection_iprange_end + 22 ))"
 undercloud_public_host="${prov_subnet}.$(( prov_inspection_iprange_end + 23 ))"
 
+overcloud_fixed_vip="${prov_subnet}.$(( prov_inspection_iprange_end + 30 ))"
+overcloud_fixed_controller_ip="${prov_subnet}.$(( prov_inspection_iprange_end + 31 ))"
+
 prov_subnet_len=$(echo ${provision_network_cidr} | cut -d '/' -f 2)
 prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
 
@@ -194,10 +197,6 @@ if ! $DEPLOY_COMPACT_AIO; then
   overcloud_compute_ip=$(openstack server show ${overcloud_compute_instance} -f value -c addresses | cut -d '=' -f 2)
   overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
 fi
-
-overcloud_fixed_vip=$overcloud_cont_ip
-overcloud_fixed_controller_ip=$overcloud_cont_ip
-
 
 if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     echo Undercloud is available by floating ip: $floating_ip
