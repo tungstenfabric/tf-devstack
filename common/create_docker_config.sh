@@ -15,7 +15,7 @@ default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $
 echo MTU $default_iface_mtu detected
 export DOCKER_MTU=$default_iface_mtu
 export CONFIGURE_DOCKER_LIVERESTORE=${CONFIGURE_DOCKER_LIVERESTORE:-'true'}
-export DOCKER_INSECURE_REGISTRIES=$(python -c "import json; f=open('$docker_config'); r=json.load(f).get('insecure-registries', []); print('\n'.join(r))" 2>/dev/null)
+export DOCKER_INSECURE_REGISTRIES=$(python3 -c "import json; f=open('$docker_config'); r=json.load(f).get('insecure-registries', []); print('\n'.join(r))" 2>/dev/null)
 if [[ -n "$CONTAINER_REGISTRY" ]] ; then
   registry=`echo $CONTAINER_REGISTRY | sed 's|^.*://||' | cut -d '/' -f 1`
   if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
