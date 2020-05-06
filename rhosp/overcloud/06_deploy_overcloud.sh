@@ -49,12 +49,12 @@ else
             --disable-validations \
             -e environment-rhel-registration.yaml \
             -e tripleo-heat-templates/extraconfig/pre_deploy/rhel-registration/rhel-registration-resource-registry.yaml \
-            -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
-            -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
-            -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
             -e tripleo-heat-templates/environments/deployed-server-environment.yaml \
             -e tripleo-heat-templates/environments/deployed-server-bootstrap-environment-rhel.yaml \
             -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml \
+            -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+            -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
+            -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
             -e misc_opts.yaml \
             -e contrail-parameters.yaml \
             -e ctlplane-assignments.yaml \
