@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f2f840b_f3c7d492",
+        "filename": "helm/deploy_helm_openstack.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-06T08:07:53Z",
+      "side": 1,
+      "message": "\" \u0026\u0026 exit 1\n?",
+      "range": {
+        "startLine": 17,
+        "startChar": 69,
+        "endLine": 17,
+        "endChar": 78
+      },
+      "revId": "4d5ab8b41ccf6add08b7c374e8b9182d4a946f13",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
