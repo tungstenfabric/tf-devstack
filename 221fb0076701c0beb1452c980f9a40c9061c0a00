@@ -16,6 +16,24 @@
       "revId": "221fb0076701c0beb1452c980f9a40c9061c0a00",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "505e5f05_3c8d5be0",
+        "filename": "rhosp/overcloud/02_manage_overcloud_flavors.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-05-07T10:39:53Z",
+      "side": 1,
+      "message": "Flavor names are different for rhosp13 and rhosp16",
+      "parentUuid": "df49a2dd_88ca68bb",
+      "revId": "221fb0076701c0beb1452c980f9a40c9061c0a00",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
     }
   ]
 }
