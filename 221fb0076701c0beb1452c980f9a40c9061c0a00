@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df49a2dd_88ca68bb",
+        "filename": "rhosp/overcloud/02_manage_overcloud_flavors.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-07T10:33:04Z",
+      "side": 1,
+      "message": "I would keep here lines\ncreate_flavor \u0027controller\u0027 \u0027controller\u0027\ncreate_flavor \u0027compute\u0027 \u0027compute\u0027\ncreate_flavor \u0027contrail-controller\u0027 \u0027contrail-controller\u0027\n\nin that case only function definition will depend on rhosp vers",
+      "revId": "221fb0076701c0beb1452c980f9a40c9061c0a00",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
