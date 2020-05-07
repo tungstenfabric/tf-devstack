@@ -74,7 +74,7 @@ done
 
 # Waiting for images downoad to complete
 i=0
-while [ $i -le 30 ] ; do
+while [ $i -le 50 ] ; do
   if maas $PROFILE boot-resources is-importing | grep -q 'false'; then
     sleep 60
     break
@@ -82,6 +82,11 @@ while [ $i -le 30 ] ; do
   sleep 20
   i=$((i+1))
 done
+if ! maas $PROFILE boot-resources is-importing | grep -q 'false' ; then
+  echo "Images not ready."
+  maas $PROFILE boot-resources is-importing
+  exit 1
+fi
 
 # Add machines
 for n in $IPMI_IPS ; do
