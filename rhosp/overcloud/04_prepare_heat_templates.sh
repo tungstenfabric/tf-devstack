@@ -37,11 +37,11 @@ export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa.
 
 cat $my_dir/misc_opts.yaml.template | envsubst > ~/misc_opts.yaml
 
-#Creating environment-rhel-registration.yaml
-cat $my_dir/environment-rhel-registration.yaml.template | envsubst > ~/environment-rhel-registration.yaml
+#Creating file for overcloud rhel registration (rhosp version specific)
+source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 
-#Creating environment-rhel-registration.yaml
-cat $my_dir/contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
+#Creating contrail-parameters.yaml
+cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
