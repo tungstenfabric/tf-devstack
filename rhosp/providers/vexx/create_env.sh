@@ -29,8 +29,25 @@ ssh_key_name=${ssh_key_name:-'worker'}
 ssh_private_key=${ssh_private_key:-~/.ssh/workers}
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
+# undercloud name
+if [[ -z "$rhosp_id" ]] ; then
+  # lookup free name
+  while true ; do
+    while true ; do
+      rhosp_id=${RANDOM}
+      if (( rhosp_id > 1000 )) ; then break ; fi
+    done
+    undercloud_instance="rhosp13-undercloud-${rhosp_id}"
+    if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
+      echo "INFO: free undercloud name undercloud_instance=rhosp13-undercloud-${rhosp_id}"
+      break
+    fi
+  done
+else
+  undercloud_instance="rhosp13-undercloud-${rhosp_id}"
+fi
+
 # cluster options
-rhosp_id=${rhosp_id:-${RANDOM}}
 management_network_name=${management_network_name:-"rhosp13-mgmt"}
 management_network_cidr=${management_network_cidr:-}
 provision_network_name=${provision_network_name:-"rhosp13-prov"}
@@ -83,7 +100,6 @@ else
   fi
 fi
 
-undercloud_instance="rhosp13-undercloud-${rhosp_id}"
 #Get latest rhel image
 image_name=$(openstack image list --status active -c Name -f value | grep "prepared-rhel7" | sort -nr | head -n 1)
 image_id=$(openstack image show -c id -f value "$image_name")
@@ -168,24 +184,40 @@ mgmt_subnet=$(echo $management_network_cidr | egrep -o '([0-9]{1,3}\.){2}[0-9]{1
 
 prov_allocation_pool=$(openstack subnet show -f json -c allocation_pools $provision_network_name)
 prov_end_addr=$(echo "$prov_allocation_pool" | jq -rc '.allocation_pools[0].end')
-prov_subnet=$(echo $prov_end_addr | cut -d '.' -f1,2,3)
-prov_inspection_iprange_start=$(echo $prov_end_addr | cut -d '.' -f 4)
-if (( prov_inspection_iprange_start > 200 )) ; then
-  echo "ERROR: prov_allocation_pool=$prov_allocation_pool"
-  echo "ERROR: subnet must have at least 50 addresses avaialble in latest octet"
+
+# randomize vips for ci
+_octet3=$(echo $prov_end_addr | cut -d '.' -f 3)
+if (( _octet3 < 255 )) ; then
+  (( _octet3+= 1 ))
+  _octet3=$(shuf -i${_octet3}-255 -n1)
+  # whole octet4 is can used 
+  _octet4=$(shuf -i0-230 -n1)
+else
+  _octet4=$(echo $prov_end_addr | cut -d '.' -f 4)
+  if (( _octet4 < 255 )) ; then
+  (( _octet4+= 1 ))
+    _octet4=$(shuf -i${_octet4}-255 -n1)
+  fi
+fi
+
+prov_subnet="$(echo $prov_end_addr | cut -d '.' -f1,2).$_octet3"
+prov_inspection_iprange_start=$_octet4
+if (( prov_inspection_iprange_start > 230 )) ; then
+  echo "ERROR: unsupported setup - prov_allocation_pool=$prov_allocation_pool"
+  echo "ERROR: subnet must have at least 25 addresses avaialble in latest octet"
   exit 1
 fi
 (( prov_inspection_iprange_start+=1 ))
-prov_inspection_iprange_end=$(( prov_inspection_iprange_start + 20 ))
+prov_inspection_iprange_end=$(( prov_inspection_iprange_start + 10 ))
 prov_inspection_iprange="${prov_subnet}.${prov_inspection_iprange_start},${prov_subnet}.${prov_inspection_iprange_end}"
 prov_dhcp_start="${prov_subnet}.$(( prov_inspection_iprange_end + 1 ))"
-prov_dhcp_end="${prov_subnet}.$(( prov_inspection_iprange_end + 21 ))"
+prov_dhcp_end="${prov_subnet}.$(( prov_inspection_iprange_end + 11 ))"
 
-undercloud_admin_host="${prov_subnet}.$(( prov_inspection_iprange_end + 22 ))"
-undercloud_public_host="${prov_subnet}.$(( prov_inspection_iprange_end + 23 ))"
+undercloud_admin_host="${prov_subnet}.$(( prov_inspection_iprange_end + 12 ))"
+undercloud_public_host="${prov_subnet}.$(( prov_inspection_iprange_end + 13 ))"
 
-overcloud_fixed_vip="${prov_subnet}.$(( prov_inspection_iprange_end + 30 ))"
-overcloud_fixed_controller_ip="${prov_subnet}.$(( prov_inspection_iprange_end + 31 ))"
+overcloud_fixed_vip="${prov_subnet}.$(( prov_inspection_iprange_end + 14 ))"
+overcloud_fixed_controller_ip="${prov_subnet}.$(( prov_inspection_iprange_end + 15 ))"
 
 prov_subnet_len=$(echo ${provision_network_cidr} | cut -d '/' -f 2)
 prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
