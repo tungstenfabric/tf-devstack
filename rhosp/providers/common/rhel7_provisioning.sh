@@ -11,3 +11,6 @@ service ntpd start
 curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 python get-pip.py
 pip install -q virtualenv docker
+
+# install pyton3 after pip
+yum install -y python3
