@@ -5,7 +5,7 @@ source $my_dir/providers/kvm/virsh_functions
 
 function kvm() {
     cd $my_dir/providers/kvm
-    sudo ./01_create_env.sh
+    sudo -E ./01_create_env.sh
     wait_ssh ${mgmt_ip} ${ssh_private_key}
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
         sudo ./02_collecting_node_information.sh
