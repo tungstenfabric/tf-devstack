@@ -10,7 +10,6 @@ if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
              -e misc_opts.yaml \
              -e contrail-parameters.yaml \
              -e containers-prepare-parameter.yaml \
-             -e virt/debug.yaml \
              -e rhsm.yaml
 else
    if [[ -z "${overcloud_compute_prov_ip}" ]]; then
