@@ -23,8 +23,8 @@ declare -A STAGES=( \
 export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
 export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export DEPLOYER='rhosp'
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
 
@@ -40,11 +40,17 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     fi
 fi
 
-if [[ "$RHOSP_VERSION" == "rhosp16" ]]; then
-    export RHEL_VERSION='rhel8'
-else 
-    export RHEL_VERSION='rhel7'
-fi
+case "$OPENSTACK_VERSION" in
+    "queens" )
+        export RHEL_VERSION='rhel7'
+        export RHOSP_VERSION='rhosp13'
+    "train" )
+        export RHEL_VERSION='rhel8'
+        export OPENSTACK_VERSION='rhosp16'
+    *)
+        echo "Variable OPENSTACK_VERSION is unset or incorrect"
+esac
+
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws ]
@@ -80,6 +86,7 @@ function prepare_rhosp_env_file() {
     echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
     echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
     echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
+    echo "export OPENSTACK_VERSION=$OPENSTACK_VERSION" >> ~/rhosp-environment.sh
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
     echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
     echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
