@@ -10,11 +10,11 @@ export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
 
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
 
-export BASE_IMAGE=${BASE_IMAGE:-"/home/jenkins/rhel_7.7.qcow2"}
+export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
 
 # SSH public key for user stack
-export ssh_private_key="/home/jenkins/.ssh/id_rsa"
-export ssh_public_key="/home/jenkins/.ssh/id_rsa.pub"
+export ssh_private_key=${ssh_private_key:-~/.ssh/id_rsa}
+export ssh_public_key=${ssh_public_key:-~/.ssh/id_rsa.pub}
 
 export ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
