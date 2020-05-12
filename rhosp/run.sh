@@ -44,11 +44,15 @@ case "$OPENSTACK_VERSION" in
     "queens" )
         export RHEL_VERSION='rhel7'
         export RHOSP_VERSION='rhosp13'
+        ;;
     "train" )
         export RHEL_VERSION='rhel8'
         export OPENSTACK_VERSION='rhosp16'
+        ;;
     *)
         echo "Variable OPENSTACK_VERSION is unset or incorrect"
+        exit 1
+        ;;
 esac
 
 # max wait in seconds after deployment
