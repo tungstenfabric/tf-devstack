@@ -47,7 +47,7 @@ case "$OPENSTACK_VERSION" in
         ;;
     "train" )
         export RHEL_VERSION='rhel8'
-        export OPENSTACK_VERSION='rhosp16'
+        export RHOSP_VERSION='rhosp16'
         ;;
     *)
         echo "Variable OPENSTACK_VERSION is unset or incorrect"
