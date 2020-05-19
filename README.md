@@ -23,7 +23,7 @@ Full TF dev suite consists of:
 
 - [tf-dev-env](https://github.com/tungstenfabric/tf-dev-env) - develop and build TF
 - [tf-devstack](https://github.com/tungstenfabric/tf-devstack) - deploy TF
-- [tf-test](https://github.com/tungstenfabric/tf-test) - test deployed TF
+- [tf-dev-test](https://github.com/tungstenfabric/tf-dev-test) - test deployed TF
 
 Each of these tools can be used separately or in conjunction with the other two. They are supposed to be invoked in the sequence they were listed and produce environment (conf files and variables) seamlessly consumable by the next tool.
 
@@ -115,18 +115,18 @@ Along with cleanup of particular target you can do tf deployment multiple times:
 tf-devstack/k8s_manifests/cleanup.sh tf
 ```
 
-### 4. tf-test part
+### 4. tf-dev-test part
 
-Clone tf-test:
+Clone tf-dev-test:
 
 ``` bash
-git clone http://github.com/tungstenfabric/tf-test
+git clone http://github.com/tungstenfabric/tf-dev-test
 ```
 
 Test the deployment by smoke tests, for example:
 
 ``` bash
-tf-test/smoke/run.sh
+tf-dev-test/smoke/run.sh
 ```
 
 ## Evaluation scenario
