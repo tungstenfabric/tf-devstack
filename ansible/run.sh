@@ -112,7 +112,7 @@ function machines() {
 
     curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
     # Uninstall docker-compose and packages it uses to avoid
-    # conflicts with other projects (like tf-test, tf-dev-env)
+    # conflicts with other projects (like tf-dev-test, tf-dev-env)
     # and reinstall them via deps of docker-compose
     sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
 
