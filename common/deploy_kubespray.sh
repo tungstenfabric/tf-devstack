@@ -17,6 +17,8 @@ K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
+DOCKER_CLI_VERSION_C7=${DOCKER_CLI_VERSION:="docker-ce-cli-18.09*"}
+DOCKER_REPO=${DOCKER_REPO:="https://download.docker.com/linux/centos/docker-ce.repo"}
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
@@ -25,7 +27,11 @@ LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
 # install required packages
 
 if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-    sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
+    sudo yum install -y python3 python3-pip libyaml-devel python3-devel git yum-utils yum-plugin-versionlock
+    # Lock docker version for install docker-ce-cli-18 for docker-ce-18
+    sudo yum-config-manager --add-repo ${DOCKER_REPO}
+    sudo yum versionlock ${DOCKER_CLI_VERSION_C7}
+
 elif [ "$DISTRO" == "ubuntu" ]; then
     # Ensure updates repo is available
     if [[ "$IGNORE_APT_UPDATES_REPO" != "false" ]] && ! apt-cache policy | grep http | awk '{print $2 $3}' | sort -u | grep -q updates; then
