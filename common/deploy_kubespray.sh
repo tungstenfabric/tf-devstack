@@ -6,6 +6,7 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/common.sh"
 source "$my_dir/functions.sh"
+source "$my_dir/workaround.sh"
 
 # parameters
 
@@ -17,6 +18,9 @@ K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
+
+# Apply docker cli workaround
+workaround_kubesray_docker_cli
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
