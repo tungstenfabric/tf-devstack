@@ -108,6 +108,13 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+  easyrsa:
+    charm: cs:~containers/easyrsa
+    num_units: 3
+    to:
+      - "{{ JUJU_MACHINES[0] }}"
+      - "{{ JUJU_MACHINES[1] }}"
+      - "{{ JUJU_MACHINES[2] }}"
 
 relations:
 - [ contrail-controller, contrail-analytics ]
@@ -120,3 +127,8 @@ relations:
 - [ keepalived:juju-info, haproxy:juju-info ]
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
+
+- [ easyrsa, contrail-controller ]
+- [ easyrsa, contrail-analyticsdb ]
+- [ easyrsa, contrail-analytics ]
+- [ easyrsa, contrail-agent ]
