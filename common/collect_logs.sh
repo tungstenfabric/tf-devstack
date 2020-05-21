@@ -146,8 +146,14 @@ function collect_contrail_logs() {
 }
 
 function save_introspect_info() {
+    local ssl_opts=''
+    local proto='http'
+    if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
+        proto='https'
+        ssl_opts='--key /etc/contrail/ssl/private/server-privkey.pem --cert /etc/contrail/ssl/certs/server.pem --cacert /etc/contrail/ssl/certs/ca-cert.pem'
+    fi
     if sudo lsof -i ":$4" &>/dev/null ; then
-        timeout -s 9 30 curl -s http://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
+        timeout -s 9 30 curl -s ${ssl_opts} ${proto}://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
 }
 
