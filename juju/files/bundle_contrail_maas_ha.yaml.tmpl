@@ -108,7 +108,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-{%- SSL_ENABLE == 'true' %}
+{%- if SSL_ENABLE == 'true' %}
   easyrsa:
     charm: cs:~containers/easyrsa
     num_units: 3
@@ -130,7 +130,7 @@ relations:
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
 
-{%- SSL_ENABLE == 'true' %}
+{%- if SSL_ENABLE == 'true' %}
 - [ easyrsa, contrail-controller ]
 - [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
