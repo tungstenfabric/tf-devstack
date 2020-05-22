@@ -9,6 +9,16 @@ my_dir="$(dirname "$my_file")"
 mkdir -p /etc/docker
 docker_config=/etc/docker/daemon.json
 touch $docker_config
+distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+
+# Setup Jinja2 if not installed
+if ! python -c 'import jinja2'; then
+  if [[ ${distro} == 'ubuntu'  ]] ; then
+    sudo apt update
+    sudo apt install -y python-pip
+    pip install -U Jinja2
+  fi
+fi
 
 default_iface=`ip route get 1 | grep -o "dev.*" | awk '{print $2}'`
 default_iface_mtu=`ip link show $default_iface | grep -o "mtu.*" | awk '{print $2}'`

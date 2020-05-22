@@ -15,5 +15,12 @@ function workaround_kubesray_docker_cli() {
     sudo yum install -y yum-utils yum-plugin-versionlock
     sudo yum-config-manager --add-repo ${DOCKER_REPO}
     sudo yum versionlock ${DOCKER_CLI_VERSION_YUM}
+  elif [[ "$DISTRO" == "ubuntu" ]]; then
+    cat <<EOF > docker-ce-cli
+Package: docker-ce-cli
+Pin: version 5:18.09*
+Pin-Priority: 1001
+EOF
+    sudo mv docker-ce-cli /etc/apt/preferences.d/
   fi
 }
