@@ -150,7 +150,10 @@ function save_introspect_info() {
     local proto='http'
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         proto='https'
-        ssl_opts='--key /etc/contrail/ssl/private/server-privkey.pem --cert /etc/contrail/ssl/certs/server.pem --cacert /etc/contrail/ssl/certs/ca-cert.pem'
+        # in case of Juju several files can be placed inside subfolders (for different charms). take any.
+        ssl_opts="--key $(find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1)"
+        ssl_opts+=" --cert $(find /etc/contrail 2>/dev/null | grep server.pem | head -1)"
+        ssl_opts+=" --cacert $(find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1)"
     fi
     if sudo lsof -i ":$4" &>/dev/null ; then
         timeout -s 9 30 curl -s ${ssl_opts} ${proto}://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
