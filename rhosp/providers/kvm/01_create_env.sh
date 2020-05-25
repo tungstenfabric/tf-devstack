@@ -16,6 +16,7 @@ my_dir="$(dirname $my_file)"
 OS_MEM=${OS_MEM:-8192}
 CTRL_MEM=${CTRL_MEM:-8192}
 COMP_MEM=${COMP_MEM:-8192}
+IPA_MEM=${COMP_MEM:-16384}
 
 vm_disk_size=${vm_disk_size:-30G}
 net_driver=${net_driver:-virtio}
@@ -29,19 +30,21 @@ else
    rhel_version_libvirt=$RHEL_VERSION
 fi
 
-
 # check if environment is present
 assert_env_exists $undercloud_vmname
-
-# define MAC's
-undercloud_mgmt_mac=${undercloud_mgmt_mac:-00:16:00:00:08:02}
-undercloud_prov_mac=${undercloud_prov_mac:-00:16:00:00:08:03}
 
 # create networks and setup DHCP rules
 create_network_dhcp $NET_NAME_MGMT $mgmt_subnet $BRIDGE_NAME_MGMT
 update_network_dhcp $NET_NAME_MGMT $undercloud_vmname $undercloud_mgmt_mac $mgmt_ip
+if [[ "$ENABLE_IPA" != 'false' ]] ; then
+  update_network_dhcp $NET_NAME_MGMT $ipa_vmname $ipa_mgmt_mac $ipa_mgmt_ip
+fi
 
-create_network_dhcp $NET_NAME_PROV $prov_subnet $BRIDGE_NAME_PROV 'no' 'no_forward'
+if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
+  create_network_dhcp $NET_NAME_PROV $prov_subnet $BRIDGE_NAME_PROV 'no' 'no_forward'
+else
+  create_network_dhcp $NET_NAME_PROV $prov_subnet $BRIDGE_NAME_PROV 'yes' 'no_forward'
+fi
 
 # create pool
 create_pool $poolname
@@ -59,7 +62,6 @@ function define_overcloud_vms() {
   local vcpu=${4:-2}
   local vol_name=$name
   local vm_name="$vol_name"
-  image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
   create_root_volume $vol_name
   define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
@@ -74,8 +76,8 @@ function define_overcloud_vms_without_vbmc() {
   local vol_name=$name
   #create_root_volume $vol_name
   local vm_name="$vol_name"
-  image_customize ${BASE_IMAGE} $vm_name $ssh_public_key
   cp -p $BASE_IMAGE $pool_path/$vol_name.qcow2
+  image_customize $pool_path/$vol_name.qcow2 $vm_name $ssh_public_key
   update_network_dhcp $NET_NAME_PROV $vm_name $mac $ip
   define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
 }
@@ -83,7 +85,7 @@ function define_overcloud_vms_without_vbmc() {
 
 # just define overcloud machines
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-vbmc_port=$VBMC_PORT_BASE
+  vbmc_port=$VBMC_PORT_BASE
   define_overcloud_vms $overcloud_cont_instance $OS_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
   define_overcloud_vms $overcloud_compute_instance $COMP_MEM $vbmc_port 4
@@ -96,10 +98,14 @@ else
   define_overcloud_vms_without_vbmc $overcloud_ctrlcont_instance $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
 fi
 
-image_customize ${BASE_IMAGE} undercloud $ssh_public_key
-
 # copy image for undercloud and resize them
 cp -p $BASE_IMAGE $pool_path/$undercloud_vm_volume
+image_customize $pool_path/$undercloud_vm_volume undercloud $ssh_public_key
+
+if [[ "$ENABLE_IPA" != 'false' ]] ; then
+  cp -p $BASE_IMAGE $pool_path/$ipa_vm_volume
+  image_customize $pool_path/$ipa_vm_volume $ipa_vmname $ssh_public_key
+fi
 
 #check that nbd kernel module is loaded
 if ! lsmod |grep '^nbd ' ; then
@@ -130,7 +136,10 @@ function _start_vm() {
     --graphics vnc,listen=0.0.0.0
 }
 
-
 _start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac
 
+if [[ "$ENABLE_IPA" != 'false' ]] ; then
+  _start_vm "$ipa_vmname" "$pool_path/$ipa_vm_volume" \
+    $ipa_mgmt_mac $ipa_prov_mac
+fi
