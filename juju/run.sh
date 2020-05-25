@@ -231,6 +231,12 @@ function collect_deployment_env() {
     if [[ -n $agent_nodes ]] ; then
         export AGENT_NODES=`echo $agent_nodes | sed 's/"//g' | sed 's/ /,/g'`
     fi
+    if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
+        # in case of Juju several files can be placed inside subfolders (for different charms). take any.
+        DEPLOYMENT_ENV['SSL_KEY']="$(find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1 | xargs base64)"
+        DEPLOYMENT_ENV['SSL_CERT']="$(find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs base64)"
+        DEPLOYMENT_ENV['SSL_CACERT']="$(find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs base64)"
+    fi
 }
 
 run_stages $STAGE
