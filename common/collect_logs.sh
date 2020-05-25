@@ -62,8 +62,10 @@ function collect_kolla_logs() {
 
     if sudo ls /etc/kolla ; then
         mkdir -p $log_dir/kolla_etc
+        echo "INFO: Source /etc/kolla listing" && sudo ls -laR /etc/kolla
         sudo cp -R /etc/kolla $log_dir/
         sudo mv $log_dir/kolla $log_dir/kolla_etc
+        echo "INFO: Destination $log_dir/kolla_etc listing" && sudo ls -laR $log_dir/kolla_etc
     fi
 
     local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
@@ -75,7 +77,8 @@ function collect_kolla_logs() {
     fi
 
     sudo chown -R $USER $log_dir
-    sudo chmod -R a+rw $log_dir
+    sudo find $log_dir -type fl | xargs sudo chmod a+r
+    sudo find $log_dir -type d | xargs sudo chmod a+rx
 }
 
 function collect_openstack_logs() {
@@ -91,7 +94,8 @@ function collect_openstack_logs() {
     done
 
     sudo chown -R $USER $log_dir
-    sudo chmod -R a+rw $log_dir
+    sudo find $log_dir -type fl | xargs sudo chmod a+r
+    sudo find $log_dir -type d | xargs sudo chmod a+rx
 }
 
 function collect_contrail_logs() {
@@ -101,8 +105,10 @@ function collect_contrail_logs() {
     mkdir -p $log_dir
 
     if sudo ls /etc/contrail ; then
+        echo "INFO: Source /etc/contrail listing" && sudo ls -laR /etc/contrail
         mkdir -p $log_dir/etc_contrail
         sudo cp -R /etc/contrail $log_dir/etc_contrail/
+        echo "INFO: Destination $log_dir/etc_contrail/ listing" && sudo ls -laR $log_dir/etc_contrail/
     fi
     if sudo ls /etc/cni ; then
         mkdir -p $log_dir/etc_cni
@@ -119,45 +125,49 @@ function collect_contrail_logs() {
 
     mkdir -p $log_dir/introspect
     local url=$(hostname -f)
-    save_introspect_info $log_dir/introspect $url HttpPortConfigNodemgr 8100
-    save_introspect_info $log_dir/introspect $url HttpPortControlNodemgr 8101
-    save_introspect_info $log_dir/introspect $url HttpPortVRouterNodemgr 8102
-    save_introspect_info $log_dir/introspect $url HttpPortDatabaseNodemgr 8103
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsNodemgr 8104
-    save_introspect_info $log_dir/introspect $url HttpPortKubeManager 8108
-    #save_introspect_info $log_dir $url HttpPortMesosManager 8109
-    save_introspect_info $log_dir/introspect $url HttpPortConfigDatabaseNodemgr 8112
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsAlarmNodemgr 8113
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsSNMPNodemgr 8114
-    save_introspect_info $log_dir/introspect $url HttpPortDeviceManagerNodemgr 8115
-    save_introspect_info $log_dir/introspect $url HttpPortControl 8083
-    save_introspect_info $log_dir/introspect $url HttpPortApiServer 8084
-    save_introspect_info $log_dir/introspect $url HttpPortAgent 8085
-    save_introspect_info $log_dir/introspect $url HttpPortSchemaTransformer 8087
-    save_introspect_info $log_dir/introspect $url HttpPortSvcMonitor 8088
-    save_introspect_info $log_dir/introspect $url HttpPortDeviceManager 8096
-    save_introspect_info $log_dir/introspect $url HttpPortCollector 8089
-    save_introspect_info $log_dir/introspect $url HttpPortOpserver 8090
-    save_introspect_info $log_dir/introspect $url HttpPortQueryEngine 8091
-    save_introspect_info $log_dir/introspect $url HttpPortDns 8092
-    save_introspect_info $log_dir/introspect $url HttpPortAlarmGenerator 5995
-    save_introspect_info $log_dir/introspect $url HttpPortSnmpCollector 5920
-    save_introspect_info $log_dir/introspect $url HttpPortTopology 5921
-}
-
-function save_introspect_info() {
     local ssl_opts=''
     local proto='http'
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         proto='https'
-        # in case of Juju several files can be placed inside subfolders (for different charms). take any.
-        ssl_opts="--key $(find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1)"
-        ssl_opts+=" --cert $(find /etc/contrail 2>/dev/null | grep server.pem | head -1)"
-        ssl_opts+=" --cacert $(find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1)"
+        ssl_opts="--key /etc/contrail/ssl/private/server-privkey.pem"
+        ssl_opts+=" --cert /etc/contrail/ssl/certs/server.pem"
+        ssl_opts+=" --cacert /etc/contrail/ssl/certs/ca-cert.pem"
     fi
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControlNodemgr 8101 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortVRouterNodemgr 8102 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDatabaseNodemgr 8103 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsNodemgr 8104 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortKubeManager 8108 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigDatabaseNodemgr 8112 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsAlarmNodemgr 8113 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsSNMPNodemgr 8114 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDeviceManagerNodemgr 8115 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControl 8083 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortApiServer 8084 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAgent 8085 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSchemaTransformer 8087 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSvcMonitor 8088 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDeviceManager 8096 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortCollector 8089 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortOpserver 8090 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortQueryEngine 8091 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDns 8092 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAlarmGenerator 5995 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSnmpCollector 5920 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortTopology 5921 "$ssl_opts"
+
+    sudo chown -R $USER $log_dir
+    sudo find $log_dir -type fl | xargs sudo chmod a+r
+    sudo find $log_dir -type d | xargs sudo chmod a+rx
+}
+
+function save_introspect_info() {
+    set -x
     if sudo lsof -i ":$4" &>/dev/null ; then
-        timeout -s 9 30 curl -s ${ssl_opts} ${proto}://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
+        timeout -s 9 30 sudo curl $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
+    set +x
 }
 
 function collect_system_stats() {
@@ -211,6 +221,7 @@ function collect_juju_logs() {
     mkdir -p $TF_LOG_DIR/juju
     sudo cp -r /var/log/juju/* $TF_LOG_DIR/juju/ 2>/dev/null
     sudo chown -R $USER $TF_LOG_DIR/juju/
+    sudo find $TF_LOG_DIR/juju/ -type fl | xargs sudo chmod a+r
 }
 
 function collect_kubernetes_logs() {
@@ -223,14 +234,15 @@ function collect_kubernetes_logs() {
     local KUBE_LOG_DIR=$TF_LOG_DIR/kubernetes_logs
     mkdir -p $KUBE_LOG_DIR
 
-    declare -a namespaces
-    namespages=`kubectl get namespaces -o name | awk -F '/' '{ print $2 }'`
-    for namespace in $namespages ; do
-        declare -a pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
+    local namespace=''
+    local namespaces=`kubectl get namespaces -o name | awk -F '/' '{ print $2 }'`
+    for namespace in $namespaces ; do
+        local pod=''
+        local pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
         for pod in $pods ; do
             local init_containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.initContainers[*].name}')
             local containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.containers[*].name}')
-            for container in ${init_containers} ${containers}; do
+            for container in $init_containers $containers; do
                 mkdir -p "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}"
                 kubectl logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
             done
@@ -248,15 +260,13 @@ function collect_kubernetes_objects_info() {
     local KUBE_OBJ_DIR=$TF_LOG_DIR/kubernetes_obj_info
     mkdir -p $KUBE_OBJ_DIR
 
-    declare -a namespaces
-    namespaces=$(kubectl get namespaces -o name | awk -F '/' '{ print $2 }')
-    for namespace in $namespaces
-    do
-        declare -a objects_list
-        objects_list=$(kubectl get -n ${namespace} pods -o name)
-        for object in $objects_list
-        do
-            name=${object#*/}
+    local namespace=''
+    local namespaces=$(kubectl get namespaces -o name | awk -F '/' '{ print $2 }')
+    for namespace in $namespaces ; do
+        local object=''
+        local objects_list=$(kubectl get -n ${namespace} pods -o name)
+        for object in $objects_list ; do
+            local name=${object#*/}
             kubectl get -n ${namespace} pods ${name} -o yaml 1> ${KUBE_OBJ_DIR}/pod_${name}.txt 2> /dev/null
             kubectl describe -n ${namespace} pods ${name} 1> "${KUBE_OBJ_DIR}/desc_${name}.txt" 2> /dev/null
         done
@@ -266,4 +276,3 @@ function collect_kubernetes_objects_info() {
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi
-
