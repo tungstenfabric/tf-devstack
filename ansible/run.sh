@@ -57,7 +57,12 @@ function logs() {
     collect_system_stats
     collect_docker_logs
     collect_contrail_logs
-    collect_kolla_logs
+    if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+        collect_kolla_logs
+    else
+        collect_kubernetes_logs
+        collect_kubernetes_objects_info
+    fi
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR

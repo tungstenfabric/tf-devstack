@@ -36,7 +36,7 @@ AGENT_NODES="$AGENT_NODES"
 SSL_ENABLE="$SSL_ENABLE"
 EOF
   for key in ${!DEPLOYMENT_ENV[@]} ; do
-    echo "${key}=${DEPLOYMENT_ENV[$key]}" >> $file
+    echo "${key}='${DEPLOYMENT_ENV[$key]}'" >> $file
   done
   echo "tf setup profile $file"
   cat ${file}
