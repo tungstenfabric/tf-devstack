@@ -101,6 +101,7 @@ function collect_contrail_logs() {
     mkdir -p $log_dir
 
     if sudo ls /etc/contrail ; then
+        sudo ls -laR /etc/contrail
         mkdir -p $log_dir/etc_contrail
         sudo cp -R /etc/contrail $log_dir/etc_contrail/
     fi
@@ -119,44 +120,48 @@ function collect_contrail_logs() {
 
     mkdir -p $log_dir/introspect
     local url=$(hostname -f)
-    save_introspect_info $log_dir/introspect $url HttpPortConfigNodemgr 8100
-    save_introspect_info $log_dir/introspect $url HttpPortControlNodemgr 8101
-    save_introspect_info $log_dir/introspect $url HttpPortVRouterNodemgr 8102
-    save_introspect_info $log_dir/introspect $url HttpPortDatabaseNodemgr 8103
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsNodemgr 8104
-    save_introspect_info $log_dir/introspect $url HttpPortKubeManager 8108
-    #save_introspect_info $log_dir $url HttpPortMesosManager 8109
-    save_introspect_info $log_dir/introspect $url HttpPortConfigDatabaseNodemgr 8112
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsAlarmNodemgr 8113
-    save_introspect_info $log_dir/introspect $url HttpPortAnalyticsSNMPNodemgr 8114
-    save_introspect_info $log_dir/introspect $url HttpPortDeviceManagerNodemgr 8115
-    save_introspect_info $log_dir/introspect $url HttpPortControl 8083
-    save_introspect_info $log_dir/introspect $url HttpPortApiServer 8084
-    save_introspect_info $log_dir/introspect $url HttpPortAgent 8085
-    save_introspect_info $log_dir/introspect $url HttpPortSchemaTransformer 8087
-    save_introspect_info $log_dir/introspect $url HttpPortSvcMonitor 8088
-    save_introspect_info $log_dir/introspect $url HttpPortDeviceManager 8096
-    save_introspect_info $log_dir/introspect $url HttpPortCollector 8089
-    save_introspect_info $log_dir/introspect $url HttpPortOpserver 8090
-    save_introspect_info $log_dir/introspect $url HttpPortQueryEngine 8091
-    save_introspect_info $log_dir/introspect $url HttpPortDns 8092
-    save_introspect_info $log_dir/introspect $url HttpPortAlarmGenerator 5995
-    save_introspect_info $log_dir/introspect $url HttpPortSnmpCollector 5920
-    save_introspect_info $log_dir/introspect $url HttpPortTopology 5921
-}
-
-function save_introspect_info() {
     local ssl_opts=''
     local proto='http'
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         proto='https'
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
-        ssl_opts="--key $(find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1)"
-        ssl_opts+=" --cert $(find /etc/contrail 2>/dev/null | grep server.pem | head -1)"
-        ssl_opts+=" --cacert $(find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1)"
+        local file="$(sudo find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1)"
+        sudo cp $file /tmp/key ; sudo chmod a+r /tmp/key ; ssl_opts=" --key /tmp/key"
+        file="$(sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1)"
+        sudo cp $file /tmp/cert ; sudo chmod a+r /tmp/cert ; ssl_opts=" --cert /tmp/cert"
+        file="$(sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1)"
+        sudo cp $file /tmp/cacert ; sudo chmod a+r /tmp/cacert ; ssl_opts=" --cacert /tmp/cacert"
     fi
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControlNodemgr 8101 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortVRouterNodemgr 8102 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDatabaseNodemgr 8103 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsNodemgr 8104 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortKubeManager 8108 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigDatabaseNodemgr 8112 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsAlarmNodemgr 8113 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAnalyticsSNMPNodemgr 8114 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDeviceManagerNodemgr 8115 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControl 8083 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortApiServer 8084 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAgent 8085 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSchemaTransformer 8087 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSvcMonitor 8088 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDeviceManager 8096 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortCollector 8089 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortOpserver 8090 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortQueryEngine 8091 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortDns 8092 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortAlarmGenerator 5995 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortSnmpCollector 5920 "$ssl_opts"
+    save_introspect_info $log_dir/introspect ${proto}://$url HttpPortTopology 5921 "$ssl_opts"
+
+    sudo chown -R $USER $log_dir
+}
+
+function save_introspect_info() {
     if sudo lsof -i ":$4" &>/dev/null ; then
-        timeout -s 9 30 curl -s ${ssl_opts} ${proto}://$2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
+        timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
 }
 
