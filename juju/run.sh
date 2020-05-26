@@ -72,18 +72,26 @@ function logs() {
         mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
-        command juju ssh $machine "export WORKSPACE=/tmp/juju-logs; export TF_LOG_DIR=/tmp/juju-logs/logs; \
-                                   sudo apt-get install -y lsof; \
-                                   cd /tmp/juju-logs; source ./collect_logs.sh; \
-                                   collect_docker_logs; \
-                                   collect_juju_logs; \
-                                   collect_contrail_status; \
-                                   collect_system_stats; \
-                                   collect_contrail_logs; \
-                                   collect_openstack_logs; \
-                                   chmod -R a+r logs; \
-                                   cd logs ; tar -czf $tgz_name * ;  cd .. ; \
-                                   cp logs/$tgz_name $tgz_name ; rm -rf logs"
+        command juju ssh $machine "export WORKSPACE=/tmp/juju-logs ; \
+                                   export TF_LOG_DIR=/tmp/juju-logs/logs ; \
+                                   export SSL_ENABLE=$SSL_ENABLE ; \
+                                   sudo apt-get install -y lsof ; \
+                                   cd /tmp/juju-logs ; \
+                                   source ./collect_logs.sh ; \
+                                   collect_docker_logs ; \
+                                   collect_juju_logs ; \
+                                   collect_contrail_status ; \
+                                   collect_system_stats ; \
+                                   collect_contrail_logs ; \
+                                   collect_openstack_logs ; \
+                                   collect_kubernetes_logs ; \
+                                   collect_kubernetes_objects_info ; \
+                                   chmod -R a+r logs ; \
+                                   pushd logs ; \
+                                   tar -czf $tgz_name * ; \
+                                   popd ; \
+                                   cp logs/$tgz_name $tgz_name ; \
+                                   rm -rf logs"
         command juju scp $machine:/tmp/juju-logs/$tgz_name $TF_LOG_DIR/$machine/
         pushd $TF_LOG_DIR/$machine/
         tar -xzf $tgz_name
@@ -230,6 +238,12 @@ function collect_deployment_env() {
     agent_nodes=`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`
     if [[ -n $agent_nodes ]] ; then
         export AGENT_NODES=`echo $agent_nodes | sed 's/"//g' | sed 's/ /,/g'`
+    fi
+    if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
+        # in case of Juju several files can be placed inside subfolders (for different charms). take any.
+        DEPLOYMENT_ENV['SSL_KEY']="$(sudo find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1 | xargs sudo base64 -w 0)"
+        DEPLOYMENT_ENV['SSL_CERT']="$(sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0)"
+        DEPLOYMENT_ENV['SSL_CACERT']="$(sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0)"
     fi
 }
 
