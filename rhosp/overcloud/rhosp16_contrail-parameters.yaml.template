@@ -1,6 +1,6 @@
 parameter_defaults:
   ContrailRegistryInsecure: true
-  ContrailRegistry: ${prov_ip}:8787
+  ContrailRegistry: ${undercloud_registry_contrail}
   ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
   ControlPlaneDefaultRoute: ${prov_ip}
   ControlPlaneSubnetCidr: ${prov_subnet_len}
@@ -9,7 +9,7 @@ parameter_defaults:
   NtpServer: 3.europe.pool.ntp.org
   NovaComputeLibvirtType: ${overcloud_virt_type}
   DockerInsecureRegistryAddress:
-    - ${prov_ip}:8787
+    - ${undercloud_registry}
     - ${undercloud_instance}.ctlplane.${domain}:8787
 
 
