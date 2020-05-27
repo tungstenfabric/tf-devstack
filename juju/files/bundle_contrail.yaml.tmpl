@@ -100,6 +100,7 @@ services:
 {%- endif %}
 {%- if SSL_ENABLE == 'true' %}
   easyrsa:
+    # this must be one in HA
     charm: cs:~containers/easyrsa
     num_units: 1
     to:

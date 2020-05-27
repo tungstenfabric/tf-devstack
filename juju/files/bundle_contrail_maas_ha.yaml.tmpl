@@ -110,12 +110,11 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
 {%- if SSL_ENABLE == 'true' %}
   easyrsa:
+    # this must be one in HA
     charm: cs:~containers/easyrsa
-    num_units: 3
+    num_units: 1
     to:
       - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
 {%- endif %}
 
 relations:
