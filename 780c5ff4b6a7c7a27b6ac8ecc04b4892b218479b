@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91510767_df374b0f",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-27T18:17:05Z",
+      "side": 1,
+      "message": "imho, simpler equivalent for both lines:\ndeclare -A iparr\u003d( ${CONTROLLER_NODES} ${AGENT_NODES} )",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 28
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1aeec7ea_42108161",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-27T18:17:05Z",
+      "side": 1,
+      "message": "local val\nbefore for to make variable local",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 11
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20aac00f_2dcfc8ca",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-27T18:17:05Z",
+      "side": 1,
+      "message": "\"${...}\" - it gives one element in for loop.\nif you\u0027d like iterate over all addresses in the array just\nfor val in ${iparr[@]} ;",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 28
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ace6931f_52898a7d",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-27T18:17:05Z",
+      "side": 1,
+      "message": "is this indentation needed?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 1
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bed14f0f_70538c37",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-05-27T18:17:05Z",
+      "side": 1,
+      "message": "broken syntax. bash requries EOF be at the begining of line.",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 1
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
