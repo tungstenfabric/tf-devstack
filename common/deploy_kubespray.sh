@@ -20,7 +20,7 @@ IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
 
 # Apply docker cli workaround
-workaround_kubesray_docker_cli
+workaround_kubespray_docker_cli
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
