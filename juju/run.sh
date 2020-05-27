@@ -231,13 +231,13 @@ function collect_deployment_env() {
     if [[ $ORCHESTRATOR == 'openstack' ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
     fi
-    controller_nodes=`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`
-    if [[ -n $controller_nodes ]] ; then
-        export CONTROLLER_NODES=`echo $controller_nodes | sed 's/"//g' | sed 's/ /,/g'`
+    controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
+    if [[ -n "$controller_nodes" ]] ; then
+        export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
     fi
-    agent_nodes=`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`
-    if [[ -n $agent_nodes ]] ; then
-        export AGENT_NODES=`echo $agent_nodes | sed 's/"//g' | sed 's/ /,/g'`
+    agent_nodes="`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`"
+    if [[ -n "$agent_nodes" ]] ; then
+        export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"
     fi
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.

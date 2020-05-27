@@ -8,8 +8,6 @@ source "$my_dir/../common/common.sh"
 
 export CLOUD=${CLOUD:-local}  # aws | local | manual
 
-CONTROLLER_NODES=${CONTROLLER_NODES:-}
-
 rm -rf ~/.tf/.stages
 
 echo "Destroying tf-$CLOUD-controller controller, machines, applications and data."
@@ -23,9 +21,9 @@ sudo rm -rf /lib/systemd/system/juju*
 sudo rm -rf /run/systemd/units/invocation:juju*
 sudo rm -rf /etc/systemd/system/juju*
 
-if [[ $CLOUD == 'manual' && -n "$CONTROLLER_NODES" ]]; then
+if [[ $CLOUD == 'manual' ]] && [[ -n "$CONTROLLER_NODES" || -n "$AGENT_NODES" ]]; then
     echo "Clean other nodes." 
-    for machine in `echo $CONTROLLER_NODES | tr ',' ' '` ; do
+    for machine in $CONTROLLER_NODES $AGENT_NODES ; do
         ssh ubuntu@$machine "sudo rm -rf /var/lib/juju ; sudo rm -rf /lib/systemd/system/juju* ; sudo rm -rf /run/systemd/units/invocation:juju* ; sudo rm -rf /etc/systemd/system/juju*"
     done
 fi

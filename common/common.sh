@@ -27,8 +27,10 @@ export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-}
 # If not set will be default 'latest'
 #(it is set in load_tf_devenv_profile)
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-}
-export CONTROLLER_NODES=${CONTROLLER_NODES:-$NODE_IP}
-export AGENT_NODES=${AGENT_NODES:-$NODE_IP}
+CONTROLLER_NODES="${CONTROLLER_NODES:-$NODE_IP}"
+export CONTROLLER_NODES="$(echo $CONTROLLER_NODES | tr ',' ' ')"
+AGENT_NODES="${AGENT_NODES:-$NODE_IP}"
+export AGENT_NODES="$(echo $AGENT_NODES | tr ',' ' ')"
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 

@@ -64,8 +64,8 @@ function logs() {
 }
 
 function k8s() {
-    export K8S_NODES=$AGENT_NODES
-    export K8S_MASTERS=$CONTROLLER_NODES
+    export K8S_NODES="$AGENT_NODES"
+    export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
