@@ -102,7 +102,7 @@ function overcloud() {
 # TODO:
 #   - move flavor into overcloud stage
 #   - split containers preparation into openstack and contrail parts
-#     and move openstack part into overcloud stage 
+#     and move openstack part into overcloud stage
 #Overcloud stage w/o deploy for debug and customizations pruposes
 function tf_no_deploy() {
     cd $my_dir

@@ -9,6 +9,7 @@ export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
 export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
 
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
+export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"${prov_ip}:8787/tungstenfabric"}
 
 export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
 

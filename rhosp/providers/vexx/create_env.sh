@@ -190,7 +190,7 @@ _octet3=$(echo $prov_end_addr | cut -d '.' -f 3)
 if (( _octet3 < 255 )) ; then
   (( _octet3+= 1 ))
   _octet3=$(shuf -i${_octet3}-255 -n1)
-  # whole octet4 is can used 
+  # whole octet4 is can used
   _octet4=$(shuf -i0-230 -n1)
 else
   _octet4=$(echo $prov_end_addr | cut -d '.' -f 4)

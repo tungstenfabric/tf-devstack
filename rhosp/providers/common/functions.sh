@@ -26,4 +26,4 @@ function patch_docker_configs(){
         sudo journalctl -xe
         return 1
     fi
-} 
+}

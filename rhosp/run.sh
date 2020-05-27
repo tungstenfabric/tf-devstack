@@ -92,11 +92,12 @@ function prepare_rhosp_env_file() {
     echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
     echo "export OPENSTACK_VERSION=$OPENSTACK_VERSION" >> ~/rhosp-environment.sh
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
-    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh 
+    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh
     echo "export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG" >> ~/rhosp-environment.sh
-    echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh 
+    echo "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
-
+    #Removing duplicate lines
+    awk '!a[$0]++' ~/rhosp-environment.sh
 }
 
 #TODO move inside stage to allow overwrite values by dev-env
