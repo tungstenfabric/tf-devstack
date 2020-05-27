@@ -1,6 +1,6 @@
 parameter_defaults:
   ContrailRegistryInsecure: true
-  ContrailRegistry: ${prov_ip}:8787
+  ContrailRegistry: ${undercloud_registry_contrail}
   ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
   ControlPlaneDefaultRoute: ${prov_ip}
   ControlPlaneSubnetCidr: ${prov_subnet_len}
