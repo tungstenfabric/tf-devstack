@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eec7d3c5_69407e35",
+        "filename": "common/workaround.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T08:04:14Z",
+      "side": 1,
+      "message": "extra ; \nit marks the end of some command if you put a few commands in a single line.\ni.e. for val in \"${iparr[@]}\"; do\nis you write \"do\" in separate line - you not need here \";\"",
+      "range": {
+        "startLine": 21,
+        "startChar": 28,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "47e4cfc92cb29fa4ceed28aef1f7ff3a5ab7fa72",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e189f538_0b4556d4",
+        "filename": "common/workaround.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T08:04:14Z",
+      "side": 1,
+      "message": "It will not work. use curly brackets in this case, ur without brackets at all $val or ${val}",
+      "range": {
+        "startLine": 23,
+        "startChar": 32,
+        "endLine": 23,
+        "endChar": 38
+      },
+      "revId": "47e4cfc92cb29fa4ceed28aef1f7ff3a5ab7fa72",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "272f06af_a99c2267",
+        "filename": "common/workaround.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T08:04:14Z",
+      "side": 1,
+      "message": "Extra trail",
+      "range": {
+        "startLine": 37,
+        "startChar": 46,
+        "endLine": 37,
+        "endChar": 48
+      },
+      "revId": "47e4cfc92cb29fa4ceed28aef1f7ff3a5ab7fa72",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
