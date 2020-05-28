@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc28d4a1_d86472e7",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "extra line",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c29c002_4c99b7a0",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "not needed if we write \u0027do\u0027 in the next line",
+      "range": {
+        "startLine": 22,
+        "startChar": 28,
+        "endLine": 22,
+        "endChar": 29
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5651858_9f03b82d",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "extra operation. You can just write the previous line like this: local userlink\u003d\"$(whoami)@$val\"",
+      "range": {
+        "startLine": 25,
+        "startChar": 6,
+        "endLine": 25,
+        "endChar": 22
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "36b3015d_79f9e9ad",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "extra brackets. Just \u0027echo\u0027 enough in this case",
+      "range": {
+        "startLine": 27,
+        "startChar": 11,
+        "endLine": 27,
+        "endChar": 13
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "086f2855_aef64f0e",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "extra brackets",
+      "range": {
+        "startLine": 29,
+        "startChar": 11,
+        "endLine": 29,
+        "endChar": 13
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34496a4c_438f1c96",
+        "filename": "common/workaround.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 39,
+        "startChar": 46,
+        "endLine": 39,
+        "endChar": 48
+      },
+      "revId": "1f5c37cf82c930c39342ef6378e3649cb57d12b4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}

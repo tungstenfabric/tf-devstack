@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f481f85d_82edaa0a",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 1
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "91510767_df374b0f",
         "filename": "common/workaround.sh",
         "patchSetId": 1
@@ -71,6 +94,167 @@
     },
     {
       "key": {
+        "uuid": "c82e4cfd_b2d52eeb",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "\u0027for val in $nodes\u0027 looks enough for me. ipaddr is an extra variable",
+      "range": {
+        "startLine": 21,
+        "startChar": 3,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b09c76d7_9a52c2ad",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "this 4 lines are equal to \u0027echo \"$(whoami)@${val}\"\u0027",
+      "range": {
+        "startLine": 23,
+        "startChar": 6,
+        "endLine": 26,
+        "endChar": 13
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e808a3f6_96023764",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "Extra quotes - not needed. Juch echo is enough",
+      "range": {
+        "startLine": 26,
+        "startChar": 11,
+        "endLine": 26,
+        "endChar": 13
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a03869c9_0b4506c8",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 27,
+        "endChar": 4
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e6517e1_b35b2a83",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "Is it better to use one ssh call, perhaps? \u0027ssh sudo yum install -y yum-utils yum-plugin-versionlock \u0026\u0026 sudo yum-config-manager --add-repo ${DOCKER_REPO} \u0026\u0026 sudo yum-config-manager --add-repo ${DOCKER_REPO} \u0026\u0026 sudo yum versionlock status\u0027",
+      "range": {
+        "startLine": 28,
+        "startChar": 1,
+        "endLine": 31,
+        "endChar": 47
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d90443ec_29b6e558",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 4
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4338bba7_71c3f4a4",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "Extra quotes.",
+      "range": {
+        "startLine": 33,
+        "startChar": 11,
+        "endLine": 33,
+        "endChar": 13
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ace6931f_52898a7d",
         "filename": "common/workaround.sh",
         "patchSetId": 1
@@ -82,6 +266,30 @@
       "writtenOn": "2020-05-27T18:17:05Z",
       "side": 1,
       "message": "is this indentation needed?",
+      "range": {
+        "startLine": 37,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 1
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59d2dd5f_02f63dbf",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "These indentations are not needed for the config file",
+      "parentUuid": "ace6931f_52898a7d",
       "range": {
         "startLine": 37,
         "startChar": 0,
@@ -110,6 +318,29 @@
         "startChar": 0,
         "endLine": 40,
         "endChar": 1
+      },
+      "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21b0bca8_831cf820",
+        "filename": "common/workaround.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T07:37:51Z",
+      "side": 1,
+      "message": "extra line",
+      "range": {
+        "startLine": 45,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 2
       },
       "revId": "780c5ff4b6a7c7a27b6ac8ecc04b4892b218479b",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
