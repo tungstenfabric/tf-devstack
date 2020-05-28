@@ -43,7 +43,7 @@ source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 #Creating contrail-parameters.yaml
 export undercloud_registry=${prov_ip}:8787
 export undercloud_registry_contrail=$undercloud_registry
-ns=$(echo ${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'} | cut -d '/' -f2-)
+ns=$(echo ${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'} | cut -s -d '/' -f2-)
 [ -n "$ns" ] && undercloud_registry_contrail+="/$ns"
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
 
