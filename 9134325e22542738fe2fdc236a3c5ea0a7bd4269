@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c0309a6_3463d44f",
+        "filename": "common/workaround.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-05-28T16:18:29Z",
+      "side": 1,
+      "message": "trailing space",
+      "range": {
+        "startLine": 22,
+        "startChar": 20,
+        "endLine": 22,
+        "endChar": 26
+      },
+      "revId": "9134325e22542738fe2fdc236a3c5ea0a7bd4269",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
