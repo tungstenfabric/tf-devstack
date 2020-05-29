@@ -48,16 +48,13 @@ ns=$(echo ${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'} | cut -s -d '/' -f2-
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
-if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-   cp $my_dir/roles_data_contrail_aio.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
-else
+if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
    if [[ -z "${overcloud_compute_prov_ip}" ]]; then
-      sed  '${/^$/d;}' tripleo-heat-templates/roles/ContrailAio.yaml > tripleo-heat-templates/roles_data_contrail_aio.yaml
       sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
       sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
       cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >~/ctlplane-assignments.yaml
    else
-      cp $my_dir/roles_data_contrail_aio_without_node_introspection.yaml tripleo-heat-templates/roles_data_contrail_aio.yaml
+      sed -i -re 's/disable_constraints: False/disable_constraints: True/' ~/tripleo-heat-templates/roles_data_contrail_aio.yaml
       cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
    fi
 fi

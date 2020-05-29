@@ -8,6 +8,7 @@ export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
 
 export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
 
+export CONTAINER_REGISTRY="docker.io/tungstenfabric"
 export CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG:-latest}"
 
 export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
@@ -78,8 +79,6 @@ export ipa_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:05"
 export ipa_mgmt_ip="${mgmt_subnet}.3"
 export ipa_prov_ip="${prov_subnet}.5"
 
-#default registry on undercloud node
-export CONTAINER_REGISTRY="${prov_ip}:8787/tungstenfabric"
 
 #RHOSP16 additional parameters for undercloud.conf
 export undercloud_admin_host="${prov_subnet}.3"
