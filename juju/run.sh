@@ -241,9 +241,9 @@ function collect_deployment_env() {
     fi
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
-        DEPLOYMENT_ENV['SSL_KEY']="$(sudo find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1 | xargs sudo base64 -w 0)"
-        DEPLOYMENT_ENV['SSL_CERT']="$(sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0)"
-        DEPLOYMENT_ENV['SSL_CACERT']="$(sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0)"
+        DEPLOYMENT_ENV['SSL_KEY']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1 | xargs sudo base64 -w 0')"
+        DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
+        DEPLOYMENT_ENV['SSL_CACERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0')"
     fi
 }
 
