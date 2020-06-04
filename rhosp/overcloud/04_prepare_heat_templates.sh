@@ -54,9 +54,9 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
       sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
       cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >~/ctlplane-assignments.yaml
    else
-      sed -i -re 's/disable_constraints: False/disable_constraints: True/' ~/tripleo-heat-templates/roles_data_contrail_aio.yaml
       cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
    fi
+   sed -i -re 's/disable_constraints: False/disable_constraints: True/' ~/tripleo-heat-templates/roles_data_contrail_aio.yaml
 fi
 
 #Auto-detect physnet MTU for cloud environments
