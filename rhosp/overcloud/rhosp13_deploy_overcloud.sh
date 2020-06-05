@@ -12,9 +12,11 @@ if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
             -e docker_registry.yaml
 else
    if [[ -z "${overcloud_compute_prov_ip}" ]]; then
+      role_file="tripleo-heat-templates/roles/ContrailAio.yaml"
       export OVERCLOUD_ROLES="ContrailAio"
       export ContrailAio_hosts="${overcloud_cont_prov_ip}"
    else
+      role_file="tripleo-heat-templates/roles_data_contrail_aio.yaml"
       export OVERCLOUD_ROLES="Controller Compute ContrailController"
       export Controller_hosts="${overcloud_cont_prov_ip}"
       export Compute_hosts="${overcloud_compute_prov_ip}"
@@ -23,7 +25,7 @@ else
    nohup tripleo-heat-templates/deployed-server/scripts/get-occ-config.sh &
    job=$!
    openstack overcloud deploy --templates tripleo-heat-templates/ \
-            --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml \
+            --roles-file $role_file \
             --disable-validations \
             -e environment-rhel-registration.yaml \
             -e tripleo-heat-templates/extraconfig/pre_deploy/rhel-registration/rhel-registration-resource-registry.yaml \

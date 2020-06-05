@@ -50,13 +50,15 @@ cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/co
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
    if [[ -z "${overcloud_compute_prov_ip}" ]]; then
+      role_file=~/tripleo-heat-templates/roles/ContrailAio.yaml
       sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
       sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
       cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >~/ctlplane-assignments.yaml
    else
+      role_file=~/tripleo-heat-templates/roles_data_contrail_aio.yaml
       cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
    fi
-   sed -i -re 's/disable_constraints: False/disable_constraints: True/' ~/tripleo-heat-templates/roles_data_contrail_aio.yaml
+   sed -i -re 's/disable_constraints: False/disable_constraints: True/' $role_file
 fi
 
 #Auto-detect physnet MTU for cloud environments
