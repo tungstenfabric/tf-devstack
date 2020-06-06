@@ -83,8 +83,14 @@ function collect_openstack_logs() {
 
     local log_dir="$TF_LOG_DIR/openstack"
     mkdir -p $log_dir
-
-    for ldir in '/etc/neutron' '/etc/nova' '/etc/haproxy' '/var/log/upstart' '/var/log/neutron' '/var/log/nova' '/etc/keystone' '/var/log/keystone' '/etc/heat' '/var/log/heat' '/etc/octavia' '/var/log/octavia' ; do
+    local ldir
+    for ldir in '/etc/nova' '/var/log/nova' '/var/lib/config-data/puppet-generated/nova' '/var/log/containers/nova' \
+                '/etc/haproxy' '/var/log/upstart' \
+                '/etc/neutron' '/var/log/neutron' '/var/lib/config-data/puppet-generated/neutron' '/var/log/containers/neutron' \
+                '/etc/keystone' '/var/log/keystone' '/var/lib/config-data/puppet-generated/keystone' '/var/log/containers/keystone' \
+                '/etc/heat' '/var/log/heat' '/var/lib/config-data/puppet-generated/heat' '/var/log/containers/heat' \
+                '/etc/octavia' '/var/log/octavia' '/var/lib/config-data/puppet-generated/octavia' '/var/log/containers/octavia' \
+                ; do
         if sudo ls "$ldir" ; then
             sudo cp -R $ldir $log_dir/
         fi
@@ -110,13 +116,15 @@ function collect_contrail_logs() {
         sudo cp -R /etc/cni $log_dir/etc_cni/
     fi
 
-    local cl_path='/var/log/contrail'
-    if sudo ls $cl_path ; then
-        mkdir -p $log_dir/contrail_logs
-        for ii in `sudo ls $cl_path/`; do
-            sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
-        done
-    fi
+    local cl_path
+    for cl_path in '/var/log/contrail' '/var/log/containers/contrail' ; do
+        if sudo ls $cl_path ; then
+            mkdir -p $log_dir/contrail_logs
+            for ii in `sudo ls $cl_path/`; do
+                sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
+            done
+        fi
+    done
 
     mkdir -p $log_dir/introspect
     local url=$(hostname -f)
@@ -179,7 +187,12 @@ function collect_system_stats() {
     cat /etc/hosts &>$syslogs/etc_hosts
     cat /etc/resolv.conf &>$syslogs/etc_resolv.conf
     ls -la /etc/ &>$syslogs/ls_etc.log
-
+    if [ -e /var/log/messages ] ; then
+        yes | cp /var/log/messages* $syslogs/
+    fi
+    if [ -e /var/log/syslog ] ; then
+        yes | cp /var/log/messages* $syslogs/
+    fi
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
     fi
