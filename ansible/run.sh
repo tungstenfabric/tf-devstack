@@ -65,7 +65,7 @@ function logs() {
     fi
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
-    rm -rf $TF_LOG_DIR
+    sudo rm -rf $TF_LOG_DIR
 
     # Restore errexit state
     if [[ $errexit_state == 1 ]]; then
