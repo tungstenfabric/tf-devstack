@@ -151,9 +151,12 @@ function collect_deployment_env() {
     fi
     if [[ -f ~/overcloudrc ]]; then
         source ~/overcloudrc
-        DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
+        local internal_vip=$(ssh $ssh_opts $SSH_USER@$overcloud_cont_prov_ip sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
+        local os_auth_internal_api_url=$(echo ${OS_AUTH_URL} | sed "s/\(http[s]\{0,1\}:\/\/\).*\(\/.*\)/\1${internal_vip}\2/g")
+        DEPLOYMENT_ENV['AUTH_URL']="${os_auth_internal_api_url}"
         DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
         DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
+        DEPLOYMENT_ENV['AUTH_REGION']="35357"
     fi
 }
 
