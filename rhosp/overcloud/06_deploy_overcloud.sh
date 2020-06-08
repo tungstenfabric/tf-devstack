@@ -17,12 +17,17 @@ if [[ ! "$status" =~ 'COMPLETE' ]] ; then
   exit -1
 fi
 
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+internal_vip=$(ssh $ssh_opts $SSH_USER@$overcloud_cont_prov_ip sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
+
 # patch hosts to resole overcloud by fqdn
 sudo sed -e "/overcloud.${domain}/d" /etc/hosts
 sudo bash -c "echo \"${fixed_vip} overcloud.${domain}\" >> /etc/hosts"
+sudo sed -e "/overcloud.internalapi.${domain}/d" /etc/hosts
+sudo bash -c "echo \"${internal_vip} overcloud.internalapi.${domain}\" >> /etc/hosts"
 
-# add ip route for fixed_vip
-sudo ip route add ${fixed_vip}/32 dev br-ctlplane || {
-  echo "WARNING: ip route add ${fixed_vip}/32 dev br-ctlplane is already set"
-  ip route
-}
+# add ip route for vips
+sudo ip route add ${fixed_vip}/32 dev br-ctlplane
+if [[ "$internal_vip" != "$fixed_vip" ]] ; then
+  sudo ip route add ${internal_vip}/32 dev br-ctlplane
+fi

@@ -172,12 +172,14 @@ function save_introspect_info() {
 }
 
 function collect_system_stats() {
+    local host_name=${1:-}
     echo "INFO: Collecting system statistics for logs"
-
-    syslogs="$TF_LOG_DIR/system"
+    local syslogs="$TF_LOG_DIR"
+    [ -z "$host_name" ] || syslogs+="/${host_name}"
+    syslogs+="/system"
     mkdir -p "$syslogs"
     ps ax -H &> $syslogs/ps.log
-    netstat -lpn &> $syslogs/netstat.log
+    sudo netstat -lpn &> $syslogs/netstat.log
     free -h &> $syslogs/mem.log
     df -h &> $syslogs/df.log
     ifconfig &>$syslogs/if.log
@@ -188,10 +190,10 @@ function collect_system_stats() {
     cat /etc/resolv.conf &>$syslogs/etc_resolv.conf
     ls -la /etc/ &>$syslogs/ls_etc.log
     if [ -e /var/log/messages ] ; then
-        yes | cp /var/log/messages* $syslogs/
+        yes | sudo cp /var/log/messages* $syslogs/
     fi
     if [ -e /var/log/syslog ] ; then
-        yes | cp /var/log/syslog* $syslogs/
+        yes | sudo cp /var/log/syslog* $syslogs/
     fi
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
