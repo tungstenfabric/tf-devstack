@@ -115,7 +115,9 @@ function juju() {
 
 function machines() {
     if [[ $CLOUD == 'manual' ]] ;then
-        if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
+        local controller_nodes_num = `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'`
+        if [ controller_nodes_num != 5 ] || 
+            [ controller_nodes_num != 3 && `echo $AGENT_NODES | awk -F ',' '{print NF}'` != 2 ]; then
             echo "We support deploy on 5 machines only now."
             echo "You should specify their ip addresses in CONTROLLER_NODES variable."
             exit 0
