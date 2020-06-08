@@ -107,20 +107,21 @@ function collect_contrail_logs() {
     local log_dir="$TF_LOG_DIR/contrail"
     mkdir -p $log_dir
 
-    if sudo ls /etc/contrail ; then
-        mkdir -p $log_dir/etc_contrail
-        sudo cp -R /etc/contrail $log_dir/etc_contrail/
+    if sudo ls /etc/contrail >/dev/null 2>&1 ; then
+        echo "INFO: Collecting contrail logs: /etc/contrail"
+        sudo cp -R /etc/contrail $log_dir/etc_contrail
     fi
-    if sudo ls /etc/cni ; then
-        mkdir -p $log_dir/etc_cni
-        sudo cp -R /etc/cni $log_dir/etc_cni/
+    if sudo ls /etc/cni >/dev/null 2>&1 ; then
+        echo "INFO: Collecting contrail logs: /etc/cni"
+        sudo cp -R /etc/cni $log_dir/etc_cni
     fi
 
     local cl_path
     for cl_path in '/var/log/contrail' '/var/log/containers/contrail' ; do
-        if sudo ls $cl_path ; then
+        if sudo ls $cl_path >/dev/null 2>&1 ; then
             mkdir -p $log_dir/contrail_logs
             for ii in `sudo ls $cl_path/`; do
+                echo "INFO: Collecting contrail logs: $cl_path/$ii"
                 sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
             done
         fi
@@ -136,6 +137,7 @@ function collect_contrail_logs() {
         ssl_opts+=" --cert /etc/contrail/ssl/certs/server.pem"
         ssl_opts+=" --cacert /etc/contrail/ssl/certs/ca-cert.pem"
     fi
+    echo "INFO: Collecting contrail logs: save_introspect_info"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControlNodemgr 8101 "$ssl_opts"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortVRouterNodemgr 8102 "$ssl_opts"
@@ -167,17 +169,20 @@ function collect_contrail_logs() {
 
 function save_introspect_info() {
     if sudo lsof -i ":$4" &>/dev/null ; then
+        echo "INFO: Collecting contrail logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
         timeout -s 9 30 sudo curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
 }
 
 function collect_system_stats() {
+    local host_name=${1:-}
     echo "INFO: Collecting system statistics for logs"
-
-    syslogs="$TF_LOG_DIR/system"
+    local syslogs="$TF_LOG_DIR"
+    [ -z "$host_name" ] || syslogs+="/${host_name}"
+    syslogs+="/system"
     mkdir -p "$syslogs"
     ps ax -H &> $syslogs/ps.log
-    netstat -lpn &> $syslogs/netstat.log
+    sudo netstat -lpn &> $syslogs/netstat.log
     free -h &> $syslogs/mem.log
     df -h &> $syslogs/df.log
     ifconfig &>$syslogs/if.log
@@ -188,15 +193,17 @@ function collect_system_stats() {
     cat /etc/resolv.conf &>$syslogs/etc_resolv.conf
     ls -la /etc/ &>$syslogs/ls_etc.log
     if [ -e /var/log/messages ] ; then
-        yes | cp /var/log/messages* $syslogs/
+        yes | sudo cp /var/log/messages* $syslogs/
     fi
     if [ -e /var/log/syslog ] ; then
-        yes | cp /var/log/syslog* $syslogs/
+        yes | sudo cp /var/log/syslog* $syslogs/
     fi
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
     fi
     sudo chown -R $SUDO_UID:$SUDO_GID $syslogs
+    sudo find $syslogs -type f -exec chmod a+r {} \;
+    sudo find $syslogs -type d -exec chmod a+rx {} \;
 }
 
 function collect_juju_status() {

@@ -71,10 +71,11 @@ function tf() {
 
 function _collect_stack_details() {
     local log_dir=$1
-    [ -z "$log_dir" ] || {
-        echo "WARNING: empty TF_LOG_DIR.. logs collection skipped"
+    [ -n "$log_dir" ] || {
+        echo "WARNING: empty log_dir provided.. logs collection skipped"
         return
     }
+    source ~/stackrc
     # collect stack details
     echo "INFO: collect stack ouputs"
     openstack stack output show -f json --all overcloud | sed 's/\\n/\n/g' > ${log_dir}/stack_outputs.log
@@ -111,11 +112,10 @@ function logs() {
 
     #Collecting undercloud logs
     create_log_dir
-    collect_system_stats
-    local hostname=$(hostname -s)
-    mkdir ${TF_LOG_DIR}/${hostname}
-    mv ${TF_LOG_DIR}/* ${TF_LOG_DIR}/${hostname}/ || true
-    _collect_stack_details ${TF_LOG_DIR}/${hostname}
+    local host_name=$(hostname -s)
+    mkdir ${TF_LOG_DIR}/${host_name}
+    collect_system_stats $host_name
+    _collect_stack_details ${TF_LOG_DIR}/${host_name}
 
     #Collecting overcloud logs
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
@@ -123,9 +123,9 @@ function logs() {
         ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/${SSH_USER}/logs" ./collect_logs.sh collect_docker_logs
         ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/${SSH_USER}/logs" ./collect_logs.sh collect_system_stats
         ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/${SSH_USER}/logs" ./collect_logs.sh collect_contrail_logs
-        hostname=$(ssh $ssh_opts $SSH_USER@$ip hostname -s)
-        mkdir ${TF_LOG_DIR}/${hostname}
-        scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${hostname}/
+        host_name=$(ssh $ssh_opts $SSH_USER@$ip hostname -s)
+        mkdir ${TF_LOG_DIR}/${host_name}
+        scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${host_name}/
     done
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
@@ -151,9 +151,12 @@ function collect_deployment_env() {
     fi
     if [[ -f ~/overcloudrc ]]; then
         source ~/overcloudrc
-        DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
+        local internal_vip=$(ssh $ssh_opts $SSH_USER@$overcloud_cont_prov_ip sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
+        local os_auth_internal_api_url=$(echo ${OS_AUTH_URL} | sed "s/\(http[s]\{0,1\}:\/\/\).*\(\/.*\)/\1${internal_vip}\2/g")
+        DEPLOYMENT_ENV['AUTH_URL']="${os_auth_internal_api_url}"
         DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
         DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
+        DEPLOYMENT_ENV['AUTH_REGION']="35357"
     fi
 }
 
