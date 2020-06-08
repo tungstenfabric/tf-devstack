@@ -59,6 +59,8 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
       cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
    fi
    sed -i -re 's/disable_constraints: False/disable_constraints: True/' $role_file
+   # set admin network to internal api
+   sed 's/# KeystoneAdminApiNetwork:.*/KeystoneAdminApiNetwork: internal_api/g' tripleo-heat-templates/environments/contrail/contrail-services.yaml
 fi
 
 #Auto-detect physnet MTU for cloud environments
