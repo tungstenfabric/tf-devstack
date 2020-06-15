@@ -189,6 +189,18 @@ function tf() {
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
+    if  [[ "$ORCHESTRATOR" == "openstack" ]]; then
+        ####
+        # for openstack it is needed to change init containers before contrail installation
+        # generate inventory file
+        echo "INFO: Change neutron and nova plugins on TF ones"
+        export CONTAINER_REGISTRY=tungstenfabric
+        $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+                -e config_file=$tf_deployer_dir/instances.yaml \
+                $tf_deployer_dir/playbooks/install_openstack.yml
+        ####
+    fi
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
     echo "Use admin/$AUTH_PASSWORD to log in"
