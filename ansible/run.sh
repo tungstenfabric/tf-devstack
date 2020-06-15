@@ -186,6 +186,23 @@ function openstack() {
 }
 
 function tf() {
+     if  [[ "$ORCHESTRATOR" == "openstack" ]]; then
+
+        # for openstack it is needed to change plugins before contrail installation
+        # generate inventory file
+        echo "INFO: Change neutron and nova plugins on TF ones"
+        export NODE_IP
+        export CONTAINER_REGISTRY
+        export CONTRAIL_CONTAINER_TAG
+        export OPENSTACK_VERSION
+        export USER=$(whoami)
+        $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
+
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+                -e config_file=$tf_deployer_dir/instances.yaml \
+                $tf_deployer_dir/playbooks/install_openstack.yml
+
+    fi
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
