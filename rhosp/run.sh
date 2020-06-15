@@ -110,6 +110,7 @@ function prepare_rhosp_env_file() {
     echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
     #Removing duplicate lines
+    sudo rm -f /tmp/rhosp-environment.sh
     awk '!a[$0]++' ~/rhosp-environment.sh >/tmp/rhosp-environment.sh
     cat /tmp/rhosp-environment.sh > ~/rhosp-environment.sh
 }
