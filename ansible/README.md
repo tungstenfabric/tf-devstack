@@ -78,7 +78,7 @@ Individual stages:
 ## Details
 
 To deploy Tungsten Fabric from published containers
-[contrail-container-deployer playbooks](https://github.com/Juniper/contrail-ansible-deployer) is used. For building step
+[contrail-container-deployer playbooks](https://github.com/tungstenfabric/tf-ansible-deployer) is used. For building step
 [tf-dev-env environment](https://github.com/tungstenfabric/tf-dev-env) is used.
 
 Preparation script allows root user to connect to host via ssh, install and configure docker,

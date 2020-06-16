@@ -16,7 +16,7 @@ cd
 rm -rf ~/tripleo-heat-templates ~/contrail-tripleo-heat-templates
 cp -r /usr/share/openstack-tripleo-heat-templates/ ~/tripleo-heat-templates
 fetch_deployer_no_docker ${tf_rhosp_image} ~/contrail-tripleo-heat-templates \
-|| git clone https://github.com/juniper/contrail-tripleo-heat-templates ~/contrail-tripleo-heat-templates
+|| git clone https://github.com/tungstenfabric/tf-tripleo-heat-templates ~/contrail-tripleo-heat-templates
 
 if [[ ! -d ~/contrail-tripleo-heat-templates ]] ; then
    echo "ERROR: The directory with src ~/contrail-tripleo-heat-templates is not found. Exit with error"

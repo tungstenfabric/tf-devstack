@@ -111,7 +111,7 @@ function platform() {
         openshift-ansible
 
     if ! fetch_deployer_no_docker $deployer_image $deployer_dir ; then
-        git clone https://github.com/Juniper/openshift-ansible $deployer_dir
+        git clone https://github.com/tungstenfabric/tf-openshift-ansible $deployer_dir
     fi
     cd $deployer_dir
     if [[ -n "$OPENSHIFT_VERSION" ]] ; then
