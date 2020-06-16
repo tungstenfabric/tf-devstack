@@ -188,7 +188,12 @@ function openstack() {
 }
 
 function tf() {
-     if  [[ "$ORCHESTRATOR" == "openstack" ]]; then
+    # re-call instances.yaml to re-create docker config if inputs were changed for this call
+    sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/configure_instances.yml
+
+    if  [[ "$ORCHESTRATOR" == "openstack" ]]; then
         # for openstack we have to redeploy plugins before contrail installation
         # generate inventory file
         echo "INFO: Change neutron and nova plugins on TF ones"
