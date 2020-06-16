@@ -196,6 +196,7 @@ function tf() {
 
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
                 -e config_file=$tf_deployer_dir/instances.yaml \
+                --tags "ironic-notification-manager,neutron,heat,nova" \
                 $tf_deployer_dir/playbooks/install_openstack.yml
     fi
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
