@@ -15,7 +15,7 @@ parameter_defaults:
   rhel_reg_service_level: ""
   rhel_reg_user: "$RHEL_USER"
   rhel_reg_type: ""
-  rhel_reg_method: "portal"
+  rhel_reg_method: "$RHEL_REG_METHOD"
   rhel_reg_sat_repo: ""
   rhel_reg_http_proxy_host: ""
   rhel_reg_http_proxy_port: ""
