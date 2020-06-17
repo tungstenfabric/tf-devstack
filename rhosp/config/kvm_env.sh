@@ -8,7 +8,7 @@ export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
 
 export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
 
-export CONTAINER_REGISTRY="docker.io/tungstenfabric"
+export CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-docker.io/tungstenfabric}"
 export CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG:-latest}"
 
 export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
