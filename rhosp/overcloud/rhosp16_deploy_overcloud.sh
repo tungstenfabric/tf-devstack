@@ -1,16 +1,31 @@
 
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-   openstack overcloud deploy --templates tripleo-heat-templates/ \
-             --stack overcloud --libvirt-type kvm \
-             --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml \
-             -e tripleo-heat-templates/environments/rhsm.yaml \
-             -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
-             -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
-             -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
-             -e misc_opts.yaml \
-             -e contrail-parameters.yaml \
-             -e containers-prepare-parameter.yaml \
-             -e rhsm.yaml
+   if [[ "$ENABLE_NETWORK_ISOLATION" == "true"  ]]; then
+      openstack overcloud deploy --templates tripleo-heat-templates/ \
+               --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml \
+               -e environment-rhel-registration.yaml \
+               -e tripleo-heat-templates/environments/rhsm.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+               -e tripleo-heat-templates/environments/network-isolation.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-net.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
+               -e misc_opts.yaml \
+               -e contrail-parameters.yaml \
+               -e containers-prepare-parameter.yaml \
+               -e rhsm.yaml
+   else
+      openstack overcloud deploy --templates tripleo-heat-templates/ \
+               --stack overcloud --libvirt-type kvm \
+               --roles-file tripleo-heat-templates/roles_data_contrail_aio.yaml \
+               -e tripleo-heat-templates/environments/rhsm.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
+               -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
+               -e misc_opts.yaml \
+               -e contrail-parameters.yaml \
+               -e containers-prepare-parameter.yaml \
+               -e rhsm.yaml
+   fi
 else
    if [[ -z "${overcloud_compute_prov_ip}" ]]; then
       export OVERCLOUD_ROLES="ContrailAio"
