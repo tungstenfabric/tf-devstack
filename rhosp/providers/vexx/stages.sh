@@ -68,44 +68,6 @@ function tf() {
     ./overcloud/06_deploy_overcloud.sh
 }
 
-
-function _collect_stack_details() {
-    local log_dir=$1
-    [ -n "$log_dir" ] || {
-        echo "WARNING: empty log_dir provided.. logs collection skipped"
-        return
-    }
-    source ~/stackrc
-    # collect stack details
-    echo "INFO: collect stack ouputs"
-    openstack stack output show -f json --all overcloud | sed 's/\\n/\n/g' > ${log_dir}/stack_outputs.log
-    echo "INFO: collect stack environment"
-    openstack stack environment show -f json overcloud | sed 's/\\n/\n/g' > ${log_dir}/stack_environment.log
-
-    # ensure stack is not failed
-    status=$(openstack stack show -f json overcloud | jq ".stack_status")
-    if [[ ! "$status" =~ 'COMPLETE' ]] ; then
-        echo "ERROR: stack status $status"
-        echo "ERROR: openstack stack failures list"
-        openstack stack failures list --long overcloud | sed 's/\\n/\n/g' | tee ${log_dir}/stack_failures.log
-
-        echo "INFO: collect failed resources"
-        rm -f ${log_dir}/stack_failed_resources.log
-        local name
-        openstack stack resource list --filter status=FAILED -n 10 -f json overcloud | jq -r -c ".[].resource_name" | while read name ; do
-            echo "ERROR: $name" >> ./stack_failed_resources.log
-            openstack stack resource show -f value overcloud $name | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_resources.log
-        done
-
-        echo "INFO: collect failed deployments"
-        rm -f ${log_dir}/stack_failed_deployments.log
-        local id
-        openstack software deployment list --format json | jq ".[] | select(.status != \"COMPLETE\") | .id" | while read id ; do
-            openstack software deployment show --format value $id | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_deployments.log
-        done
-    fi
-}
-
 function logs() {
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
@@ -115,7 +77,7 @@ function logs() {
     local host_name=$(hostname -s)
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
-    _collect_stack_details ${TF_LOG_DIR}/${host_name}
+    collect_stack_details ${TF_LOG_DIR}/${host_name}
 
     #Collecting overcloud logs
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
