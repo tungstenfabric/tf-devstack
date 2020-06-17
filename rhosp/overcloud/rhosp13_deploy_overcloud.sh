@@ -12,6 +12,13 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
   rhel_reg_env_files+=" -e environment-rhel-registration.yaml"
   rhel_reg_env_files+=" -e tripleo-heat-templates/extraconfig/pre_deploy/rhel-registration/rhel-registration-resource-registry.yaml"
 fi
+network_env_files=''
+if [[ "$ENABLE_NETWORK_ISOLATION" == true ]] ; then
+    network_env_files+=' -e tripleo-heat-templates/environments/network-isolation.yaml'
+    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net.yaml'
+else
+    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
+fi
 
 role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
 pre_deploy_nodes_env_files=''
@@ -50,7 +57,7 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $rhel_reg_env_files \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
-  -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
+  $network_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
   $tls_env_files \
   -e misc_opts.yaml \
