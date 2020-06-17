@@ -6,6 +6,14 @@ if [[ -n "$ENABLE_TLS" ]] ; then
   tls_env_files+=' -e tripleo-heat-templates/environments/ssl/enable-internal-tls.yaml'
 fi
 
+network_env_files=''
+if [[ "$ENABLE_NETWORK_ISOLATION" == true ]] ; then
+    network_env_files+=' -e tripleo-heat-templates/environments/network-isolation.yaml'
+    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net.yaml'
+else
+    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
+fi
+
 role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
 pre_deploy_nodes_env_files=''
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
@@ -44,7 +52,7 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/rhsm.yaml \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
-  -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml \
+  $network_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
   $tls_env_files \
   -e misc_opts.yaml \
