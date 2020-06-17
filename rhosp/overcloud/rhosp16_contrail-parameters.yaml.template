@@ -17,10 +17,8 @@ parameter_defaults:
 
   #Custome Contrail container configuration settings
   ContrailSettings:
-    VROUTER_GATEWAY: ${prov_ip}
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
     # custom port to avoid conflict in aio deploy with openstack
-    REDIS_SERVER_PORT: 6389
 
 
   # Disable online data migration
