@@ -57,9 +57,9 @@ esac
 
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
-#PROVIDER = [ kvm | vexx | aws ]
+#PROVIDER = [ kvm | vexx | aws | bmc ]
 export PROVIDER=${PROVIDER:-'vexx'}
-if [[ "$PROVIDER" == "kvm" ]]; then
+if [[ "$PROVIDER" == "kvm" || "$PROVIDER" == "bmc" ]]; then
     export USE_PREDEPLOYED_NODES=false
 else
     export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
