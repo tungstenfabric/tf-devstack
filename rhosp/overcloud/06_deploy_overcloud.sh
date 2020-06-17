@@ -2,7 +2,7 @@
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
-
+source "$my_dir/../providers/common/functions.sh"
 
 cd ~
 source ./stackrc
@@ -17,18 +17,22 @@ if [[ ! "$status" =~ 'COMPLETE' ]] ; then
   exit -1
 fi
 
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-internal_vip=$(ssh $ssh_opts $SSH_USER@$overcloud_cont_prov_ip sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
+CONTROLLER_NODE=$(get_servers_ips_by_flavor control | awk '{print $1}')
 
-# patch hosts to resole overcloud by fqdn
-sudo sed -e "/overcloud.${domain}/d" /etc/hosts
-sudo bash -c "echo \"${fixed_vip} overcloud.${domain}\" >> /etc/hosts"
-sudo sed -e "/overcloud.internalapi.${domain}/d" /etc/hosts
-sudo bash -c "echo \"${internal_vip} overcloud.internalapi.${domain}\" >> /etc/hosts"
+if [[ -n "$CONTROLLER_NODE" ]]; then
+  ssh $ssh_opts -q $SSH_USER@$CONTROLLER_NODE exit || SSH_USER=heat-admin
+  internal_vip=$(ssh $ssh_opts $SSH_USER@$CONTROLLER_NODE sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
 
-# add ip route for vips
-for addr in $(echo -e "${fixed_vip}/32\n${internal_vip}/32" | sort -u) ; do
-  if [[ -z "$(ip route show $addr)" ]] ; then
-    sudo ip route add $addr dev br-ctlplane
-  fi
-done
+  # patch hosts to resole overcloud by fqdn
+  sudo sed -e "/overcloud.${domain}/d" /etc/hosts
+  sudo bash -c "echo \"${fixed_vip} overcloud.${domain}\" >> /etc/hosts"
+  sudo sed -e "/overcloud.internalapi.${domain}/d" /etc/hosts
+  sudo bash -c "echo \"${internal_vip} overcloud.internalapi.${domain}\" >> /etc/hosts"
+
+  # add ip route for vips
+  for addr in $(echo -e "${fixed_vip}/32\n${internal_vip}/32" | sort -u) ; do
+    if [[ -z "$(ip route show $addr)" ]] ; then
+      sudo ip route add $addr dev br-ctlplane
+    fi
+  done
+fi
