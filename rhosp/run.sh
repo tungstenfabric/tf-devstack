@@ -21,6 +21,7 @@ declare -A STAGES=( \
 
 # default env variables
 export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
+export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-'false'}
 export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export DEPLOYER='rhosp'
@@ -57,9 +58,9 @@ esac
 
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
-#PROVIDER = [ kvm | vexx | aws ]
+#PROVIDER = [ kvm | vexx | aws | bmc ]
 export PROVIDER=${PROVIDER:-'vexx'}
-if [[ "$PROVIDER" == "kvm" ]]; then
+if [[ "$PROVIDER" == "kvm" || "$PROVIDER" == "bmc" ]]; then
     export USE_PREDEPLOYED_NODES=false
 else
     export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
@@ -106,6 +107,7 @@ function prepare_rhosp_env_file() {
     echo "export OPENSTACK_VERSION=$OPENSTACK_VERSION" >> ~/rhosp-environment.sh
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
     echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh
+    echo "export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION" >> ~/rhosp-environment.sh
     echo "export CONTRAIL_CONTAINER_TAG=\"$CONTRAIL_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
     echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
