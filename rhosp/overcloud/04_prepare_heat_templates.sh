@@ -43,8 +43,18 @@ export SSH_PRIVATE_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa
 export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < ~/.ssh/id_rsa.pub`
 
 cat $my_dir/misc_opts.yaml.template | envsubst > ~/misc_opts.yaml
+if [[ "$PROVIDER" == "bmc" ]]; then
+  echo "  ControllerCount: 3" >> ~/misc_opts.yaml
+  echo "  ContrailControllerCount: 3" >> ~/misc_opts.yaml
+  echo "  ComputeCount: 2" >> ~/misc_opts.yaml
+fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)
+if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
+   export RHEL_REG_METHOD="disable"
+else
+   export RHEL_REG_METHOD="portal"
+fi
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 
 #Creating contrail-parameters.yaml
