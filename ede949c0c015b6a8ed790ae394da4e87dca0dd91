@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c827f29_72cf8847",
+        "filename": "rhosp/overcloud/rhosp13_deploy_overcloud.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-18T11:13:58Z",
+      "side": 1,
+      "message": "lets introduce a variable that allows to switch between\nnetwork isolation and single network case.\n\nThis variable should come from outside of devstack (and should be passed between scripts via rhosp-enviroment.sh - it is created in main rhosp run.sh)",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 38
+      },
+      "revId": "ede949c0c015b6a8ed790ae394da4e87dca0dd91",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4cd06db_0bbd96f2",
+        "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-18T11:13:58Z",
+      "side": 1,
+      "message": "same as for rhosp13",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 38
+      },
+      "revId": "ede949c0c015b6a8ed790ae394da4e87dca0dd91",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
