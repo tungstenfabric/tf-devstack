@@ -79,6 +79,7 @@ function logs() {
 # - old_XXX_fetch_deployer - deprecated deployer method saved for backward compatibility. Will be removed in the future.
 
 function old_ansible_fetch_deployer() {
+
     local deployer_image="contrail-kolla-ansible-deployer"
     sudo rm -rf "$tf_deployer_dir"
     sudo rm -rf "$openstack_deployer_dir"
@@ -90,15 +91,6 @@ function old_ansible_fetch_deployer() {
     sudo mv $WORKSPACE/root/contrail-kolla-ansible $openstack_deployer_dir
     sudo docker rm -fv $deployer_image
     sudo rm -rf $WORKSPACE/root
-}
-
-function generate_inventory() {
-    export NODE_IP
-    export CONTAINER_REGISTRY
-    export CONTRAIL_CONTAINER_TAG
-    export OPENSTACK_VERSION
-    export USER=$(whoami)
-    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
 }
 
 function machines() {
@@ -142,7 +134,13 @@ function machines() {
     fi
 
     # generate inventory file
-    generate_inventory
+
+    export NODE_IP
+    export CONTAINER_REGISTRY
+    export CONTRAIL_CONTAINER_TAG
+    export OPENSTACK_VERSION
+    export USER=$(whoami)
+    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
 
     # create Ansible temporary dir under current user to avoid create it under root
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
@@ -188,16 +186,6 @@ function openstack() {
 }
 
 function tf() {
-     if  [[ "$ORCHESTRATOR" == "openstack" ]]; then
-        # for openstack we have to redeploy plugins before contrail installation
-        # generate inventory file
-        echo "INFO: Change neutron and nova plugins on TF ones"
-        generate_inventory
-
-        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
-                -e config_file=$tf_deployer_dir/instances.yaml \
-                $tf_deployer_dir/playbooks/install_openstack.yml
-    fi
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
