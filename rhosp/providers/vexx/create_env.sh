@@ -8,6 +8,9 @@ ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
 
 workspace=${WORKSPACE:-$(pwd)}
 vexxrc=${vexxrc:-"${workspace}/vexxrc"}
+#take from ci
+RHEL_VERSION=${ENVIRONMENT_OS:-'rhel7'}
+RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -37,20 +40,20 @@ if [[ -z "$rhosp_id" ]] ; then
       rhosp_id=${RANDOM}
       if (( rhosp_id > 1000 )) ; then break ; fi
     done
-    undercloud_instance="rhosp13-undercloud-${rhosp_id}"
+    undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
     if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
-      echo "INFO: free undercloud name undercloud_instance=rhosp13-undercloud-${rhosp_id}"
+      echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
       break
     fi
   done
 else
-  undercloud_instance="rhosp13-undercloud-${rhosp_id}"
+  undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
 fi
 
 # cluster options
-management_network_name=${management_network_name:-"rhosp13-mgmt"}
+management_network_name=${management_network_name:-"${RHOSP_VERSION}-mgmt"}
 management_network_cidr=${management_network_cidr:-}
-provision_network_name=${provision_network_name:-"rhosp13-prov"}
+provision_network_name=${provision_network_name:-"${RHOSP_VERSION}-prov"}
 provision_network_cidr=${provision_network_cidr:-}
 router_name=${router_name:-'router1'}
 domain=${domain:-'vexxhost.local'}
@@ -101,7 +104,7 @@ else
 fi
 
 #Get latest rhel image
-image_name=$(openstack image list --status active -c Name -f value | grep "prepared-rhel7" | sort -nr | head -n 1)
+image_name=$(openstack image list --status active -c Name -f value | grep "prepared-${RHEL_VERSION}" | sort -nr | head -n 1)
 image_id=$(openstack image show -c id -f value "$image_name")
 
 instance_tags=""
@@ -148,14 +151,14 @@ if [[ "$ASSIGN_FLOATING_IP" == true ]]; then
     floating_ip=$(openstack floating ip list --port ${port_id} -f value -c "Floating IP Address")
 fi
 
-overcloud_cont_instance="rhosp13-overcloud-cont-${rhosp_id}"
+overcloud_cont_instance="${RHOSP_VERSION}-overcloud-cont-${rhosp_id}"
 overcloud_compute_instance=
 overcloud_ctrlcont_instance=
 if $DEPLOY_COMPACT_AIO; then
   default_flavor=v2-standard-8
 else
-  overcloud_compute_instance="rhosp13-overcloud-compute-${rhosp_id}"
-  overcloud_ctrlcont_instance="rhosp13-overcloud-ctrlcont-${rhosp_id}"
+  overcloud_compute_instance="${RHOSP_VERSION}-overcloud-compute-${rhosp_id}"
+  overcloud_ctrlcont_instance="${RHOSP_VERSION}-overcloud-ctrlcont-${rhosp_id}"
 fi
 
 #Creating overcloud nodes and disabling port security
