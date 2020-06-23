@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "533a1e30_0f894521",
+        "filename": "rhosp/overcloud/06_deploy_overcloud.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-23T19:25:22Z",
+      "side": 1,
+      "message": "lets just get first any controller node \nlike you did in another places via\nopenstack server list -c Networks -f value | awk -F \u0027\u003d\u0027 \u0027{print $NF}\u0027\n\nbecause we use it for getting  internal_api_virtual_ip and it is same on all controllers..\n\nand the same in the function of providing enviromnet variables \nfunction collect_deployment_env() {..}\nwe can use common for all deployments getting IPs similarly.",
+      "range": {
+        "startLine": 20,
+        "startChar": 11,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70a7f36d_89087ee0",
+        "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-23T19:25:22Z",
+      "side": 1,
+      "message": "-e tripleo-heat-templates/environments/rhsm.yaml",
+      "range": {
+        "startLine": 6,
+        "startChar": 15,
+        "endLine": 7,
+        "endChar": 122
+      },
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6a10b1c_41725359",
+        "filename": "rhosp/providers/bmc/stages.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-23T19:25:22Z",
+      "side": 1,
+      "message": "similar to vexx",
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
