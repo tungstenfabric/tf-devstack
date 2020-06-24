@@ -15,7 +15,7 @@ services:
     charm: cs:~containers/easyrsa-303
     num_units: 1
     to:
-    - lxd:{{ JUJU_MACHINES[0] }}
+    - {{ JUJU_MACHINES[0] }}
 
   etcd:
     series: "{{ UBUNTU_SERIES }}"
