@@ -167,6 +167,30 @@ export MAAS_API_KEY="*maas_user_api_key*"
 export VIRTUAL_IPS="*ip_1 ip_2 ip_3 ip_4 ip_5 ip_6 ip_7*"
 ```
 
+## Quick start on an AWS instances on base of Kubernetes and Openstack (all-in-one)
+
+1. Launch new AWS instance.
+
+- Ubuntu 18.04 (x86_64) - with Updates HVM
+- t3.2xlarge instance type
+- 200 GiB disk Storage
+
+2. Set environment variables:
+
+``` bash
+export ORCHESTRATOR='all'  # by default
+export CLOUD='local'  # by default
+```
+
+3. Clone this repository and run the startup script:
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/juju/run.sh
+```
+
+4. Wait about 30-60 minutes to complete the deployment.
+
 ## Cleanup
 
 1. Set environment variables:
@@ -205,10 +229,10 @@ Environment variable list:
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
-- ORCHESTRATOR - orchestrator for deployment, "openstack" and "kubernetes" (default) are supported
+- ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "all" are supported
 - CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
 
 ## Known Issues
 
-- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machin
+- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine

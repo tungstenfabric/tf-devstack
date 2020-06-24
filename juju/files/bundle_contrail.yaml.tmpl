@@ -12,7 +12,7 @@ services:
     num_units: 1
     options:
       log-level: "SYS_DEBUG"
-{%- if ORCHESTRATOR == 'openstack' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
       auth-mode: "rbac"
 {%- else %}
       auth-mode: "no-auth"
@@ -62,7 +62,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-{%- if ORCHESTRATOR == 'openstack' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
   contrail-keystone-auth:
     charm: "{{ JUJU_REPO }}/contrail-keystone-auth"
     series: "{{ UBUNTU_SERIES }}"
@@ -76,7 +76,8 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-{%- elif ORCHESTRATOR == 'kubernetes' %}
+{%- endif %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
   contrail-kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
     charm: {{ JUJU_REPO }}/contrail-kubernetes-master
@@ -119,15 +120,16 @@ relations:
 - [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
 - [ easyrsa, contrail-agent ]
-{%- if ORCHESTRATOR == 'kubernetes' %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
 - [ easyrsa, contrail-kubernetes-master ]
 {%- endif %}
 {%- endif %}
 
-{%- if ORCHESTRATOR == 'openstack' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
-{%- elif ORCHESTRATOR == 'kubernetes' %}
+{%- endif %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
 - [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
 - [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
 {%- endif %}
