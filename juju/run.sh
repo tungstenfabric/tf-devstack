@@ -124,12 +124,19 @@ function machines() {
         fi
         $my_dir/../common/add_juju_machines.sh
     fi
+    if [[ $CLOUD == 'maas' ]] ;then
+        $my_dir/../common/add_juju_machines.sh
+    fi
+    if [[ $ORCHESTRATOR == 'all' ]] ; then
+        command juju deploy ubuntu --to lxd:0
+        command juju add-unit ubuntu --to 0
+    fi
 
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
 }
 
 function openstack() {
-    if [[ "$ORCHESTRATOR" != "openstack" ]]; then
+    if [[ "$ORCHESTRATOR" != "openstack" && $ORCHESTRATOR != 'all' ]]; then
         echo "INFO: Skipping openstack deployment"
         return
     fi
@@ -162,7 +169,7 @@ function openstack() {
 }
 
 function k8s() {
-    if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
+    if [[ "$ORCHESTRATOR" != "kubernetes" && $ORCHESTRATOR != 'all' ]]; then
         echo "INFO: Skipping k8s deployment"
         return
     fi
@@ -187,17 +194,23 @@ function tf() {
     $my_dir/../common/deploy_juju_bundle.sh
 
     # add relations between orchestrator and Contrail
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+    if [[ $ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-keystone-auth keystone
         command juju add-relation contrail-openstack neutron-api
         command juju add-relation contrail-openstack heat
         command juju add-relation contrail-openstack nova-compute
         command juju add-relation contrail-agent:juju-info nova-compute:juju-info
-    elif [[ $ORCHESTRATOR == 'kubernetes' ]] ; then
+    fi
+    if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
         command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
         command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
         command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+    fi
+    if [[ $ORCHESTRATOR == 'all' ]] ; then
+        command juju add-relation kubernetes-master keystone
+        command juju config kubernetes-master authorization-mode="Node,RBAC"
+        command juju config kubernetes-master enable-keystone-authorization=true
     fi
 
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
@@ -230,7 +243,7 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    if [[ $ORCHESTRATOR == 'openstack' ]] ; then
+    if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
     fi
     controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
