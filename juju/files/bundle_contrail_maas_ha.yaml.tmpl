@@ -30,7 +30,6 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-      local-rabbitmq-hostname-resolution: true
       min-cluster-size: 3
 {%- if DATA_NETWORK %}
       data-network: "{{ DATA_NETWORK }}"
