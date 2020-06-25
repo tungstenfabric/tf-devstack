@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7b49c171_675d895a",
+        "filename": "juju/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-06-25T10:00:45Z",
+      "side": 1,
+      "message": "it\u0027s better to check for openstack or all",
+      "revId": "31d63f848c9275c83788063331eb7ba202846daf",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
