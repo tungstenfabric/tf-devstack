@@ -115,9 +115,8 @@ function juju() {
 
 function machines() {
     if [[ $CLOUD == 'manual' ]] ;then
-        if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
-            echo "We support deploy on 5 machines only now."
-            echo "You should specify their ip addresses in CONTROLLER_NODES variable."
+        if [[ $($CONTROLLER_NUM % 2) -eq 0 ]]; then
+            echo "amount of controllers must be odd. now $CONTROLLER_NUM."
             exit 0
         fi
         $my_dir/../common/add_juju_machines.sh
@@ -140,11 +139,12 @@ function openstack() {
     else
         export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
     fi
-    if [ $CLOUD == 'manual' ] ; then
-        export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+    if [ $CLOUD == 'manual' ]; then
+        export BUNDLE="$my_dir/files/bundle_openstack_man.yaml.tmpl"
     else
         export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
     fi
+
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
@@ -174,6 +174,8 @@ function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
         export BUNDLE="$my_dir/files/bundle_contrail_maas_ha.yaml.tmpl"
+    elif [[ $CLOUD == 'manual' ]]; then
+        export BUNDLE="$my_dir/files/bundle_contrail_man.yaml.tmpl"
     else
         export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
