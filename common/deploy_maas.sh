@@ -13,6 +13,19 @@ sudo -E apt-get update -y
 sudo -E apt-get install snapd jq prips netmask -y
 sudo -E snap install maas --channel=2.7
 
+# hack it.
+# for some reasons MAAS sends manage_etc_hosts as True to cloud-init
+# and cloud-init adds strange item '127.0.1.1 hostname fqdn' to /etc/hosts
+# this items looks useless and config-api can't talk to keystone due to this.
+# change cloud-init settings is available via 'maas deploy' but we use juju
+# to deploy machines and I didn't found a way how to pass clou-init data
+# via juju's bundle.
+# therefore - using hacking method.
+sudo cp -R /snap/maas/current/lib/python3.6/site-packages/maasserver /tmp
+sudo sed -i 's/"manage_etc_hosts": True/"manage_etc_hosts": False/' /tmp/maasserver/compose_preseed.py
+sudo mount --bind -o nodev,ro /tmp/maasserver /snap/maas/current/lib/python3.6/site-packages/maasserver
+sudo systemctl restart snap.maas.supervisor.service
+
 # Determined variables
 NODE_IP_WSUBNET=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1`
 NODE_SUBNET=`netmask $NODE_IP_WSUBNET`
@@ -62,10 +75,8 @@ maas $PROFILE vlan update 0 0 dhcp_on=True primary_rack=$(hostname)
 
 # Import images.
 # Import may fail without any error messages, loop is workaround.
-i=0
-while [ $i -le 30 ] ; do
+for ((i=0; i<30; ++i)); do
   maas $PROFILE boot-resources import
-  i=$((i+1))
   sleep 15
   if maas $PROFILE boot-resources read | grep -q "ga-18.04"; then
     break
@@ -73,14 +84,12 @@ while [ $i -le 30 ] ; do
 done
 
 # Waiting for images downoad to complete
-i=0
-while [ $i -le 50 ] ; do
+for ((i=0; i<50; ++i)); do
   if maas $PROFILE boot-resources is-importing | grep -q 'false'; then
     sleep 60
     break
   fi
   sleep 20
-  i=$((i+1))
 done
 if ! maas $PROFILE boot-resources is-importing | grep -q 'false' ; then
   echo "Images not ready."
@@ -101,33 +110,32 @@ for n in $IPMI_IPS ; do
 done
 
 sleep 180
-i=0
-while [ $i -le 30 ] ; do
+for ((i=0; i<30; ++i)); do
   MACHINES_STATUS=`maas $PROFILE machines read | jq -r '.[] | .status_name'`
   MACHINES_COUNT=`echo "$MACHINES_STATUS" | wc -l`
   if echo "$MACHINES_STATUS" | grep -q "Ready"; then
     READY_COUNT=`echo "$MACHINES_STATUS" | grep -c "Ready"`
-    if [ "$READY_COUNT" -ge "$MACHINES_COUNT" ]; then
-      if [ -n "$1" ]; then
-        echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\"" >> "$1"
-        echo "export MAAS_API_KEY=\"$MAAS_API_KEY\"" >> "$1"
-        echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\"" >> "$1"
-      else
-        echo "INFO: MAAS is ready "
-        echo "INFO: MAAS web ui $MAAS_ENDPOINT"
-        echo "Set variables to use with juju deployment:"
-        echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\""
-        echo "export MAAS_API_KEY=\"$MAAS_API_KEY\""
-        echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\""
-      fi
+    if (( READY_COUNT >= MACHINES_COUNT )); then
       break
     fi
   fi
   sleep 30
-  i=$((i+1))
 done
 
-if [ "$READY_COUNT" -ne "$MACHINES_COUNT" ]; then
-  echo "ERROR: timeout for commissioning exceeded"
+if (( READY_COUNT != MACHINES_COUNT )); then
+  echo "ERROR: timeout for commissioning exceeded. Machines were not created properly"
   exit 1
 fi
+
+if [ -n "$1" ]; then
+  echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\"" >> "$1"
+  echo "export MAAS_API_KEY=\"$MAAS_API_KEY\"" >> "$1"
+  echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\"" >> "$1"
+fi
+
+echo "INFO: MAAS is ready "
+echo "INFO: MAAS web ui $MAAS_ENDPOINT"
+echo "Set variables to use with juju deployment:"
+echo "export MAAS_ENDPOINT=\"$MAAS_ENDPOINT\""
+echo "export MAAS_API_KEY=\"$MAAS_API_KEY\""
+echo "export VIRTUAL_IPS=\"$VIRTUAL_IPS\""
