@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1f84c86f_985d0029",
+        "filename": "rhosp/overcloud/06_deploy_overcloud.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-25T13:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "533a1e30_0f894521",
+      "range": {
+        "startLine": 20,
+        "startChar": 11,
+        "endLine": 20,
+        "endChar": 33
+      },
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70a7f36d_89087ee0",
         "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "737e9600_e9f9c92c",
+        "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-25T13:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70a7f36d_89087ee0",
+      "range": {
+        "startLine": 6,
+        "startChar": 15,
+        "endLine": 7,
+        "endChar": 122
+      },
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6a10b1c_41725359",
         "filename": "rhosp/providers/bmc/stages.sh",
         "patchSetId": 8
@@ -62,6 +110,24 @@
       "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac54a867_1b9b19bc",
+        "filename": "rhosp/providers/bmc/stages.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-25T13:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6a10b1c_41725359",
+      "revId": "e87741f331a5fcb9669e6707ae7f327bd4383a58",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
