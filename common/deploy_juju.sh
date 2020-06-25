@@ -18,9 +18,8 @@ MAAS_API_KEY=${MAAS_API_KEY:-''}
 # install JuJu and tools
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
-sudo -E apt-get install netmask prips python3-jinja2 software-properties-common curl jq -y
-sudo -E add-apt-repository -yu ppa:juju/stable
-sudo -E apt install -y juju
+sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq -y
+sudo snap install --classic juju
 export PATH=$PATH:$(which juju)
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
@@ -78,7 +77,11 @@ set_ssh_keys
 # bootstrap JuJu-controller
 if [[ $CLOUD == 'aws' ]] || [[ $CLOUD == 'maas' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
-else
+elif [[ $CLOUD != 'manual' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
+else
+    juju bootstrap --config container-networking-method=fan --config fan-config=$CIDR=252.0.0.0/8 --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
 fi
-juju switch tf-$CLOUD-controller
+if [[ $CLOUD != 'manual' ]]; then
+    juju switch tf-$CLOUD-controller
+fi

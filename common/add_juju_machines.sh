@@ -15,6 +15,8 @@ fi
 
 if [[ -n "$CONTROLLER_NODES" || -n "$AGENT_NODES" ]]; then
     for node in $CONTROLLER_NODES $AGENT_NODES ; do
-        juju add-machine ssh:ubuntu@$node
+        if [[ $node != $NODE_IP && $CLOUD == 'manual' ]]; then
+            juju add-machine ssh:ubuntu@$node
+        fi
     done
 fi
