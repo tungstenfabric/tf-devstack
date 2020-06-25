@@ -88,6 +88,9 @@ if ! maas $PROFILE boot-resources is-importing | grep -q 'false' ; then
   exit 1
 fi
 
+user_data=$(echo "manage_etc_hosts: false" | base64)
+
+cloud_init_settings
 # Add machines
 for n in $IPMI_IPS ; do
   maas $PROFILE machines create \
@@ -97,7 +100,8 @@ for n in $IPMI_IPS ; do
       power_parameters_power_driver=${IPMI_POWER_DRIVER} \
       power_parameters_power_user=${IPMI_USER} \
       power_parameters_power_pass=${IPMI_PASS} \
-      power_parameters_power_address=${n}
+      power_parameters_power_address=${n} \
+      user_data=$user_data
 done
 
 sleep 180
