@@ -115,9 +115,16 @@ function juju() {
 
 function machines() {
     if [[ $CLOUD == 'manual' ]] ;then
-        if [[ `echo $CONTROLLER_NODES | awk -F ',' '{print NF}'` != 5 ]] ; then
-            echo "We support deploy on 5 machines only now."
-            echo "You should specify their ip addresses in CONTROLLER_NODES variable."
+        echo "[machines] c: $CONTROLLER_NUM [$CONTROLLER_NODES]"
+        echo "[machines] a: $AGENT_NUM [$AGENT_NODES]"
+        if [[ $AGENT_NUM -gt 2 ]]; then
+            echo "We support deploy on 2, 1 or 0 agents only now."
+            exit 0
+        elif [[ $CONTROLLER_NUM -ne 3 && $CONTROLLER_NUM -ne 1 ]]; then
+            echo "We support deploy only on 3 or 1 controllers."
+            exit 0
+        elif [[ $CONTROLLER_NUM -eq 3 && $AGENT_NUM -ne 2 ]]; then
+            echo "3 controllers manual deploy needs 2 agents."
             exit 0
         fi
         $my_dir/../common/add_juju_machines.sh
@@ -140,11 +147,16 @@ function openstack() {
     else
         export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
     fi
-    if [ $CLOUD == 'manual' ] ; then
-        export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
+    if [ $CLOUD == 'manual' ]; then
+        if [[ $AGENT_NUM -eq 2 ]]; then
+            export BUNDLE="$my_dir/files/bundle_openstack_2n.yaml.tmpl"
+        else
+            export BUNDLE="$my_dir/files/bundle_openstack_1n.yaml.tmpl"
+        fi
     else
         export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
     fi
+    echo "[openstack] OPENSTACK_BUNDLE $BUNDLE"
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
@@ -174,9 +186,12 @@ function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
         export BUNDLE="$my_dir/files/bundle_contrail_maas_ha.yaml.tmpl"
+    elif [[ $CLOUD == 'manual' && $CONTROLLER_NUM -eq 3 ]]; then
+        export BUNDLE="$my_dir/files/bundle_contrail_3n.yaml.tmpl"
     else
         export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
+    echo "[tf] CONTRAIL_BUNDLE $BUNDLE"
     # get contrail-charms
     [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO \
                       || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
