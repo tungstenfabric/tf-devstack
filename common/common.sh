@@ -15,6 +15,7 @@ TF_STAGES_DIR="${TF_CONFIG_DIR}/.stages"
 DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 PHYS_INT=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
 NODE_IP=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
+NODE_CIDR=`ip r | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+ dev $PHYS_INT " | awk '{print $1}'`
 
 # defaults
 
@@ -33,6 +34,9 @@ AGENT_NODES="${AGENT_NODES:-$NODE_IP}"
 export AGENT_NODES="$(echo $AGENT_NODES | tr ',' ' ')"
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
+
+export CONTROLLER_NUM=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
+export AGENT_NUM=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
 
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
