@@ -29,19 +29,8 @@ sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
 
 ./rhel_provisioning.sh
-CONTAINER_REGISTRY="" CONFIGURE_DOCKER_LIVERESTORE=false ./create_docker_config.sh
-insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
-if ! echo "$insecure_registries" | grep -q "${prov_ip}:8787" ; then
-   insecure_registries+=" --insecure-registry ${prov_ip}:8787"
-   sed -i '/^INSECURE_REGISTRY/d' /etc/sysconfig/docker
-   echo "INSECURE_REGISTRY=\"$insecure_registries\"" | tee -a /etc/sysconfig/docker
-fi
 
-if ! systemctl restart docker ; then
-   systemctl status docker.service
-   journalctl -xe
-   exit 1
-fi
+./${RHOSP_VERSION}_configure_registries_overcloud.sh
 
 # to avoid slow ssh connect if dns is not available
 sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
