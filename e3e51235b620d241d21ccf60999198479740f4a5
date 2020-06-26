@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59b25ce9_16a73b9d",
+        "filename": "common/common.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 445
+      },
+      "writtenOn": "2020-06-26T15:07:03Z",
+      "side": 1,
+      "message": "What is this CIDR? Bad name, unclear",
+      "revId": "e3e51235b620d241d21ccf60999198479740f4a5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b502d357_48f07264",
+        "filename": "common/deploy_juju.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 445
+      },
+      "writtenOn": "2020-06-26T15:07:03Z",
+      "side": 1,
+      "message": "Use elif [[ $CLOUD \u003d\u003d \u0027manual\u0027 ]]; then ...",
+      "revId": "e3e51235b620d241d21ccf60999198479740f4a5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc1f4f3a_f7ab0c9d",
+        "filename": "common/common.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 445
+      },
+      "writtenOn": "2020-06-26T15:07:03Z",
+      "side": 0,
+      "message": "Don\u0027t kill empty lines unnecessarily",
+      "revId": "1b0f9dc1a7bb53c0f024452548d22de4c7144642",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
