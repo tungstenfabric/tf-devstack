@@ -13,31 +13,39 @@ function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
-    # No needs to have container registry on undercloud.
-    # For now overcloud nodes download them directly from $CONTAINER_REGISTRY
-    sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../common/create_docker_config.sh"
-    local insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
-    echo "INFO: current insecure_registries=$insecure_registries"
-    if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
-        echo "INFO: add CONTAINER_REGISTRY=$CONTAINER_REGISTRY to insecure list"
-       insecure_registries+=" --insecure-registry $CONTAINER_REGISTRY"
-    fi
-    sudo sed -i '/^INSECURE_REGISTRY/d' /etc/sysconfig/docker
-    echo "INSECURE_REGISTRY=\"$insecure_registries\""  | sudo tee -a /etc/sysconfig/docker
-    echo "INFO: restart docker, /etc/sysconfig/docker"
-    sudo cat /etc/sysconfig/docker
-    if ! sudo systemctl restart docker ; then
-        echo "ERROR: sudo systemctl restart docker failed"
-        sudo systemctl status docker.service
-        sudo journalctl -xe
-        exit 1
+    if [[ "$OPENSTACK_VERSION" == 'queens' ]] ; then 
+        # No needs to have container registry on undercloud.
+        # For now overcloud nodes download them directly from $CONTAINER_REGISTRY
+        sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../common/create_docker_config.sh"
+        local insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
+        echo "INFO: current insecure_registries=$insecure_registries"
+        if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
+            echo "INFO: add CONTAINER_REGISTRY=$CONTAINER_REGISTRY to insecure list"
+        insecure_registries+=" --insecure-registry $CONTAINER_REGISTRY"
+        fi
+        sudo sed -i '/^INSECURE_REGISTRY/d' /etc/sysconfig/docker
+        echo "INSECURE_REGISTRY=\"$insecure_registries\""  | sudo tee -a /etc/sysconfig/docker
+        echo "INFO: restart docker, /etc/sysconfig/docker"
+        sudo cat /etc/sysconfig/docker
+        if ! sudo systemctl restart docker ; then
+            echo "ERROR: sudo systemctl restart docker failed"
+            sudo systemctl status docker.service
+            sudo journalctl -xe
+            exit 1
+        fi
+    elif [[ "$OPENSTACK_VERSION" == 'train' ]] ; then
+        #change /etc/containers/registries.conf
+        #TODO need to add insecure_registryies 
+        #echo "INFO: current insecure_registries=$insecure_registries"
     fi
 }
 
 #Overcloud nodes provisioning
 function overcloud() {
     cd $my_dir
-    ./overcloud/03_setup_predeployed_nodes_access.sh
+    if [[ "$OPENSTACK_VERSION" == 'train' ]] ; then
+        ./overcloud/03_setup_predeployed_nodes_access.sh
+    fi
     local jobs=""
     local res=0
     for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
