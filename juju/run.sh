@@ -23,7 +23,7 @@ declare -A STAGES=( \
 # default env variables
 export DEPLOYER='juju'
 # max wait in seconds after deployment (openstack ~ 1300, k8s ~ 2100, maas ~ 2400)
-export WAIT_TIMEOUT=${WAIT_TIMEOUT:-3000}
+export WAIT_TIMEOUT=${WAIT_TIMEOUT:-1800}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-local}  # aws | local | manual
@@ -120,9 +120,6 @@ function machines() {
             echo "You should specify their ip addresses in CONTROLLER_NODES variable."
             exit 0
         fi
-        $my_dir/../common/add_juju_machines.sh
-    fi
-    if [[ $CLOUD == 'maas' ]] ;then
         $my_dir/../common/add_juju_machines.sh
     fi
 
