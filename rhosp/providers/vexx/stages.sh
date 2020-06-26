@@ -2,7 +2,7 @@
 
 export CONFIGURE_DOCKER_LIVERESTORE='false'
 
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
 function machines() {
     cd $my_dir
