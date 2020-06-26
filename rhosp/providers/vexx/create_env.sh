@@ -30,25 +30,20 @@ disk_size_gb=100
 SSH_USER=${SSH_USER:-'cloud-user'}
 ssh_key_name=${ssh_key_name:-'worker'}
 ssh_private_key=${ssh_private_key:-~/.ssh/workers}
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
-# undercloud name
-if [[ -z "$rhosp_id" ]] ; then
-  # lookup free name
+# lookup free name
+while true ; do
   while true ; do
-    while true ; do
-      rhosp_id=${RANDOM}
-      if (( rhosp_id > 1000 )) ; then break ; fi
-    done
-    undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
-    if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
-      echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
-      break
-    fi
+    rhosp_id=${RANDOM}
+    if (( rhosp_id > 1000 )) ; then break ; fi
   done
-else
   undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
-fi
+  if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
+    echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
+    break
+  fi
+done
 
 # cluster options
 management_network_name=${management_network_name:-"${RHOSP_VERSION}-mgmt"}
