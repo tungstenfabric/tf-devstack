@@ -9,6 +9,13 @@ source "$my_dir/../providers/common/functions.sh"
 
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
+
+if [[ -n "$ENABLE_TLS" ]] ; then
+   export overcloud_nameservers="[ \"$ipa_prov_ip\", \"8.8.8.8\", \"8.8.4.4\" ]"
+else
+   export overcloud_nameservers="[ \"8.8.8.8\", \"8.8.4.4\" ]"
+fi
+
 rhosp_branch="stable/${OPENSTACK_VERSION}"
 tf_rhosp_image="tf-tripleo-heat-templates-src"
 

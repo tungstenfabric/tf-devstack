@@ -28,18 +28,26 @@ cd
 getenforce
 cat /etc/selinux/config
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
-   subscription-manager unregister || true
-   echo subscription-manager register ...
-   subscription-manager register $register_opts
-   subscription-manager attach $attach_opts
-
+   for i in {1..10} ; do
+      subscription-manager unregister || true
+      echo subscription-manager register ... $i
+      subscription-manager register $register_opts && break
+   done
+   for i in {1..10} ; do
+      echo subscription-manager attach ... $i
+      subscription-manager attach $attach_opts && break
+   done
    set -x
-
-   subscription-manager repos --disable=*
-
+   for i in {1..10} ; do
+      echo subscription-manager clean repos ... $i
+      subscription-manager repos --disable=* && break
+   done
    enable_repo_list=''
    for r in $RHEL_REPOS; do enable_repo_list+=" --enable=${r}"; done
-   subscription-manager repos $enable_repo_list
+   for i in {1..10} ; do
+      echo subscription-manager repos $enable_repo_list ... $i
+      subscription-manager repos $enable_repo_list && break
+   done
 fi
 
 $my_dir/${RHEL_VERSION}_provisioning.sh
