@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cd5e41c_b87e22b4",
+        "filename": "rhosp/providers/bmc/collect_deployment_env.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T09:34:27Z",
+      "side": 1,
+      "message": "why not to move to common the function collect_deployment_env from vexx  \nfunction can take an IP list as argument..",
+      "revId": "69b88cacc3060011e873530146d9575c0dd948bc",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca14888a_8bcb2ef4",
+        "filename": "rhosp/providers/bmc/collect_node_logs.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T09:34:27Z",
+      "side": 1,
+      "message": "why not to move logs from vexx to common and modify it s you suggested here ?\nsay, a function can take a list of IPs as an argument...",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 14
+      },
+      "revId": "69b88cacc3060011e873530146d9575c0dd948bc",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33b5cf49_0f704467",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T09:34:27Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 69,
+        "startChar": 74,
+        "endLine": 69,
+        "endChar": 81
+      },
+      "revId": "69b88cacc3060011e873530146d9575c0dd948bc",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee9e73b9_de8d1dfa",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T09:34:27Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 74,
+        "startChar": 91,
+        "endLine": 74,
+        "endChar": 98
+      },
+      "revId": "69b88cacc3060011e873530146d9575c0dd948bc",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
