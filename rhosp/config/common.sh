@@ -10,5 +10,3 @@ set +x
 export RHEL_PASSWORD=$RHEL_PASSWORD
 export RHEL_USER=$RHEL_USER
 eval "$state"
-
-

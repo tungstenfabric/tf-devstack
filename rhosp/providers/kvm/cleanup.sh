@@ -30,6 +30,7 @@ delete_domain $overcloud_compute_instance
 delete_domain $overcloud_ctrlcont_instance
 
 delete_domain $undercloud_vmname
+delete_domain $ipa_vmname
 
 delete_volume $undercloud_vm_volume $poolname
 

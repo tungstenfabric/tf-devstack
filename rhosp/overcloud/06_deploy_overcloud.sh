@@ -8,6 +8,7 @@ cd ~
 source ./stackrc
 source ./rhosp-environment.sh
 
+
 #Specific part of deployment
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
 
