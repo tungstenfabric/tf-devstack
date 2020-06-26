@@ -33,6 +33,23 @@
       "revId": "e3e51235b620d241d21ccf60999198479740f4a5",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c478a6f_4cce1554",
+        "filename": "juju/files/bundle_contrail_man.yaml.tmpl",
+        "patchSetId": 17
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-06-26T15:11:13Z",
+      "side": 1,
+      "message": "definitions for JUJU_MACHINES can be removed here and in the next bundle - this is not used here.",
+      "revId": "e3e51235b620d241d21ccf60999198479740f4a5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
     }
   ]
 }
