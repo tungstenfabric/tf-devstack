@@ -1,17 +1,16 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',') -%}
 {% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
 
 variables:
   contrail-controller-vip:         &contrail-controller-vip        "{{ VIRTUAL_IPS[6] }}"
 
 machines:
-  "{{ JUJU_MACHINES[0] }}":
+  "0":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
-  "{{ JUJU_MACHINES[1] }}":
+  "1":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
-  "{{ JUJU_MACHINES[2] }}":
+  "2":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
 
@@ -36,9 +35,9 @@ services:
 {%- endif %}
     expose: true
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
+      - "0"
+      - "1"
+      - "2"
   contrail-analyticsdb:
     charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
     series: "{{ UBUNTU_SERIES }}"
@@ -53,9 +52,9 @@ services:
       min-cluster-size: 3
     expose: true
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
+      - "0"
+      - "1"
+      - "2"
   contrail-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
@@ -68,9 +67,9 @@ services:
       min-cluster-size: 3
     expose: true
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
+      - "0"
+      - "1"
+      - "2"
   contrail-agent:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
@@ -88,9 +87,9 @@ services:
     num_units: 3
     expose: true
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
+      - "0"
+      - "1"
+      - "2"
     options:
       peering_mode: active-active
       ssl_cert: SELFSIGNED
@@ -99,7 +98,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     num_units: 1
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
+      - "lxd:0"
   contrail-openstack:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
@@ -113,7 +112,7 @@ services:
     charm: cs:~containers/easyrsa
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
 {%- endif %}
 
 relations:

@@ -20,6 +20,8 @@ declare -A STAGES=( \
     ["platform"]="juju machines k8s openstack" \
 )
 
+export PATH=$PATH:/snap/bin
+
 # default env variables
 export DEPLOYER='juju'
 # max wait in seconds after deployment (openstack ~ 1300, k8s ~ 2100, maas ~ 2400)
@@ -66,9 +68,10 @@ function logs() {
     create_log_dir
 
     # removed ' | grep -v \/lxd\/'
-    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
-    for machine in $JUJU_MACHINES ; do
-        tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
+    local machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
+    local machine=''
+    for machine in $machines ; do
+        local tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
         mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
         command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
@@ -119,9 +122,6 @@ function machines() {
             echo "controllers' amount should be odd. now it is $CONTROLLER_COUNT."
             exit 0
         fi
-        $my_dir/../common/add_juju_machines.sh
-    fi
-    if [[ $CLOUD == 'maas' ]] ;then
         $my_dir/../common/add_juju_machines.sh
     fi
 

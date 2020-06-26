@@ -1,4 +1,3 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',') -%}
 {% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
 
 heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[0] }}"
@@ -9,19 +8,19 @@ neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[4] }}"
 nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
 
 machines:
-  "{{ JUJU_MACHINES[0] }}":
+  "0":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
-  "{{ JUJU_MACHINES[1] }}":
+  "1":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
-  "{{ JUJU_MACHINES[2] }}":
+  "2":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=32G cores=8 root-disk=300G
-  "{{ JUJU_MACHINES[3] }}":
+  "3":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=100G
-  "{{ JUJU_MACHINES[4] }}":
+  "4":
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=100G
 
@@ -48,27 +47,27 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   ceph-mon:
     charm: cs:ceph-mon
     num_units: 3
     options:
       expected-osd-count: 3
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   ceph-osd:
     charm: cs:ceph-osd
     num_units: 3
     options:
       osd-devices: /var/lib/ceph/storage
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
+      - "0"
+      - "1"
+      - "2"
   keystone:
     charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 3
@@ -81,9 +80,9 @@ services:
       preferred-api-version: "3"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   mysql:
     charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
     num_units: 3
@@ -93,18 +92,18 @@ services:
       root-password: "password"
       max-connections: 1500
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
     num_units: 3
     options:
       min-cluster-size: 3
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   neutron-api:
     charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 3
@@ -116,9 +115,9 @@ services:
       neutron-security-groups: "true"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   heat:
     charm: "cs:heat"
     num_units: 3
@@ -128,9 +127,9 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   nova-cloud-controller:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 3
@@ -142,18 +141,18 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   memcached:
     charm: "cs:{{ UBUNTU_SERIES }}/memcached"
     num_units: 3
     options:
       allow-ufw-ip6-softfail: "True"
     to:
-      - "lxd:{{ JUJU_MACHINES[0] }}"
-      - "lxd:{{ JUJU_MACHINES[1] }}"
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
   nova-compute:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
@@ -166,8 +165,8 @@ services:
       enable-live-migration: "true"
       migration-auth-type: "ssh"
     to:
-      - "{{ JUJU_MACHINES[3] }}"
-      - "{{ JUJU_MACHINES[4] }}"
+      - "3"
+      - "4"
   openstack-dashboard:
     charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
@@ -176,7 +175,7 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "lxd:{{ JUJU_MACHINES[2] }}"
+      - "lxd:2"
 
   # misc
 
@@ -184,11 +183,11 @@ services:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
     num_units: 5
     to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
-      - "{{ JUJU_MACHINES[3] }}"
-      - "{{ JUJU_MACHINES[4] }}"
+      - "0"
+      - "1"
+      - "2"
+      - "3"
+      - "4"
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp"
 
