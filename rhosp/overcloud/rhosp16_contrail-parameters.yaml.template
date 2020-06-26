@@ -5,7 +5,7 @@ parameter_defaults:
   ControlPlaneDefaultRoute: ${prov_ip}
   ControlPlaneSubnetCidr: ${prov_subnet_len}
   EC2MetadataIp: ${prov_ip}
-  DnsServers: [ "8.8.8.8", "8.8.4.4" ]
+  DnsServers: ${overcloud_nameservers}
   NtpServer: 3.europe.pool.ntp.org
   NovaComputeLibvirtType: ${overcloud_virt_type}
   DockerInsecureRegistryAddress:
@@ -13,7 +13,6 @@ parameter_defaults:
     - ${undercloud_instance}.ctlplane.${domain}:8787
   #TODO: delete this when official image is available
   DockerContrailVrouterKernelInitImageName: contrail-vrouter-kernel-init:rhosp16
-
 
   #Custome Contrail container configuration settings
   ContrailSettings:
@@ -30,3 +29,7 @@ parameter_defaults:
   #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
   #   n \"log-dir\" from group \"DEFAULT\"."
   EnableOnlineDataMigrations: false
+
+  CloudName: overcloud.${domain}
+  CloudNameInternal: overcloud.internalapi.${domain}
+  CloudNameCtlplane: overcloud.ctlplane.${domain}
