@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9211629b_220c4985",
+        "filename": "rhosp/providers/bmc/stages.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "I would remove definition of it from main run.sh\neach provider declares own user in its own $my_dir/config/${PROVIDER}_env.sh\nthis file is sourced and all info is put into rhosp-environment.sh which is available for all these scripts.",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 23
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b9ca840_bda997a5",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "for pre-deployed nodes these functions returns nothing..\nso, implement here might be: \n- check predevined vars with ips for the case with pre-deployed nodes, if not empty - use them, otherwise enumerate via openstack..",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 1
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ff851b6_c0a26349",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "why not to use SSH_USER which is available from rhosp-environment.sh ?",
+      "range": {
+        "startLine": 96,
+        "startChar": 10,
+        "endLine": 96,
+        "endChar": 20
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eea3c7f3_fbbf118d",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "why not to use same var from  rhosp-environemnt.sh ?",
+      "range": {
+        "startLine": 97,
+        "startChar": 4,
+        "endLine": 97,
+        "endChar": 93
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "045aec79_50c70343",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "local",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 13
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad45b27d_038a5982",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:22:26Z",
+      "side": 1,
+      "message": "add before the loop: local ip",
+      "range": {
+        "startLine": 107,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 10
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
