@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f118ddf4_5028869a",
+        "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:06:15Z",
+      "side": 1,
+      "message": "not needed.\nthis file is for rhosp16 only which is always train.",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 49
+      },
+      "revId": "07d4657e90497854c43685cbf3a8e7ce9cadf7f1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fa9ca86_22a03d11",
+        "filename": "rhosp/providers/vexx/stages.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:06:15Z",
+      "side": 1,
+      "message": "if somethign for rhosp16 needed then lets follow same way as in other places, here is just a call like\n${RHOSP_VERSION}_prepare_insecure_registries.sh\nand create two files for rhosp13 and for rhosp16 with different impl.",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 6
+      },
+      "revId": "07d4657e90497854c43685cbf3a8e7ce9cadf7f1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9925ded8_dd568940",
+        "filename": "rhosp/providers/vexx/stages.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:06:15Z",
+      "side": 1,
+      "message": "lets use RHOSP_VERSION for check",
+      "range": {
+        "startLine": 46,
+        "startChar": 10,
+        "endLine": 46,
+        "endChar": 42
+      },
+      "revId": "07d4657e90497854c43685cbf3a8e7ce9cadf7f1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46409778_74367c34",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:06:15Z",
+      "side": 1,
+      "message": "not needed, it is declared in config/common.sh that is already copied to rhosp-env file above",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 76
+      },
+      "revId": "07d4657e90497854c43685cbf3a8e7ce9cadf7f1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60075c82_7a0f6318",
+        "filename": "rhosp/undercloud/rhel8_deploy_as_stack.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-06-26T21:06:15Z",
+      "side": 1,
+      "message": "export rhsm_login_password\u003d\n[ -n \"$RHEL_USER\" ] \u0026\u0026 rhsm_login_password\u003d\"${RHEL_USER}: \u0027${RHEL_PASSWORD}\u0027\"",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 19
+      },
+      "revId": "07d4657e90497854c43685cbf3a8e7ce9cadf7f1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
