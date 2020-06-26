@@ -1,10 +1,10 @@
 machines:
 {%- if AGENT_NODES|string == NODE_IP|string %}
-{%- set all_nodes_count = CONTROLLER_COUNT|int %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int %}
 {%- set agent_nodes = [0] %}
 {%- else %}
-{%- set all_nodes_count = CONTROLLER_COUNT|int + AGENT_COUNT|int %}
-{%- set agent_nodes = range(CONTROLLER_COUNT|int, all_nodes_count) | list %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int + AGENTS_COUNT|int %}
+{%- set agent_nodes = range(CONTROLLERS_COUNT|int, all_nodes_count) | list %}
 {%- endif %}
 {%- set all_nodes = range(0, all_nodes_count) | list %}
 {%- for i in range(0, all_nodes_count) %}

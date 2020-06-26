@@ -1,10 +1,10 @@
 machines:
-{%- for i in range(0,CONTROLLER_COUNT|int) %}
+{%- for i in range(0,CONTROLLERS_COUNT|int) %}
   {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=60G
 {%- endfor %}
-{%- set controller_nodes = range(0,CONTROLLER_COUNT|int) | list %}
+{%- set controller_nodes = range(0,CONTROLLERS_COUNT|int) | list %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:

@@ -115,8 +115,8 @@ function juju() {
 
 function machines() {
     if [[ $CLOUD == 'manual' ]] ;then
-        if [[ $(( $CONTROLLER_COUNT % 2 )) -eq 0 ]]; then
-            echo "controllers' amount should be odd. now it is $CONTROLLER_COUNT."
+        if [[ $(( $CONTROLLERS_COUNT % 2 )) -eq 0 ]]; then
+            echo "controllers' amount should be odd. now it is $CONTROLLERS_COUNT."
             exit 0
         fi
         $my_dir/../common/add_juju_machines.sh
