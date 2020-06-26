@@ -17,7 +17,6 @@ source "/home/$SUDO_USER/rhosp-environment.sh"
 source "$my_dir/virsh_functions"
 
 # delete stack to unregister nodes
-ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 # unregister undercloud
 ssh -T $ssh_opts stack@${mgmt_ip} "sudo subscription-manager unregister"
 
@@ -30,6 +29,7 @@ delete_domain $overcloud_compute_instance
 delete_domain $overcloud_ctrlcont_instance
 
 delete_domain $undercloud_vmname
+delete_domain $ipa_vmname
 
 delete_volume $undercloud_vm_volume $poolname
 
