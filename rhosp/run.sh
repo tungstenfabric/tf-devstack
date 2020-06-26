@@ -27,6 +27,14 @@ export DEPLOYER='rhosp'
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
+# 
+# empty - disabled
+# ipa   - use FreeIPA
+export ENABLE_TLS=${ENABLE_TLS:-}
+if [[ -n "$ENABLE_TLS" && "$ENABLE_TLS" != 'ipa' ]] ; then
+  echo "ERROR: Unsupported TLS configuration $ENABLE_TLS"
+  exit 1
+fi
 
 if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     if [[ -z ${RHEL_USER+x} ]]; then
@@ -109,6 +117,7 @@ function prepare_rhosp_env_file() {
     echo "export CONTRAIL_CONTAINER_TAG=\"$CONTRAIL_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
     echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
+    echo "export ENABLE_TLS=\"$ENABLE_TLS\"" >> ~/rhosp-environment.sh
     #Removing duplicate lines
     sudo rm -f /tmp/rhosp-environment.sh
     awk '!a[$0]++' ~/rhosp-environment.sh >/tmp/rhosp-environment.sh
