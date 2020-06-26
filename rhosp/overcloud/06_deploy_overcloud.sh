@@ -8,6 +8,7 @@ cd ~
 source ./stackrc
 source ./rhosp-environment.sh
 
+
 #Specific part of deployment
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
 
@@ -17,7 +18,6 @@ if [[ ! "$status" =~ 'COMPLETE' ]] ; then
   exit -1
 fi
 
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 internal_vip=$(ssh $ssh_opts $SSH_USER@$overcloud_cont_prov_ip sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
 
 # patch hosts to resole overcloud by fqdn
