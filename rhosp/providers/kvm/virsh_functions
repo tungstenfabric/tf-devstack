@@ -264,6 +264,9 @@ function image_customize() {
   local image=$1
   local hname=$2
   local ssh_public_key=$3
+  local hdomain=$4
+  local ip=$5
+  local fqdn=${hname}.${hdomain}
   virt-customize -a $image \
     --run-command 'xfs_growfs /' \
     --run-command 'systemctl enable sshd' \
@@ -272,14 +275,15 @@ function image_customize() {
     --run-command 'yum remove -y cloud-init' \
     --run-command 'echo net.ipv6.bindv6only=0 > /etc/sysctl.conf' \
     --run-command 'echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf' \
-    --run-command 'echo ::1  localhost.localdomain localhost  ip6-localhost ip6-loopback > /etc/hosts' \
+    --run-command 'echo net.ipv4.ip_forward = 1 >> /etc/sysctl.conf' \
+    --run-command "echo ::1  localhost.$hdomain localhost  ip6-localhost ip6-loopback > /etc/hosts" \
     --run-command 'echo ff02::1 ip6-allnodes >> /etc/hosts' \
     --run-command 'echo ff02::2 ip6-allrouters >> /etc/hosts' \
-    --run-command 'echo 127.0.0.1  localhost.localdomain  localhost >> /etc/hosts' \
-    --run-command 'echo 127.0.0.1  ${hname}.localdomain  $hname >> /etc/hosts' \
-    --hostname $hname \
+    --run-command "echo 127.0.0.1  localhost.${hdomain}  localhost >> /etc/hosts" \
+    --run-command "echo $ip  ${fqdn}  ${hname} > /etc/hosts" \
+    --hostname ${fqdn} \
     --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
-    --run-command 'echo "stack:${IPMI_PASSWORD}" | chpasswd' \
+    --run-command "echo stack:${IPMI_PASSWORD} | chpasswd" \
     --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
     --run-command 'stat /home/stack/.ssh || mkdir /home/stack/.ssh && chown stack:stack /home/stack/.ssh && chmod 700 /home/stack/.ssh' \
     --run-command 'echo -n > /home/stack/.ssh/authorized_keys' \
@@ -287,7 +291,6 @@ function image_customize() {
     --ssh-inject stack:file:$ssh_public_key \
     --selinux-relabel
 }
-
 
 function assert_env_exists() {
   local name=$1
@@ -329,12 +332,13 @@ function wait_ssh() {
   local ssh_key=${2:-''}
   local max_iter=${3:-20}
   local iter=0
-  local ssh_opts='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+  local ssh_opts='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no'
   if [[ -n "$ssh_key" ]] ; then
     ssh_opts+=" -i $ssh_key"
   fi
+  local tf=$(mktemp)
   truncate -s 0 ./tmp_file
-  while ! scp $ssh_opts -B ./tmp_file root@${addr}:/tmp/tmp_file ; do
+  while ! scp $ssh_opts -B $tf root@${addr}:/tmp/tmp_file ; do
     if (( iter >= max_iter )) ; then
       echo "Could not connect to VM $addr"
       exit 1
