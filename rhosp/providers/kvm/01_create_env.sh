@@ -36,7 +36,7 @@ assert_env_exists $undercloud_vmname
 # create networks and setup DHCP rules
 create_network_dhcp $NET_NAME_MGMT $mgmt_subnet $BRIDGE_NAME_MGMT
 update_network_dhcp $NET_NAME_MGMT $undercloud_vmname $undercloud_mgmt_mac $mgmt_ip
-if [[ "$ENABLE_IPA" != 'false' ]] ; then
+if [[ -n "$ENABLE_TLS" ]] ; then
   update_network_dhcp $NET_NAME_MGMT $ipa_vmname $ipa_mgmt_mac $ipa_mgmt_ip
 fi
 
@@ -102,7 +102,7 @@ fi
 cp -p $BASE_IMAGE $pool_path/$undercloud_vm_volume
 image_customize $pool_path/$undercloud_vm_volume undercloud $ssh_public_key
 
-if [[ "$ENABLE_IPA" != 'false' ]] ; then
+if [[ -n "$ENABLE_TLS" ]] ; then
   cp -p $BASE_IMAGE $pool_path/$ipa_vm_volume
   image_customize $pool_path/$ipa_vm_volume $ipa_vmname $ssh_public_key
 fi
@@ -139,7 +139,7 @@ function _start_vm() {
 _start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac
 
-if [[ "$ENABLE_IPA" != 'false' ]] ; then
+if [[ -n "$ENABLE_TLS" ]] ; then
   _start_vm "$ipa_vmname" "$pool_path/$ipa_vm_volume" \
     $ipa_mgmt_mac $ipa_prov_mac
 fi
