@@ -35,8 +35,13 @@ export AGENT_NODES="$(echo $AGENT_NODES | tr ',' ' ')"
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 
+<<<<<<< HEAD
 export CONTROLLER_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
 export AGENT_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
+=======
+export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
+export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
+>>>>>>> 3c519ed... [WIP] some changes for 3 controllers 2 agents quick start on base of openstack
 
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user

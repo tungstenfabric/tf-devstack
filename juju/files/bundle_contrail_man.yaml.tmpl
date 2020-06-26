@@ -1,10 +1,18 @@
 machines:
+<<<<<<< HEAD
 {%- for i in range(0,CONTROLLER_COUNT|int) %}
+=======
+{%- for i in range(0,CONTROLLERS_COUNT|int) %}
+>>>>>>> 3c519ed... [WIP] some changes for 3 controllers 2 agents quick start on base of openstack
   {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=60G
 {%- endfor %}
+<<<<<<< HEAD
 {%- set controller_nodes = range(0,CONTROLLER_COUNT|int) | list %}
+=======
+{%- set controller_nodes = range(0,CONTROLLERS_COUNT|int) | list %}
+>>>>>>> 3c519ed... [WIP] some changes for 3 controllers 2 agents quick start on base of openstack
 
 series: "{{ UBUNTU_SERIES }}"
 services:
