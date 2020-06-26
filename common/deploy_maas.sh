@@ -111,18 +111,17 @@ done
 
 sleep 180
 for ((i=0; i<30; ++i)); do
-  MACHINES_STATUS=`maas $PROFILE machines read | jq -r '.[] | .status_name'`
+  MACHINES_STATUS=`maas $PROFILE machines read | jq -r '.[].status_name'`
   MACHINES_COUNT=`echo "$MACHINES_STATUS" | wc -l`
   if echo "$MACHINES_STATUS" | grep -q "Ready"; then
     READY_COUNT=`echo "$MACHINES_STATUS" | grep -c "Ready"`
-    if (( READY_COUNT >= MACHINES_COUNT )); then
+    if [[ $READY_COUNT == $MACHINES_COUNT ]]; then
       break
     fi
   fi
   sleep 30
 done
-
-if (( READY_COUNT != MACHINES_COUNT )); then
+if [[ $READY_COUNT != $MACHINES_COUNT ]]; then
   echo "ERROR: timeout for commissioning exceeded. Machines were not created properly"
   exit 1
 fi
