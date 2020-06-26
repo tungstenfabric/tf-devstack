@@ -4,13 +4,16 @@ local_ip = ${prov_ip_cidr}
 local_interface = ${undercloud_local_interface}
 local_mtu = ${local_mtu}
 overcloud_domain_name = ${domain}
-undercloud_nameservers = 8.8.8.8
+undercloud_nameservers = ${undercloud_nameservers}
 undercloud_hostname = ${undercloud_instance}.${domain}
 undercloud_admin_host = ${undercloud_admin_host}
 undercloud_public_host = ${undercloud_public_host}
 discovery_iprange = ${prov_inspection_iprange}
 subnets = ctlplane-subnet
 inspection_interface = br-ctlplane
+${nova_join_option}
+${ipa_otp_option}
+
 [ctlplane-subnet]
 cidr = ${prov_cidr}
 dhcp_start = ${prov_dhcp_start}
@@ -18,4 +21,3 @@ dhcp_end = ${prov_dhcp_end}
 gateway = ${prov_ip}
 inspection_iprange = ${prov_inspection_iprange}
 masquerade = true
-
