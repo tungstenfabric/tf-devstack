@@ -122,7 +122,7 @@ function _start_vm() {
   # define and start machine
   virt-install --name=$name \
     --ram=$ram \
-    --vcpus=2,cores=2 \
+    --vcpus=4,cores=4 \
     --cpu host \
     --memorybacking hugepages=on \
     --os-type=linux \
