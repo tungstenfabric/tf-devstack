@@ -25,7 +25,7 @@ services:
       log-level: "SYS_DEBUG"
       auth-mode: "rbac"
       cassandra-minimum-diskgb: "4"
-      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -45,7 +45,7 @@ services:
     options:
       log-level: "SYS_DEBUG"
       cassandra-minimum-diskgb: "4"
-      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
