@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8d0f1a80_29fd24c5",
+        "filename": "rhosp/providers/bmc/stages.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "for vexx it works well, but in bmc on overcloud there is only heat-admin user\nthis is changed and added connectivity check as WA\nwe must move post-deploy steps to separate script",
+      "parentUuid": "9211629b_220c4985",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 23
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b9ca840_bda997a5",
         "filename": "rhosp/providers/common/functions.sh",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f300eb01_346f07a7",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b9ca840_bda997a5",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 75,
+        "endChar": 1
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8007370f_19b29628",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "in this deployment there is no such user on overcloud, this changed and add a new function for auth compatibility with sanity test",
+      "parentUuid": "2ff851b6_c0a26349",
+      "range": {
+        "startLine": 96,
+        "startChar": 10,
+        "endLine": 96,
+        "endChar": 20
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "eea3c7f3_fbbf118d",
         "filename": "rhosp/providers/common/functions.sh",
         "patchSetId": 15
@@ -91,6 +163,30 @@
       "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7502c7d8_c6761b24",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "eea3c7f3_fbbf118d",
+      "range": {
+        "startLine": 97,
+        "startChar": 4,
+        "endLine": 97,
+        "endChar": 93
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "99e0abbc_1b32356c",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "045aec79_50c70343",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 13
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad45b27d_038a5982",
         "filename": "rhosp/providers/common/functions.sh",
         "patchSetId": 15
@@ -137,6 +257,30 @@
       "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaaedede_ca8cc2f9",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-06-29T14:20:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad45b27d_038a5982",
+      "range": {
+        "startLine": 107,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 10
+      },
+      "revId": "b56495db0912ff42aa37406b6dd67fe645abfd82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
