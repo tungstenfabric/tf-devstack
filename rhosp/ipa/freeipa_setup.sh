@@ -109,6 +109,13 @@ ipa-server-install -U -r `hostname -d|tr "[a-z]" "[A-Z]"` \
                    --ip-address=$FreeIPAIP \
                    --setup-dns --auto-forwarders --auto-reverse $FreeIPAExtraArgs
 
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1571897
+## * Set CA to create CRL on restart
+sed -i "s/ca.crl.MasterCRL.publishOnStart=.*/ca.crl.MasterCRL.publishOnStart=true/" /etc/pki/pki-tomcat/ca/CS.cfg
+systemctl restart pki-tomcatd@pki-tomcat.service
+#
+
 # Authenticate
 echo $AdminPassword | kinit admin
 
