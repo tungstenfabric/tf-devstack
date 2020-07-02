@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1501b2d_618369e3",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-02T12:07:37Z",
+      "side": 1,
+      "message": "looks not needed, lets remove.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 3
+      },
+      "revId": "9c77294dce8c0b151dd0d5b499bcdaf06444f2c3",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
