@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c776362f_fd8e5066",
+        "filename": "juju/run.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-02T09:10:48Z",
+      "side": 1,
+      "message": "what is it?",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 0
+      },
+      "revId": "450f35632c89161c84c783a99f087793695e5d32",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30553c4c_a651f079",
+        "filename": "juju/run.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-02T09:10:48Z",
+      "side": 1,
+      "message": "please add comment why it\u0027s needed.",
+      "revId": "450f35632c89161c84c783a99f087793695e5d32",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
