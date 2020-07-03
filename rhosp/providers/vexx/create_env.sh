@@ -1,5 +1,9 @@
 #!/bin/bash
 
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+source "$my_dir/../common/functions.sh"
+
 #All in one deployment
 DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 
@@ -8,9 +12,8 @@ ASSIGN_FLOATING_IP=${ASSIGN_FLOATING_IP:-false}
 
 workspace=${WORKSPACE:-$(pwd)}
 vexxrc=${vexxrc:-"${workspace}/vexxrc"}
-#take from ci
-RHEL_VERSION=${ENVIRONMENT_OS:-'rhel7'}
-RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
+
+set_rhosp_version
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
