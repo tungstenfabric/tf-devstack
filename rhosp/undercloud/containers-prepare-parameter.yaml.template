@@ -3,6 +3,8 @@ parameter_defaults:
   - push_destination: true
     excludes:
       - ceph
+      - ose-prometheus
+      - ceilometer
     set:
       name_prefix: openstack-
       name_suffix: ''
@@ -10,7 +12,7 @@ parameter_defaults:
       neutron_driver: ovn
       rhel_containers: false
       tag: '16.0'
-    tag_from_label: '{version}-{release}'
+    tag_from_label: '{version}'
   ContainerImageRegistryCredentials:
     registry.redhat.io:
       ${RHEL_USER}: '${RHEL_PASSWORD}'

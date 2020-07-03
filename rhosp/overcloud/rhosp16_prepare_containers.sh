@@ -3,7 +3,9 @@ rhel_reg_env_files=''
 if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     rhel_reg_env_files+=" -e ./rhsm.yaml"
 fi
-sudo openstack tripleo container image prepare -e ./containers-prepare-parameter.yaml $rhel_reg_env_files > ./overcloud_containers.yaml
+sudo openstack tripleo container image prepare $rhel_reg_env_files \
+    -e ./containers-prepare-parameter.yaml \
+    --output-env-file ./overcloud_containers.yaml
 
 echo 'sudo openstack overcloud container image upload --config-file ./overcloud_containers.yaml'
 sudo openstack overcloud container image upload --config-file ./overcloud_containers.yaml
