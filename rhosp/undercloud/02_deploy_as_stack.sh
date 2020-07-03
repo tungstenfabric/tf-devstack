@@ -4,13 +4,7 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-
-if [ -f ~/rhosp-environment.sh ]; then
-  source ~/rhosp-environment.sh
-else
-  echo "File ~/rhosp-environment.sh not found"
-  exit
-fi
+source ~/rhosp-environment.sh
 
 # ssh config to do not check host keys and avoid garbadge in known hosts files
 mkdir -p ~/.ssh

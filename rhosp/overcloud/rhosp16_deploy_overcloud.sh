@@ -16,12 +16,12 @@ role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
 pre_deploy_nodes_env_files=''
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" --disable-validations"
+  pre_deploy_nodes_env_files+=" --deployed-server"
   pre_deploy_nodes_env_files+=" --overcloud-ssh-user $SSH_USER"
   pre_deploy_nodes_env_files+=" --overcloud-ssh-key .ssh/id_rsa"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-environment.yaml"
-  pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-bootstrap-environment-rhel.yaml"
-  pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
+  pre_deploy_nodes_env_files+=" -e hostname-map.yaml"
 
   if [[ -z "${overcloud_compute_prov_ip}" ]]; then
     role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
@@ -54,4 +54,5 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $tls_env_files \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
-  -e containers-prepare-parameter.yaml
+  -e containers-prepare-parameter.yaml \
+  -e overcloud_containers.yaml

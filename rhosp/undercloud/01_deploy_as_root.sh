@@ -13,12 +13,7 @@ if [[ -z ${SUDO_USER+x} ]]; then
    exit 1
 fi
 
-if [ -f /home/$SUDO_USER/rhosp-environment.sh ]; then
-   source /home/$SUDO_USER/rhosp-environment.sh
-else
-   echo "File /home/$SUDO_USER/rhosp-environment.sh"
-   exit
-fi
+source /home/$SUDO_USER/rhosp-environment.sh
 
 #Specific part of deployment
 source $my_dir/${RHEL_VERSION}_deploy_as_root.sh

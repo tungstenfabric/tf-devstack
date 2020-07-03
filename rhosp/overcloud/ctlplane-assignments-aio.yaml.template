@@ -8,3 +8,6 @@ parameter_defaults:
         - ip_address: ${overcloud_cont_prov_ip}
       subnets:
         - cidr: ${prov_subnet_len}
+      network:
+        tags:
+          ${prov_cidr}
