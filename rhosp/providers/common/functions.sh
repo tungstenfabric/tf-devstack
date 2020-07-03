@@ -128,3 +128,20 @@ sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/
 EOF
     done
 }
+
+function set_rhosp_version() {
+    case "$OPENSTACK_VERSION" in
+    "queens" )
+        export RHEL_VERSION='rhel7'
+        export RHOSP_VERSION='rhosp13'
+        ;;
+    "train" )
+        export RHEL_VERSION='rhel8'
+        export RHOSP_VERSION='rhosp16'
+        ;;
+    *)
+        echo "Variable OPENSTACK_VERSION is unset or incorrect"
+        exit 1
+        ;;
+esac
+}

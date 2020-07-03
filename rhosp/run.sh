@@ -6,6 +6,7 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
+source "$my_dir/providers/common/functions.sh"
 
 init_output_logging
 
@@ -47,20 +48,7 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     fi
 fi
 
-case "$OPENSTACK_VERSION" in
-    "queens" )
-        export RHEL_VERSION='rhel7'
-        export RHOSP_VERSION='rhosp13'
-        ;;
-    "train" )
-        export RHEL_VERSION='rhel8'
-        export RHOSP_VERSION='rhosp16'
-        ;;
-    *)
-        echo "Variable OPENSTACK_VERSION is unset or incorrect"
-        exit 1
-        ;;
-esac
+set_rhosp_version
 
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
