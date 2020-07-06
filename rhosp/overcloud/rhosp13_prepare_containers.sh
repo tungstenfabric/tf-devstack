@@ -1,9 +1,10 @@
 
 openstack overcloud container image prepare \
-  --namespace registry.access.redhat.com/rhosp13  --prefix=openstack- --tag-from-label {version}-{release} \
+  --namespace ${OPENSTACK_CONTAINER_REGISTRY}/rhosp13  --prefix=openstack- --tag-from-label {version} \
   --push-destination ${prov_ip}:8787 \
   --output-env-file ./docker_registry.yaml \
-  --output-images-file ./overcloud_containers.yaml
+  --output-images-file ./overcloud_containers.yaml \
+  --tag '13.0'
 
 echo 'openstack overcloud container image upload --config-file ./overcloud_containers.yaml'
 openstack overcloud container image upload --config-file ./overcloud_containers.yaml
