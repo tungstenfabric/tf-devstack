@@ -12,8 +12,8 @@ function machines() {
 function undercloud() {
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
-    ./undercloud/02_deploy_as_stack.sh
     source ./undercloud/${RHOSP_VERSION}_configure_registries_undercloud.sh
+    ./undercloud/02_deploy_as_stack.sh
 }
 
 #Overcloud nodes provisioning
