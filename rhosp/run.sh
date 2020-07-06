@@ -26,6 +26,7 @@ export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export DEPLOYER='rhosp'
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
+export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-'registry.redhat.io'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
 # 
 # empty - disabled
