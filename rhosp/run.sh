@@ -26,6 +26,7 @@ export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export DEPLOYER='rhosp'
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
+export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-'registry.redhat.io'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
 # 
 # empty - disabled
@@ -104,6 +105,7 @@ function prepare_rhosp_env_file() {
     echo "export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION" >> ~/rhosp-environment.sh
     echo "export CONTRAIL_CONTAINER_TAG=\"$CONTRAIL_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
     echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
+    echo "export OPENSTACK_CONTAINER_REGISTRY=\"$OPENSTACK_CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
     echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
     echo "export ENABLE_TLS=\"$ENABLE_TLS\"" >> ~/rhosp-environment.sh
     #Removing duplicate lines
