@@ -1,10 +1,10 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-source ~/rhosp-environment.sh
+source /home/$SUDO_USER/rhosp-environment.sh
 
 # ssh config to do not check host keys and avoid garbadge in known hosts files
 mkdir -p ~/.ssh
