@@ -29,5 +29,7 @@ else
   export ipa_otp_option=""
 fi
 
+source /home/$SUDO_USER/rhosp-environment.sh
+
 #Specific part of deployment
 source $my_dir/${RHEL_VERSION}_deploy_as_stack.sh

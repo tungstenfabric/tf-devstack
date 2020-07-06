@@ -6,6 +6,7 @@ echo "INFO: current insecure_registries=$insecure_registries"
 if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
     echo "INFO: add CONTAINER_REGISTRY=$CONTAINER_REGISTRY to insecure list"
 insecure_registries+=" --insecure-registry $CONTAINER_REGISTRY"
+[ -n "$OPENSTACK_CONTAINER_REGISTRY" ] && insecure_registries+=" --insecure-registry $OPENSTACK_CONTAINER_REGISTRY"
 fi
 sudo sed -i '/^INSECURE_REGISTRY/d' /etc/sysconfig/docker
 echo "INSECURE_REGISTRY=\"$insecure_registries\""  | sudo tee -a /etc/sysconfig/docker
