@@ -1,16 +1,6 @@
 #!/bin/bash -e
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
-   exit 1
-fi
-
-if [[ -z ${SUDO_USER+x} ]]; then
-   echo "Stop. Please run this scripts with sudo"
-   exit 1
-fi
-
-cd /home/$SUDO_USER
+cd
 
 source ./rhosp-environment.sh
 
