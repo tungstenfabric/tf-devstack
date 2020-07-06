@@ -1,7 +1,14 @@
-if [ -n "$CONTAINER_REGISTRY" ] && is_registry_insecure $CONTAINER_REGISTRY ; then
-    registries_file="/etc/containers/registries.conf"
-    current_registries="$(sed -n '/registries.insecure/{n; s/registries = //p}' "$registries_file" | tr -d '[]')"
-    changed_registries="[$current_registries,'$CONTAINER_REGISTRY']"
-    echo "INFO: new registries are $changed_registries"
-    sed -i "/registries.insecure/{n; s/registries = .*$/${changed_registries}/g}" ${registries_file}
+
+registries_file="/etc/containers/registries.conf"
+current_registries="$(sed -n '/registries.insecure/{n; s/registries = //p}' "$registries_file" | tr -d '[]')"
+echo "INFO: old registries are $current_registries"
+changed_registries=""
+[ -n "$current_registries" ] && changed_registries+="$current_registries "
+if ! echo "$current_registries" | grep -q "${prov_ip}:8787" ; then
+   changed_registries+="'${prov_ip}:8787' "
 fi
+changed_registries=$(echo "$changed_registries" | sed 's/\s\+/,/g')
+changed_registries="registries = [$changed_registries]"
+echo "INFO: new registries are $changed_registries"
+sudo sed "/registries.insecure/{n; s/registries = .*$/${changed_registries}/g}" ${registries_file} > registries.conf.tmp
+sudo mv registries.conf.tmp ${registries_file}
