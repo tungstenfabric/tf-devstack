@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6cb5718_d78af44e",
+        "filename": "ansible/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 445
+      },
+      "writtenOn": "2020-07-08T10:58:03Z",
+      "side": 1,
+      "message": "it\u0027s a non-python3-related change and not all other deployers do errexit or debug output",
+      "revId": "e5473360c7aa5a7d1689ef0d57389e827f6aac71",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
