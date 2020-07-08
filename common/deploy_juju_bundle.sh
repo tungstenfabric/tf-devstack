@@ -16,4 +16,8 @@ export JUJU_MACHINES=`echo $JUJU_MACHINES | sed 's/ /,/g'`
 echo "INFO: Change variables in bundle..."
 python3 "$my_dir/jinja2_render.py" <"${BUNDLE}" >"$WORKSPACE/bundle.yaml"
 
+echo "INFO: Print bundle..."
+cat "$WORKSPACE/bundle.yaml"
+
+echo "INFO: Run bundle..."
 juju deploy --debug $WORKSPACE/bundle.yaml --map-machines=existing
