@@ -102,7 +102,7 @@ function machines() {
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
         sudo yum install -y epel-release
-        sudo yum install -y python-setuptools iproute jq bind-utils lsof
+        sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils lsof
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
@@ -115,14 +115,19 @@ function machines() {
     # setup timeserver
     setup_timeserver
 
+    # pip3 is installed at /usr/local/bin which is not in sudoers secure_path by default
+    # use it as "python3 -m pip" with sudo
+    curl -s https://bootstrap.pypa.io/get-pip.py | sudo python3
     curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
+
     # Uninstall docker-compose and packages it uses to avoid
     # conflicts with other projects (like tf-dev-test, tf-dev-env)
     # and reinstall them via deps of docker-compose
-    sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
+    sudo pip uninstall -y docker-compose urllib3 chardet docker docker-py
 
     # docker-compose MUST be first here, because it will install the right version of PyYAML
-    sudo pip install 'docker-compose==1.24.1' jinja2 'ansible==2.7.11'
+    sudo pip install 'docker-compose==1.24.1' 'ansible==2.7.11'
+    sudo python3 -m pip install jinja2
 
     set_ssh_keys
 
@@ -140,12 +145,13 @@ function machines() {
     export CONTRAIL_CONTAINER_TAG
     export OPENSTACK_VERSION
     export USER=$(whoami)
-    $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
+    python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances_$ORCHESTRATOR.yaml > $tf_deployer_dir/instances.yaml
 
     # create Ansible temporary dir under current user to avoid create it under root
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
     rm -rf /tmp/rekjreekrbjrekj.txt
 
+    # Keep default python due to ansible modules bindings (packages module requires py2 rpm binding)
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/configure_instances.yml
