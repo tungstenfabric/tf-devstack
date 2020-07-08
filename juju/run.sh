@@ -136,6 +136,8 @@ function machines() {
 }
 
 function openstack() {
+    echo "INFO: [openstack] CLOUD=$CLOUD"
+    echo "INFO: [openstack] ORCHESTRATOR=$ORCHESTRATOR"
     if [[ "$ORCHESTRATOR" != "openstack" && $ORCHESTRATOR != 'all' ]]; then
         echo "INFO: Skipping openstack deployment"
         return
@@ -151,7 +153,7 @@ function openstack() {
     else
         export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
     fi
-
+    echo "INFO: [openstack] BUNDLE=$BUNDLE"
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
@@ -178,6 +180,8 @@ function k8s() {
 }
 
 function tf() {
+    echo "INFO: [tf] CLOUD=$CLOUD"
+    echo "INFO: [tf] ORCHESTRATOR=$ORCHESTRATOR"
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
         export BUNDLE="$my_dir/files/bundle_contrail_maas_ha.yaml.tmpl"
@@ -186,6 +190,7 @@ function tf() {
     else
         export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
+    echo "INFO: [tf] BUNDLE=$BUNDLE"
     # get contrail-charms
     [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO \
                       || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
