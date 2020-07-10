@@ -12,7 +12,7 @@ function create_flavor() {
   fi
 }
 
-create_flavor 'controller' 'controller'
+create_flavor 'control' 'controller'
 create_flavor 'compute' 'compute'
 create_flavor 'contrail-controller' 'contrail-controller'
 
