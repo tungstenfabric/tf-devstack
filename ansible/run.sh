@@ -117,16 +117,17 @@ function machines() {
 
     # pip3 is installed at /usr/local/bin which is not in sudoers secure_path by default
     # use it as "python3 -m pip" with sudo
-    curl -s https://bootstrap.pypa.io/get-pip.py | sudo python3
-    curl -s https://bootstrap.pypa.io/get-pip.py | sudo python
+    curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python3
+    curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python2 - 'pip==20.1'
 
     # Uninstall docker-compose and packages it uses to avoid
     # conflicts with other projects (like tf-dev-test, tf-dev-env)
     # and reinstall them via deps of docker-compose
-    sudo pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
+    sudo python2 -m pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
 
     # docker-compose MUST be first here, because it will install the right version of PyYAML
-    sudo pip install 'docker-compose==1.24.1' 'ansible==2.7.11'
+    sudo python2 -m pip install 'docker-compose==1.24.1' 'ansible==2.7.11'
+    # jinja is reqiured to create some configs
     sudo python3 -m pip install jinja2
 
     set_ssh_keys
