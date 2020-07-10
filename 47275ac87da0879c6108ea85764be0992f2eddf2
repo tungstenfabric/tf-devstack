@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "249c28f1_d20fd1a3",
+        "filename": "helm/deploy_helm_openstack.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-10T16:42:42Z",
+      "side": 1,
+      "message": "OPENSTACK_VERSION",
+      "range": {
+        "startLine": 9,
+        "startChar": 27,
+        "endLine": 9,
+        "endChar": 44
+      },
+      "revId": "47275ac87da0879c6108ea85764be0992f2eddf2",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "74c491de_c6d98265",
+        "filename": "helm/deploy_helm_openstack.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-10T16:42:42Z",
+      "side": 1,
+      "message": "extra space before \u0027elif\u0027",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 1
+      },
+      "revId": "47275ac87da0879c6108ea85764be0992f2eddf2",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35401113_de5adb60",
+        "filename": "helm/deploy_helm_openstack.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-10T16:42:42Z",
+      "side": 1,
+      "message": "\u0027-E\u0027 is required to pass DEBIAN_FRONTEND flag. also apt-get is more friendly for non-tty outputs",
+      "revId": "47275ac87da0879c6108ea85764be0992f2eddf2",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
