@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a50c9d5b_bf7c98ce",
+        "filename": "rhosp/overcloud/rhosp13_configure_registries_overcloud.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "remove trailing spaces (file looks to be unchanged)",
+      "range": {
+        "startLine": 4,
+        "startChar": 62,
+        "endLine": 4,
+        "endChar": 65
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4829f24_9500544a",
+        "filename": "rhosp/overcloud/rhosp16_configure_registries_overcloud.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "remove trailing spaces",
+      "range": {
+        "startLine": 8,
+        "startChar": 43,
+        "endLine": 8,
+        "endChar": 46
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de4d6220_4905f0fb",
+        "filename": "rhosp/overcloud/rhosp16_configure_registries_overcloud.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "that is equal to use sed -i\nto have atomic creation usually use \u0027mv\u0027 instead of cp \u0026 rm",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 26
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1dd1cc9_4748cecd",
+        "filename": "rhosp/providers/vexx/stages.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "is it correct change?\nafaik, openstack undercoud install may overwrite / reset our settings in registries...",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f42eeba4_40771040",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "remove space",
+      "range": {
+        "startLine": 31,
+        "startChar": 1,
+        "endLine": 31,
+        "endChar": 2
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d557bd8_26027e62",
+        "filename": "rhosp/undercloud/02_deploy_as_stack.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "it is done at line 7?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a420062_8eaeff51",
+        "filename": "rhosp/undercloud/containers-prepare-parameter.yaml.template",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "As I remember the whole section is to be skipped if rhsm_login_password is empty..\nmaybe rhsm_login_password can be named like \u0027rhsm_insecure_registries\u0027 and have a value like\nrhsm_insecure_registries\u003d\"\n  ContainerImageRegistryCredentials:\n     registry.redhat.io:\n      ${rhsm_login_password}\n\"\n\n(with new lines etc)",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 28
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b07df6bc_8c332379",
+        "filename": "rhosp/undercloud/rhosp16_configure_registries_undercloud.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "in rhosp13 openstack registry is treated as insecured w/o any checks..\nmaybe to simplify the things for now we can just assume it is always insecure for now..\n(or we need to add in rhosp13 similar checks)",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 96
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9477b9ff_d32e6cf9",
+        "filename": "rhosp/undercloud/rhosp16_configure_registries_undercloud.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-10T20:14:33Z",
+      "side": 1,
+      "message": "same thoughts about sed \u0026 cp \u0026 rm.  vs. sed -i. vs. sed \u0026 mv",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 26
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
