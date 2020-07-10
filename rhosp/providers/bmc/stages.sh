@@ -27,8 +27,6 @@ function tf() {
     ./overcloud/04_prepare_heat_templates.sh
     ./overcloud/05_prepare_containers.sh
     ./overcloud/06_deploy_overcloud.sh
-    # Adding user to run sanity test and collect logs
-    add_overcloud_user
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh

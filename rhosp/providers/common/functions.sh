@@ -111,24 +111,6 @@ function collect_deployment_log() {
     set -e
 }
 
-function add_overcloud_user() {
-    local pub_key=$(cat ~/.ssh/id_rsa.pub)
-    local ip=''
-    for ip in $(get_servers_ips); do
-        ssh $ssh_opts heat-admin@$ip "id -u $SSH_USER" && continue
-        cat <<EOF | ssh $ssh_opts -t heat-admin@$ip
-sudo useradd $SSH_USER
-echo "$SSH_USER ALL=(root) NOPASSWD:ALL" | sudo tee -a /etc/sudoers.d/$SSH_USER
-sudo chmod 440 /etc/sudoers.d/$SSH_USER
-sudo mkdir /home/$SSH_USER/.ssh
-echo "$pub_key" | sudo tee -a /home/$SSH_USER/.ssh/authorized_keys
-sudo chmod 700 /home/$SSH_USER/.ssh
-sudo chmod 600 /home/$SSH_USER/.ssh/authorized_keys
-sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/
-EOF
-    done
-}
-
 function set_rhosp_version() {
     case "$OPENSTACK_VERSION" in
     "queens" )
