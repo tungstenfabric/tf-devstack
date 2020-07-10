@@ -104,7 +104,7 @@ mv instackenv.json /home/$SUDO_USER/
 
 # check this json (it's optional)
 # curl --silent -O https://raw.githubusercontent.com/rthallisey/clapper/master/instackenv-validator.py
-# python instackenv-validator.py -f ~/instackenv.json
+# python3 instackenv-validator.py -f ~/instackenv.json
 
 
 
