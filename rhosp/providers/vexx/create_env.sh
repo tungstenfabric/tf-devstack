@@ -203,7 +203,7 @@ fi
 
 prov_subnet="$(echo $prov_end_addr | cut -d '.' -f1,2).$_octet3"
 prov_inspection_iprange_start=$_octet4
-if (( prov_inspection_iprange_start > 230 )) ; then
+if (( prov_inspection_iprange_start > 229 )) ; then
   echo "ERROR: unsupported setup - prov_allocation_pool=$prov_allocation_pool"
   echo "ERROR: subnet must have at least 25 addresses avaialble in latest octet"
   exit 1
