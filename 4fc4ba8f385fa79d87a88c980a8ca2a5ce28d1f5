@@ -94,6 +94,30 @@
     },
     {
       "key": {
+        "uuid": "c4207524_c4f9398d",
+        "filename": "rhosp/providers/vexx/stages.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 846
+      },
+      "writtenOn": "2020-07-13T08:46:03Z",
+      "side": 1,
+      "message": "yes, it is correct because undercloud need to use images from our mirror. How does he know about it?\nUndercloud has ansible scripts that adds registry if the registry is empty https://github.com/tungstenfabric/tf-tripleo-heat-templates/blob/stable/train/extraconfig/pre_deploy/contrail/contrail_ansible_node_init.yaml#L115",
+      "parentUuid": "a1dd1cc9_4748cecd",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f42eeba4_40771040",
         "filename": "rhosp/run.sh",
         "patchSetId": 9
@@ -128,6 +152,30 @@
       "writtenOn": "2020-07-10T20:14:33Z",
       "side": 1,
       "message": "it is done at line 7?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 44
+      },
+      "revId": "4fc4ba8f385fa79d87a88c980a8ca2a5ce28d1f5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79632b5e_cb6d8482",
+        "filename": "rhosp/undercloud/02_deploy_as_stack.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 846
+      },
+      "writtenOn": "2020-07-13T08:46:03Z",
+      "side": 1,
+      "message": "need to remove, yes",
+      "parentUuid": "2d557bd8_26027e62",
       "range": {
         "startLine": 32,
         "startChar": 0,
