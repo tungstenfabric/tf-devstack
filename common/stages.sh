@@ -63,11 +63,60 @@ function cleanup_stage() {
   rm -f $TF_STAGES_DIR/$stage
 }
 
+function wait_cmd_success_() {
+  # silent mode = don't print output of input cmd for each attempt.
+  echo "[wait_cmd_success_]"
+  local cmd=$1
+  local interval=${2:-3}
+  local max=${3:-300}
+  local silent_cmd=${4:-1}
+
+  local state_save=$(set +o)
+  set +o xtrace
+  set -o pipefail
+  local i=0
+  local is_active_res=1
+  while [ $is_active_res -ne 0 ]; do
+    echo "[wait_cmd_success_]  it $i"
+    i=$((i + 1))
+    is_active_res=$($cmd)
+    if (( i > max )) ; then
+      echo ""
+      echo "ERROR: wait failed in $((i*10))s"
+      eval "$cmd"
+      eval "$state_save"
+      echo "[wait_cmd_success_]  end return 1"
+      return 1
+    fi
+    sleep $interval
+  done
+  echo ""
+  echo "INFO: done in $((i*10))s"
+  echo "[wait_cmd_success_]  end"
+  eval "$state_save"
+}
+
+function is_active() {
+    echo "[is_active]"
+    local status=`$(which juju) status`
+    if [[ $status =~ "error" ]]; then
+        echo "ERROR: Deployment has failed because juju state is error"
+        echo "$status"
+        exit 1
+    fi
+    echo "[is_active]  passed if]" 
+    #[[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    return $([ echo $status | egrep 'executing|blocked|waiting' ] && echo "1" || echo "0")
+}
+
 function wait() {
+  echo "[wait]"
   local timeout=${WAIT_TIMEOUT:-1200}
-  wait_cmd_success is_active 10 $((timeout/10))
+  wait_cmd_success_ is_active 10 $((timeout/10))
   # collect additional env information about deployment for saving to profile after successful run
+  echo "[wait]  collect_deployment_env"
   collect_deployment_env
+  echo "[wait]  collect_deployment_env end"
 }
 
 function run_stages() {

@@ -242,16 +242,20 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    echo "[is_active]"
     local status=`$(which juju) status`
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
         echo "$status"
         exit 1
-    fi
-    [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    fi  
+    echo "[is_active]  passed if]"
+    #[[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    return $([ `juju status` | egrep 'executing|blocked|waiting' ] && echo "1" || echo "0")
 }
 
 function collect_deployment_env() {
+    echo "[collect_deployment_env]"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
     fi
@@ -269,6 +273,7 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
         DEPLOYMENT_ENV['SSL_CACERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0')"
     fi
+    echo "[collect_deployment_env]  end" 
 }
 
 run_stages $STAGE
