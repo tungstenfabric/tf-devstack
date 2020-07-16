@@ -64,10 +64,13 @@ function cleanup_stage() {
 }
 
 function wait() {
+  echo "[wait]"
   local timeout=${WAIT_TIMEOUT:-1200}
   wait_cmd_success is_active 10 $((timeout/10))
   # collect additional env information about deployment for saving to profile after successful run
+  echo "[wait]  collect_deployment_env"
   collect_deployment_env
+  echo "[wait]  collect_deployment_env end"
 }
 
 function run_stages() {
