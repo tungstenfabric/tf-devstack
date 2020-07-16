@@ -2,7 +2,7 @@
 
 fmy_file="${BASH_SOURCE[0]}"
 fmy_dir="$(dirname $fmy_file)"
-
+set +x
 function ensure_kube_api_ready() {
   if ! wait_cmd_success "kubectl get nodes" 3 40 ; then
     echo "ERROR: kubernetes is not ready. Exiting..."
@@ -57,6 +57,7 @@ function fetch_deployer_no_docker() {
 
 function wait_cmd_success() {
   # silent mode = don't print output of input cmd for each attempt.
+  echo "[wait_cmd_success]"
   local cmd=$1
   local interval=${2:-3}
   local max=${3:-300}
@@ -72,19 +73,22 @@ function wait_cmd_success() {
     local to_dev_null=""
   fi
   while ! eval "$cmd" "$to_dev_null"; do
-    printf "."
+    #printf "."
+    echo "[wait_cmd_success]  it $i"
     i=$((i + 1))
     if (( i > max )) ; then
       echo ""
       echo "ERROR: wait failed in $((i*10))s"
       eval "$cmd"
       eval "$state_save"
+      echo "[wait_cmd_success]  end return 1"
       return 1
     fi
     sleep $interval
   done
   echo ""
   echo "INFO: done in $((i*10))s"
+  echo "[wait_cmd_success]  end"
   eval "$state_save"
 }
 
