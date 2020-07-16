@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "445c0e5d_3e8bc4ce",
+        "filename": "rhosp/overcloud/rhosp13_configure_registries_overcloud.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-16T16:57:52Z",
+      "side": 1,
+      "message": "it looks file is not changed really..",
+      "range": {
+        "startLine": 4,
+        "startChar": 62,
+        "endLine": 4,
+        "endChar": 65
+      },
+      "revId": "4425311cb3f4d09f3b82b803d222eae5235d35bd",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8de18dbe_011ca9d5",
+        "filename": "rhosp/providers/vexx/stages.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-16T16:57:52Z",
+      "side": 1,
+      "message": "note, you changed the way it is called: before it was sourced.\nso, you need to ensure that these scripts have #!/bash.... at the first line\nand that inside the scripts is no references to any variable except of those that are exported.",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 68
+      },
+      "revId": "4425311cb3f4d09f3b82b803d222eae5235d35bd",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
