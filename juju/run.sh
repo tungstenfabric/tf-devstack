@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set +x
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
@@ -252,6 +252,7 @@ function is_active() {
 }
 
 function collect_deployment_env() {
+    echo "[collect_deployment_env]"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
     fi
@@ -269,6 +270,7 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
         DEPLOYMENT_ENV['SSL_CACERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0')"
     fi
+    echo "[collect_deployment_env]  end" 
 }
 
 run_stages $STAGE

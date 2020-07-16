@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # This script should be sourced after functions.sh wherever it's used
-
 STAGE=$1
 [[ -n $2 ]] && shift && OPTIONS="$@"
 
