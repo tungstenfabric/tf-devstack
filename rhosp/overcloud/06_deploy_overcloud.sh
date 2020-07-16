@@ -21,7 +21,6 @@ fi
 CONTROLLER_NODE=$(get_servers_ips_by_flavor control | awk '{print $1}')
 
 if [[ -n "$CONTROLLER_NODE" ]]; then
-  ssh $ssh_opts -q $SSH_USER@$CONTROLLER_NODE exit || SSH_USER=heat-admin
   internal_vip=$(ssh $ssh_opts $SSH_USER@$CONTROLLER_NODE sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
 
   # patch hosts to resole overcloud by fqdn
