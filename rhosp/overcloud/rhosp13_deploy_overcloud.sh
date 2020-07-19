@@ -28,6 +28,7 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-environment.yaml"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-bootstrap-environment-rhel.yaml"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml"
+  pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/endpoints-public-dns.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
 
   if [[ -z "${overcloud_compute_prov_ip}" ]]; then
