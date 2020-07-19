@@ -21,18 +21,15 @@ fi
 CONTROLLER_NODE=$(get_servers_ips_by_flavor control | awk '{print $1}')
 
 if [[ -n "$CONTROLLER_NODE" ]]; then
-  internal_vip=$(ssh $ssh_opts $SSH_USER@$CONTROLLER_NODE sudo hiera -c /etc/puppet/hiera.yaml internal_api_virtual_ip)
-
   # patch hosts to resole overcloud by fqdn
   sudo sed -e "/overcloud.${domain}/d" /etc/hosts
-  sudo bash -c "echo \"${fixed_vip} overcloud.${domain}\" >> /etc/hosts"
+  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.${domain}\" >> /etc/hosts"
   sudo sed -e "/overcloud.internalapi.${domain}/d" /etc/hosts
-  sudo bash -c "echo \"${internal_vip} overcloud.internalapi.${domain}\" >> /etc/hosts"
+  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.internalapi.${domain}\" >> /etc/hosts"
+  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.ctlplane.${domain}\" >> /etc/hosts"
 
   # add ip route for vips
-  for addr in $(echo -e "${fixed_vip}/32\n${internal_vip}/32" | sort -u) ; do
-    if [[ -z "$(ip route show $addr)" ]] ; then
-      sudo ip route add $addr dev br-ctlplane
-    fi
-  done
+  if [[ -z "$(ip route show ${internal_vip}/32)" ]] ; then
+    sudo ip route add ${internal_vip}/32 dev br-ctlplane
+  fi
 fi
