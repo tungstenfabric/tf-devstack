@@ -60,6 +60,10 @@ make nfs-provisioner
 # The errors are lead to Segmantation fault if try to use standard scripts with kubespray k8s
 sudo -H -E pip3 install \
   -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
+  appdirs --ignore-installed --no-binary :all:
+sleep 12
+sudo -H -E pip3 install \
+  -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
   cmd2 python-openstackclient python-heatclient --ignore-installed --no-binary :all:
 
 sudo -H mkdir -p /etc/openstack
