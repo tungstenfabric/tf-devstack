@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "468ce7ab_be3264ed",
+        "filename": "rhosp/overcloud/06_deploy_overcloud.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-20T09:08:42Z",
+      "side": 1,
+      "message": "it looks it is not needed if we use overcloud_cont_prov_ip",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 0
+      },
+      "revId": "14aa7afd98e6f0716ea5c49da726a550c711bffa",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d829b29_06ef8d75",
+        "filename": "rhosp/overcloud/06_deploy_overcloud.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-20T09:08:42Z",
+      "side": 1,
+      "message": "it looks it is not needed as we use overcloud_cont_prov_ip and rout is already exits",
+      "range": {
+        "startLine": 34,
+        "startChar": 27,
+        "endLine": 34,
+        "endChar": 36
+      },
+      "revId": "14aa7afd98e6f0716ea5c49da726a550c711bffa",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
