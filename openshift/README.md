@@ -34,8 +34,8 @@ Environment variable list:
 - RHEL_PASSWORD - RedHat user password available subscription
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
+- CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
 - CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 
 ## Known Issues
-

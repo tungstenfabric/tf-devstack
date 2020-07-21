@@ -228,6 +228,7 @@ Environment variable list:
 - UBUNTU_SERIES - version of ubuntu, bionic by default
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
+- CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
 - ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "all" are supported
 - CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default

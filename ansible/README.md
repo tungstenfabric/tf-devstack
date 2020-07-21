@@ -91,6 +91,7 @@ Environment variable list:
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
 - CONTRAIL_CONTAINER_TAG - by default "ocata-master-latest"
+- CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 
 ## Access WebUI in AWS or other environments
 
