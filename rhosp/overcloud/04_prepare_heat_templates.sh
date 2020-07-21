@@ -9,6 +9,7 @@ source "$my_dir/../providers/common/functions.sh"
 
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
+export CONTRAIL_CONTAINER_SRC_TAG=${CONTRAIL_CONTAINER_SRC_TAG:-"$CONTRAIL_CONTAINER_TAG"}
 
 if [[ -n "$ENABLE_TLS" ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"

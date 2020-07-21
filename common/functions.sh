@@ -26,7 +26,7 @@ function fetch_deployer() {
   sudo rm -rf $deployer_dir
 
   local image="$CONTAINER_REGISTRY/$deployer_image"
-  [ -n "$CONTRAIL_CONTAINER_TAG" ] && image+=":$CONTRAIL_CONTAINER_TAG"
+  [ -n "$CONTRAIL_CONTAINER_SRC_TAG" ] && image+=":$CONTRAIL_CONTAINER_SRC_TAG"
   sudo docker create --name $deployer_image --entrypoint /bin/true $image || return 1
   sudo docker cp $deployer_image:/src $deployer_dir
   sudo docker rm -fv $deployer_image
@@ -42,7 +42,7 @@ function fetch_deployer_no_docker() {
   local deployer_dir=$2
   local tmp_deployer_layers_dir="$(mktemp -d)"
   local archive_tmp_dir="$(mktemp -d)"
-  if ! ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG} ; then
+  if ! ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_SRC_TAG} ; then
     echo "ERROR: Image could not be downloaded."
     return 1
   fi
