@@ -8,8 +8,9 @@ service ntpd start
 
 # install pip for future run of OS checks
 curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python
-pip install -q virtualenv docker
+pip install -q virtualenv docker six
 
 # install pyton3 after pip
 yum install -y python3
 curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python3
+python3 -m pip install -q six pyyaml
