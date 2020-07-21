@@ -42,7 +42,8 @@ function fetch_deployer_no_docker() {
   local deployer_dir=$2
   local tmp_deployer_layers_dir="$(mktemp -d)"
   local archive_tmp_dir="$(mktemp -d)"
-  if ! ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_CONTAINER_TAG} ; then
+  CONTRAIL_SRC_CONTAINER_TAG=${CONTRAIL_SRC_CONTAINER_TAG:-$CONTRAIL_CONTAINER_TAG}
+  if ! ${fmy_dir}/download-frozen-image-v2.sh $tmp_deployer_layers_dir ${deployer_image}:${CONTRAIL_SRC_CONTAINER_TAG} ; then
     echo "ERROR: Image could not be downloaded."
     return 1
   fi
