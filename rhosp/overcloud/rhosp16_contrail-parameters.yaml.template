@@ -11,13 +11,11 @@ parameter_defaults:
   DockerInsecureRegistryAddress:
     - ${undercloud_registry}
     - ${undercloud_instance}.ctlplane.${domain}:8787
-  #TODO: delete this when official image is available
-  DockerContrailVrouterKernelInitImageName: contrail-vrouter-kernel-init:rhosp16
 
   #Custome Contrail container configuration settings
   ContrailSettings:
-    VROUTER_GATEWAY: ${prov_ip}
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
+    ${vrouter_gateway_parameter}
     # custom port to avoid conflict in aio deploy with openstack
 
 
