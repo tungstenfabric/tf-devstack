@@ -58,6 +58,23 @@ make nfs-provisioner
 
 # Install openstack CLI not using standard openstack-helm script due to errors in pip3.
 # The errors are lead to Segmantation fault if try to use standard scripts with kubespray k8s
+sleep 2
+cat /usr/lib64/python3.6/encodings/ascii.py
+sleep 2
+locale
+sleep 2
+ls /home/centos/src/tungstenfabric/tf-devstack/test_debug -la
+sleep 2
+cat /home/centos/src/tungstenfabric/tf-devstack/test_debug/appdirs.py
+sleep 2
+cat /home/centos/src/tungstenfabric/tf-devstack/test_debug/testits_func.py
+sleep 10
+python3 /home/centos/src/tungstenfabric/tf-devstack/test_debug/testits_func.py
+sleep 20
+sudo -H -E pip3 install \
+  -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
+  appdirs --ignore-installed --no-binary :all:
+sleep 15
 sudo -H -E pip3 install \
   -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
   cmd2 python-openstackclient python-heatclient --ignore-installed --no-binary :all:
