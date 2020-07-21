@@ -18,6 +18,7 @@ function load_tf_devenv_profile() {
   # set to tungstenfabric if not set
   [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric' || true
   [ -z "$CONTRAIL_CONTAINER_TAG" ] && CONTRAIL_CONTAINER_TAG='latest' || true
+  [ -z "$CONTRAIL_DEPLOYER_CONTAINER_TAG" ] && CONTRAIL_DEPLOYER_CONTAINER_TAG='latest' || true
 }
 
 function save_tf_stack_profile() {
@@ -28,6 +29,7 @@ function save_tf_stack_profile() {
   cat <<EOF > $file
 DEPLOYER=${DEPLOYER}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
+CONTRAIL_DEPLOYER_CONTAINER_TAG=${CONTRAIL_DEPLOYER_CONTAINER_TAG}
 CONTAINER_REGISTRY=${CONTAINER_REGISTRY}
 ORCHESTRATOR=${ORCHESTRATOR}
 OPENSTACK_VERSION="$OPENSTACK_VERSION"
