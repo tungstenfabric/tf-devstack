@@ -8,4 +8,11 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+if [[ -z ${SUDO_USER+x} ]]; then
+   echo "Stop. Please run this scripts with sudo"
+   exit 1
+fi
+
+source /home/$SUDO_USER/rhosp-environment.sh
+
 $my_dir/../providers/common/rhel_provisioning.sh
