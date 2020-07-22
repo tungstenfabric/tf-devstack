@@ -42,3 +42,5 @@ export overcloud_ctrlcont_prov_ip=${overcloud_ctrlcont_prov_ip}
 export overcloud_cont_instance=${overcloud_cont_instance}
 export overcloud_compute_instance=${overcloud_compute_instance}
 export overcloud_ctrlcont_instance=${overcloud_ctrlcont_instance}
+
+export VROUTER_GATEWAY=${VROUTER_GATEWAY:-}

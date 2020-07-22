@@ -63,6 +63,10 @@ export undercloud_registry=${prov_ip}:8787
 export undercloud_registry_contrail=$undercloud_registry
 ns=$(echo ${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'} | cut -s -d '/' -f2-)
 [ -n "$ns" ] && undercloud_registry_contrail+="/$ns"
+if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+  VROUTER_GATEWAY=${prov_ip}
+fi
+[ -n "$VROUTER_GATEWAY" ] && export vrouter_gateway_parameter="VROUTER_GATEWAY: ${VROUTER_GATEWAY}"
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
