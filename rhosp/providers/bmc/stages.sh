@@ -3,7 +3,7 @@ ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
 function machines() {
     cd $my_dir
-    sudo -E bash -c "source /home/$user/rhosp-environment.sh; $my_dir/undercloud/00_provision.sh"
+    sudo -E $my_dir/undercloud/00_provision.sh
 }
 
 function undercloud() {
