@@ -20,7 +20,7 @@ function kvm() {
 function machines() {
     cd $my_dir
     scp -r $ssh_opts ~/rhosp-environment.sh ~/instackenv.json $(dirname $my_dir) stack@${mgmt_ip}:
-    ssh $ssh_opts stack@${mgmt_ip} -- bash -c "cd; source ./rhosp-environment.sh; sudo -E ./tf-devstack/rhosp/undercloud/00_provision.sh"
+    ssh $ssh_opts stack@${mgmt_ip} ./tf-devstack/rhosp/undercloud/00_provision.sh
     if [[ -n "$ENABLE_TLS" ]] ; then
         scp -r $ssh_opts ~/rhosp-environment.sh $(dirname $my_dir) root@${ipa_mgmt_ip}:
         cat <<EOF | ssh $ssh_opts root@${ipa_mgmt_ip}
