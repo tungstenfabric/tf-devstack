@@ -61,6 +61,8 @@ export prov_dhcp_end=${prov_subnet}.149
 export fixed_vip="${prov_subnet}.200"
 export fixed_controller_ip="${prov_subnet}.211"
 
+export VROUTER_GATEWAY=${VROUTER_GATEWAY:-"$prov_ip"}
+
 # Undercloud MAC addresses
 export undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"
 export undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
