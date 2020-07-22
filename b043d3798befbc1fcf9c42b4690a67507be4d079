@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05621eb4_d3f38f6d",
+        "filename": "common/functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-07-22T07:26:51Z",
+      "side": 1,
+      "message": "redefinition is not needed here. please remove line 45",
+      "revId": "b043d3798befbc1fcf9c42b4690a67507be4d079",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
