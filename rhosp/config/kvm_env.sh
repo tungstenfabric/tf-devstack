@@ -89,6 +89,7 @@ export overcloud_ctrlcont_prov_ip="${prov_subnet}.12"
 export overcloud_cont_instance="$RHOSP_VERSION-overcloud-cont-${DEPLOY_POSTFIX}"
 export overcloud_compute_instance="$RHOSP_VERSION-overcloud-compute-${DEPLOY_POSTFIX}"
 export overcloud_ctrlcont_instance="$RHOSP_VERSION-overcloud-ctrlcont-${DEPLOY_POSTFIX}"
+export vrouter_gateway=${prov_ip}
 
 
 # VM nodes
