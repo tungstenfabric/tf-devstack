@@ -58,6 +58,12 @@ make nfs-provisioner
 
 # Install openstack CLI not using standard openstack-helm script due to errors in pip3.
 # The errors are lead to Segmantation fault if try to use standard scripts with kubespray k8s
+locale
+sudo localectl set-locale LANG=en-US.UTF-8
+. /etc/locale.conf
+sleep 5
+locale
+sleep 5
 sudo -H -E pip3 install \
   -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
   cmd2 python-openstackclient python-heatclient --ignore-installed --no-binary :all:
