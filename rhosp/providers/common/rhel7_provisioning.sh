@@ -13,3 +13,4 @@ pip install -q virtualenv docker
 # install pyton3 after pip
 yum install -y python3
 curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/get-pip.py | python3
+python3 -m pip install -q six pyyaml
