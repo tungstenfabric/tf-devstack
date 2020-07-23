@@ -49,7 +49,7 @@ function collect_stack_details() {
 }
 
 function get_servers_ips() {
-    if [[ -n "$overcloud_cont_prov_ip" ]]; then 
+    if [[ -n "$overcloud_cont_prov_ip" ]]; then
         echo "$overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip"
         return
     fi
@@ -99,12 +99,16 @@ function collect_deployment_log() {
     local ip=''
     for ip in $(get_servers_ips); do
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER@$ip:
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh create_log_dir
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_docker_logs
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_system_stats
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_contrail_logs
+        cat <<EOF | ssh $ssh_opts $SSH_USER@$ip
+            export TF_LOG_DIR="/home/$SSH_USER/logs"
+            cd /home/$SSH_USER
+            ./collect_logs.sh create_log_dir
+            ./collect_logs.sh collect_docker_logs
+            ./collect_logs.sh collect_system_stats
+            ./collect_logs.sh collect_contrail_logs
+EOF
         source_name=$(ssh $ssh_opts $SSH_USER@$ip hostname -s)
-        mkdir ${TF_LOG_DIR}/${host_name}
+        mkdir ${TF_LOG_DIR}/${source_name}
         scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
     done
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
