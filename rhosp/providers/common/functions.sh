@@ -99,10 +99,10 @@ function collect_deployment_log() {
     local ip=''
     for ip in $(get_servers_ips); do
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER@$ip:
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh create_log_dir
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_docker_logs
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_system_stats
-        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" ./collect_logs.sh collect_contrail_logs
+        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" /bin/bash --login ./collect_logs.sh create_log_dir
+        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" /bin/bash --login ./collect_logs.sh collect_docker_logs
+        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" /bin/bash --login ./collect_logs.sh collect_system_stats
+        ssh $ssh_opts $SSH_USER@$ip TF_LOG_DIR="/home/$SSH_USER/logs" /bin/bash --login ./collect_logs.sh collect_contrail_logs
         source_name=$(ssh $ssh_opts $SSH_USER@$ip hostname -s)
         mkdir ${TF_LOG_DIR}/${host_name}
         scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
