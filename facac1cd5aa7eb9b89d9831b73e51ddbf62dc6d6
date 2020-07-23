@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "723e0411_8fc30a3f",
+        "filename": "rhosp/config/kvm_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-07-23T11:46:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "690e8f5b_84a59c78",
+      "range": {
+        "startLine": 64,
+        "startChar": 40,
+        "endLine": 64,
+        "endChar": 41
+      },
+      "revId": "facac1cd5aa7eb9b89d9831b73e51ddbf62dc6d6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8db59ce6_e99e33e8",
         "filename": "rhosp/config/vexx_env.sh",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "facac1cd5aa7eb9b89d9831b73e51ddbf62dc6d6",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ee33d6c_d5e833b0",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-07-23T11:46:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8db59ce6_e99e33e8",
+      "range": {
+        "startLine": 46,
+        "startChar": 40,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "facac1cd5aa7eb9b89d9831b73e51ddbf62dc6d6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
