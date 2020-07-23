@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "690e8f5b_84a59c78",
+        "filename": "rhosp/config/kvm_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-23T11:01:10Z",
+      "side": 1,
+      "message": "remove :  keep only -\nbecause we need to allow to provide empty value",
+      "range": {
+        "startLine": 64,
+        "startChar": 40,
+        "endLine": 64,
+        "endChar": 41
+      },
+      "revId": "facac1cd5aa7eb9b89d9831b73e51ddbf62dc6d6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8db59ce6_e99e33e8",
+        "filename": "rhosp/config/vexx_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-07-23T11:01:10Z",
+      "side": 1,
+      "message": "remove :",
+      "range": {
+        "startLine": 46,
+        "startChar": 40,
+        "endLine": 46,
+        "endChar": 41
+      },
+      "revId": "facac1cd5aa7eb9b89d9831b73e51ddbf62dc6d6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
