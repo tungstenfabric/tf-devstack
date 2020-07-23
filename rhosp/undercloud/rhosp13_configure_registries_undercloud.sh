@@ -3,6 +3,7 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+source ~/rhosp-environment.sh
 source "$my_dir/../providers/common/functions.sh"
 
 sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false ../common/create_docker_config.sh"
