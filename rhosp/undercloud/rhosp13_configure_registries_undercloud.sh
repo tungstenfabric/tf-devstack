@@ -3,6 +3,7 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+source ~/rhosp-environment.sh
 source "$my_dir/../providers/common/functions.sh"
 
 # No needs to have container registry on undercloud.
