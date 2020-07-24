@@ -18,13 +18,17 @@ if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then
   exit -1
 fi
 
-CONTROLLER_NODE=$(get_servers_ips_by_flavor control | awk '{print $1}')
+# patch hosts to resole overcloud by fqdn
+sudo sed -i "/overcloud.${domain}/d" /etc/hosts
+sudo sed -i "/overcloud.internalapi.${domain}/d" /etc/hosts
+sudo sed -i "/overcloud.ctlplane.${domain}/d" /etc/hosts
 
-if [[ -n "$CONTROLLER_NODE" ]]; then
-  # patch hosts to resole overcloud by fqdn
-  sudo sed -e "/overcloud.${domain}/d" /etc/hosts
+if [[ -n "$overcloud_cont_prov_ip" ]]; then
   sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.${domain}\" >> /etc/hosts"
-  sudo sed -e "/overcloud.internalapi.${domain}/d" /etc/hosts
   sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.internalapi.${domain}\" >> /etc/hosts"
   sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.ctlplane.${domain}\" >> /etc/hosts"
+else
+  sudo bash -c "echo \"$(get_vip public_virtual_ip) overcloud.${domain}\" >> /etc/hosts"
+  sudo bash -c "echo \"$(get_vip internal_api_virtual_ip) overcloud.internalapi.${domain}\" >> /etc/hosts"
+  sudo bash -c "echo \"${fixed_vip} overcloud.ctlplane.${domain}\" >> /etc/hosts"
 fi
