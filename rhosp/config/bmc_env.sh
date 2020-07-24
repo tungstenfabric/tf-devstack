@@ -23,3 +23,14 @@ export prov_subnet_len="24"
 export prov_cidr="192.168.24.0/${prov_subnet_len}"
 export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
 export fixed_vip="192.168.24.250"
+
+# Interfaces for providing tests run
+export internal_vlan="vlan710"
+export internal_interface="eth1"
+export internal_ip_addr="10.1.0.5"
+export internal_net_mask="255.255.255.0"
+
+export external_vlan="vlan720"
+export external_interface="eth1"
+export external_ip_addr="10.2.0.5"
+export external_net_mask="255.255.255.0"

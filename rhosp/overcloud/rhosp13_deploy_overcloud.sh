@@ -32,7 +32,6 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-environment.yaml"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-bootstrap-environment-rhel.yaml"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml"
-  pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/contrail/endpoints-public-dns.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
 
   if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
@@ -63,6 +62,7 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
   $network_env_files \
+  -e tripleo-heat-templates/environments/contrail/endpoints-public-dns.yaml \
   -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
   $tls_env_files \
   -e misc_opts.yaml \
