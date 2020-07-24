@@ -50,6 +50,8 @@ if [[ "$PROVIDER" == "bmc" ]]; then
   echo "  node_admin_username: ${SSH_USER}" >> ~/misc_opts.yaml
 fi
 
+cat $my_dir/service_net_map.yaml.template | envsubst > ~/service_net_map.yaml
+
 #Creating file for overcloud rhel registration (rhosp version specific)
 if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
    export RHEL_REG_METHOD="disable"
