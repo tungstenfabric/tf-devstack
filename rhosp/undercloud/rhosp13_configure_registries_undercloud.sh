@@ -6,8 +6,6 @@ my_dir="$(dirname $my_file)"
 source ~/rhosp-environment.sh
 source "$my_dir/../providers/common/functions.sh"
 
-# No needs to have container registry on undercloud.
-# For now overcloud nodes download them directly from $CONTAINER_REGISTRY
 sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false ../common/create_docker_config.sh"
 insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
 echo "INFO: current insecure_registries=$insecure_registries"
