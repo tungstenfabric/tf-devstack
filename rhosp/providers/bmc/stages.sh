@@ -27,6 +27,8 @@ function tf() {
     ./overcloud/04_prepare_heat_templates.sh
     ./overcloud/05_prepare_containers.sh
     ./overcloud/06_deploy_overcloud.sh
+    add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
+    add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
