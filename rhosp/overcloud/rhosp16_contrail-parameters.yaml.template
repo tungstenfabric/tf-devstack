@@ -11,8 +11,6 @@ parameter_defaults:
   DockerInsecureRegistryAddress:
     - ${undercloud_registry}
     - ${undercloud_instance}.ctlplane.${domain}:8787
-  #TODO: delete this when official image is available
-  DockerContrailVrouterKernelInitImageName: contrail-vrouter-kernel-init:rhosp16
 
   #Custome Contrail container configuration settings
   ContrailSettings:
