@@ -13,8 +13,8 @@ source ./rhosp-environment.sh
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
 
 status=$(openstack stack show -f json overcloud | jq ".stack_status")
-if [[ ! "$status" =~ 'COMPLETE' ]] ; then
-  echo "ERROR: failed to deploy overcloud"
+if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then
+  echo "ERROR: failed to deploy overcloud: status=$status"
   exit -1
 fi
 

@@ -18,13 +18,10 @@ tag=${CONTRAIL_CONTAINER_TAG:-'latest'}
 
 sed -i ./contrail_containers.yaml -e "s/192.168.24.1/${prov_ip}/"
 
-#TODO: temp hack for vrouter-kernel-init (will be removed when official images are available)
-sed -i ./contrail_containers.yaml -e "s/contrail-vrouter-kernel-init:latest/contrail-vrouter-kernel-init:rhosp16/"
-
 cat ./contrail_containers.yaml
 
 echo 'sudo openstack overcloud container image upload --config-file ./contrail_containers.yaml'
 sudo openstack overcloud container image upload --config-file ./contrail_containers.yaml
 
 echo Checking catalog in docker registry
-openstack  tripleo container image list
+openstack tripleo container image list
