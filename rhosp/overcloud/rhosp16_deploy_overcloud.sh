@@ -55,6 +55,7 @@ python3 tripleo-heat-templates/tools/process-templates.py \
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --stack overcloud --libvirt-type kvm \
   --roles-file $role_file \
+  -e overcloud_containers.yaml \
   $rhel_reg_env_files \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
@@ -63,5 +64,4 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $tls_env_files \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
-  -e containers-prepare-parameter.yaml \
-  -e overcloud_containers.yaml
+  -e containers-prepare-parameter.yaml

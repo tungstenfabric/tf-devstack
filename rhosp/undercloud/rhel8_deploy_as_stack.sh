@@ -1,6 +1,9 @@
 #RHEL8 undercloud install
 if [[ -n "$RHEL_USER" ]]; then
-  export rhsm_image_registry_credentials="ContainerImageRegistryCredentials:\n  registry.redhat.io:\n  ${RHEL_USER}: '${RHEL_PASSWORD}'"
+  export rhsm_image_registry_credentials="
+  ContainerImageRegistryCredentials:
+    ${OPENSTACK_CONTAINER_REGISTRY}:
+      ${RHEL_USER}: '${RHEL_PASSWORD}'"
 fi
 cat containers-prepare-parameter.yaml.template | envsubst >~/containers-prepare-parameter.yaml
 echo "INFO: containers-prepare-parameter.yaml"
