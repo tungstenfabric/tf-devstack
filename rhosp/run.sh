@@ -26,8 +26,10 @@ export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export DEPLOYER='rhosp'
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
-export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-'registry.access.redhat.com'}
 export SSH_USER=${SSH_USER:-'cloud-user'}
+declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
+export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
+
 # empty - disabled
 # ipa   - use FreeIPA
 export ENABLE_TLS=${ENABLE_TLS:-}
