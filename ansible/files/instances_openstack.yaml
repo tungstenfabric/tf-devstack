@@ -25,6 +25,7 @@ instances:
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
+  ENABLE_DESTROY: False
 
 contrail_configuration:
   CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
