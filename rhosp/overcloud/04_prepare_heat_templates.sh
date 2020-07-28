@@ -70,15 +70,18 @@ fi
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > ~/contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
+if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+   role_file=~/tripleo-heat-templates/roles/ContrailAio.yaml
+   sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+   sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+else
+   role_file=~/tripleo-heat-templates/roles_data_contrail_aio.yaml
+fi
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
-   if [[ -z "${overcloud_compute_prov_ip}" ]]; then
-      role_file=~/tripleo-heat-templates/roles/ContrailAio.yaml
-      sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
-      sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+   if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
       cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >~/ctlplane-assignments.yaml
       cat $my_dir/hostname-map-aio.yaml.template | envsubst >~/hostname-map.yaml
    else
-      role_file=~/tripleo-heat-templates/roles_data_contrail_aio.yaml
       cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >~/ctlplane-assignments.yaml
       cat $my_dir/hostname-map-no-ha.yaml.template | envsubst >~/hostname-map.yaml
    fi

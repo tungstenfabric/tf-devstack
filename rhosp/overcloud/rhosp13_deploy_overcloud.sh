@@ -21,7 +21,11 @@ else
     network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
 fi
 
-role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
+if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+  role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
+else
+  role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
+fi
 pre_deploy_nodes_env_files=''
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" --disable-validations"
@@ -31,8 +35,7 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/contrail/endpoints-public-dns.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
 
-  if [[ -z "${overcloud_compute_prov_ip}" ]]; then
-    role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
+  if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
     export OVERCLOUD_ROLES="ContrailAio"
     export ContrailAio_hosts="${overcloud_cont_prov_ip}"
   else

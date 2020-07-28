@@ -152,7 +152,7 @@ fi
 overcloud_cont_instance="${RHOSP_VERSION}-overcloud-cont-${rhosp_id}"
 overcloud_compute_instance=
 overcloud_ctrlcont_instance=
-if $DEPLOY_COMPACT_AIO; then
+if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
   default_flavor=v2-standard-8
 else
   overcloud_compute_instance="${RHOSP_VERSION}-overcloud-compute-${rhosp_id}"
@@ -226,7 +226,7 @@ prov_ip_cidr=${undercloud_prov_ip}/$prov_subnet_len
 overcloud_cont_ip=$(openstack server show ${overcloud_cont_instance} -f value -c addresses | cut -d '=' -f 2)
 overcloud_compute_ip=
 overcloud_ctrlcont_ip=
-if ! $DEPLOY_COMPACT_AIO; then
+if [[ "${DEPLOY_COMPACT_AIO,,}" != 'true' ]] ; then
   overcloud_compute_ip=$(openstack server show ${overcloud_compute_instance} -f value -c addresses | cut -d '=' -f 2)
   overcloud_ctrlcont_ip=$(openstack server show ${overcloud_ctrlcont_instance} -f value -c addresses | cut -d '=' -f 2)
 fi

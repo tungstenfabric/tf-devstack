@@ -104,6 +104,7 @@ function prepare_rhosp_env_file() {
     echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
     echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh
     echo "export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION" >> ~/rhosp-environment.sh
+    echo "export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO" >> ~/rhosp-environment.sh
     echo "export CONTRAIL_CONTAINER_TAG=\"$CONTRAIL_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
     echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
     echo "export OPENSTACK_CONTAINER_REGISTRY=\"$OPENSTACK_CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh

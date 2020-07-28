@@ -68,7 +68,7 @@ function get_servers_ips_by_flavor() {
 }
 
 function collect_overcloud_env() {
-    if [[ "$DEPLOY_COMPACT_AIO" == "true" ]] ; then
+    if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
         CONTROLLER_NODES=$(get_servers_ips_by_flavor control)
         AGENT_NODES="$CONTROLLER_NODES"
     else

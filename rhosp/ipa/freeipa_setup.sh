@@ -28,7 +28,7 @@ ONBOOT=yes
 HOTPLUG=no
 NM_CONTROLLED=no
 BOOTPROTO=static
-IPADDR=$ipa_prov_ip
+IPADDR=$FreeIPAIP
 NETMASK=255.255.255.0
 EOM
 modprobe ipv6
