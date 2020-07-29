@@ -6,22 +6,28 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
+  contrail_main_server:
     ip: "{{ NODE_IP }}"
     provider: bms
     roles:
-      analytics:
-      analytics_snmp:
-      analytics_alarm:
-      analytics_database:
-      config:
       config_database:
+      config:
       control:
+      analytics_database:
+      analytics:
       webui:
-      vrouter:
-      k8s_master:
-      k8s_node:
       kubemanager:
+  k8s_controller_master:
+    ip: "{{ CONTROLLER_NODES }}"
+    provider: bms
+    roles:
+      k8s_master:
+  k8s_agent_compute:
+    ip: "{{ AGENT_NODES }}"
+    provider: bms
+    roles:
+      vrouter:
+      k8s_node:
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
