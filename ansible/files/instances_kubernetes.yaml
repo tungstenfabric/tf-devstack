@@ -6,8 +6,12 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
-    ip: "{{ NODE_IP }}"
+{%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
+{%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
+{%- set AGENT_NODES = AGENT_NODES.split() %}
+{%- for node in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_k8s_controller_master:
+    ip: "{{ node }}"
     provider: bms
     roles:
       analytics:
@@ -18,10 +22,28 @@ instances:
       config_database:
       control:
       webui:
-      vrouter:
-      k8s_master:
-      k8s_node:
       kubemanager:
+      k8s_master:
+{%- if node in AGENT_NODES %}
+      vrouter:
+      k8s_node:
+{%- endif %}
+{%- endfor %}
+{% endif %}
+
+{%- if AGENT_NODES is defined and AGENT_NODES|length %}
+{%- for node in AGENT_NODES %}
+{%- if node not in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_k8s_agent_compute:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      vrouter:
+      k8s_node:
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
