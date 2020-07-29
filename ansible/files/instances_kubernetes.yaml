@@ -6,7 +6,7 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
+  contrail_main_server:
     ip: "{{ NODE_IP }}"
     provider: bms
     roles:
@@ -18,10 +18,31 @@ instances:
       config_database:
       control:
       webui:
-      vrouter:
-      k8s_master:
-      k8s_node:
       kubemanager:
+
+{%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
+{%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
+{%- for node in CONTROLLER_NODES %}
+  k8s_controller_master:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      k8s_master:
+{%- endfor %}
+{% endif %}
+
+{%- if AGENT_NODES is defined and AGENT_NODES|length %}
+{%- set AGENT_NODES = AGENT_NODES.split() %}
+{%- for node in AGENT_NODES %}
+  k8s_agent_compute:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      vrouter:
+      k8s_node:
+{%- endfor %}
+{%- endif %}
+
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True

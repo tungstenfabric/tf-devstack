@@ -6,7 +6,7 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
+  contrail_main_server:
     ip: "{{ NODE_IP }}"
     provider: bms
     roles:
@@ -18,9 +18,29 @@ instances:
       config_database:
       control:
       webui:
-      vrouter:
+
+{%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
+{%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
+{%- for node in CONTROLLER_NODES %}
+  openstack_controller:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
       openstack:
+{%- endfor %}
+{% endif %}
+
+{%- if AGENT_NODES is defined and AGENT_NODES|length %}
+{%- set AGENT_NODES = AGENT_NODES.split() %}
+{%- for node in AGENT_NODES %}
+  openstack_agent_compute:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      vrouter:
       openstack_compute:
+{%- endfor %}
+{%- endif %}
 
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
