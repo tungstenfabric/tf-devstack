@@ -84,3 +84,5 @@ fi
 if [[ $CLOUD != 'manual' ]]; then
     juju switch tf-$CLOUD-controller
 fi
+
+juju model-config logging-config="<root>=DEBUG"
