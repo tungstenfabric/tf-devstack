@@ -28,7 +28,7 @@ services:
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-master-827
+    charm: cs:~containers/kubernetes-master-850
     num_units: 1
     expose: true
     options:
@@ -41,7 +41,7 @@ services:
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-worker-665
+    charm: cs:~containers/kubernetes-worker-682
     num_units: 1
     options:
       ingress: false
@@ -49,14 +49,9 @@ services:
     to:
       - "{{ JUJU_MACHINES[0] }}"
 
-  docker:
+  containerd:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/docker-59
-    options:
-      docker_runtime: 'custom'
-      docker_runtime_repo: 'deb [arch={ARCH}] https://download.docker.com/linux/ubuntu {CODE} stable'
-      docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
-      docker_runtime_package: 'docker-ce'
+    charm: cs:~containers/containerd-80
 
   # misc
 
@@ -70,14 +65,13 @@ services:
 
 relations:
 
-
 - [ kubernetes-master:kube-api-endpoint, kubernetes-worker:kube-api-endpoint ]
 - [ kubernetes-master:kube-control, kubernetes-worker:kube-control ]
 - [ kubernetes-master:certificates, easyrsa:client ]
 - [ kubernetes-master:etcd, etcd:db ]
 - [ kubernetes-worker:certificates,  easyrsa:client ]
 - [ etcd:certificates, easyrsa:client ]
-- [ kubernetes-master:container-runtime, docker:docker]
-- [ kubernetes-worker:container-runtime, docker:docker]
+- [ kubernetes-master:container-runtime, containerd:containerd]
+- [ kubernetes-worker:container-runtime, containerd:containerd]
 
 - [ ubuntu, ntp ]
