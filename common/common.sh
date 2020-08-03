@@ -38,6 +38,17 @@ export SSL_ENABLE=${SSL_ENABLE:-false}
 export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
 export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
 
+# randomize vips
+_octet4=$(echo $NODE_IP | cut -d '.' -f 4)
+if (( _octet4 < 254 )); then
+  (( _octet4+= 1 ))
+  _octet4=$(shuf -i${_octet4}-254 -n1)
+else
+  (( _octet4-= 1 ))
+fi
+VIRTUAL_IPS_TEMP="$(echo $NODE_IP | cut -d '.' -f1,2,3).$_octet4"
+export VIRTUAL_IPS="${VIRTUAL_IPS:-$VIRTUAL_IPS_TEMP}"
+
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
   exit 1

@@ -170,14 +170,14 @@ function k8s() {
             $tf_deployer_dir/playbooks/install_k8s.yml
 
         # To use kubectl current user must have Kubernetes config
-        if [[ ! -d ~/.kube ]]; then
-          mkdir ~/.kube
-        fi
-
-        if [[ ! -f ~/.kube/config ]]; then
-          sudo cp /root/.kube/config ~/.kube/
-          sudo chown $USER ~/.kube/config
-        fi
+#        if [[ ! -d ~/.kube ]]; then
+#          mkdir ~/.kube
+#        fi
+#
+#        if [[ ! -f ~/.kube/config ]]; then
+#          sudo cp /root/.kube/config ~/.kube/
+#          sudo chown $USER ~/.kube/config
+#        fi
     fi
 }
 
