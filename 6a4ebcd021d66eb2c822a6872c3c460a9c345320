@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31a2026b_66c821e8",
+        "filename": "ansible/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "If you want to delete something, just delete id. Don\u0027t do any comments.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 11
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d559bb8a_b2a06385",
+        "filename": "common/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "It looks like this logic is more appropriate as function in functions.sh. Or even in workaround sh. This kind of VIP generation does not look late a common case for tf-devstack users, looks more like a workaround for vexx.",
+      "range": {
+        "startLine": 41,
+        "startChar": 0,
+        "endLine": 41,
+        "endChar": 16
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e3b1045_c35ef1da",
+        "filename": "common/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "There no any conventions for tf-devstack to use underscore for local variable names. octet4 looks like more appropriate.",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 7
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44196169_68bba5fa",
+        "filename": "common/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "Are you sure this if will works properly? In bash we usually use square brackets for conditional expressions (See line 52 below)",
+      "range": {
+        "startLine": 43,
+        "startChar": 3,
+        "endLine": 43,
+        "endChar": 22
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f4af0ae_05721c40",
+        "filename": "common/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "We don\u0027t need randomise IP in this case?\nWhy don\u0027t you use _octet4\u003d$(shuf -i${_octet4}-254 -n1) in this case?",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 4
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a85ef308_dfc907a4",
+        "filename": "common/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-08-03T17:54:28Z",
+      "side": 1,
+      "message": "if this is local variable use lower case",
+      "range": {
+        "startLine": 49,
+        "startChar": 0,
+        "endLine": 49,
+        "endChar": 16
+      },
+      "revId": "6a4ebcd021d66eb2c822a6872c3c460a9c345320",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
