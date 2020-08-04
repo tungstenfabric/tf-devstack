@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d4a399c_3c828e90",
+        "filename": "common/common.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-08-04T14:07:46Z",
+      "side": 1,
+      "message": "\u0027latest\u0027 -\u003e $CONTRAIL_CONTAINER_TAG",
+      "range": {
+        "startLine": 31,
+        "startChar": 75,
+        "endLine": 31,
+        "endChar": 82
+      },
+      "revId": "8dad812e9bf161e3687c79ff93bc97db046f46b3",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d63fda6b_5320b616",
+        "filename": "common/stages.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-08-04T14:07:46Z",
+      "side": 1,
+      "message": "\u003d\u0027latest\u0027 -\u003e \u003d$CONTRAIL_CONTAINER_TAG",
+      "range": {
+        "startLine": 21,
+        "startChar": 80,
+        "endLine": 21,
+        "endChar": 86
+      },
+      "revId": "8dad812e9bf161e3687c79ff93bc97db046f46b3",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
