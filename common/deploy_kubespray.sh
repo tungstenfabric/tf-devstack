@@ -15,6 +15,7 @@ K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
+K8S_VERSION=${K8S_VERSION:-"v1.16.11"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
@@ -130,6 +131,7 @@ sudo -E $my_dir/create_docker_config.sh
 extra_vars=""
 [[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
 [[ -n $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
+[[ -n $K8S_VERSION ]] && extra_vars="$extra_vars -e kube_version=$K8S_VERSION"
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars "$@"
 
 mkdir -p ~/.kube
