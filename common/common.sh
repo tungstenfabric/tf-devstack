@@ -38,6 +38,11 @@ export SSL_ENABLE=${SSL_ENABLE:-false}
 export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
 export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
 
+if [ -z "$VIRTUAL_IPS" ] && [ "$CONTROLLERS_COUNT" -gt 1 ]; then
+  echo "FATAL: No existing kolla vip address. Please set one before deploying again."
+  exit 1
+fi
+
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
   exit 1
