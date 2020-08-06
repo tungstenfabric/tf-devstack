@@ -17,6 +17,7 @@ function load_tf_devenv_profile() {
   fi
   # set to tungstenfabric if not set
   [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric' || true
+  [ -z "$DEPLOYER_CONTAINER_REGISTRY" ] && DEPLOYER_CONTAINER_REGISTRY=$CONTAINER_REGISTRY || true
   [ -z "$CONTRAIL_CONTAINER_TAG" ] && CONTRAIL_CONTAINER_TAG='latest' || true
   [ -z "$CONTRAIL_DEPLOYER_CONTAINER_TAG" ] && CONTRAIL_DEPLOYER_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG || true
 }
