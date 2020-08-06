@@ -40,7 +40,7 @@ newlineIFS=$'\n'
 # If such a domain name exists, we divide it by / into the domain name plus port and docker namespace.
 # We refer by the given name with the given namespace to a registry other than the docker hub.
 
-url=$CONTAINER_REGISTRY
+url=$DEPLOYER_CONTAINER_REGISTRY
 
 IFS=':' read -ra url_array <<< $url
 
