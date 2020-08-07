@@ -16,6 +16,24 @@
       "revId": "0a345c7bb2f0f501a59f2211a4314a6464867f04",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2efe7c69_8df271b6",
+        "filename": "common/stages.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1001
+      },
+      "writtenOn": "2020-08-07T15:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5d5cb87f_0fd6548c",
+      "revId": "0a345c7bb2f0f501a59f2211a4314a6464867f04",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
