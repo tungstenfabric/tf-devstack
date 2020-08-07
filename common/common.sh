@@ -25,6 +25,7 @@ DEV_ENV=${DEV_ENV:-false}
 # defaults for stack deployment
 # If not set will be default 'tungstenfabric'
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-}
+export DEPLOYER_CONTAINER_REGISTRY=${DEPLOYER_CONTAINER_REGISTRY:-$CONTAINER_REGISTRY}
 # If not set will be default 'latest'
 #(it is set in load_tf_devenv_profile)
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-}
