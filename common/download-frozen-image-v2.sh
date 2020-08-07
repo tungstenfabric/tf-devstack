@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
-
+set -x
 set -eo pipefail
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
@@ -306,3 +306,4 @@ fi
 echo "Download of images into '$dir' complete."
 echo "Use something like the following to load the result into a Docker daemon:"
 echo "  tar -cC '$dir' . | docker load"
+set +x
