@@ -34,6 +34,7 @@ function fetch_deployer() {
 }
 
 function fetch_deployer_no_docker() {
+  set -x
   if [[ $# != 2 ]] ; then
     echo "ERROR: Deployer image name and path to deployer directory are required for fetch_deployer"
     return 1
@@ -53,6 +54,7 @@ function fetch_deployer_no_docker() {
     return 1
   fi
   mv ${archive_tmp_dir}/src $deployer_dir
+  set +x
 }
 
 function wait_cmd_success() {

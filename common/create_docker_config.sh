@@ -28,6 +28,12 @@ if [[ -n "$CONTAINER_REGISTRY" ]] ; then
     DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
   fi
 fi
+if [[ -n "$DEPLOYER_CONTAINER_REGISTRY" ]] ; then
+  registry=`echo $DEPLOYER_CONTAINER_REGISTRY | sed 's|^.*://||' | cut -d '/' -f 1`
+  if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
+    DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
+  fi
+fi
 
 python3 ${my_dir}/jinja2_render.py <"${my_dir}/files/docker_daemon.json.j2" > $docker_config
 
