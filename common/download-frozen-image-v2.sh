@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # This script based on sources from moby repo here: https://github.com/moby/moby.git
-
 set -eo pipefail
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
