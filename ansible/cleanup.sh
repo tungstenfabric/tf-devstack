@@ -12,4 +12,8 @@ if [ -d "/etc/kubernetes" ]; then
 fi
 sudo docker rm -f $(sudo docker ps -a -q)
 sudo docker container prune -f
+sudo docker rmi $(sudo docker images)
+sudo docker volume rm $(sudo docker volume ls)
+sudo rm -rf /etc/contrail/
+sudo rm -rf /var/log/contrail
 rm -rf ~/.tf/.stages
