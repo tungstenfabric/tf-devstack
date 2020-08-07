@@ -53,7 +53,7 @@ services:
     expose: true
     to:
     - lxd:0
-{%- if OPENSTACK_VERSION == 'train' || OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
   placement:
     charm: cs:placement
     num_units: 1
@@ -128,7 +128,7 @@ relations:
 - [ heat:shared-db, mysql:shared-db ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
-{%- if OPENSTACK_VERSION == 'train' || OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
 - [ placement, mysql:shared-db ]
 - [ placement, keystone:identity-service ]
 - [ placement, nova-cloud-controller ]
