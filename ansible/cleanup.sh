@@ -16,4 +16,5 @@ sudo docker rmi $(sudo docker images)
 sudo docker volume rm $(sudo docker volume ls)
 sudo rm -rf /etc/contrail/
 sudo rm -rf /var/log/contrail
+sudo rm -rf /home/centos/contrail-kolla-ansible
 rm -rf ~/.tf/.stages
