@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "abd1f99f_77ebc780",
+        "filename": "ansible/cleanup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-08-10T19:53:50Z",
+      "side": 1,
+      "message": "do we really need to remove contrail-kolla-ansible? if yes - then we have to remove and ansible-deployer too.",
+      "revId": "ea9db58b79adc5edebcde2c4faec0560752bfa48",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
