@@ -6,8 +6,12 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
-    ip: "{{ NODE_IP }}"
+{%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
+{%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
+{%- set AGENT_NODES = AGENT_NODES.split() %}
+{%- for node in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_openstack_controller:
+    ip: "{{ node }}"
     provider: bms
     roles:
       analytics:
@@ -18,9 +22,28 @@ instances:
       config_database:
       control:
       webui:
-      vrouter:
+{%- if node in DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES'] %}
       openstack:
+{%- endif %}
+{%- if node in AGENT_NODES %}
+      vrouter:
       openstack_compute:
+{%- endif %}
+{%- endfor %}
+{% endif %}
+
+{%- if AGENT_NODES is defined and AGENT_NODES|length %}
+{%- for node in AGENT_NODES %}
+{%- if node not in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_openstack_agent_compute:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      vrouter:
+      openstack_compute:
+{%- endif %}
+{%- endfor %}
+{%- endif %}
 
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
