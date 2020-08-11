@@ -1,3 +1,15 @@
+{%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
+{%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
+{%- endif %}
+
+{%- if AGENT_NODES is defined and AGENT_NODES|length %}
+{%- set AGENT_NODES = AGENT_NODES.split() %}
+{%- endif %}
+
+{%- if OPENSTACK_CONTROLLER_NODES is defined and OPENSTACK_CONTROLLER_NODES|length %}
+{%- set OPENSTACK_CONTROLLER_NODES = OPENSTACK_CONTROLLER_NODES.split() %}
+{%- endif -%}
+
 provider_config:
   bms:
     ssh_user: "{{ USER }}"
@@ -6,8 +18,9 @@ provider_config:
     domainsuffix: "{{ DOMAINSUFFIX }}"
 
 instances:
-  server1:
-    ip: "{{ NODE_IP }}"
+{%- for node in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_openstack_controller:
+    ip: "{{ node }}"
     provider: bms
     roles:
       analytics:
@@ -18,9 +31,25 @@ instances:
       config_database:
       control:
       webui:
-      vrouter:
+{%- if node in OPENSTACK_CONTROLLER_NODES %}
       openstack:
+{%- endif %}
+{%- if node in AGENT_NODES %}
+      vrouter:
       openstack_compute:
+{%- endif %}
+{%- endfor %}
+
+{%- for node in AGENT_NODES %}
+{%- if node not in CONTROLLER_NODES %}
+  {{ node | replace(".", "_") }}_openstack_agent_compute:
+    ip: "{{ node }}"
+    provider: bms
+    roles:
+      vrouter:
+      openstack_compute:
+{%- endif %}
+{%- endfor %}
 
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
