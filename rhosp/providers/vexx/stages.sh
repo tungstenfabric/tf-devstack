@@ -4,9 +4,22 @@ export CONFIGURE_DOCKER_LIVERESTORE='false'
 
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
+function provisioning() {
+    if [[ "${USE_PREDEPLOYED_NODES,,}" != true ]]; then
+        echo "ERROR: unsupported configuration for vexx: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
+        exit 1
+    fi
+    cd $my_dir/providers/vexx
+    ./create_env.sh
+    wait_ssh ${mgmt_ip} ${ssh_private_key}
+    if [[ -n "$ENABLE_TLS" ]] ; then
+        wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
+    fi
+}
+
 function machines() {
     cd $my_dir
-    sudo -E bash -c "source /home/$user/rhosp-environment.sh; $my_dir/undercloud/00_provision.sh"
+    sudo -E $my_dir/undercloud/00_provision.sh
 }
 
 function undercloud() {

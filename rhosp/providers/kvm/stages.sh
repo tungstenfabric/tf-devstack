@@ -3,14 +3,12 @@
 source $my_dir/providers/kvm/virsh_functions
 
 
-function kvm() {
+function provisioning() {
     cd $my_dir/providers/kvm
     sudo -E ./01_create_env.sh
     wait_ssh ${mgmt_ip} ${ssh_private_key}
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
         sudo ./02_collecting_node_information.sh
-    else
-        sudo touch ~/instackenv.json
     fi
     if [[ -n "$ENABLE_TLS" ]] ; then
         wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
@@ -58,7 +56,10 @@ function overcloud() {
         for vm in $(vbmc list -f value -c 'Domain name' -c Status | grep down | awk '{print $1}'); do
             vbmc start ${vm}
         done
-        ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh
+        if ! ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh ; then
+            echo "ERROR: failed ssh $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/03_node_introspection.sh"
+            exit 1
+        fi
         return
     fi
 
@@ -96,7 +97,7 @@ function overcloud() {
         }
     done
     if [[ "${res}" == 1 ]]; then
-        echo "errors appeared during overcloud nodes pre-installation."
+        echo "ERROR: errors appeared during overcloud nodes pre-installation."
         exit 1
     fi
 }
