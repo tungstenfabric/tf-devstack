@@ -11,7 +11,7 @@ source "$my_dir/functions.sh"
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
 sudo -E apt-get install snapd jq prips netmask -y
-sudo -E snap install maas --channel=2.7
+sudo -E snap install maas
 
 # hack it.
 # for some reasons MAAS sends manage_etc_hosts as True to cloud-init
