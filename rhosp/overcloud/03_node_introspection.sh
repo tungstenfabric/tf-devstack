@@ -1,20 +1,13 @@
-#!/bin/bash
+#!/bin/bash -e
 
 cd
-if [ -f ~/stackrc ]; then
-   source ~/stackrc
-else
-   echo "File ~/stackrc not found"
-   exit
-fi
+source ~/stackrc
+source ~/rhosp-environment.sh
 
-if [ -f ~/instackenv.json ]; then
-   echo Using ~/instackenv.json
-else
-   echo "File ~/instackenv.json not found"
-   exit
+if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
+   echo "INFO: skip nodes introspection for pre-deployed nodes"
+   exit 0
 fi
-
 
 # cleanup old nodes
 for i in $(openstack baremetal node list -f value -c UUID) ; do
@@ -36,5 +29,3 @@ for i in {1..3} ; do
 done
 
 openstack baremetal node list
-
-

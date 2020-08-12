@@ -94,6 +94,9 @@ function collect_deployment_log() {
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
     collect_stack_details ${TF_LOG_DIR}/${host_name}
+    if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
+        cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
+    fi
 
     #Collecting overcloud logs
     local ip=''
