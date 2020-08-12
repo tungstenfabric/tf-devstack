@@ -40,6 +40,8 @@ export SSL_ENABLE=${SSL_ENABLE:-false}
 export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
 export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
 
+export OPENSTACK_CONTROLLER_NODES="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
+
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
   exit 1
