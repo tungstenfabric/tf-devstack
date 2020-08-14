@@ -168,16 +168,6 @@ function k8s() {
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$tf_deployer_dir/instances.yaml \
             $tf_deployer_dir/playbooks/install_k8s.yml
-
-        # To use kubectl current user must have Kubernetes config
-        if [[ ! -d ~/.kube ]]; then
-          mkdir ~/.kube
-        fi
-
-        if [[ ! -f ~/.kube/config ]]; then
-          sudo cp /root/.kube/config ~/.kube/
-          sudo chown $USER ~/.kube/config
-        fi
     fi
 }
 
@@ -211,8 +201,9 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    # no additinal info is needed
-    :
+    if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
+        DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
+    fi
 }
 
 run_stages $STAGE
