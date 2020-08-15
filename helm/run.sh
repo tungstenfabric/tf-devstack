@@ -55,6 +55,13 @@ function logs() {
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
 
+    if [ "$DISTRO" == "centos" ]; then
+        sudo yum install -y lsof jq
+    elif [ "$DISTRO" == "ubuntu" ]; then
+        export DEBIAN_FRONTEND=noninteractive
+        sudo -E apt-get install -y lsof jq
+    fi
+
     create_log_dir
     cp $WORKSPACE/tf-devstack-values.yaml ${TF_LOG_DIR}/
     collect_docker_logs
