@@ -16,10 +16,10 @@ export RUN_HELM_TESTS=no
 
 # install and remove deps and other prereqs
 if [ "$DISTRO" == "centos" ]; then
-    sudo yum remove -y pyparsing
-    [[ $(sudo service firewalld stop) ]] || true
-    sudo yum install -y epel-release
-    sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils libffi-devel openssl-devel
+  sudo yum remove -y pyparsing
+  [[ $(sudo service firewalld stop) ]] || true
+  sudo yum install -y epel-release
+  sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils libffi-devel openssl-devel
 elif [ "$DISTRO" == "ubuntu" ]; then
   export DEBIAN_FRONTEND=noninteractive
   sudo -E apt-get install -y jq python3-pip libffi-dev libssl-dev nfs-common
