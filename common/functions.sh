@@ -129,9 +129,11 @@ function label_nodes_by_ip() {
 }
 
 function check_pods_active() {
+  echo start function check_pods_active
   declare -a pods
   readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
 
+  echo "${pods[@]}"
   if [[ ${#pods[@]} == '0' ]]; then
     return 1
   fi
@@ -139,6 +141,8 @@ function check_pods_active() {
   #check if all pods are running
   for pod in "${pods[@]}" ; do
     local status="$(echo $pod | awk '{print $4}')"
+    echo pod is $pod
+    echo status is $status
     if [[ "$status" == 'Completed' ]]; then
       continue
     elif [[ "$status" != "Running" ]] ; then
@@ -146,24 +150,32 @@ function check_pods_active() {
     else
       local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
       local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+      echo containers_running is $containers_running
+      echo containers_total is $containers_total
       if [ "$containers_running" != "$containers_total" ] ; then
         return 1
       fi
     fi
+  echo NEXT
   done
+  echo finish function check_pods_active
   return 0
 }
 
 function check_tf_active() {
+  echo function start check_tf_active
   if ! command -v contrail-status ; then
+    echo command -v contrail-status here
     return 1
   fi
   local line=
   for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
+    echo line is "$line"
     if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
       return 1
     fi
   done
+  echo finish function check_tf_active
   return 0
 }
 

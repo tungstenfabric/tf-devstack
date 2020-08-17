@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -o errexit
 
@@ -102,7 +102,9 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+     echo start function is_active
      check_pods_active && check_tf_active
+     echo finish function is_active
 }
 
 function collect_deployment_env() {
