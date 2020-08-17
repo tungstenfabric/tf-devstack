@@ -94,7 +94,6 @@ rm -rf logs
 EOF
 chmod a+x /tmp/logs.sh
 
-    # removed ' | grep -v \/lxd\/'
     local machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
     local machine=''
     for machine in $machines ; do

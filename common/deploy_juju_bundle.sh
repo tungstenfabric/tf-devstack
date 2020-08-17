@@ -21,3 +21,19 @@ cat "$WORKSPACE/bundle.yaml"
 
 echo "INFO: Run bundle..."
 juju deploy --debug $WORKSPACE/bundle.yaml --map-machines=existing
+
+# workaround an issue with inability to install python-pip3 in lxd container
+# due to incorrect handling of apt-get update in cloud-init the operation may silently fail
+# and next calls to apt-get may fail
+# call apt-get update manulayy to prevent this issue
+if ! grep -q "lxd:" $WORKSPACE/bundle.yaml ; then
+  return
+fi
+# wait a bit while juju creates lxd machines in it's database
+sleep 30
+lxd_machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep "\/lxd\/" | awk '{print $1}'`
+echo "INFO: lxd machines:"
+echo $lxd_machines
+for machine in $lxd_machines ; do
+  wait_cmd_success 'juju ssh $machine "sudo apt-get update -y"'
+done
