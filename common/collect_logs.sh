@@ -287,6 +287,26 @@ function collect_kubernetes_objects_info() {
     done
 }
 
+function collect_wait_pods_active() {
+    echo "INFO: Collecting waiting process pods_active"
+
+    local log_dir="$TF_LOG_DIR/wait_process"
+    mkdir -p "$log_dir"
+
+    kubectl get pods --all-namespaces --no-headers &> $TF_LOG_DIR/wait_pods_active
+    sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
+}
+
+function collect_wait_tf_active() {
+    echo "INFO: Collecting waiting process tf_active"
+
+    local log_dir="$TF_LOG_DIR/wait_process"
+    mkdir -p "$log_dir"
+
+    sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}' &> $TF_LOG_DIR/wait_tf_active
+    sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
+}
+
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi

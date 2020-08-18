@@ -132,6 +132,8 @@ function check_pods_active() {
   declare -a pods
   readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
 
+  collect_wait_pods_active
+
   if [[ ${#pods[@]} == '0' ]]; then
     return 1
   fi
@@ -158,6 +160,9 @@ function check_tf_active() {
   if ! command -v contrail-status ; then
     return 1
   fi
+
+  collect_wait_tf_active
+
   local line=
   for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
     if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
