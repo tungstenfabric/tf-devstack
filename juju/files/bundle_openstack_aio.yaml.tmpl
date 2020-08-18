@@ -24,6 +24,31 @@ services:
       openstack-origin: {{ OPENSTACK_ORIGIN }}
     to:
     - lxd:0
+{%- if UBUNTU_SERIES == 'focal' %}
+  glance-mysql:
+    charm: cs:mysql-router
+  keystone-mysql:
+    charm: cs:mysql-router
+  neutron-mysql:
+    charm: cs:mysql-router
+  heat-mysql:
+    charm: cs:mysql-router
+  placement-mysql:
+    charm: cs:mysql-router
+  nova-cloud-mysql:
+    charm: cs:mysql-router
+  dashboard-mysql:
+    charm: cs:mysql-router
+  compute-mysql:
+    charm: cs:mysql-router
+  mysql-innodb-cluster:
+    charm: cs:mysql-innodb-cluster
+    num_units: 3
+    to:
+    - lxd:0
+    - lxd:0
+    - lxd:0
+{%- else %}
   mysql:
     charm: cs:percona-cluster
     num_units: 1
@@ -34,6 +59,7 @@ services:
       root-password: password
     to:
     - lxd:0
+{%- endif %}
   neutron-api:
     charm: cs:neutron-api
     num_units: 1
@@ -109,28 +135,43 @@ services:
 relations:
 
 - [ nova-compute:amqp, rabbitmq-server:amqp ]
-- [ keystone:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:identity-service, keystone:identity-service ]
 - [ glance:identity-service, keystone:identity-service ]
 - [ neutron-api:identity-service, keystone:identity-service ]
-- [ neutron-api:shared-db, mysql:shared-db ]
 - [ neutron-api:amqp, rabbitmq-server:amqp ]
-- [ glance:shared-db, mysql:shared-db ]
 - [ glance:amqp, rabbitmq-server:amqp ]
 - [ nova-cloud-controller:image-service, glance:image-service ]
 - [ nova-compute:image-service, glance:image-service ]
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 - [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
 - [ openstack-dashboard:identity-service, keystone:identity-service ]
-- [ openstack-dashboard:shared-db, mysql:shared-db ]
-- [ nova-cloud-controller:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
-- [ heat:shared-db, mysql:shared-db ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
-- [ placement, mysql:shared-db ]
 - [ placement, keystone:identity-service ]
 - [ placement, nova-cloud-controller ]
+{%- endif %}
+{%- if UBUNTU_SERIES == 'focal' %}
+- [ mysql-innodb-cluster, mysql:shared-db ]
+- [ keystone:shared-db, keystone-mysql:shared-db ]
+- [ neutron-api:shared-db, neutron-mysql:shared-db ]
+- [ glance:shared-db, glance-mysql:shared-db ]
+- [ openstack-dashboard:shared-db, dashboard-mysql:shared-db ]
+- [ nova-cloud-controller:shared-db, nova-cloud-mysql:shared-db ]
+- [ heat:shared-db, heat-mysql:shared-db ]
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+- [ placement, placement-mysql:shared-db ]
+{%- endif %}
+{%- else %}
+- [ keystone:shared-db, mysql:shared-db ]
+- [ neutron-api:shared-db, mysql:shared-db ]
+- [ glance:shared-db, mysql:shared-db ]
+- [ openstack-dashboard:shared-db, mysql:shared-db ]
+- [ nova-cloud-controller:shared-db, mysql:shared-db ]
+- [ heat:shared-db, mysql:shared-db ]
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+- [ placement, mysql:shared-db ]
+{%- endif %}
 {%- endif %}
 - [ ubuntu, ntp ]
