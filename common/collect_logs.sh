@@ -287,6 +287,58 @@ function collect_kubernetes_objects_info() {
     done
 }
 
+function collect_wait_log() {
+    echo "INFO: Collecting waiting process logs"
+    local log_dir="$TF_LOG_DIR/wait_process"
+    mkdir -p "$log_dir"
+
+    echo "INFO: --------------------------------- tf_active" > $log_dir/wait_log
+
+    if ! command -v contrail-status ; then
+      echo "command -v contrail-status" >> $log_dir/wait_log
+      command -v contrail-status >> $log_dir/wait_log
+    fi
+
+    local line=
+    for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
+      if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
+        echo here line is not active and not backup >> $log_dir/wait_log
+        sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $0}' >> $log_dir/wait_log
+      fi
+    done
+
+    # ---------------
+    echo "INFO: --------------------------------- pods_active" >> $log_dir/wait_log
+
+    declare -a pods
+    readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
+
+    if [[ ${#pods[@]} == '0' ]]; then
+      echo "pods = 0" >> $log_dir/wait_log
+      kubectl get pods --all-namespaces --no-headers >> $log_dir/wait_log
+    fi
+
+    #check if all pods are running
+    for pod in "${pods[@]}" ; do
+      local status="$(echo $pod | awk '{print $4}')"
+      if [[ "$status" == 'Completed' ]]; then
+        continue
+      elif [[ "$status" != "Running" ]] ; then
+        echo "pod $pod have status is $status" >> $log_dir/wait_log
+      else
+        local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
+        local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+        if [ "$containers_running" != "$containers_total" ] ; then
+          echo "pod is $pod" >> $log_dir/wait_log
+          echo "containers_running and containers_total" >> $log_dir/wait_log
+          echo "$containers_running and $containers_total" >> $log_dir/wait_log
+        fi
+      fi
+    done
+    echo "INFO: Finished collecting waiting process logs"
+    sudo chown -R $SUDO_UID:$SUDO_GID $log_dir
+}
+
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi
