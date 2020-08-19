@@ -287,6 +287,56 @@ function collect_kubernetes_objects_info() {
     done
 }
 
+function collect_wait_log() {
+    echo "INFO: Collecting waiting process logs"
+    local log_dir="$TF_LOG_DIR/wait_process"
+    mkdir -p "$log_dir"
+
+    echo "INFO: tf_active"
+
+    if ! command -v contrail-status ; then
+      echo "command -v contrail-status"
+      command -v contrail-status &> $TF_LOG_DIR/wait_log
+    fi
+
+    local line=
+    for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
+      if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
+        echo line is $line
+        sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $0}' &> $TF_LOG_DIR/wait_log
+      fi
+    done
+
+    # ---------------
+    echo "INFO: pods_active"
+
+    declare -a pods
+    readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
+
+    if [[ ${#pods[@]} == '0' ]]; then
+      echo "pods = 0"
+      kubectl get pods --all-namespaces --no-headers &> $TF_LOG_DIR/wait_log
+    fi
+
+    #check if all pods are running
+    for pod in "${pods[@]}" ; do
+      local status="$(echo $pod | awk '{print $4}')"
+      if [[ "$status" == 'Completed' ]]; then
+        continue
+      elif [[ "$status" != "Running" ]] ; then
+        echo status is $status
+      else
+        local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
+        local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+        if [ "$containers_running" != "$containers_total" ] ; then
+          echo $containers_running and $containers_total &> $TF_LOG_DIR/wait_log
+        fi
+      fi
+    done
+
+    sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
+}
+
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi

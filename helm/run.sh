@@ -70,6 +70,7 @@ function logs() {
     collect_kubernetes_logs
     collect_kubernetes_objects_info
     collect_contrail_logs
+    collect_wait_log
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
