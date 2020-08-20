@@ -274,6 +274,10 @@ function collect_kubernetes_objects_info() {
     local KUBE_OBJ_DIR=$TF_LOG_DIR/kubernetes_obj_info
     mkdir -p $KUBE_OBJ_DIR
 
+    kubectl get namespaces > $TF_LOG_DIR/kubernetes_namespaces
+    kubectl get nodes -o wide > $TF_LOG_DIR/kubernetes_nodes
+    kubectl get all --all-namespaces > $TF_LOG_DIR/kubernetes_all
+
     local namespace=''
     local namespaces=$(kubectl get namespaces -o name | awk -F '/' '{ print $2 }')
     for namespace in $namespaces ; do
