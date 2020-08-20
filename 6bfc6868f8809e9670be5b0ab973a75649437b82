@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f48c8095_2943c2f2",
+        "filename": "juju/cleanup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-08-20T12:03:20Z",
+      "side": 1,
+      "message": "please change tabs to spaces (4 spaces for this file)",
+      "revId": "6bfc6868f8809e9670be5b0ab973a75649437b82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce09139_c9d0bc33",
+        "filename": "juju/cleanup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-08-20T12:03:20Z",
+      "side": 1,
+      "message": "is it new line here? it should be on the same line",
+      "revId": "6bfc6868f8809e9670be5b0ab973a75649437b82",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
