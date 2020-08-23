@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 function is_registry_insecure() {
     echo "DEBUG: is_registry_insecure: $@"
     local registry=`echo $1 | sed 's|^.*://||' | cut -d '/' -f 1`

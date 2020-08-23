@@ -51,3 +51,4 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
 fi
 
 $my_dir/${RHEL_VERSION}_provisioning.sh
+set -x
