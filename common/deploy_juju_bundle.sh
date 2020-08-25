@@ -36,5 +36,5 @@ lxd_machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep
 echo "INFO: lxd machines:"
 echo $lxd_machines
 for machine in $lxd_machines ; do
-  wait_cmd_success 'juju ssh $machine "sudo apt-get update -y"'
+  wait_cmd_success 'juju ssh --proxy $machine "sudo apt-get update -y"'
 done
