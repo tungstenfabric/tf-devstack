@@ -7,7 +7,7 @@ my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
-export CLOUD=${CLOUD:-local}  # aws | local | manual
+export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 
 rm -rf ~/.tf/.stages
 

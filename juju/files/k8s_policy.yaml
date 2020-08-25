@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-auth-policy
+  namespace: kube-system
+  labels:
+    k8s-app: k8s-keystone-auth
+data:
+  policies: |
+    [
+      {
+       "resource": {
+          "verbs": ["get", "list", "watch"],
+          "resources": ["*"],
+          "version": "*",
+          "namespace": "*"
+        },
+        "match": [
+          {
+            "type": "role",
+            "values": ["*"]
+          },
+          {
+            "type": "project",
+            "values": ["k8s"]
+          }
+        ]
+      },
+      {
+       "resource": {
+          "verbs": ["*"],
+          "resources": ["*"],
+          "version": "*",
+          "namespace": "myproject"
+        },
+        "match": [
+          {
+            "type": "role",
+            "values": ["*"]
+          },
+          {
+            "type": "project",
+            "values": ["k8s-myproject"]
+          }
+        ]
+      },
+      {
+       "resource": {
+          "verbs": ["*"],
+          "resources": ["*"],
+          "version": "*",
+          "namespace": "*"
+        },
+        "match": [
+          {
+            "type": "role",
+            "values": ["*"]
+          },
+          {
+            "type": "project",
+            "values": ["admin"]
+          }
+        ]
+      }
+    ]
