@@ -177,20 +177,6 @@ services:
     to:
       - "lxd:2"
 
-  # misc
-
-  ubuntu:
-    charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
-    num_units: 5
-    to:
-      - "0"
-      - "1"
-      - "2"
-      - "3"
-      - "4"
-  ntp:
-    charm: "cs:{{ UBUNTU_SERIES }}/ntp"
-
 
 relations:
 
@@ -213,7 +199,6 @@ relations:
 - [ heat:shared-db, mysql:shared-db ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
-- [ ubuntu, ntp ]
 - [ mysql, hacluster-mysql ]
 - [ keystone, hacluster-keystone ]
 - [ heat, hacluster-heat ]

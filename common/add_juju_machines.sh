@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Adds CONTROLLER_NODES to model for manual deployment
+# Adds CONTROLLER_NODES and AGENT_NODES to model for manual deployment
 
 set -o errexit
 my_file="$(readlink -e "$0")"
