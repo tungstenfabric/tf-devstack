@@ -1,9 +1,17 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',')  -%}
 machines:
-
-  "{{ JUJU_MACHINES[0] }}":
+{%- if AGENT_NODES|string == NODE_IP|string %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int %}
+{%- set agent_nodes = [0] %}
+{%- else %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int + AGENTS_COUNT|int %}
+{%- set agent_nodes = range(CONTROLLERS_COUNT|int, all_nodes_count) | list %}
+{%- endif %}
+{%- set all_nodes = range(0, all_nodes_count) | list %}
+{%- for i in range(0, all_nodes_count) %}
+  {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=16G cores=8 root-disk=120G
+    constraints: mem=15G cores=2 root-disk=60G
+{%- endfor %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:
@@ -15,7 +23,7 @@ services:
     charm: cs:~containers/easyrsa-303
     num_units: 1
     to:
-    - {{ JUJU_MACHINES[0] }}
+    - 0
 
   etcd:
     series: "{{ UBUNTU_SERIES }}"
@@ -24,7 +32,7 @@ services:
     options:
       channel: 3.2/stable
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
@@ -37,17 +45,16 @@ services:
       channel: '1.18/stable'
       service-cidr: '10.96.0.0/12'
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
     charm: cs:~containers/kubernetes-worker-665
-    num_units: 1
+    num_units: {{ agent_nodes | count }}
     options:
       ingress: false
       channel: '1.18/stable'
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ agent_nodes }}
 
   docker:
     series: "{{ UBUNTU_SERIES }}"
@@ -62,9 +69,8 @@ services:
 
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
-    num_units: 1
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    num_units: {{ all_nodes | count }}
+    to: {{ all_nodes }}
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp"
 

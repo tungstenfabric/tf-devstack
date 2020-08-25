@@ -28,7 +28,7 @@ export DEPLOYER='juju'
 export WAIT_TIMEOUT=${WAIT_TIMEOUT:-3600}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
-export CLOUD=${CLOUD:-local}  # aws | local | manual
+export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 export DATA_NETWORK=${DATA_NETWORK:-}
 export AUTH_PASSWORD="password"
 
@@ -125,7 +125,7 @@ function juju() {
 }
 
 function machines() {
-    if [[ $CLOUD == 'manual' ]] ;then
+    if [[ $CLOUD == 'manual' ]] ; then
         if [[ $(( $CONTROLLERS_COUNT % 2 )) -eq 0 ]]; then
             echo "controllers' amount should be odd. now it is $CONTROLLERS_COUNT."
             exit 0
@@ -137,7 +137,11 @@ function machines() {
         # lxd have wrong parent in config and can't get IP address
         # to prevent it we starts lxd before
         command juju deploy ubuntu --to lxd:0
-        command juju add-unit ubuntu --to 0
+
+        JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+        for machine in $JUJU_MACHINES ; do
+            command juju add-unit ubuntu --to $machine
+        done
     fi
 
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
@@ -154,11 +158,7 @@ function openstack() {
     else
         export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
     fi
-    if [ $CLOUD == 'manual' ]; then
-        export BUNDLE="$my_dir/files/bundle_openstack_man.yaml.tmpl"
-    else
-        export BUNDLE="$my_dir/files/bundle_openstack_aio.yaml.tmpl"
-    fi
+    export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
 
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
@@ -188,12 +188,9 @@ function k8s() {
 function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
-        export BUNDLE="$my_dir/files/bundle_contrail_maas_ha.yaml.tmpl"
-    elif [[ $CLOUD == 'manual' ]]; then
-        export BUNDLE="$my_dir/files/bundle_contrail_man.yaml.tmpl"
-    else
-        export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
     fi
+    export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
+
     # get contrail-charms
     [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO \
                       || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
@@ -217,16 +214,18 @@ function tf() {
     fi
     if [[ $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation kubernetes-master keystone
+        command juju add-relation kubernetes-master contrail-agent
         command juju config kubernetes-master authorization-mode="Node,RBAC"
         command juju config kubernetes-master enable-keystone-authorization=true
-    fi
+        command juju config kubernetes-master keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
+   fi
 
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
     # fix /etc/hosts
     for machine in $JUJU_MACHINES ; do
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_cmd_success 'juju ssh $machine "uname -a"'
+            wait_cmd_success "command juju ssh $machine 'uname -a'"
         fi
         juju_node_ip=`$(which juju) ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         juju_node_hostname=`$(which juju) ssh $machine "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
