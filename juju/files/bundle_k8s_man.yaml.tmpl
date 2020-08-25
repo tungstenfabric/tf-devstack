@@ -1,0 +1,91 @@
+machines:
+{%- if AGENT_NODES|string == NODE_IP|string %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int %}
+{%- set agent_nodes = [0] %}
+{%- else %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int + AGENTS_COUNT|int %}
+{%- set agent_nodes = range(CONTROLLERS_COUNT|int, all_nodes_count) | list %}
+{%- endif %}
+{%- set all_nodes = range(0, all_nodes_count) | list %}
+{%- for i in range(0, all_nodes_count) %}
+  {{ i }}:
+    series: "{{ UBUNTU_SERIES }}"
+    constraints: mem=15G cores=2 root-disk=60G
+{%- endfor %}
+
+series: "{{ UBUNTU_SERIES }}"
+services:
+
+  # kubernetes
+
+  easyrsa:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: cs:~containers/easyrsa-303
+    num_units: 1
+    to:
+    - 0
+
+  etcd:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: cs:~containers/etcd-501
+    num_units: 1
+    options:
+      channel: 3.2/stable
+    to:
+      - "0"
+
+  kubernetes-master:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: cs:~containers/kubernetes-master-827
+    num_units: 1
+    expose: true
+    options:
+      enable-metrics: false
+      enable-dashboard-addons: false
+      channel: '1.18/stable'
+      service-cidr: '10.96.0.0/12'
+    to:
+      - "0"
+
+  kubernetes-worker:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: cs:~containers/kubernetes-worker-665
+    num_units: 1
+    options:
+      ingress: false
+      channel: '1.18/stable'
+    to:
+      - "{{ agent_nodes }}"
+
+  docker:
+    series: "{{ UBUNTU_SERIES }}"
+    charm: cs:~containers/docker-59
+    options:
+      docker_runtime: 'custom'
+      docker_runtime_repo: 'deb [arch={ARCH}] https://download.docker.com/linux/ubuntu {CODE} stable'
+      docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
+      docker_runtime_package: 'docker-ce'
+
+  # misc
+
+  ubuntu:
+    charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
+    num_units: 1
+    to:
+      - "{{ all_nodes }}"
+  ntp:
+    charm: "cs:{{ UBUNTU_SERIES }}/ntp"
+
+relations:
+
+
+- [ kubernetes-master:kube-api-endpoint, kubernetes-worker:kube-api-endpoint ]
+- [ kubernetes-master:kube-control, kubernetes-worker:kube-control ]
+- [ kubernetes-master:certificates, easyrsa:client ]
+- [ kubernetes-master:etcd, etcd:db ]
+- [ kubernetes-worker:certificates,  easyrsa:client ]
+- [ etcd:certificates, easyrsa:client ]
+- [ kubernetes-master:container-runtime, docker:docker]
+- [ kubernetes-worker:container-runtime, docker:docker]
+
+- [ ubuntu, ntp ]

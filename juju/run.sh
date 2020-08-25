@@ -181,7 +181,11 @@ function k8s() {
         echo "INFO: Skipping k8s deployment"
         return
     fi
-    export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
+    if [ $CLOUD == 'manual' ]; then
+        export BUNDLE="$my_dir/files/bundle_k8s_man.yaml.tmpl"
+    else
+        export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
+    fi
     $my_dir/../common/deploy_juju_bundle.sh
 }
 
@@ -217,6 +221,7 @@ function tf() {
     fi
     if [[ $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation kubernetes-master keystone
+        command juju add-relation kubernetes-master contrail-agent
         command juju config kubernetes-master authorization-mode="Node,RBAC"
         command juju config kubernetes-master enable-keystone-authorization=true
     fi
