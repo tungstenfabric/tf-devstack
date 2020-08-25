@@ -1,17 +1,20 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',')  -%}
 machines:
-  "{{ JUJU_MACHINES[0] }}":
+{%- for i in range(0,CONTROLLERS_COUNT|int) %}
+  {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=60G
+{%- endfor %}
+{%- set controller_nodes = range(0,CONTROLLERS_COUNT|int) | list %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:
   contrail-controller:
     charm: "{{ JUJU_REPO }}/contrail-controller"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
+      min-cluster-size: {{ controller_nodes | count }}
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
       auth-mode: "rbac"
 {%- else %}
@@ -26,12 +29,11 @@ services:
       data-network: "{{ DATA_NETWORK }}"
 {%- endif %}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-analyticsdb:
     charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
       cassandra-minimum-diskgb: "4"
@@ -39,21 +41,21 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: {{ controller_nodes | count }}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: {{ controller_nodes | count }}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-agent:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
@@ -68,7 +70,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
   contrail-openstack:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
@@ -80,7 +82,7 @@ services:
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
   contrail-kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: {{ JUJU_REPO }}/contrail-kubernetes-master
+    charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
     options:
       log-level: 'SYS_DEBUG'
       service_subnets: '10.96.0.0/12'
@@ -89,10 +91,14 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       cluster_name: "k8s"
       public_fip_pool: "{'domain':'default-domain','project':'k8s-default','name':'__fip_pool_public__','network':'__public__'}"
+{%- if ORCHESTRATOR != 'all' %}
       ip_fabric_forwarding: true
+{%- else %}
+      ip_fabric_snat: true
+{%- endif %}
   contrail-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"
-    charm: {{ JUJU_REPO }}/contrail-kubernetes-node
+    charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
     options:
       log-level: 'SYS_DEBUG'
       docker-registry: "{{ CONTAINER_REGISTRY }}"
@@ -105,7 +111,7 @@ services:
     charm: cs:~containers/easyrsa
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
 {%- endif %}
 
 relations:
