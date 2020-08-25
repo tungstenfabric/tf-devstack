@@ -8,7 +8,7 @@ source "$my_dir/functions.sh"
 
 # parameters
 UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
-CLOUD=${CLOUD:-'local'}
+CLOUD=${CLOUD:-'manual'}
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
 AWS_REGION=${AWS_REGION:-'us-east-1'}
@@ -73,20 +73,27 @@ fi
 # prepare ssh key authorization for running bootstrap on the same node
 set_ssh_keys
 
+# the juju will be bootstrapped to the machine 0, except manual deploy with specified
+# controller and/or agent nodes
+SWITCH_OPT='--no-switch'
+if [[ $CLOUD == 'manual' ]] ; then
+    if [[ ( -n "$CONTROLLER_NODES" && "$CONTROLLER_NODES" != $NODE_IP )
+       || ( -n "$AGENT_NODES" && "$AGENT_NODES" != $NODE_IP ) ]] ; then
+      SWITCH_OPT=''
+fi
 # bootstrap JuJu-controller
 if [[ $CLOUD == 'aws' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
 elif [[ $CLOUD == 'maas' ]]; then
     juju bootstrap --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
-elif [[ $CLOUD == 'local' ]]; then
-    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
+    SWITCH_OPT=''
 elif [[ $CLOUD == 'manual' ]]; then
-    juju bootstrap --config container-networking-method=fan --config fan-config=$NODE_CIDR=252.0.0.0/8 --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
+    juju bootstrap $SWITCH_OPT --config container-networking-method=fan --config fan-config=$NODE_CIDR=252.0.0.0/8 --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
 else
     echo "ERROR: unknown type of cloud: $CLOUD"
     exit 1
 fi
-if [[ $CLOUD != 'manual' ]]; then
+if [[ -n $SWITCH_OPT ]] ; then
     juju switch tf-$CLOUD-controller
 fi
 
