@@ -6,7 +6,7 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 
-export CLOUD=${CLOUD:-local}  # aws | local | manual
+export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 
 rm -rf ~/.tf/.stages
 
