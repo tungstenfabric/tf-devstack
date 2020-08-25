@@ -1,24 +1,41 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',')  -%}
+{%- if CLOUD == 'maas' %}
+{% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
+
+variables:
+  contrail-controller-vip:         &contrail-controller-vip        "{{ VIRTUAL_IPS[6] }}"
+{%- endif %}
+
 machines:
-  "{{ JUJU_MACHINES[0] }}":
+{%- for i in range(0,CONTROLLERS_COUNT|int) %}
+  {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=60G
+{%- endfor %}
+{%- set controller_nodes = range(0,CONTROLLERS_COUNT|int) | list %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:
   contrail-controller:
     charm: "{{ JUJU_REPO }}/contrail-controller"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
+{%- if CLOUD == 'maas' %}
+      vip: *contrail-controller-vip
+{%- endif %}
+      min-cluster-size: {{ controller_nodes | count }}
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
       auth-mode: "rbac"
 {%- else %}
       auth-mode: "no-auth"
 {%- endif %}
       cassandra-minimum-diskgb: "4"
+{%- if CLOUD == 'maas' %}
+      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
+{%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+{%- endif %}
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -26,34 +43,37 @@ services:
       data-network: "{{ DATA_NETWORK }}"
 {%- endif %}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-analyticsdb:
     charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
       cassandra-minimum-diskgb: "4"
+{%- if CLOUD == 'maas' %}
+      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
+{%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+{%- endif %}
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: {{ controller_nodes | count }}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      min-cluster-size: {{ controller_nodes | count }}
     expose: true
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
+    to: {{ controller_nodes }}
   contrail-agent:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
@@ -68,7 +88,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
   contrail-openstack:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
@@ -80,7 +100,7 @@ services:
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
   contrail-kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: {{ JUJU_REPO }}/contrail-kubernetes-master
+    charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
     options:
       log-level: 'SYS_DEBUG'
       service_subnets: '10.96.0.0/12'
@@ -89,10 +109,14 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       cluster_name: "k8s"
       public_fip_pool: "{'domain':'default-domain','project':'k8s-default','name':'__fip_pool_public__','network':'__public__'}"
+{%- if ORCHESTRATOR != 'all' %}
       ip_fabric_forwarding: true
+{%- else %}
+      ip_fabric_snat: true
+{%- endif %}
   contrail-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"
-    charm: {{ JUJU_REPO }}/contrail-kubernetes-node
+    charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
     options:
       log-level: 'SYS_DEBUG'
       docker-registry: "{{ CONTAINER_REGISTRY }}"
@@ -105,7 +129,22 @@ services:
     charm: cs:~containers/easyrsa
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[0] }}"
+      - "0"
+{%- endif %}
+{%- if CLOUD == 'maas' %}
+  keepalived:
+    charm: cs:~containers/keepalived
+    options:
+      #TODO vip for not maas
+      virtual_ip: *contrail-controller-vip
+  haproxy:
+    charm: cs:haproxy
+    num_units: 3
+    expose: true
+    to: {{ controller_nodes }}
+    options:
+      peering_mode: active-active
+      ssl_cert: SELFSIGNED
 {%- endif %}
 
 relations:
@@ -132,4 +171,10 @@ relations:
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
 - [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
 - [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
+{%- endif %}
+{%- if CLOUD == 'maas' %}
+- [ contrail-controller:http-services, haproxy:reverseproxy ]
+- [ contrail-controller:https-services, haproxy:reverseproxy ]
+- [ contrail-analytics:http-services, haproxy:reverseproxy ]
+- [ keepalived:juju-info, haproxy:juju-info ]
 {%- endif %}
