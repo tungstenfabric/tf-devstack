@@ -90,4 +90,5 @@ function run_stages() {
   save_tf_stack_profile
 
   echo "INFO: Successful deployment $(date)"
+  echo ""
 }
