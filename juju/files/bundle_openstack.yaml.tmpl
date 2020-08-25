@@ -1,30 +1,18 @@
-{% set JUJU_MACHINES = JUJU_MACHINES.split(',')  -%}
 machines:
-  # heat
-  "{{ JUJU_MACHINES[0] }}":
+# TODO: different sizes for agents and controllers
+{%- if AGENT_NODES|string == NODE_IP|string %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int %}
+{%- set agent_nodes = [0] %}
+{%- else %}
+{%- set all_nodes_count = CONTROLLERS_COUNT|int + AGENTS_COUNT|int %}
+{%- set agent_nodes = range(CONTROLLERS_COUNT|int, all_nodes_count) | list %}
+{%- endif %}
+{%- set all_nodes = range(0, all_nodes_count) | list %}
+{%- for i in range(0, all_nodes_count) %}
+  {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=300G
-  # glance, nova-compute
-  "{{ JUJU_MACHINES[1] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=7G cores=4 root-disk=40G
-  # keystone
-  "{{ JUJU_MACHINES[2] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=7G cores=4 root-disk=40G
-  # nova-cloud-controller (nova-api)
-  "{{ JUJU_MACHINES[3] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=8G cores=2 root-disk=40G
-  # Neutron
-  "{{ JUJU_MACHINES[4] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=300G
-  # openstack-dashboard, mysql, rabbitmq
-  "{{ JUJU_MACHINES[5] }}":
-    series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=8G cores=2 root-disk=40G
-
+    constraints: mem=15G cores=2 root-disk=60G
+{%- endfor %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:
@@ -36,7 +24,7 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "{{ JUJU_MACHINES[1] }}"
+      - lxd:0
   keystone:
     charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 1
@@ -48,20 +36,22 @@ services:
       preferred-api-version: "3"
     expose: true
     to:
-      - "{{ JUJU_MACHINES[2] }}"
+      - lxd:0
   mysql:
     charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
     num_units: 1
     options:
-      root-password: "password"
+      innodb-buffer-pool-size: 256M
       max-connections: 1500
+      performance-schema: true
+      root-password: password
     to:
-      - "{{ JUJU_MACHINES[5] }}"
+      - "0"
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
     num_units: 1
     to:
-      - "{{ JUJU_MACHINES[5] }}"
+      - lxd:0
   neutron-api:
     charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 1
@@ -72,7 +62,7 @@ services:
       neutron-security-groups: "true"
     expose: true
     to:
-      - "{{ JUJU_MACHINES[4] }}"
+      - lxd:0
   heat:
     charm: "cs:heat"
     num_units: 1
@@ -81,7 +71,7 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-    - {{ JUJU_MACHINES[0] }}
+      - lxd:0
   nova-cloud-controller:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 1
@@ -92,11 +82,11 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "{{ JUJU_MACHINES[3] }}"
+      - lxd:0
   nova-compute:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
-    series: {{ UBUNTU_SERIES }}
-    num_units: 1
+    series: "{{ UBUNTU_SERIES }}"
+    num_units: {{ agent_nodes | count }}
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -104,8 +94,7 @@ services:
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
-    to:
-      - "{{ JUJU_MACHINES[1] }}"
+    to: {{ agent_nodes }}
   openstack-dashboard:
     charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
@@ -114,20 +103,14 @@ services:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
     expose: true
     to:
-      - "{{ JUJU_MACHINES[5] }}"
+      - lxd:0
 
   # misc
 
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
-    num_units: 6
-    to:
-      - "{{ JUJU_MACHINES[0] }}"
-      - "{{ JUJU_MACHINES[1] }}"
-      - "{{ JUJU_MACHINES[2] }}"
-      - "{{ JUJU_MACHINES[3] }}"
-      - "{{ JUJU_MACHINES[4] }}"
-      - "{{ JUJU_MACHINES[5] }}"
+    num_units: {{ all_nodes | count }}
+    to: {{ all_nodes }}
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp"
 
