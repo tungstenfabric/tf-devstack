@@ -30,6 +30,7 @@ juju deploy --debug $WORKSPACE/bundle.yaml --map-machines=existing
 if ! grep -q "lxd:" $WORKSPACE/bundle.yaml ; then
   exit
 fi
+
 # wait a bit while juju creates lxd machines in it's database
 sleep 30
 lxd_machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep "\/lxd\/" | awk '{print $1}'`
@@ -38,3 +39,5 @@ echo $lxd_machines
 for machine in $lxd_machines ; do
   wait_cmd_success 'juju ssh $machine "sudo apt-get update -y"'
 done
+# wait a bit while juju re-runs all failed hooks
+sleep 120
