@@ -74,12 +74,17 @@ fi
 set_ssh_keys
 
 # bootstrap JuJu-controller
-if [[ $CLOUD == 'aws' ]] || [[ $CLOUD == 'maas' ]]; then
+if [[ $CLOUD == 'aws' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
-elif [[ $CLOUD != 'manual' ]]; then
+elif [[ $CLOUD == 'maas' ]]; then
+    juju bootstrap --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
+elif [[ $CLOUD == 'local' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
-else
+elif [[ $CLOUD == 'local' ]]; then
     juju bootstrap --config container-networking-method=fan --config fan-config=$NODE_CIDR=252.0.0.0/8 --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
+else
+    echo "ERROR: unknown type of cloud: $CLOUD"
+    exit 1
 fi
 if [[ $CLOUD != 'manual' ]]; then
     juju switch tf-$CLOUD-controller
