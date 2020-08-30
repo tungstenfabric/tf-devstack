@@ -21,7 +21,7 @@ dependencies:
         server:
           daemonset: []
 conf:
-  openstack_version: queens
+  openstack_version: rocky
   neutron:
     DEFAULT:
       core_plugin: neutron_plugin_contrail.plugins.opencontrail.contrail_plugin.NeutronPluginContrailCoreV2
