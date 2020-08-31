@@ -1,7 +1,0 @@
-conf:
-  keystone:
-    security_compliance:
-      # This is needed to allow TF not to get locked out because of frequent requests during bootstrap
-      # TODO: replace with admin user id ignore
-      lockout_failure_attempts: 100000
-      lockout_duration: 1
