@@ -5,7 +5,7 @@ my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
-export OPENSTACK_RELEASE=${OPENSTACK_VERSION:-queens}
+export OPENSTACK_RELEASE=${OPENSTACK_VERSION:-rocky}
 export OSH_OPENSTACK_RELEASE=${OPENSTACK_RELEASE}
 # Disable checks for openstack compute-kit after setup
 export TF_DEPLOYMENT=yes
