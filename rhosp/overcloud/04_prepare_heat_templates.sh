@@ -46,8 +46,13 @@ cat $my_dir/misc_opts.yaml.template | envsubst > ~/misc_opts.yaml
 if [[ "$PROVIDER" == "bmc" ]]; then
   echo "  ControllerCount: 3" >> ~/misc_opts.yaml
   echo "  ContrailControllerCount: 3" >> ~/misc_opts.yaml
-  echo "  ComputeCount: 2" >> ~/misc_opts.yaml
+  echo "  ComputeCount: 1" >> ~/misc_opts.yaml
+  echo "  ContrailSriovCount: 1" >> ~/misc_opts.yaml
+  echo "  ContrailDpdkCount: 1" >> ~/misc_opts.yaml
+  echo "  ContrailDpdkDriver: vfio-pci" >> ~/misc_opts.yaml
   echo "  node_admin_username: ${SSH_USER}" >> ~/misc_opts.yaml
+  cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
+      tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
 fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)
