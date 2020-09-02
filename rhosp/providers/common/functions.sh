@@ -87,7 +87,7 @@ function collect_overcloud_env() {
         AGENT_NODES="$CONTROLLER_NODES"
     elif [[ "${ENABLE_NETWORK_ISOLATION,,}" = true ]] ; then
         CONTROLLER_NODES="$(get_openstack_node_ips contrailcontroller internalapi)"
-        AGENT_NODES=$(get_servers_ips_by_flavor compute)
+        AGENT_NODES="$(get_servers_ips_by_flavor compute) $(get_servers_ips_by_flavor compute-dpdk) $(get_servers_ips_by_flavor compute-sriov)"
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_node_ips controller internalapi)
     else
         CONTROLLER_NODES=$(get_servers_ips_by_flavor contrail-controller)
