@@ -13,5 +13,5 @@ function create_flavor() {
 
 create_flavor 'control' 'controller'
 create_flavor 'compute' 'compute'
+create_flavor 'compute-dpdk' 'compute-dpdk'
 create_flavor 'contrail-controller' 'contrail-controller'
-
