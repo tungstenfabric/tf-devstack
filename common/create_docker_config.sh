@@ -12,7 +12,7 @@ touch $docker_config
 distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
 
 # Setup Jinja2 if not installed
-if ! python3 -c 'import jinja2'; then
+if ! python3 -c 'import jinja2' > /dev/null 2>&1; then
   python3 -m pip install jinja2
 fi
 
