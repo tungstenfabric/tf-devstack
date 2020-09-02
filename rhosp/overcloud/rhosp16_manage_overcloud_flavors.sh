@@ -16,3 +16,7 @@ create_flavor 'control' 'controller'
 create_flavor 'compute' 'compute'
 create_flavor 'contrail-controller' 'contrail-controller'
 
+if [[ "$PROVIDER" == "bmc" ]]; then
+  create_flavor 'compute-dpdk' 'compute-dpdk'
+  create_flavor 'compute-sriov' 'compute-sriov'
+fi
