@@ -17,6 +17,7 @@ network_env_files=''
 if [[ "$ENABLE_NETWORK_ISOLATION" == true ]] ; then
     network_env_files+=' -e tripleo-heat-templates/environments/network-isolation.yaml'
     network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net.yaml'
+    network_env_files+=' -e tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml'
 else
     network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
 fi
