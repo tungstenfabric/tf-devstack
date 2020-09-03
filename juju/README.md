@@ -6,7 +6,7 @@ JuJu deployer provides JuJu-based deployment for TF with OpenStack or Kubernetes
 
 Recommended:
 
-- instance with 8 virtual CPU, 16 GB of RAM and 120 GB of disk space to deploy all-in-one
+- instance with 8 virtual CPU, 16 GB of RAM for kubernetes and 32 GB of RAM for OpenStack, 120 GB of disk space to deploy all-in-one
 - Ubuntu 18.04
 
 ## Quick start on an AWS instances on base of Kubernetes (all-in-one)

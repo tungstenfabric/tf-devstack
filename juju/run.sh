@@ -236,7 +236,7 @@ function tf() {
     # show results
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
     echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
-    echo "Use admin/password to log in"
+    echo "Use admin/password to log in (use 'admin_domain' as domain in case of OpenStack deployment)"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
