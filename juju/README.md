@@ -9,12 +9,12 @@ Recommended:
 - instance with 8 virtual CPU, 16 GB of RAM for kubernetes and 32 GB of RAM for OpenStack, 120 GB of disk space to deploy all-in-one
 - Ubuntu 18.04
 
-## Quick start on an AWS instances on base of Kubernetes (all-in-one)
+## Quick start on a local instance on base of Kubernetes (all-in-one)
 
-1. Launch new AWS instance.
+1. Launch new instance.
 
 - Ubuntu 18.04 (x86_64) - with Updates HVM
-- c5.2xlarge instance type
+- 8 virtual CPU, 16 GB of RAM
 - 120 GiB disk Storage
 
 2. Set environment variables:
@@ -23,7 +23,7 @@ Recommended:
 
 ``` bash
 export ORCHESTRATOR='kubernetes'  # by default
-export CLOUD='local'  # by default
+export CLOUD='manual'  # by default
 ```
 
 3. Clone this repository and run the startup script:
@@ -46,7 +46,30 @@ export AWS_ACCESS_KEY=*aws_access_key*
 export AWS_SECRET_KEY=*aws_secret_key*
 ```
 
-2. Clone this repository and run the startup script:
+2. (optional) Set Controller and Agent nodes configuration.
+``` bash
+export CONTROLLER_NODES='C1 C2 C3'
+export AGENT_NODES='A4 A5'
+```
+
+You may use any symbols separated by spaces, the same symbols will point to the same machines.
+
+For example:
+``` bash
+export CONTROLLER_NODES='C1 C2 C3'
+export AGENT_NODES='A4 A5'
+```
+5 machines would be raised - 3 for controllers, 2 for agents
+
+``` bash
+export CONTROLLER_NODES='M1 M2 M3'
+export AGENT_NODES='M1 M2'
+```
+3 machines would be raised - controllers would be situated on all af them and agents on two of them.
+
+If nothing is imported for CONTROLLER_NODES and AGENT_NODES, it will raise one machine with all-in-one setup.
+
+3. Clone this repository and run the startup script:
 
 ``` bash
 git clone http://github.com/tungstenfabric/tf-devstack
@@ -55,18 +78,15 @@ tf-devstack/juju/run.sh
 
 ## Quick start on an your own instances on base of Openstack
 
-1. Launch 6 nodes:
+1. Launch nodes.
 
-- instance with 2 virtual CPU, 16 GB of RAM and 300 GB of disk space to deploy JuJu-controller, heat, contrail
-- instance with 4 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy glance, nova-compute
-- instance with 4 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy keystone
-- instance with 2 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy nova-cloud-controller
-- instance with 2 virtual CPU, 16 GB of RAM and 300 GB of disk space to deploy neutron
-- instance with 2 virtual CPU, 8 GB of RAM and 40 GB of disk space to deploy openstack-dashboard, mysql, rabbit
+Recommended:
 
+- instance with 8 virtual CPU, 16 GB of RAM and 120 GB of disk space for controller nodes
+- instance with 4 virtual CPU, 8 GB of RAM and 80 GB of disk space for agent nodes
 - Ubuntu 18.04
 
-Open ports 22, 17070 and 37017
+Open ports 22, 17070 and 37017 between them
 
 2. Make sure that juju-controller node has access to all other nodes.
 
@@ -88,8 +108,9 @@ and add it to ~/.ssh/authorized_keys on **all** other nodes.
 
 ``` bash
 export ORCHESTRATOR='openstack'
-export CLOUD='manual'
-export CONTROLLER_NODES=*access ips of the rest 5 nodes*  # you should specify exactly 5 nodes for manual deployment.
+export CLOUD='manual'  # by default
+export CONTROLLER_NODES=*access ips of the machines you prepared for controller nodes* 
+export AGENT_NODES=*access ips of the machines you prepared for agent nodes* 
 ```
 
 4. Clone this repository and run the startup script:
@@ -167,7 +188,7 @@ export MAAS_API_KEY="*maas_user_api_key*"
 export VIRTUAL_IPS="*ip_1 ip_2 ip_3 ip_4 ip_5 ip_6 ip_7*"
 ```
 
-## Quick start on an AWS instances on base of Kubernetes and Openstack (all-in-one)
+## Quick start on a local instance on base of Kubernetes and Openstack (all-in-one)
 
 1. Launch new AWS instance.
 
@@ -179,7 +200,7 @@ export VIRTUAL_IPS="*ip_1 ip_2 ip_3 ip_4 ip_5 ip_6 ip_7*"
 
 ``` bash
 export ORCHESTRATOR='all'
-export CLOUD='local'  # by default
+export CLOUD='manual'  # by default
 ```
 
 3. Clone this repository and run the startup script:
@@ -196,7 +217,7 @@ tf-devstack/juju/run.sh
 1. Set environment variables:
 
 ``` bash
-export CLOUD='local'  # by default, another options are 'manual' and 'aws'
+export CLOUD='manual'  # by default, another options are 'maas' and 'aws'
 ```
 
 2. If you're using manual deployment
@@ -231,9 +252,7 @@ Environment variable list:
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
 - ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "all" are supported
-- CLOUD - cloud for juju deployment, "aws" and "local" are supported, "local" by default
+- CLOUD - cloud for juju deployment, "aws", "maas" and "manual" are supported, "manual" by default
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
 
 ## Known Issues
-
-- For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
