@@ -31,7 +31,7 @@ export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
 export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 # cloud local is deprecated, please use CLOUD=manual and unset CONTROLLER_NODES and AGENT_NODES
 if [[ $CLOUD == 'local' ]] ; then
-    echo "WARNING: cloud 'local is deprecated"
+    echo "WARNING: cloud 'local' is deprecated"
     echo "for deploy to local machine use CLOUD='manual' (by default) and unset CONTROLLER_NODES and AGENT_NODES"
     if [[ ( -n $CONTROLLER_NODES && $CONTROLLER_NODES != $NODE_IP ) ||
           ( -n $AGENT_NODES && $AGENT_NODES != $NODE_IP ) ]] ; then
@@ -153,6 +153,22 @@ function machines() {
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
 }
 
+function _update_nodes() {
+    echo "INFO: updating nodes"
+    echo "INFO: controller_nodes now '$CONTROLLER_NODES'"
+    controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
+    if [[ -n "$controller_nodes" ]] ; then
+        export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
+    fi
+    echo "INFO: controller_nodes calculated '$CONTROLLER_NODES'"
+    echo "INFO: agent_nodes now '$AGENT_NODES'"
+    agent_nodes="`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`"
+    if [[ -n "$agent_nodes" ]] ; then
+        export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"
+    fi
+    echo "INFO: agent_nodes calculated '$AGENT_NODES'"
+}
+
 function openstack() {
     if [[ "$ORCHESTRATOR" != "openstack" && $ORCHESTRATOR != 'all' ]]; then
         echo "INFO: Skipping openstack deployment"
@@ -169,9 +185,9 @@ function openstack() {
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
-            echo "We support deploy with 7 virtual ip addresses only now."
-            echo "You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
-            exit 0
+            echo "ERROR: We support deploy with 7 virtual ip addresses only now."
+            echo "ERROR: You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
+            exit 1
         fi
         if [[ "$IPS_COUNT" = 1 ]] ; then
             export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS} | tr -d "[:space:]") | \
@@ -180,6 +196,8 @@ function openstack() {
         export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
     fi
     $my_dir/../common/deploy_juju_bundle.sh
+    # in case of MAAS we don't have nodes in input - re-read them
+    _update_nodes
 }
 
 function k8s() {
@@ -189,6 +207,8 @@ function k8s() {
     fi
     export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     $my_dir/../common/deploy_juju_bundle.sh
+    # in case of MAAS we don't have nodes in input - re-read them
+    _update_nodes
 }
 
 function tf() {

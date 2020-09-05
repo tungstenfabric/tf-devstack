@@ -41,6 +41,6 @@ export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
 export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
 
 if [[ $(whoami) == root ]]; then
-  echo Please run script as non-root user
+  echo "ERROR: Please run script as non-root user"
   exit 1
 fi

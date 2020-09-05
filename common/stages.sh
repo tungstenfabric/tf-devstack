@@ -7,13 +7,13 @@ STAGE=$1
 
 function load_tf_devenv_profile() {
   if [ -e "$TF_DEVENV_PROFILE" ] ; then
-    echo
-    echo '[load tf devenv configuration]'
+    echo ''
+    echo 'INFO: [load tf devenv configuration]'
     source "$TF_DEVENV_PROFILE"
     [ -n "$REGISTRY_IP" ] && CONTAINER_REGISTRY="${REGISTRY_IP}" && [ -n "$REGISTRY_PORT" ] && CONTAINER_REGISTRY+=":${REGISTRY_PORT}" || true
   else
-    echo
-    echo '[there is no tf devenv configuration to load]'
+    echo ''
+    echo 'INFO: [there is no tf devenv configuration to load]'
   fi
   # set to tungstenfabric if not set
   [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric' || true
@@ -24,8 +24,8 @@ function load_tf_devenv_profile() {
 
 function save_tf_stack_profile() {
   local file=${1:-$TF_STACK_PROFILE}
-  echo
-  echo '[update tf stack configuration]'
+  echo ''
+  echo 'INFO: [update tf stack configuration]'
   mkdir -p "$(dirname $file)"
   cat <<EOF > $file
 DEPLOYER=${DEPLOYER}
@@ -42,7 +42,7 @@ EOF
   for key in ${!DEPLOYMENT_ENV[@]} ; do
     echo "${key}='${DEPLOYMENT_ENV[$key]}'" >> $file
   done
-  echo "tf setup profile $file"
+  echo "INFO: content of tf setup profile $file"
   cat ${file}
 }
 
@@ -50,7 +50,7 @@ function run_stage() {
   if ! finished_stage $1 ; then
     $1 $2
   else
-    echo "Skipping stage $1 because it's finished"
+    echo "INFO: Skipping stage $1 because it's finished"
   fi
   if [[ $1 != "wait" ]]; then
     mkdir -p $TF_STAGES_DIR
