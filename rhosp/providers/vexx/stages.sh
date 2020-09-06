@@ -61,9 +61,9 @@ function overcloud() {
 #Overcloud stage
 function tf() {
     cd $my_dir
-    ./overcloud/04_prepare_heat_templates.sh
-    ./overcloud/05_prepare_containers.sh
-    ./overcloud/06_deploy_overcloud.sh
+    ./overcloud/04_prepare_heat_templates.sh || exit 1
+    ./overcloud/05_prepare_containers.sh     || exit 1
+    ./overcloud/06_deploy_overcloud.sh       || exit 1
 }
 
 function logs() {
