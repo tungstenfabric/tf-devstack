@@ -1,4 +1,5 @@
 #!/bin/bash -e
+set -e
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -118,9 +119,7 @@ function prepare_rhosp_env_file() {
     cat /tmp/rhosp-environment.sh > ~/rhosp-environment.sh
 }
 
-
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
-
 
 run_stages $STAGE

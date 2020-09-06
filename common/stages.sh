@@ -80,7 +80,6 @@ function run_stages() {
   [[ -z $stages ]] && stages="$STAGE"
 
   load_tf_devenv_profile
-
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
