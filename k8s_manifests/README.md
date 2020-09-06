@@ -55,3 +55,7 @@ Environment variable list:
 ## Known Issues
 
 - For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
+
+## Known behavior
+
+- After the deployment hostname will be changed to node1. This is known behaviour of kubespray
