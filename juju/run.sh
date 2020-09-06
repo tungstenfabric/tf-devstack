@@ -149,6 +149,12 @@ function machines() {
         # to prevent it we starts lxd before
         command juju deploy ubuntu --to lxd:0
     fi
+    if [[ $CLOUD == 'maas' ]] ; then
+        # HACK: MAAS is already predeployed now and has 5 machines.
+        # we have to export nodes accorndingly
+        export CONTROLLER_NODES="C1,C2,C3"
+        export AGENT_NODES="A1,A2"
+    fi 
 
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
 }
