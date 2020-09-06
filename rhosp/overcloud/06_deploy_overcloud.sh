@@ -12,6 +12,13 @@ source ./rhosp-environment.sh
 #Specific part of deployment
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
 
+set -x
+echo "!!! Here: STACK SHOW"
+openstack stack show
+echo "!!! Here: SPECIAL STACK SHOW"
+openstack stack show -f json overcloud
+set +x
+
 status=$(openstack stack show -f json overcloud | jq ".stack_status")
 if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then
   echo "ERROR: failed to deploy overcloud: status=$status"
