@@ -24,9 +24,13 @@ function overcloud() {
 function tf() {
     cd $my_dir
     ./overcloud/02_manage_overcloud_flavors.sh
+    [[ $? -ne 0 ]] && exit 1
     ./overcloud/04_prepare_heat_templates.sh
+    [[ $? -ne 0 ]] && exit 1
     ./overcloud/05_prepare_containers.sh
+    [[ $? -ne 0 ]] && exit 1
     ./overcloud/06_deploy_overcloud.sh
+    [[ $? -ne 0 ]] && exit 1
     add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
     add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
 }

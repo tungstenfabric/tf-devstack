@@ -62,8 +62,11 @@ function overcloud() {
 function tf() {
     cd $my_dir
     ./overcloud/04_prepare_heat_templates.sh
+    [[ $? -ne 0 ]] && exit 1
     ./overcloud/05_prepare_containers.sh
+    [[ $? -ne 0 ]] && exit 1
     ./overcloud/06_deploy_overcloud.sh
+    [[ $? -ne 0 ]] && exit 1
 }
 
 function logs() {

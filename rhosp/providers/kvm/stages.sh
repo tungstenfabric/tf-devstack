@@ -110,17 +110,24 @@ function overcloud() {
 function tf_no_deploy() {
     cd $my_dir
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/02_manage_overcloud_flavors.sh
+    [[ $? -ne 0 ]] && exit 1
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/04_prepare_heat_templates.sh
+    [[ $? -ne 0 ]] && exit 1
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/05_prepare_containers.sh
+    [[ $? -ne 0 ]] && exit 1
 }
 
 #Overcloud stage
 function tf() {
     cd $my_dir
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/02_manage_overcloud_flavors.sh
+    [[ $? -ne 0 ]] && exit 1
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/04_prepare_heat_templates.sh
+    [[ $? -ne 0 ]] && exit 1
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/05_prepare_containers.sh
+    [[ $? -ne 0 ]] && exit 1
     ssh  $ssh_opts stack@${mgmt_ip} /home/stack/tf-devstack/rhosp/overcloud/06_deploy_overcloud.sh
+    [[ $? -ne 0 ]] && exit 1
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
