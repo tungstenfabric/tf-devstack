@@ -1,4 +1,5 @@
 #!/bin/bash -e
+echo \!\!\! run_sh before sources: $(set -o | grep errexit)
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -122,5 +123,5 @@ function prepare_rhosp_env_file() {
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
 
-
+echo \!\!\! run_sh before stages: $(set -o | grep errexit)
 run_stages $STAGE

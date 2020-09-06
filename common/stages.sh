@@ -47,6 +47,7 @@ EOF
 }
 
 function run_stage() {
+  echo \!\!\! run_stage: $(set -o | grep errexit)
   if ! finished_stage $1 ; then
     $1 $2
   else
@@ -80,7 +81,7 @@ function run_stages() {
   [[ -z $stages ]] && stages="$STAGE"
 
   load_tf_devenv_profile
-
+  echo \!\!\! run_stages after load_tf_devenv_profile: $(set -o | grep errexit)
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"

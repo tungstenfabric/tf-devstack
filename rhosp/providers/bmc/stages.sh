@@ -23,10 +23,10 @@ function overcloud() {
 #Overcloud stage
 function tf() {
     cd $my_dir
-    ./overcloud/02_manage_overcloud_flavors.sh
-    ./overcloud/04_prepare_heat_templates.sh
-    ./overcloud/05_prepare_containers.sh
-    ./overcloud/06_deploy_overcloud.sh
+    ./overcloud/02_manage_overcloud_flavors.sh || exit 1
+    ./overcloud/04_prepare_heat_templates.sh   || exit 1
+    ./overcloud/05_prepare_containers.sh       || exit 1
+    ./overcloud/06_deploy_overcloud.sh         || exit 1
     add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
     add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
 }
