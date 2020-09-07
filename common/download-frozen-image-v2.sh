@@ -43,7 +43,6 @@ newlineIFS=$'\n'
 url=$DEPLOYER_CONTAINER_REGISTRY
 
 IFS=':' read -ra url_array <<< $url
-
 if [[ ${#url_array[@]} -gt 1 ]] ; then
   host=${url_array[0]}
 else
@@ -61,18 +60,18 @@ ishost=true
 namespace=""
 registry_url=""
 
-command host ${host} ||  getent hosts ${host} || ishost=false
+command host ${host} || getent hosts ${host} || ishost=false
 if [[ $ishost == true ]] ; then
-        IFS='/' read -ra host_port <<< $url
-        registry_url=${host_port[0]}
-        if [[ ${#host_port[@]} -gt 1 ]] ; then
-                namespace=${host_port[1]}/
-        fi
+	IFS='/' read -ra host_port <<< $url
+	registry_url=${host_port[0]}
+	if [[ ${#host_port[@]} -gt 1 ]] ; then
+		namespace=${host_port[1]}/
+	fi
 else
-        namespace=${host}/
+	namespace=${host}/
 fi
 
-echo ishost = $ishost namespace = $namespace registry_url = $registry_url
+echo "INFO: ishost = $ishost namespace = $namespace registry_url = $registry_url"
 
 # Passed namespace on registry.docker.io
 if [[ $ishost == false ]] ; then

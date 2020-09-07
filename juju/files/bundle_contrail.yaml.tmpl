@@ -1,17 +1,17 @@
 {%- if CLOUD == 'maas' %}
-{% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
-
+  {%- set VIRTUAL_IPS = VIRTUAL_IPS.split() %}
 variables:
   contrail-controller-vip:         &contrail-controller-vip        "{{ VIRTUAL_IPS[6] }}"
 {%- endif %}
 
+{%- set controllers_count = CONTROLLER_NODES.split()|length %}
 machines:
-{%- for i in range(0,CONTROLLERS_COUNT|int) %}
+{%- for i in range(0, controllers_count|int) %}
   {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
     constraints: mem=15G cores=2 root-disk=60G
 {%- endfor %}
-{%- set controller_nodes = range(0,CONTROLLERS_COUNT|int) | list %}
+{%- set controller_nodes = range(0, controllers_count|int) | list %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:

@@ -1,20 +1,21 @@
 machines:
+{%- set controllers_count = CONTROLLER_NODES.split()|length %}
 {%- if AGENT_NODES|string == NODE_IP|string %}
-{%- set all_nodes_count = CONTROLLERS_COUNT|int %}
-{%- set agent_nodes = [0] %}
+  {%- set all_nodes_count = controllers_count|int %}
+  {%- set agent_nodes = [0] %}
 {%- else %}
-{%- set controller_nodes_list = CONTROLLER_NODES.split() %}
-{%- set agent_nodes_list = AGENT_NODES.split() %}
-{%- set all_nodes_list = controller_nodes_list + agent_nodes_list %}
-{%- set all_nodes_list = all_nodes_list | unique | list %}
-{%- set all_nodes_count = all_nodes_list | length %}
-{%- set common_nodes = [] %}
-{%- for agent in agent_nodes_list %}
-{%- if agent in controller_nodes_list %}
-{{ common_nodes.append(controller_nodes_list.index(agent))|default("", True) }}
-{%- endif %}
-{%- endfor %}
-{%- set agent_nodes = common_nodes + range(CONTROLLERS_COUNT|int, all_nodes_count) | list %}
+  {%- set controller_nodes_list = CONTROLLER_NODES.split() %}
+  {%- set agent_nodes_list = AGENT_NODES.split() %}
+  {%- set all_nodes_list = controller_nodes_list + agent_nodes_list %}
+  {%- set all_nodes_list = all_nodes_list | unique | list %}
+  {%- set all_nodes_count = all_nodes_list | length %}
+  {%- set common_nodes = [] %}
+  {%- for agent in agent_nodes_list %}
+    {%- if agent in controller_nodes_list %}
+      {{ common_nodes.append(controller_nodes_list.index(agent))|default("", True) }}
+    {%- endif %}
+  {%- endfor %}
+  {%- set agent_nodes = common_nodes + range(controllers_count|int, all_nodes_count) | list %}
 {%- endif %}
 {%- set all_nodes = range(0, all_nodes_count) | list %}
 {%- for i in range(0, all_nodes_count) %}

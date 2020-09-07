@@ -137,8 +137,9 @@ function juju() {
 
 function machines() {
     if [[ $CLOUD == 'manual' ]] ; then
-        if [[ $(( $CONTROLLERS_COUNT % 2 )) -eq 0 ]]; then
-            echo "ERROR: controllers amount should be odd. now it is $CONTROLLERS_COUNT."
+        local count=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
+        if [[ $(( $count % 2 )) -eq 0 ]]; then
+            echo "ERROR: controllers amount should be odd. now it is $count."
             exit 1
         fi
         $my_dir/../common/add_juju_machines.sh
@@ -149,12 +150,6 @@ function machines() {
         # to prevent it we starts lxd before
         command juju deploy ubuntu --to lxd:0
     fi
-    if [[ $CLOUD == 'maas' ]] ; then
-        # HACK: MAAS is already predeployed now and has 5 machines.
-        # we have to export nodes accorndingly
-        export CONTROLLER_NODES="C1,C2,C3"
-        export AGENT_NODES="A1,A2"
-    fi 
 
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
 }
@@ -175,9 +170,9 @@ function openstack() {
     if [ $CLOUD == 'maas' ] ; then
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
-            echo "We support deploy with 7 virtual ip addresses only now."
+            echo "ERROR: We support deploy with 7 virtual ip addresses only now."
             echo "You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
-            exit 0
+            exit 1
         fi
         if [[ "$IPS_COUNT" = 1 ]] ; then
             export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS} | tr -d "[:space:]") | \
@@ -200,6 +195,10 @@ function k8s() {
 function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
+        # HACK: MAAS is already predeployed now and has 5 machines.
+        # we have to export nodes accorndingly
+        export CONTROLLER_NODES="C1,C2,C3"
+        export AGENT_NODES="A1,A2"
     fi
     export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
 

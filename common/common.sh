@@ -37,9 +37,6 @@ export AGENT_NODES="$(echo $AGENT_NODES | tr ',' ' ')"
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 
-export CONTROLLERS_COUNT=`echo $CONTROLLER_NODES | awk -F ' ' '{print NF}'`
-export AGENTS_COUNT=`echo $AGENT_NODES | awk -F ' ' '{print NF}'`
-
 if [[ $(whoami) == root ]]; then
   echo Please run script as non-root user
   exit 1
