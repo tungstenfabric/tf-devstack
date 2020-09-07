@@ -61,6 +61,11 @@ make nfs-provisioner
 sudo localectl set-locale LANG=en-US.UTF-8
 . /etc/locale.conf
 export LC_ALL=en_US.UTF-8
+cat /etc/environment
+# Если LANG и/или LC_ALL в /etc/environment уже есть, то нужно заменять, а не добавлять !
+# Заменить можно через "sudo sed ..."
+sudo sh -c "echo -e 'LANG=en_US.utf-8\nLC_ALL=en_US.utf-8' >> /etc/environment"
+cat /etc/environment
 sudo -H -E pip3 install \
   -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/master} \
   cmd2 python-openstackclient python-heatclient --ignore-installed --no-binary :all:
