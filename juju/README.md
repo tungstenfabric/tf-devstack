@@ -234,11 +234,11 @@ tf-devstack/juju/cleanup.sh
 
 ## Installation configuration
 
-Juju is deployed on Ubuntu18 by default.
-You can select Ubuntu 16 with environment variables before installation.
+You can select different Ubuntu version for deploy with environment variables before installation.
+But this can be specified only for cases when your jumphost is not in a list of machines for setup.
 
 ``` bash
-export UBUNTU_SERIES=${UBUNTU_SERIES:-xenial}
+export UBUNTU_SERIES=xenial
 ./run.sh
 ```
 
@@ -246,7 +246,7 @@ export UBUNTU_SERIES=${UBUNTU_SERIES:-xenial}
 
 Environment variable list:
 
-- UBUNTU_SERIES - version of ubuntu, bionic by default
+- UBUNTU_SERIES - version of ubuntu, by default it's equal to current host
 - CONTAINER_REGISTRY - by default "opencontrailnightly"
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
