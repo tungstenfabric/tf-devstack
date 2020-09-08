@@ -1,6 +1,5 @@
 {%- if CONTROLLER_NODES is defined and CONTROLLER_NODES|length %}
 {%- set CONTROLLER_NODES = CONTROLLER_NODES.split() %}
-{%- set OPENSTACK_NODE = CONTROLLER_NODES[0] %}
 {%- endif %}
 
 {%- if AGENT_NODES is defined and AGENT_NODES|length %}
@@ -28,31 +27,49 @@ instances:
       config_database:
       control:
       webui:
-{%- if node == OPENSTACK_NODE %}
+
+  {%- if node == CONTROLLER_NODES[0] and ORCHESTRATOR in ['openstack', 'all'] %}
       openstack:
-{%- endif %}
-{%- if node in AGENT_NODES %}
+  {%- endif %}
+
+  {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+      k8s_master:
+      kubemanager:
+  {%- endif %}
+
+  {%- if node in AGENT_NODES %}
       vrouter:
+    {%- if ORCHESTRATOR in ['openstack', 'all'] %}
       openstack_compute:
-{%- endif %}
+    {%- endif %}
+    {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+      k8s_node:
+    {%- endif %}
+  {%- endif %}
 {%- endfor %}
 
 {%- for node in AGENT_NODES %}
-{%- if node not in CONTROLLER_NODES %}
+  {%- if node not in CONTROLLER_NODES %}
   node_{{ node | replace(".", "_") }}:
     ip: "{{ node }}"
     provider: bms
     roles:
       vrouter:
+    {%- if ORCHESTRATOR in ['openstack', 'all'] %}
       openstack_compute:
-{%- endif %}
+    {%- endif %}
+    {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+      k8s_node:
+    {%- endif %}
+  {%- endif %}
 {%- endfor %}
 
 global_configuration:
   CONTAINER_REGISTRY: "{{ CONTAINER_REGISTRY }}"
   REGISTRY_PRIVATE_INSECURE: True
   ENABLE_DESTROY: False
-
+default_configuration:
+  VXLAN_VN_ID_MODE: automatic
 contrail_configuration:
   CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
   CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
@@ -60,15 +77,27 @@ contrail_configuration:
   JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
   VROUTER_ENCRYPTION: FALSE
   LOG_LEVEL: SYS_DEBUG
+{%- if ORCHESTRATOR in ['openstack', 'all'] %}
   CLOUD_ORCHESTRATOR: openstack
-  OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
-  AUTH_MODE: keystone
-  KEYSTONE_AUTH_URL_VERSION: /v3
+{%- else %}
+  CLOUD_ORCHESTRATOR: kubernetes
+{%- endif %}
   SSL_ENABLE: "{{ SSL_ENABLE }}"
   RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
   CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
-default_configuration:
-  VXLAN_VN_ID_MODE: automatic
+
+{%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+  KUBERNETES_PUBLIC_FIP_POOL:
+    domain: default-domain
+    name: __fip_pool_public__
+    network: __public__
+    project: k8s-default
+{%- endif %}
+
+{%- if ORCHESTRATOR in ['openstack', 'all'] %}
+  OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
+  AUTH_MODE: keystone
+  KEYSTONE_AUTH_URL_VERSION: /v3
 kolla_config:
   kolla_globals:
     nova_compute_virt_type: qemu
@@ -82,3 +111,4 @@ kolla_config:
     heat_logging_debug: "True"
   kolla_passwords:
     keystone_admin_password: contrail123
+{%- endif %}
