@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13382d64_cae99a88",
+        "filename": "rhosp/overcloud/rhosp13_deploy_overcloud.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-09T14:56:07Z",
+      "side": 1,
+      "message": "instead of that add into generation of misc_opts.yaml or contrail-parameters.yaml the definition\nOS::TripleO::ContrailDpdk::Net::SoftwareConfig: tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml\ninto resource_registry: section",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 112
+      },
+      "revId": "0a83a63eed1ff60a908faf2053e51478d2427dda",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35edbf7d_9422a267",
+        "filename": "rhosp/overcloud/rhosp16_deploy_overcloud.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-09T14:56:07Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 112
+      },
+      "revId": "0a83a63eed1ff60a908faf2053e51478d2427dda",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
