@@ -170,7 +170,7 @@ function collect_contrail_logs() {
 function save_introspect_info() {
     if sudo lsof -i ":$4" &>/dev/null ; then
         echo "INFO: Collecting contrail logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
-        timeout -s 9 30 sudo curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
+        sudo timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
 }
 
