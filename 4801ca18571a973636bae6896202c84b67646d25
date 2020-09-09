@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5015bcb3_0682e2b5",
+        "filename": "rhosp/providers/bmc/stages.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-09T14:48:19Z",
+      "side": 1,
+      "message": "lets try to find out why bush -e is not working here",
+      "range": {
+        "startLine": 26,
+        "startChar": 47,
+        "endLine": 26,
+        "endChar": 56
+      },
+      "revId": "4801ca18571a973636bae6896202c84b67646d25",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
