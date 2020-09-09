@@ -64,6 +64,24 @@ function logs() {
         collect_kubernetes_objects_info
     fi
 
+    # get list with all uniq nodes
+    IFS=',' read -ra nodes_list <<< $CONTROLLER_NODES$AGENT_NODES
+    nodes_list=( `for node in ${nodes_list[@]}; do echo $node; done | sort -u` )
+
+    for machine in $nodes_list ; do
+            local tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
+            mkdir -p $TF_LOG_DIR/$machine
+            command ssh $machine "mkdir -p /tmp/ansible-logs"
+            command scp $my_dir/../common/collect_logs.sh $machine:/tmp/ansible-logs/collect_logs.sh
+            command scp /tmp/logs.sh $machine:/tmp/ansible-logs/logs.sh
+            command ssh $machine /tmp/ansible-logs/logs.sh $tgz_name
+            command scp $machine:/tmp/ansible-logs/$tgz_name $TF_LOG_DIR/$machine/
+            pushd $TF_LOG_DIR/$machine/
+            tar -xzf $tgz_name
+            rm -rf $tgz_name
+            popd
+        done
+
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     sudo rm -rf $TF_LOG_DIR
 
