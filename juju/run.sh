@@ -50,7 +50,8 @@ AWS_REGION=${AWS_REGION:-'us-east-1'}
 MAAS_ENDPOINT=${MAAS_ENDPOINT:-''}
 MAAS_API_KEY=${MAAS_API_KEY:-''}
 
-export UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
+source /etc/lsb-release
+export UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 
@@ -161,6 +162,8 @@ function openstack() {
     fi
 
     if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
+        export OPENSTACK_ORIGIN="distro"
+    elif [[ "$UBUNTU_SERIES" == 'focal' && "$OPENSTACK_VERSION" == 'ussuri' ]]; then
         export OPENSTACK_ORIGIN="distro"
     else
         export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"

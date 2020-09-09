@@ -7,7 +7,8 @@ source "$my_dir/common.sh"
 source "$my_dir/functions.sh"
 
 # parameters
-UBUNTU_SERIES=${UBUNTU_SERIES:-'bionic'}
+source /etc/lsb-release
+UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
 CLOUD=${CLOUD:-'manual'}
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
