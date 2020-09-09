@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "df70e4d2_96cd0e9d",
+        "filename": "rhosp/overcloud/rhosp13_manage_overcloud_flavors.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-09-09T15:30:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f11ff9e4_829ab22f",
+      "range": {
+        "startLine": 18,
+        "startChar": 0,
+        "endLine": 18,
+        "endChar": 35
+      },
+      "revId": "7dbe454202b49fb3716785b84b66b71a777b8b6b",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "357fa4c8_d977c228",
         "filename": "rhosp/overcloud/rhosp16_manage_overcloud_flavors.sh",
         "patchSetId": 4
