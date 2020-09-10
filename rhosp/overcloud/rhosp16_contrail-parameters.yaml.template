@@ -16,6 +16,7 @@ parameter_defaults:
   ContrailSettings:
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
     ${vrouter_gateway_parameter}
+    ${vrouter_dpdk_driver_parameter}
     # custom port to avoid conflict in aio deploy with openstack
 
 

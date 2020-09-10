@@ -49,10 +49,11 @@ if [[ "$PROVIDER" == "bmc" ]]; then
   echo "  ComputeCount: 1" >> ~/misc_opts.yaml
   echo "  ContrailSriovCount: 1" >> ~/misc_opts.yaml
   echo "  ContrailDpdkCount: 1" >> ~/misc_opts.yaml
-  echo "  ContrailDpdkDriver: vfio-pci" >> ~/misc_opts.yaml
+  echo "  ContrailDpdkDriver: $contrail_dpdk_driver" >> ~/misc_opts.yaml
   echo "  node_admin_username: ${SSH_USER}" >> ~/misc_opts.yaml
   cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
       tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
+  export vrouter_dpdk_driver_parameter="DPDK_UIO_DRIVER: ${contrail_dpdk_driver}"
 fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)

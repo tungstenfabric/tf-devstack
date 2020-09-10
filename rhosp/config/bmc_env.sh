@@ -24,6 +24,8 @@ export prov_cidr="192.168.24.0/${prov_subnet_len}"
 export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
 export fixed_vip="192.168.24.250"
 
+export contrail_dpdk_driver="vfio-pci"
+
 # Interfaces for providing tests run (need only if network isolation enabled)
 export internal_vlan="vlan710"
 export internal_interface="eth1"
