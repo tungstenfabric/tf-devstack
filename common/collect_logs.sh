@@ -50,6 +50,7 @@ function collect_docker_logs() {
 
 function collect_contrail_status() {
     echo "INFO: Collecting contrail-status"
+    mkdir -p $TF_LOG_DIR
     sudo contrail-status &> $TF_LOG_DIR/contrail-status
     sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
 }
