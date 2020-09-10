@@ -22,6 +22,30 @@
       "revId": "a4ece341d68d0136644c9e4b9435a5897c2a829d",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41b030ca_ad1f90ee",
+        "filename": "rhosp/overcloud/04_prepare_heat_templates.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 471
+      },
+      "writtenOn": "2020-09-10T08:11:53Z",
+      "side": 1,
+      "message": "I was not sure if this is good for VM\u0027s with less memory that we can use in the future.",
+      "parentUuid": "b5483a7f_708cab3d",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 92
+      },
+      "revId": "a4ece341d68d0136644c9e4b9435a5897c2a829d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
