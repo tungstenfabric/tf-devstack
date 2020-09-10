@@ -63,6 +63,11 @@ function wait_cmd_success() {
   local silent_cmd=${4:-1}
 
   local state_save=$(set +o)
+  case $- in
+    *e*) state_save="$state_save; set -e";;
+    *) state_save="$state_save; set +e";;
+  esac
+
   set +o xtrace
   set -o pipefail
   local i=0

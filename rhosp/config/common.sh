@@ -6,6 +6,11 @@ export undercloud_local_interface=${undercloud_local_interface:-"eth1"}
 export keystone_admin_api_network=${keystone_admin_api_network:-"ctlplane"}
 
 state=$(set +o)
+case $- in
+  *e*) state="$state; set -e";;
+  *) state="$state; set +e";;
+esac
+
 set +x
 #Red Hat credentials
 export RHEL_PASSWORD=$RHEL_PASSWORD
