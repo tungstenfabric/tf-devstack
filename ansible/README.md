@@ -57,6 +57,42 @@ export OPENSTACK_VERSION=queens
 
 OpenStack version may be selected from queens (default), ocata, rocky, train.
 
+## Quick start on an your own instances on base of Openstack
+
+1. Launch nodes.
+
+2. Make sure that ansible-controller node has access to all other nodes.
+
+On ansible-controller node:
+
+``` bash
+ssh-keygen -t rsa
+```
+
+Copy created public key
+
+``` bash
+cat ~/.ssh/id_rsa.pub
+```
+
+and append it to ~/.ssh/authorized_keys on **all** other nodes.
+
+3. On ansible-controller node set environment variables:
+
+``` bash
+export ORCHESTRATOR='openstack'
+export CLOUD='manual'  # by default
+export CONTROLLER_NODES=*access ips of the machines you prepared for controller nodes* 
+export AGENT_NODES=*access ips of the machines you prepared for agent nodes* 
+```
+
+4. Clone this repository and run the startup script:
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/ansible/run.sh
+```
+
 ## Customized deployments and deployment steps
 
 run.sh accepts the following targets:
