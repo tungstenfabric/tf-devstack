@@ -21,9 +21,25 @@ OS:
 
 NOTE: Windows and MacOS deployments are not supported, please use VM (like VirtualBox) with Linux to run tf-devstack on such machines.
 
-## Quick start on an AWS instance
+## Quick start on AWS instance(s)
 
-1. Launch the new AWS instance.
+0. Skip this for all-in-one node deployment. For multinode deployment (3 controller, 2 agents)
+make sure that:
+
+    - 22 port is open between nodes.
+    - Ansible-controller node has access by ssh without a password to all other nodes.
+    - User has to have sudoers right on all the nodes.
+    - The ssh users can run sudo without password right on all the nodes.
+
+    and set on ansible-controller node:
+
+``` bash
+export ORCHESTRATOR='openstack'
+export CONTROLLER_NODES=IP1,IP2,IP3 # NOTE: Openstack will be set up in non-HA mode, so only first IP of this list would host Openstack controller.
+export AGENT_NODES=IP4,IP5
+```
+
+1. For all-in-one node deployment launch the new AWS instance:
 
 - CentOS 7 (x86_64) - with Updates HVM
 - t2.xlarge instance type
@@ -42,7 +58,7 @@ git clone http://github.com/tungstenfabric/tf-devstack
 ./tf-devstack/ansible/run.sh
 ```
 
-5. Wait about 30-60 minutes to complete the deployment.
+4. Wait about 30-60 minutes to complete the deployment.
 
 ## Installation configuration
 
