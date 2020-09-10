@@ -50,19 +50,51 @@ function build() {
 function logs() {
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
-
     create_log_dir
     cp $tf_deployer_dir/instances.yaml ${TF_LOG_DIR}/
-    collect_contrail_status
-    collect_system_stats
-    collect_docker_logs
-    collect_contrail_logs
-    if [[ "$ORCHESTRATOR" == "openstack" ]]; then
-        collect_kolla_logs
-    else
-        collect_kubernetes_logs
-        collect_kubernetes_objects_info
-    fi
+
+    cat <<EOF >/tmp/logs.sh
+#!/bin/bash
+tgz_name=\$1
+export WORKSPACE=/tmp/ansible-logs
+export TF_LOG_DIR=/tmp/ansible-logs/logs
+export SSL_ENABLE=$SSL_ENABLE
+sudo apt-get install -y lsof
+cd /tmp/ansible-logs
+source ./collect_logs.sh
+collect_contrail_status
+collect_system_stats
+collect_docker_logs
+collect_contrail_logs
+if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+    collect_kolla_logs
+else
+    collect_kubernetes_logs
+    collect_kubernetes_objects_info
+fi
+chmod -R a+r logs
+pushd logs
+tar -czf \$tgz_name *
+popd
+cp logs/\$tgz_name \$tgz_name
+rm -rf logs
+EOF
+chmod a+x /tmp/logs.sh
+
+    local machine
+    for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+        local tgz_name="logs-$machine.tgz"
+        mkdir -p $TF_LOG_DIR/$machine
+        ssh $machine "mkdir -p /tmp/ansible-logs"
+        scp $my_dir/../common/collect_logs.sh $machine:/tmp/ansible-logs/collect_logs.sh
+        scp /tmp/logs.sh $machine:/tmp/ansible-logs/logs.sh
+        ssh $machine /tmp/ansible-logs/logs.sh $tgz_name
+        scp $machine:/tmp/ansible-logs/$tgz_name $TF_LOG_DIR/$machine/
+        pushd $TF_LOG_DIR/$machine/
+        tar -xzf $tgz_name
+        rm -rf $tgz_name
+        popd
+    done
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     sudo rm -rf $TF_LOG_DIR
