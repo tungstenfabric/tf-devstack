@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc30c1ed_bcf45035",
+        "filename": "common/stages.sh",
+        "patchSetId": 7
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-10T07:45:28Z",
+      "side": 0,
+      "message": "not needed change",
+      "revId": "46652f2e21548ec6c52142d17d04c5ddd797e32e",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
