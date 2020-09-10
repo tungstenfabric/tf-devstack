@@ -44,15 +44,45 @@ function build() {
 function logs() {
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
-
     create_log_dir
     cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
-    collect_system_stats
-    collect_contrail_status
-    collect_docker_logs
-    collect_kubernetes_objects_info
-    collect_kubernetes_logs
-    collect_contrail_logs
+
+    cat <<EOF >/tmp/logs.sh
+#!/bin/bash
+tgz_name=\$1
+export WORKSPACE=/tmp/k8s_manifests-logs
+export TF_LOG_DIR=/tmp/k8s_manifests-logs/logs
+export SSL_ENABLE=$SSL_ENABLE
+cd /tmp/k8s_manifests-logs
+source ./collect_logs.sh
+collect_system_stats
+collect_contrail_status
+collect_docker_logs
+collect_kubernetes_objects_info
+collect_kubernetes_logs
+collect_contrail_logs
+chmod -R a+r logs
+pushd logs
+tar -czf \$tgz_name *
+popd
+cp logs/\$tgz_name \$tgz_name
+rm -rf logs
+EOF
+chmod a+x /tmp/logs.sh
+
+    for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+        local tgz_name="logs-$machine.tgz"
+        mkdir -p $TF_LOG_DIR/$machine
+        ssh $machine "mkdir -p /tmp/k8s_manifests-logs"
+        scp $my_dir/../common/collect_logs.sh $machine:/tmp/k8s_manifests-logs/collect_logs.sh
+        scp /tmp/logs.sh $machine:/tmp/k8s_manifests-logs/logs.sh
+        ssh $machine /tmp/k8s_manifests-logs/logs.sh $tgz_name
+        scp $machine:/tmp/k8s_manifests-logs/$tgz_name $TF_LOG_DIR/$machine/
+        pushd $TF_LOG_DIR/$machine/
+        tar -xzf $tgz_name
+        rm -rf $tgz_name
+        popd
+    done
 
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
     rm -rf $TF_LOG_DIR
