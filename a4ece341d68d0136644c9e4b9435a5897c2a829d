@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5483a7f_708cab3d",
+        "filename": "rhosp/overcloud/04_prepare_heat_templates.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-10T07:49:27Z",
+      "side": 1,
+      "message": "misc_otps is completele created by us.. why not to just fix initial variant of the file?",
+      "range": {
+        "startLine": 56,
+        "startChar": 2,
+        "endLine": 56,
+        "endChar": 92
+      },
+      "revId": "a4ece341d68d0136644c9e4b9435a5897c2a829d",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
