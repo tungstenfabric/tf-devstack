@@ -57,6 +57,50 @@ export OPENSTACK_VERSION=queens
 
 OpenStack version may be selected from queens (default), ocata, rocky, train.
 
+## Quick start on an your own instances on base of Openstack
+
+1. Launch nodes.
+
+- 3 controller nodes.
+- 1 agent node.
+
+Recommended:
+
+- instance with 8 virtual CPU, 32 GB of RAM and 120 GB of disk space for first controller node
+- instance with 8 virtual CPU, 16 GB of RAM and 120 GB of disk space for other controller nodes
+- instance with 4 virtual CPU, 8 GB of RAM and 80 GB of disk space for agent nodes
+- CentOS 7
+
+Open ports 22, 17070 and 37017 between them
+
+2. Make sure that:
+
+- ansible-controller node has access by ssh without a password to all other nodes.
+- User has to have sudoers right on all the nodes.
+- The ssh users can run sudo without password right on all the nodes.
+
+3. On ansible-controller node set environment variables:
+
+``` bash
+export ORCHESTRATOR='openstack'
+export CLOUD='manual'  # by default
+export CONTROLLER_NODES=C1,C2,C3
+export AGENT_NODES=A1
+```
+
+Where:
+
+- C1 - IP of contrail controller node on which it will stand openstack controller.
+- C2, C3 - IPs of other contrail controller nodes.
+- A1 - IP of agent node.
+
+4. Clone this repository and run the startup script:
+
+``` bash
+git clone http://github.com/tungstenfabric/tf-devstack
+tf-devstack/ansible/run.sh
+```
+
 ## Customized deployments and deployment steps
 
 run.sh accepts the following targets:
