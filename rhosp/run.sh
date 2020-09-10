@@ -1,4 +1,9 @@
 #!/bin/bash -e
+echo \!\!\! Before set e
+set -o
+set -e
+echo \!\!\! After set e
+set -o
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -8,7 +13,11 @@ source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
 source "$my_dir/providers/common/functions.sh"
 
+echo \!\!\! After source /../common/... and providers/...
+set -o
 init_output_logging
+echo \!\!\! After init_output_logging
+set -o
 
 # stages declaration
 declare -A STAGES=( \
@@ -30,6 +39,9 @@ export SSH_USER=${SSH_USER:-'cloud-user'}
 declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
 export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
 
+echo \!\!\! After first exports
+set -o
+
 # empty - disabled
 # ipa   - use FreeIPA
 export ENABLE_TLS=${ENABLE_TLS:-}
@@ -50,7 +62,13 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
     fi
 fi
 
+echo \!\!\! After if
+set -o
+
 set_rhosp_version
+
+echo \!\!\! After set_rhosp_version
+set -o
 
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
@@ -70,10 +88,15 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
 )
 
+echo \!\!\! After second exports
+set -o
+
 #Continue deployment stages with environment specific script
 source $my_dir/providers/common/functions.sh
 source $my_dir/providers/${PROVIDER}/stages.sh
 
+echo \!\!\! After second sources
+set -o
 
 function expand() {
     while read -r line; do
@@ -122,5 +145,6 @@ function prepare_rhosp_env_file() {
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
 
-
+echo \!\!\! Before run_stages
+set -o
 run_stages $STAGE
