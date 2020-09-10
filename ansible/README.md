@@ -57,6 +57,24 @@ export OPENSTACK_VERSION=queens
 
 OpenStack version may be selected from queens (default), ocata, rocky, train.
 
+Also you can configure many nodes deploy:
+
+Note: You don't need a separate node for Openstack. Openstack will be installed to first controller node automatically.
+
+For controller nodes:
+
+``` bash
+export CONTROLLER_NODES=C1,C2,C3
+```
+
+For agent nodes:
+
+``` bash
+export AGENT_NODES=C4,C5
+```
+
+where C1, C2, C3, C4, C5 IP addresses of corresponding nodes (recommended use Private IPs from AWS)
+
 ## Customized deployments and deployment steps
 
 run.sh accepts the following targets:
