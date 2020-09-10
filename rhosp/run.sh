@@ -1,4 +1,9 @@
 #!/bin/bash -e
+echo \!\!\! Before set e
+set -o
+set -e
+echo \!\!\! After set e
+set -o
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -122,5 +127,6 @@ function prepare_rhosp_env_file() {
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
 
-
+echo \!\!\! Before run_stages
+set -o
 run_stages $STAGE

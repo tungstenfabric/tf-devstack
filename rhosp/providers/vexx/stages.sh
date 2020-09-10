@@ -23,6 +23,8 @@ function machines() {
 }
 
 function undercloud() {
+    echo \!\!\! Start overcloud
+    set -o
     cd $my_dir
     sudo ./undercloud/01_deploy_as_root.sh
     ./undercloud/02_deploy_as_stack.sh
@@ -31,6 +33,8 @@ function undercloud() {
 
 #Overcloud nodes provisioning
 function overcloud() {
+    echo \!\!\! Start overcloud
+    set -o
     cd $my_dir
     if [[ "$RHOSP_VERSION" == 'rhosp13' ]] ; then
         ./overcloud/03_setup_predeployed_nodes_access.sh
@@ -60,6 +64,8 @@ function overcloud() {
 
 #Overcloud stage
 function tf() {
+    echo \!\!\! Start tf
+    set -o
     cd $my_dir
     ./overcloud/04_prepare_heat_templates.sh
     ./overcloud/05_prepare_containers.sh

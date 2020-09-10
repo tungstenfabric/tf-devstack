@@ -47,6 +47,8 @@ EOF
 }
 
 function run_stage() {
+  echo \!\!\! run_stage $1
+  set -o
   if ! finished_stage $1 ; then
     $1 $2
   else
@@ -75,12 +77,15 @@ function wait() {
 }
 
 function run_stages() {
+  echo \!\!\! Start run_stages
+  set -o
   [[ -z $STAGE ]] && STAGE="default"
   stages=${STAGES[$STAGE]}
   [[ -z $stages ]] && stages="$STAGE"
 
   load_tf_devenv_profile
-
+  echo \!\!\! run_stages after load_tf_devenv_profile
+  set -o
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
