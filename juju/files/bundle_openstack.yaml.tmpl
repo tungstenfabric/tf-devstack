@@ -61,7 +61,7 @@ services:
       performance-schema: true
       root-password: password
     to:
-      - "0"
+      - lxd:0
 #{%- else %}
 #  mysql-innodb-cluster:
 #    charm: cs:mysql-innodb-cluster
