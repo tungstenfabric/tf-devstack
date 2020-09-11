@@ -40,6 +40,7 @@ if [[ $CLOUD == 'local' ]] ; then
     fi
     CLOUD='manual'
 fi
+export CONTROL_NETWORK=${CONTROL_NETWORK:-}
 export DATA_NETWORK=${DATA_NETWORK:-}
 export AUTH_PASSWORD="password"
 

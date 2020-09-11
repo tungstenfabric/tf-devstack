@@ -39,6 +39,9 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+{%- if CONTROL_NETWORK %}
+      control-network: "{{ CONTROL_NETWORK }}"
+{%- endif %}
 {%- if DATA_NETWORK %}
       data-network: "{{ DATA_NETWORK }}"
 {%- endif %}
