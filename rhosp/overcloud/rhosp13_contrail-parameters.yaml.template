@@ -11,6 +11,7 @@ parameter_defaults:
 
   #Custome Contrail container configuration settings
   ContrailSettings:
+    LOG_LEVEL: SYS_DEBUG
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
     DPDK_UIO_DRIVER: ${contrail_dpdk_driver}
     ${vrouter_gateway_parameter}
