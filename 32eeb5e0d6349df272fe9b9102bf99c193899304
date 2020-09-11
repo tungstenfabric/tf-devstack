@@ -22,6 +22,30 @@
       "revId": "32eeb5e0d6349df272fe9b9102bf99c193899304",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "000711d7_3ce060bb",
+        "filename": "helm/run.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-09-11T12:38:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f666cc5_bd79f359",
+      "range": {
+        "startLine": 66,
+        "startChar": 61,
+        "endLine": 66,
+        "endChar": 63
+      },
+      "revId": "32eeb5e0d6349df272fe9b9102bf99c193899304",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
