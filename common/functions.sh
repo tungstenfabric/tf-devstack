@@ -62,7 +62,7 @@ function wait_cmd_success() {
   local max=${3:-300}
   local silent_cmd=${4:-1}
 
-  local state_save=$(set +o)
+  local state_save="$(set +o); set -$-"
   set +o xtrace
   set -o pipefail
   local i=0
