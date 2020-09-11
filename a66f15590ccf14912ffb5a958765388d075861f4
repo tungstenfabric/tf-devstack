@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4330ed2e_56c4e960",
+        "filename": "juju/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-09-11T16:17:05Z",
+      "side": 1,
+      "message": "CIDR ?",
+      "range": {
+        "startLine": 256,
+        "startChar": 20,
+        "endLine": 256,
+        "endChar": 46
+      },
+      "revId": "a66f15590ccf14912ffb5a958765388d075861f4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "359439b9_e2752e87",
+        "filename": "juju/files/bundle_contrail.yaml.tmpl",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-09-11T16:17:05Z",
+      "side": 1,
+      "message": "it\u0027s required for controller, analytics, analyticsdb",
+      "revId": "a66f15590ccf14912ffb5a958765388d075861f4",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
