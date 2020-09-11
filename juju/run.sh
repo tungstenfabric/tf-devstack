@@ -199,10 +199,6 @@ function k8s() {
 function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
-        # HACK: MAAS is already predeployed now and has 5 machines.
-        # we have to export nodes accorndingly
-        export CONTROLLER_NODES="C1,C2,C3"
-        export AGENT_NODES="A1,A2"
     fi
     export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
 
