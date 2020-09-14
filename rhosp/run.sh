@@ -19,7 +19,26 @@ declare -A STAGES=( \
 )
 
 # default env variables
-export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
+# max wait in seconds after deployment
+export WAIT_TIMEOUT=3600
+#PROVIDER = [ kvm | vexx | aws | bmc ]
+export PROVIDER=${PROVIDER:-'vexx'}
+if [[ "$PROVIDER" == "kvm" || "$PROVIDER" == "bmc" ]]; then
+    export USE_PREDEPLOYED_NODES=false
+    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
+else
+    export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
+    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'false'}
+fi
+if [[ "$PROVIDER" == "kvm" ]]; then
+    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
+else
+    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'false'}
+fi
+#IPMI_PASSOWORD (also it's AdminPassword for TripleO)
+export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
+user=$(whoami)
+
 export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-'false'}
 export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
@@ -52,19 +71,6 @@ fi
 
 set_rhosp_version
 
-# max wait in seconds after deployment
-export WAIT_TIMEOUT=3600
-#PROVIDER = [ kvm | vexx | aws | bmc ]
-export PROVIDER=${PROVIDER:-'vexx'}
-if [[ "$PROVIDER" == "kvm" || "$PROVIDER" == "bmc" ]]; then
-    export USE_PREDEPLOYED_NODES=false
-else
-    export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
-fi
-#IPMI_PASSOWORD (also it's AdminPassword for TripleO)
-export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
-user=$(whoami)
-
 # deployment related environment set by any stage and put to tf_stack_profile at the end
 declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
@@ -73,7 +79,6 @@ declare -A DEPLOYMENT_ENV=(\
 #Continue deployment stages with environment specific script
 source $my_dir/providers/common/functions.sh
 source $my_dir/providers/${PROVIDER}/stages.sh
-
 
 function expand() {
     while read -r line; do

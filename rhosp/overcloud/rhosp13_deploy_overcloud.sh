@@ -47,11 +47,11 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   job=$!
 fi
 
-python3 tripleo-heat-templates/tools/process-templates.py --clean \
+./tripleo-heat-templates/tools/process-templates.py --clean \
   -r $role_file \
   -p tripleo-heat-templates/
 
-python3 tripleo-heat-templates/tools/process-templates.py \
+./tripleo-heat-templates/tools/process-templates.py \
   -r $role_file \
   -p tripleo-heat-templates/
 

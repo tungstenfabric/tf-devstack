@@ -54,6 +54,12 @@ if [[ "$PROVIDER" == "bmc" ]]; then
   echo "  node_admin_username: ${SSH_USER}" >> ~/misc_opts.yaml
   cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
       tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
+else
+   if [[ -n "$overcloud_cont_instance" ]] ; then
+      count=$(echo $overcloud_cont_instance | grep -o ',' | wc -l)
+      (( count++ ))
+      echo "  ControllerCount: $count" >> ~/misc_opts.yaml
+   fi
 fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)
