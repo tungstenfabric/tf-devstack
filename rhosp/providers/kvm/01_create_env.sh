@@ -82,12 +82,13 @@ function define_overcloud_vms_without_vbmc() {
   define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
 }
 
-
 # just define overcloud machines
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
   vbmc_port=$VBMC_PORT_BASE
-  define_overcloud_vms $overcloud_cont_instance $OS_MEM $vbmc_port 4
-  (( vbmc_port+=1 ))
+  for i in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
+    define_overcloud_vms $i $OS_MEM $vbmc_port 4
+    (( vbmc_port+=1 ))
+  done
   define_overcloud_vms $overcloud_compute_instance $COMP_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
   define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4

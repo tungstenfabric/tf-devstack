@@ -21,22 +21,22 @@ source "$my_dir/virsh_functions"
 ssh -T $ssh_opts stack@${mgmt_ip} "sudo subscription-manager unregister"
 ssh -T $ssh_opts root@${ipa_mgmt_ip} "subscription-manager unregister"
 
-for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
+for ip in $(echo $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip | sed 's/,/ /g'); do
     ssh -T $ssh_opts stack@${ip} "sudo subscription-manager unregister"
 done
 
-delete_domain $overcloud_cont_instance
-delete_domain $overcloud_compute_instance
-delete_domain $overcloud_ctrlcont_instance
+function delete_node() {
+    local name=$1
+    local disk=$2
+    local pool=${3:-"$poolname"}
 
-delete_domain $undercloud_vmname
-delete_domain $ipa_vmname
+    delete_domain $name
+    delete_volume "$disk" $pool
+}
 
-delete_volume $undercloud_vm_volume $poolname
-
-delete_volume "$overcloud_cont_instance.qcow2" $poolname
-delete_volume "$overcloud_compute_instance.qcow2" $poolname
-delete_volume "$overcloud_ctrlcont_instance.qcow2" $poolname
+for i in $(echo $overcloud_cont_instance $overcloud_compute_instance $overcloud_ctrlcont_instance $ipa_vmname | sed 's/,/ /g') ; do
+    delete_node $i "$i.qcow2" 
+done
 
 delete_network_dhcp $NET_NAME_MGMT
 delete_network_dhcp $NET_NAME_PROV
@@ -45,6 +45,3 @@ virsh pool-destroy $poolname
 virsh pool-undefine $poolname
 
 rm -rf "/home/$SUDO_USER/rhosp-environment.sh" "/home/$SUDO_USER/instackenv.json" "/home/$SUDO_USER/.tf"
-
-
-
