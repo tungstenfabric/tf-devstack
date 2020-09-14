@@ -25,18 +25,23 @@ for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont
     ssh -T $ssh_opts stack@${ip} "sudo subscription-manager unregister"
 done
 
-delete_domain $overcloud_cont_instance
+for i in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
+    delete_domain $i
+    delete_volume "$i.qcow2" $poolname
+done
+
 delete_domain $overcloud_compute_instance
+delete_volume "$overcloud_compute_instance.qcow2" $poolname
+
 delete_domain $overcloud_ctrlcont_instance
+delete_volume "$overcloud_ctrlcont_instance.qcow2" $poolname
 
 delete_domain $undercloud_vmname
-delete_domain $ipa_vmname
-
 delete_volume $undercloud_vm_volume $poolname
 
-delete_volume "$overcloud_cont_instance.qcow2" $poolname
-delete_volume "$overcloud_compute_instance.qcow2" $poolname
-delete_volume "$overcloud_ctrlcont_instance.qcow2" $poolname
+delete_domain $ipa_vmname
+delete_volume $ipa_vm_volume $poolname
+
 
 delete_network_dhcp $NET_NAME_MGMT
 delete_network_dhcp $NET_NAME_PROV
