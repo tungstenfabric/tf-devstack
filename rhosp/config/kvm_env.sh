@@ -14,6 +14,7 @@ export CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG:-latest}"
 export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
 
 # SSH public key for user stack
+export SSH_USER=${SSH_USER:-'stack'}
 export ssh_private_key=${ssh_private_key:-~/.ssh/id_rsa}
 export ssh_public_key=${ssh_public_key:-~/.ssh/id_rsa.pub}
 
@@ -80,8 +81,8 @@ export undercloud_public_host="${prov_subnet}.4"
 
 # ip addresses for overcloud nodes
 export overcloud_cont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:10"
-export overcloud_compute_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:11"
-export overcloud_ctrlcont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:12"
+export overcloud_compute_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:20"
+export overcloud_ctrlcont_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:30"
 
 export overcloud_cont_prov_ip="${prov_subnet}.10"
 export overcloud_compute_prov_ip="${prov_subnet}.11"
