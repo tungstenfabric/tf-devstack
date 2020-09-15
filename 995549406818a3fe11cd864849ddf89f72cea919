@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82b3325b_c370cebb",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "has access by ssh without a password to ...\nYou have to note that the user has to have the sudoers right on all the nodes",
+      "range": {
+        "startLine": 64,
+        "startChar": 53,
+        "endLine": 64,
+        "endChar": 71
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7288486_8dbc056d",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "It looks like extra details",
+      "range": {
+        "startLine": 66,
+        "startChar": 0,
+        "endLine": 79,
+        "endChar": 0
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e11c755_85837db3",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "Please note the separator for the list or give an example",
+      "range": {
+        "startLine": 85,
+        "startChar": 25,
+        "endLine": 85,
+        "endChar": 85
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a1c7663_22387307",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "It is not clear here which nodes will start as an openstack controller and which will start as the OpenStack worker. I suppose you have to mention this.",
+      "range": {
+        "startLine": 85,
+        "startChar": 7,
+        "endLine": 85,
+        "endChar": 23
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d03276_829a9056",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "remove space",
+      "range": {
+        "startLine": 85,
+        "startChar": 86,
+        "endLine": 85,
+        "endChar": 87
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84007c50_4e4fbdb8",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "Please note the separator for the list or give an example",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 75
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f838fb18_d6462424",
+        "filename": "ansible/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T13:59:10Z",
+      "side": 1,
+      "message": "Remove space",
+      "range": {
+        "startLine": 86,
+        "startChar": 76,
+        "endLine": 86,
+        "endChar": 77
+      },
+      "revId": "995549406818a3fe11cd864849ddf89f72cea919",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
