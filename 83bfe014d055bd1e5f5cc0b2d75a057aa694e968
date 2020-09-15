@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "775e61a6_0a25101f",
+        "filename": "ansible/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T15:57:46Z",
+      "side": 1,
+      "message": "32G required for the first controller node due to OpenStack controller needs",
+      "range": {
+        "startLine": 69,
+        "startChar": 31,
+        "endLine": 69,
+        "endChar": 37
+      },
+      "revId": "83bfe014d055bd1e5f5cc0b2d75a057aa694e968",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c648768e_f72b0d72",
+        "filename": "ansible/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T15:57:46Z",
+      "side": 1,
+      "message": "delete this \u0027s\u0027",
+      "range": {
+        "startLine": 91,
+        "startChar": 9,
+        "endLine": 91,
+        "endChar": 10
+      },
+      "revId": "83bfe014d055bd1e5f5cc0b2d75a057aa694e968",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1adba00_f9d8389c",
+        "filename": "ansible/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-15T15:57:46Z",
+      "side": 1,
+      "message": "Are you sure about this requirement? Do you use an inner IP addr for setup?",
+      "range": {
+        "startLine": 93,
+        "startChar": 1,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "83bfe014d055bd1e5f5cc0b2d75a057aa694e968",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
