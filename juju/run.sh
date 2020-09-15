@@ -229,9 +229,10 @@ function tf() {
     if [[ $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation kubernetes-master keystone
         command juju add-relation kubernetes-master contrail-agent
-        command juju config kubernetes-master authorization-mode="Node,RBAC"
-        command juju config kubernetes-master enable-keystone-authorization=true
-        command juju config kubernetes-master keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
+        command juju config kubernetes-master \
+            authorization-mode="Node,RBAC" \
+            enable-keystone-authorization=true \
+            keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
    fi
 
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
@@ -274,7 +275,7 @@ function collect_deployment_env() {
     if [[ -n "$controller_nodes" ]] ; then
         export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
     fi
-    agent_nodes="`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`"
+    # either we have to collect all apps which are continer for contrail-agent or use non-json format and collect contrail-agent    agent_nodes="`command juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`"
     echo "INFO: agent_nodes: $agent_nodes"
     if [[ -n "$agent_nodes" ]] ; then
         export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"
