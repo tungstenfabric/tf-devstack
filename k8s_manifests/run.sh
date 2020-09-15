@@ -68,16 +68,18 @@ popd
 cp logs/\$tgz_name \$tgz_name
 rm -rf logs
 EOF
-chmod a+x /tmp/logs.sh
+    chmod a+x /tmp/logs.sh
 
+    local ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    local machine
     for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
         local tgz_name="logs-$machine.tgz"
         mkdir -p $TF_LOG_DIR/$machine
-        ssh $machine "mkdir -p /tmp/k8s_manifests-logs"
-        scp $my_dir/../common/collect_logs.sh $machine:/tmp/k8s_manifests-logs/collect_logs.sh
-        scp /tmp/logs.sh $machine:/tmp/k8s_manifests-logs/logs.sh
-        ssh $machine /tmp/k8s_manifests-logs/logs.sh $tgz_name
-        scp $machine:/tmp/k8s_manifests-logs/$tgz_name $TF_LOG_DIR/$machine/
+        ssh $ssh_opts $machine "mkdir -p /tmp/k8s_manifests-logs"
+        scp $ssh_opts $my_dir/../common/collect_logs.sh $machine:/tmp/k8s_manifests-logs/collect_logs.sh
+        scp $ssh_opts /tmp/logs.sh $machine:/tmp/k8s_manifests-logs/logs.sh
+        ssh $ssh_opts $machine /tmp/k8s_manifests-logs/logs.sh $tgz_name
+        scp $ssh_opts $machine:/tmp/k8s_manifests-logs/$tgz_name $TF_LOG_DIR/$machine/
         pushd $TF_LOG_DIR/$machine/
         tar -xzf $tgz_name
         rm -rf $tgz_name
