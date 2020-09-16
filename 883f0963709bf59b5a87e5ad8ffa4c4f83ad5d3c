@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d58874_5a621402",
+        "filename": "ansible/README.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-16T08:02:12Z",
+      "side": 1,
+      "message": "we need 32 G only for the first controller due to OpenStack. On the other controllers 16G will be enough.",
+      "range": {
+        "startLine": 69,
+        "startChar": 30,
+        "endLine": 69,
+        "endChar": 39
+      },
+      "revId": "883f0963709bf59b5a87e5ad8ffa4c4f83ad5d3c",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2b70689_2b367bd6",
+        "filename": "ansible/README.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 872
+      },
+      "writtenOn": "2020-09-16T08:02:12Z",
+      "side": 1,
+      "message": "make this sentence more readable using \u0027-\u0027. Create some kind of a list",
+      "range": {
+        "startLine": 75,
+        "startChar": 13,
+        "endLine": 76,
+        "endChar": 119
+      },
+      "revId": "883f0963709bf59b5a87e5ad8ffa4c4f83ad5d3c",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
