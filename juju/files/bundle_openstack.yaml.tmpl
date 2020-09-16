@@ -48,7 +48,7 @@ services:
     to:
       - lxd:0
 
-#{%- if UBUNTU_SERIES != 'focal' %}
+{#%- if UBUNTU_SERIES != 'focal' %#}
   # ubuntu 20.04 has only mysql-innodb-cluster charm for mysql db. but it's still ugly and buggy -
   # https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
   # let's use percona-cluster in bionic container for now
@@ -62,20 +62,20 @@ services:
       root-password: password
     to:
       - lxd:0
-#{%- else %}
-#  mysql-innodb-cluster:
-#    charm: cs:mysql-innodb-cluster
-#    num_units: 3
-#    options:
-#      innodb-buffer-pool-size: 256M
-#      max-connections: 1500
-#      # performance-schema: true
-#      # root-password: password
-#    to:
-#    - lxd:0
-#    - lxd:0
-#    - lxd:0
-#{%- endif %}
+{#%- else %}
+  mysql-innodb-cluster:
+    charm: cs:mysql-innodb-cluster
+    num_units: 3
+    options:
+      innodb-buffer-pool-size: 256M
+      max-connections: 1500
+      # performance-schema: true
+      # root-password: password
+    to:
+    - lxd:0
+    - lxd:0
+    - lxd:0
+{%- endif %#}
 
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
@@ -146,24 +146,24 @@ services:
     to:
       - lxd:0
 
-#{%- if UBUNTU_SERIES == 'focal' %}
-#  keystone-mysql-router:
-#    charm: cs:mysql-router
-#  glance-mysql-router:
-#    charm: cs:mysql-router
-#  nova-mysql-router:
-#    charm: cs:mysql-router
-#  neutron-mysql-router:
-#    charm: cs:mysql-router
-#  dashboard-mysql-router:
-#    charm: cs:mysql-router
-#  heat-mysql-router:
-#    charm: cs:mysql-router
-#{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
-#  placement-mysql-router:
-#    charm: cs:mysql-router
-#{%- endif %}
-#{%- endif %}
+{#%- if UBUNTU_SERIES == 'focal' %}
+  keystone-mysql-router:
+    charm: cs:mysql-router
+  glance-mysql-router:
+    charm: cs:mysql-router
+  nova-mysql-router:
+    charm: cs:mysql-router
+  neutron-mysql-router:
+    charm: cs:mysql-router
+  dashboard-mysql-router:
+    charm: cs:mysql-router
+  heat-mysql-router:
+    charm: cs:mysql-router
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+  placement-mysql-router:
+    charm: cs:mysql-router
+{%- endif %}
+{%- endif %#}
 
   # misc
 
@@ -202,7 +202,7 @@ relations:
 
 - [ ubuntu, ntp ]
 
-#{%- if UBUNTU_SERIES != 'focal' %}
+{#%- if UBUNTU_SERIES != 'focal' %#}
 
 - [ keystone:shared-db, mysql:shared-db ]
 - [ glance:shared-db, mysql:shared-db ]
@@ -214,23 +214,23 @@ relations:
 - [ placement, mysql:shared-db ]
 {%- endif %}
 
-#{%- else %}
+{#%- else %}
 
-#- [ keystone:shared-db, keystone-mysql-router:shared-db ]
-#- [ keystone-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#- [ glance:shared-db, glance-mysql-router:shared-db ]
-#- [ glance-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#- [ nova-cloud-controller:shared-db, nova-mysql-router:shared-db ]
-#- [ nova-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#- [ neutron-api:shared-db, neutron-mysql-router:shared-db ]
-#- [ neutron-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#- [ openstack-dashboard:shared-db, dashboard-mysql-router:shared-db ]
-#- [ dashboard-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#- [ heat:shared-db, heat-mysql-router:shared-db ]
-#- [ heat-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
-#- [ placement:shared-db, placement-mysql-router:shared-db ]
-#- [ placement-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-#{%- endif %}
+- [ keystone:shared-db, keystone-mysql-router:shared-db ]
+- [ keystone-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ glance:shared-db, glance-mysql-router:shared-db ]
+- [ glance-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ nova-cloud-controller:shared-db, nova-mysql-router:shared-db ]
+- [ nova-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ neutron-api:shared-db, neutron-mysql-router:shared-db ]
+- [ neutron-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ openstack-dashboard:shared-db, dashboard-mysql-router:shared-db ]
+- [ dashboard-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ heat:shared-db, heat-mysql-router:shared-db ]
+- [ heat-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+- [ placement:shared-db, placement-mysql-router:shared-db ]
+- [ placement-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+{%- endif %}
 
-#{%- endif %}
+{%- endif %#}
