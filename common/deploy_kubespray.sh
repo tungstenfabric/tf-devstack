@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -o errexit
 
@@ -71,9 +71,19 @@ sudo pip3 install -r requirements.txt
 cp -rfp inventory/sample/ inventory/mycluster
 declare -a IPS=( $K8S_MASTERS $K8S_NODES )
 masters=( $K8S_MASTERS )
+
+# Copy devstack-directory to another nodes
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+devstack_dir="$(basename $(dirname $my_dir))"
+for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+  if ! ip a | grep -q "$machine"; then
+    echo "Copy devstack from master to $machine"
+    scp -r $ssh_opts $(dirname $my_dir) $machine:/tmp/
+  fi
+done
+
 echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
 export KUBE_MASTERS_MASTERS=${#masters[@]}
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
     node_count=0
     for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
@@ -125,8 +135,17 @@ echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-clu
 # config file parametrs (docker fails to start if a parameter is in both places).
 # tf-dev-env and deployment methods (not using kubespray) use config file approach.
 #    the way via kubespray:
-#    echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml  
+#    echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "Create /etc/docker/daemon.json on all nodes"
+# Master-node
 sudo -E $my_dir/create_docker_config.sh
+# All another nodes
+for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+  if ! ip a | grep -q "$machine"; then
+    ssh $ssh_opts $machine "sudo yum install -y python3 python3-pip"
+    ssh $ssh_opts $machine "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY ; sudo -E /tmp/${devstack_dir}/common/create_docker_config.sh"
+  fi
+done
 
 extra_vars=""
 [[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
