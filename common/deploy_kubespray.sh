@@ -71,9 +71,19 @@ sudo pip3 install -r requirements.txt
 cp -rfp inventory/sample/ inventory/mycluster
 declare -a IPS=( $K8S_MASTERS $K8S_NODES )
 masters=( $K8S_MASTERS )
+
+# Copy devstack-directory to another nodes
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+  if ! ip a | grep -q "$machine"; then
+    echo "Copy devstack from master to $machine"
+    ssh $ssh_opts $machine "mkdir -p /tmp/tf-devstack"
+    scp $ssh_opts $my_dir/../ $machine:/tmp/tf-devstack/
+  fi
+done
+
 echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
 export KUBE_MASTERS_MASTERS=${#masters[@]}
-ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
     node_count=0
     for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
