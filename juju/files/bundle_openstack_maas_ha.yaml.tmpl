@@ -10,19 +10,19 @@ nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
 machines:
   "0":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G tags=control
   "1":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G tags=control
   "2":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G tags=control
   "3":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=100G
+    constraints: mem=15G cores=2 root-disk=100G tags=compute
   "4":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=100G
+    constraints: mem=15G cores=2 root-disk=100G tags=dpdk
 
 series: "{{ UBUNTU_SERIES }}"
 services:
@@ -156,7 +156,7 @@ services:
   nova-compute:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
-    num_units: 2
+    num_units: 1
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -166,6 +166,18 @@ services:
       migration-auth-type: "ssh"
     to:
       - "3"
+  nova-compute-dpdk:
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    series: {{ UBUNTU_SERIES }}
+    num_units: 1
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      virt-type: "qemu"
+      enable-resize: "true"
+      enable-live-migration: "true"
+      migration-auth-type: "ssh"
+    to:
       - "4"
   openstack-dashboard:
     charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
@@ -195,6 +207,7 @@ services:
 relations:
 
 - [ nova-compute:amqp, rabbitmq-server:amqp ]
+- [ nova-compute-dpdk:amqp, rabbitmq-server:amqp ]
 - [ keystone:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:identity-service, keystone:identity-service ]
 - [ glance:identity-service, keystone:identity-service ]
@@ -206,6 +219,8 @@ relations:
 - [ nova-cloud-controller:image-service, glance:image-service ]
 - [ nova-compute:image-service, glance:image-service ]
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
+- [ nova-compute-dpdk:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute-dpdk:cloud-compute ]
 - [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
 - [ openstack-dashboard:identity-service, keystone:identity-service ]
 - [ nova-cloud-controller:shared-db, mysql:shared-db ]

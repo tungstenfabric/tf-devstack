@@ -76,7 +76,6 @@ function build() {
 }
 
 function logs() {
-    echo "INFO: collecting logs..."
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
     create_log_dir
@@ -109,10 +108,8 @@ EOF
 chmod a+x /tmp/logs.sh
 
     local machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
-    echo "INFO: machines to ssh: $machines"
     local machine=''
     for machine in $machines ; do
-        echo "INFO: collecting from $machine"
         local tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
         mkdir -p $TF_LOG_DIR/$machine
         command juju ssh $machine "mkdir -p /tmp/juju-logs"
@@ -219,6 +216,7 @@ function tf() {
         command juju add-relation contrail-openstack heat
         command juju add-relation contrail-openstack nova-compute
         command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        command juju add-relation contrail-agent-dpdk:juju-info nova-compute-dpdk:juju-info
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
@@ -229,10 +227,9 @@ function tf() {
     if [[ $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation kubernetes-master keystone
         command juju add-relation kubernetes-master contrail-agent
-        command juju config kubernetes-master \
-            authorization-mode="Node,RBAC" \
-            enable-keystone-authorization=true \
-            keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
+        command juju config kubernetes-master authorization-mode="Node,RBAC"
+        command juju config kubernetes-master enable-keystone-authorization=true
+        command juju config kubernetes-master keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
    fi
 
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
@@ -265,24 +262,18 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    echo "INFO: collect deployment env"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
-        echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi
     controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
-    echo "INFO: controller_nodes: $controller_nodes"
     if [[ -n "$controller_nodes" ]] ; then
         export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
     fi
-    # either we have to collect all apps which are continer for contrail-agent or use non-json format and collect contrail-agent nodes
-    agent_nodes="`command juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`"
-    echo "INFO: agent_nodes: $agent_nodes"
+    agent_nodes="`command juju status --format json | jq '.applications["nova-compute"]["units"][]["public-address"]'`"
     if [[ -n "$agent_nodes" ]] ; then
         export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"
     fi
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
-        echo "INFO: SSL is enabled. collecting certs"
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
         DEPLOYMENT_ENV['SSL_KEY']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server-privkey.pem | head -1 | xargs sudo base64 -w 0')"
         DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
