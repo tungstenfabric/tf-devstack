@@ -25,6 +25,7 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 cd
+
 getenforce
 cat /etc/selinux/config
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
