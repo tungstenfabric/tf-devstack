@@ -1,5 +1,5 @@
 #Stages for VEXX deployment (it's part of run.sh)
-
+set -x
 export CONFIGURE_DOCKER_LIVERESTORE='false'
 
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
