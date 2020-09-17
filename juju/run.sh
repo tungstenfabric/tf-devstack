@@ -219,6 +219,7 @@ function tf() {
         command juju add-relation contrail-openstack heat
         command juju add-relation contrail-openstack nova-compute
         command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        command juju add-relation contrail-agent-dpdk:juju-info nova-compute-dpdk:juju-info
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni

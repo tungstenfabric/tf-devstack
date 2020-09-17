@@ -87,6 +87,22 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
     options:
+      sriov-numvfs: "ens2f1:7"
+      sriov-physical-interface: "ens2f1"
+      kernel-hugepages-1g: "10"
+      kernel-hugepages-2m: "2048"
+      log-level: "SYS_DEBUG"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      docker-registry-insecure: true
+      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+  contrail-agent-dpdk:
+    charm: "{{ JUJU_REPO }}/contrail-agent"
+    series: "{{ UBUNTU_SERIES }}"
+    options:
+      dpdk: True
+      physical-interface: ens2f3
+      dpdk-coremask: '3'
+      dpdk-driver: 'vfio-pci'
       log-level: "SYS_DEBUG"
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -162,12 +178,14 @@ relations:
 - [ contrail-controller, contrail-analyticsdb ]
 - [ contrail-analytics, contrail-analyticsdb ]
 - [ contrail-agent, contrail-controller ]
+- [ contrail-agent-dpdk, contrail-controller ]
 
 {%- if SSL_ENABLE == 'true' %}
 - [ easyrsa, contrail-controller ]
 - [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
 - [ easyrsa, contrail-agent ]
+- [ easyrsa, contrail-agent-dpdk ]
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
 - [ easyrsa, contrail-kubernetes-master ]
 {%- endif %}
