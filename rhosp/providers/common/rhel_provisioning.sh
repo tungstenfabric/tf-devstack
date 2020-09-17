@@ -25,6 +25,10 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 cd
+
+echo "(allow svirt_tcg_t container_file_t ( dir ( read  )))"  >> /tmp/contrail_container.cil
+sudo /sbin/semodule -i /tmp/contrail_container.cil
+
 getenforce
 cat /etc/selinux/config
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
