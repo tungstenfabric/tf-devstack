@@ -42,6 +42,7 @@ if [[ $CLOUD == 'local' ]] ; then
 fi
 export CONTROL_NETWORK=${CONTROL_NETWORK:-}
 export DATA_NETWORK=${DATA_NETWORK:-}
+export ENABLE_DPDK_SRIOV=${ENABLE_DPDK_SRIOV:-'false'}
 export AUTH_PASSWORD="password"
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
@@ -217,8 +218,12 @@ function tf() {
         command juju add-relation contrail-keystone-auth keystone
         command juju add-relation contrail-openstack neutron-api
         command juju add-relation contrail-openstack heat
-        command juju add-relation contrail-openstack nova-compute
-        command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        if [[ ${ENABLE_DPDK_SRIOV,,} == 'true' ]] ; then
+          command juju add-relation contrail-agent-dpdk:juju-info nova-compute-dpdk:juju-info
+          command juju add-relation contrail-agent-sriov:juju-info nova-compute-sriov:juju-info
+        else
+          command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
@@ -270,13 +275,27 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi
-    controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
+    controller_nodes="`command juju status --format json | jq -r '.applications["contrail-controller"]["units"][]["public-address"]'`"
     echo "INFO: controller_nodes: $controller_nodes"
     if [[ -n "$controller_nodes" ]] ; then
-        export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
+        export CONTROLLER_NODES="$controller_nodes"
     fi
-    # either we have to collect all apps which are continer for contrail-agent or use non-json format and collect contrail-agent nodes
-    agent_nodes="`command juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`"
+    # either we have to collect all apps which are container for contrail-agent or use non-json format and collect contrail-agent nodes
+    unit_list="`command juju status | grep "contrail-agent" | grep "/" | tr -d "*" | awk '{print $1}'`"
+    for unit in $unit_list; do
+        unit_machine="`command juju show-unit --format json $unit | jq -r .[].machine`"
+        machine_ips="`command juju show-machine --format json $unit_machine | jq -r '.machines[]."ip-addresses"[]'`"
+        if  [[ "`echo $machine_ips | wc -w`" = 1 ]] ; then
+            agent_nodes+=" $machine_ips"
+        else
+            for ip in $machine_ips ; do
+                if nc -z $ip 22; then
+                    agent_nodes+=" $ip"
+                    break
+                fi
+            done
+        fi
+    done
     echo "INFO: agent_nodes: $agent_nodes"
     if [[ -n "$agent_nodes" ]] ; then
         export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"

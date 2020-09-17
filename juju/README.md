@@ -155,14 +155,14 @@ Prerequisites:
 
 - A subnet of at least 500 IP addresses with the Internet connectivity without using DHCP.
 - Host for MAAS system: 8GiB RAM, 2 CPUs, 1 NIC, 1 x 40GiB storage.
-- Five servers preconfigured for boot using IPMI.
+- Six servers preconfigured for boot using IPMI.
 
 1. Set environment variables:
 
 
 ``` bash
 # Mandatory. List of IP addresses IPMI of servers. Example:
-export IPMI_IPS="192.168.51.20 192.168.51.21 192.168.51.22 192.168.51.23 192.168.51.24" # IPMI IP adresses
+export IPMI_IPS="192.168.51.20 192.168.51.21 192.168.51.22 192.168.51.23 192.168.51.24 192.168.51.25" # IPMI IP adresses
 # Optional
 IPMI_POWER_DRIVER (Default: "LAN_2_0") # "LAN_2_0" for IPMI v2.0 or "LAN" for IPMI v1.5
 IPMI_USER (Default: "ADMIN")
