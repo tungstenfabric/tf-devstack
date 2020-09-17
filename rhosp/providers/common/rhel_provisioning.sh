@@ -25,8 +25,25 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 cd
+
+#echo "(allow svirt_tcg_t container_file_t ( dir ( read  )))"  > /tmp/contrail_container.cil
+#sudo /sbin/semodule -i /tmp/contrail_container.cil
+
+#if [ -e /tmp/contrail_container.cli ]; then
+#     sudo sed -i 's/^)/(allow svirt_tcg_t container_file_t ( dir ( read  )))\n)/g' /tmp/contrail_container.cil
+#else
+#    echo "(allow svirt_tcg_t container_file_t ( dir ( read  )))" > /tmp/contrail_container.cil
+#fi
+
+sudo /sbin/semodule -i /tmp/contrail_container.cil
+
 getenforce
+#echo "INFO:  original selinux config"
+#cat /etc/selinux/config
+#sudo sed -i 's/^SELINUX=.*/SELINUX=disabled/g' /etc/selinux/config
+#echo "INFO:  new selinux config"
 cat /etc/selinux/config
+
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
    for i in {1..10} ; do
       subscription-manager unregister || true
