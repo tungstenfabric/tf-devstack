@@ -83,6 +83,31 @@ services:
       min-cluster-size: {{ controller_nodes | count }}
     expose: true
     to: {{ controller_nodes }}
+{%- if ENABLE_DPDK_SRIOV == 'true' %}
+  contrail-agent-dpdk:
+    charm: "{{ JUJU_REPO }}/contrail-agent"
+    series: "{{ UBUNTU_SERIES }}"
+    options:
+      dpdk: True
+      dpdk-coremask: '3'
+      dpdk-driver: 'vfio-pci'
+      log-level: "SYS_DEBUG"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      docker-registry-insecure: true
+      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+  contrail-agent-sriov:
+    charm: "{{ JUJU_REPO }}/contrail-agent"
+    series: "{{ UBUNTU_SERIES }}"
+    options:
+      sriov-numvfs: "ens2f1:7"
+      sriov-physical-interface: "ens2f1"
+      kernel-hugepages-1g: "8"
+      kernel-hugepages-2m: "2048"
+      log-level: "SYS_DEBUG"
+      docker-registry: "{{ CONTAINER_REGISTRY }}"
+      docker-registry-insecure: true
+      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+{%- else %}
   contrail-agent:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
@@ -91,6 +116,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+{%- endif %}
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
   contrail-keystone-auth:
     charm: "{{ JUJU_REPO }}/contrail-keystone-auth"
@@ -161,13 +187,23 @@ relations:
 - [ contrail-controller, contrail-analytics ]
 - [ contrail-controller, contrail-analyticsdb ]
 - [ contrail-analytics, contrail-analyticsdb ]
+{%- if ENABLE_DPDK_SRIOV == 'true' %}
+- [ contrail-agent-dpdk, contrail-controller ]
+- [ contrail-agent-sriov, contrail-controller ]
+{%- else %}
 - [ contrail-agent, contrail-controller ]
+{%- endif %}
 
 {%- if SSL_ENABLE == 'true' %}
 - [ easyrsa, contrail-controller ]
 - [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
+{%- if ENABLE_DPDK_SRIOV == 'true' %}
+- [ easyrsa, contrail-agent-dpdk ]
+- [ easyrsa, contrail-agent-sriov ]
+{%- else %}
 - [ easyrsa, contrail-agent ]
+{%- endif %}
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
 - [ easyrsa, contrail-kubernetes-master ]
 {%- endif %}
