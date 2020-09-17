@@ -19,6 +19,8 @@ function provisioning() {
 
 function machines() {
     cd $my_dir
+    echo "(allow svirt_tcg_t container_file_t ( dir ( read  )))"  > /tmp/contrail_container.cil
+    sudo /sbin/semodule -i /tmp/contrail_container.cil
     sudo -E $my_dir/undercloud/00_provision.sh
 }
 
