@@ -10,19 +10,19 @@ nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
 machines:
   "0":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G {% if ENABLE_DPDK_SRIOV == 'true' %}tags=control{% endif %}
   "1":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G {% if ENABLE_DPDK_SRIOV == 'true' %}tags=control{% endif %}
   "2":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=32G cores=8 root-disk=300G
+    constraints: mem=32G cores=8 root-disk=300G {% if ENABLE_DPDK_SRIOV == 'true' %}tags=control{% endif %}
   "3":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=100G
+    constraints: mem=15G cores=2 root-disk=100G {% if ENABLE_DPDK_SRIOV == 'true' %}tags=sriov{% endif %}
   "4":
     series: "{{ UBUNTU_SERIES }}"
-    constraints: mem=15G cores=2 root-disk=100G
+    constraints: mem=15G cores=2 root-disk=100G {% if ENABLE_DPDK_SRIOV == 'true' %}tags=dpdk{% endif %}
 
 series: "{{ UBUNTU_SERIES }}"
 services:
@@ -153,10 +153,11 @@ services:
       - "lxd:0"
       - "lxd:1"
       - "lxd:2"
-  nova-compute:
+{%- if ENABLE_DPDK_SRIOV == 'true' %}
+  nova-compute-sriov:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
-    num_units: 2
+    num_units: 1
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -166,7 +167,35 @@ services:
       migration-auth-type: "ssh"
     to:
       - "3"
+  nova-compute-dpdk:
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    series: {{ UBUNTU_SERIES }}
+    num_units: 1
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      virt-type: "kvm"
+      enable-resize: "true"
+      enable-live-migration: "true"
+      migration-auth-type: "ssh"
+    to:
       - "4"
+{%- else %}
+  nova-compute:
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    series: {{ UBUNTU_SERIES }}
+    num_units: 2
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      virt-type: "kvm"
+      enable-resize: "true"
+      enable-live-migration: "true"
+      migration-auth-type: "ssh"
+    to:
+      - "3"
+      - "4"
+{%- endif %}
   openstack-dashboard:
     charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
@@ -194,7 +223,18 @@ services:
 
 relations:
 
+{%- if ENABLE_DPDK_SRIOV == 'true' %}
+- [ nova-compute-dpdk:amqp, rabbitmq-server:amqp ]
+- [ nova-compute-dpdk:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute-dpdk:cloud-compute ]
+- [ nova-compute-sriov:amqp, rabbitmq-server:amqp ]
+- [ nova-compute-sriov:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute-sriov:cloud-compute ]
+{%- else %}
 - [ nova-compute:amqp, rabbitmq-server:amqp ]
+- [ nova-compute:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
+{%- endif %}
 - [ keystone:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:identity-service, keystone:identity-service ]
 - [ glance:identity-service, keystone:identity-service ]
@@ -204,8 +244,6 @@ relations:
 - [ glance:shared-db, mysql:shared-db ]
 - [ glance:amqp, rabbitmq-server:amqp ]
 - [ nova-cloud-controller:image-service, glance:image-service ]
-- [ nova-compute:image-service, glance:image-service ]
-- [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 - [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
 - [ openstack-dashboard:identity-service, keystone:identity-service ]
 - [ nova-cloud-controller:shared-db, mysql:shared-db ]
