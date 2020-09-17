@@ -6,6 +6,7 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
+source "$my_dir/functions.sh"
 
 tf_charms_image=tf-charms-src
 
@@ -42,6 +43,7 @@ if [[ $CLOUD == 'local' ]] ; then
 fi
 export CONTROL_NETWORK=${CONTROL_NETWORK:-}
 export DATA_NETWORK=${DATA_NETWORK:-}
+export ENABLE_DPDK_SRIOV=${ENABLE_DPDK_SRIOV:-'false'}
 export AUTH_PASSWORD="password"
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
@@ -217,8 +219,15 @@ function tf() {
         command juju add-relation contrail-keystone-auth keystone
         command juju add-relation contrail-openstack neutron-api
         command juju add-relation contrail-openstack heat
-        command juju add-relation contrail-openstack nova-compute
-        command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        if [[ ${ENABLE_DPDK_SRIOV,,} == 'true' ]] ; then
+            command juju add-relation contrail-openstack nova-compute-dpdk
+            command juju add-relation contrail-agent-dpdk:juju-info nova-compute-dpdk:juju-info
+            command juju add-relation contrail-openstack nova-compute-sriov
+            command juju add-relation contrail-agent-sriov:juju-info nova-compute-sriov:juju-info
+        else
+            command juju add-relation contrail-openstack nova-compute
+            command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+        fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
@@ -270,17 +279,13 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi
-    controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
-    echo "INFO: controller_nodes: $controller_nodes"
-    if [[ -n "$controller_nodes" ]] ; then
-        export CONTROLLER_NODES="$(echo $controller_nodes | sed 's/\"//g')"
-    fi
-    # either we have to collect all apps which are continer for contrail-agent or use non-json format and collect contrail-agent nodes
-    agent_nodes="`command juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`"
-    echo "INFO: agent_nodes: $agent_nodes"
-    if [[ -n "$agent_nodes" ]] ; then
-        export AGENT_NODES="$(echo $agent_nodes | sed 's/\"//g')"
-    fi
+
+    export CONTROLLER_NODES="`get_juju_unit_ips contrail-controller`"
+    echo "INFO: controller_nodes: $CONTROLLER_NODES"
+
+    export AGENT_NODES="`get_juju_unit_ips contrail-agent`"
+    echo "INFO: agent_nodes: $AGENT_NODES"
+
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         echo "INFO: SSL is enabled. collecting certs"
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
