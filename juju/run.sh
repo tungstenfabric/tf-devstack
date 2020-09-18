@@ -270,6 +270,9 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi
+    if [[ $ORCHESTRATOR == 'kubernetes' || "$ORCHESTRATOR" == "all" ]] ; then
+        DEPLOYMENT_ENV['KUBE_CONFIG']="/home/ubuntu/.kube/config"
+    fi
     controller_nodes="`command juju status --format json | jq '.applications["contrail-controller"]["units"][]["public-address"]'`"
     echo "INFO: controller_nodes: $controller_nodes"
     if [[ -n "$controller_nodes" ]] ; then
