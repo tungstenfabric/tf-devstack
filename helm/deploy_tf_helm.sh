@@ -6,8 +6,6 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
 TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer}
-ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
-
 deployer_image=tf-helm-deployer-src
 deployer_dir=${WORKSPACE}/tf-helm-deployer
 
@@ -95,8 +93,6 @@ if [ "$DISTRO" == "centos" ]; then
 else
   host_var=""
 fi
-
-sudo mkdir -p /var/log/contrail
 
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
