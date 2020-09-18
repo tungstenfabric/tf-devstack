@@ -16,6 +16,24 @@
       "revId": "f848bab2c286e09494524face1df3994489c53f6",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebd2bae2_66a60317",
+        "filename": "helm/deploy_tf_helm.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-09-18T16:07:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80aac669_edfba523",
+      "revId": "f848bab2c286e09494524face1df3994489c53f6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
