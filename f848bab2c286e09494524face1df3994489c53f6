@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80aac669_edfba523",
+        "filename": "helm/deploy_tf_helm.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-09-18T11:50:56Z",
+      "side": 1,
+      "message": "why do we need this?\nhelm should be able to create this folder himself",
+      "revId": "f848bab2c286e09494524face1df3994489c53f6",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
