@@ -97,6 +97,12 @@ else
 fi
 
 sudo mkdir -p /var/log/contrail
+ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+    if ! ip a | grep -q "$machine"; then
+      ssh $ssh_opts $machine "sudo mkdir -p /var/log/contrail"
+    fi
+done
 
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
