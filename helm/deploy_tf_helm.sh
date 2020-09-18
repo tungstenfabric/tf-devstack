@@ -6,8 +6,6 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
 TF_HELM_URL=${TF_HELM_URL:-https://github.com/tungstenfabric/tf-helm-deployer}
-ORCHESTRATOR=${ORCHESTRATOR:-"openstack"}
-
 deployer_image=tf-helm-deployer-src
 deployer_dir=${WORKSPACE}/tf-helm-deployer
 
