@@ -62,7 +62,9 @@ function wait_cmd_success() {
   local max=${3:-300}
   local silent_cmd=${4:-1}
 
-  local state_save="$(set +o); set -$(echo $- | tr -d 'i')"
+  local state=$-
+  [[ "$state" =~ .*e.* ]] && state="$(set +o); set -e" || state="$(set +o)"
+  
   set +o xtrace
   set -o pipefail
   local i=0
@@ -78,14 +80,14 @@ function wait_cmd_success() {
       echo ""
       echo "ERROR: wait failed in $((i*10))s"
       eval "$cmd"
-      eval "$state_save"
+      eval "$state"
       return 1
     fi
     sleep $interval
   done
   echo ""
   echo "INFO: done in $((i*10))s"
-  eval "$state_save"
+  eval "$state"
 }
 
 function wait_nic_up() {
