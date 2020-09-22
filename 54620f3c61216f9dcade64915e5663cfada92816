@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7d03123f_e8e265a7",
+        "filename": "common/functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-22T11:41:05Z",
+      "side": 1,
+      "message": "imho, this simpler:\nlocal state\u003d\"$(set +o)\"\n[[ \"$-\" \u003d~ e ]] \u0026\u0026 state+\u003d\"; set -e\"\n?",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 67,
+        "endChar": 1
+      },
+      "revId": "54620f3c61216f9dcade64915e5663cfada92816",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
