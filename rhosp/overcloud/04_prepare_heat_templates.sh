@@ -56,8 +56,7 @@ if [[ "$PROVIDER" == "bmc" ]]; then
       tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
 else
    if [[ -n "$overcloud_cont_instance" ]] ; then
-      count=$(echo $overcloud_cont_instance | grep -o ',' | wc -l)
-      (( count++ ))
+      count=$(( $(echo $overcloud_cont_instance | grep -o ',' | wc -l) + 1))
       echo "  ControllerCount: $count" >> ~/misc_opts.yaml
    fi
 fi
