@@ -66,6 +66,8 @@ setup_timeserver
 
 [ ! -d kubespray ] && git clone --depth 1 --single-branch --branch=${KUBESPRAY_TAG} https://github.com/kubernetes-sigs/kubespray.git
 cd kubespray/
+# If we now install the cryptography of the required version, then the newest version will not be installed together with the ansible
+sudo pip3 install -chttps://releases.openstack.org/constraints/upper/master cryptography
 sudo pip3 install -r requirements.txt
 
 cp -rfp inventory/sample/ inventory/mycluster
