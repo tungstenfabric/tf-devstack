@@ -15,7 +15,7 @@ else
   CONTRAIL_CHART="contrail"
 fi
 
-fetch_deployer $deployer_image $deployer_dir || git clone "$TF_HELM_URL" $deployer_dir
+fetch_deployer git clone "$TF_HELM_URL" $deployer_dir
 
 # label nodes
 label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $AGENT_NODES
@@ -94,9 +94,8 @@ else
   host_var=""
 fi
 
-sudo mkdir -p /var/log/contrail
-
 kubectl create ns tungsten-fabric || :
+helm upgrade --install --debug --dry-run --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   kubectl -n kube-system scale deployment tiller-deploy --replicas=1
