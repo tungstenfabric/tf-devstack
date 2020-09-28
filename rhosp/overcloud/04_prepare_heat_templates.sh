@@ -59,6 +59,10 @@ else
       count=$(( $(echo $overcloud_cont_instance | grep -o ',' | wc -l) + 1))
       echo "  ControllerCount: $count" >> ~/misc_opts.yaml
    fi
+   if [[ -n "$overcloud_compute_instance" ]] ; then
+      count=$(( $(echo $overcloud_compute_instance | grep -o ',' | wc -l) + 1))
+      echo "  ComputeCount: $count" >> ~/misc_opts.yaml
+   fi
 fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)
