@@ -76,13 +76,13 @@ for node in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
   define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
 done
 
-node=$overcloud_compute_instance
 node_type=compute
-vbmc_ip=$(get_vbmc_ip $node)
-vbmc_port=$(get_vbmc_port $node)
-mac=$(get_macs $node)
-define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
-
+for node in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
+  vbmc_ip=$(get_vbmc_ip $node)
+  vbmc_port=$(get_vbmc_port $node)
+  mac=$(get_macs $node)
+  define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+done
 
 node=$overcloud_ctrlcont_instance
 node_type=contrail-controller
