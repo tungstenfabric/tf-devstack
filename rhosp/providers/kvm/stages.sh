@@ -40,9 +40,9 @@ function undercloud() {
     cat <<EOF | ssh $ssh_opts stack@${mgmt_ip}
 set -x
 export OTP_PASSWORD=$otp
-sudo /home/stack/tf-devstack/rhosp/undercloud/01_deploy_as_root.sh
-/home/stack/tf-devstack/rhosp/undercloud/02_deploy_as_stack.sh
-/home/stack/tf-devstack/rhosp/undercloud/${RHOSP_VERSION}_configure_registries_undercloud.sh
+sudo ./tf-devstack/rhosp/undercloud/01_deploy_as_root.sh
+./tf-devstack/rhosp/undercloud/02_deploy_as_stack.sh
+./tf-devstack/rhosp/undercloud/${RHOSP_VERSION}_configure_registries_undercloud.sh
 EOF
 }
 

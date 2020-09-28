@@ -89,8 +89,10 @@ if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
     define_overcloud_vms $i $OS_MEM $vbmc_port 4
     (( vbmc_port+=1 ))
   done
-  define_overcloud_vms $overcloud_compute_instance $COMP_MEM $vbmc_port 4
-  (( vbmc_port+=1 ))
+  for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
+    define_overcloud_vms $i $COMP_MEM $vbmc_port 4
+    (( vbmc_port+=1 ))
+  done
   define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
 else
