@@ -129,7 +129,12 @@ EOF
         mkdir ${TF_LOG_DIR}/${source_name}
         scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
     done
+
+    # Save to archive all yaml files and tripleo templates
+    tar -czf ${TF_LOG_DIR}/tht.tgz -C ~ *.yaml tripleo-heat-templates
+
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
+
     set -e
 }
 
