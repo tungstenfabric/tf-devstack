@@ -130,6 +130,11 @@ EOF
         scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
     done
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
+
+    # Save to archive all yaml files and tripleo templates
+    find ~ -name "*.yaml" -o -name "*.yml" | tar -czf ~/yamls.tgz -T -
+    tar -czf ~/tf-tripleo-templates.tgz -C ~ tf-tripleo-templates
+
     set -e
 }
 
