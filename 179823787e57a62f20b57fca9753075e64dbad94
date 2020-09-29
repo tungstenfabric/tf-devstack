@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7af3e0a_79316853",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-09-29T15:22:24Z",
+      "side": 1,
+      "message": "tripleo-heat-templates",
+      "range": {
+        "startLine": 135,
+        "startChar": 63,
+        "endLine": 135,
+        "endChar": 83
+      },
+      "revId": "179823787e57a62f20b57fca9753075e64dbad94",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
