@@ -235,8 +235,9 @@ function tf() {
             keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
    fi
 
-    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
-    for machine in $JUJU_MACHINES ; do
+    # TODO: remove this hack at all!!!
+    JUJU_AGENTS=`timeout -s 9 30 juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`
+    for machine in $JUJU_AGENTS ; do
         # fix /etc/hosts
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
