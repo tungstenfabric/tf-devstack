@@ -153,7 +153,7 @@ function machines() {
         # in case k8s is deploying before lxd container creating,
         # lxd have wrong parent in config and can't get IP address
         # to prevent it we starts lxd before
-        command juju deploy ubuntu --to lxd:0
+        command juju deploy ubuntu --to lxd:0 || true
     fi
 
     sudo apt-get update -u && sudo apt-get install -y jq dnsutils
