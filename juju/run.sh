@@ -245,18 +245,16 @@ function tf() {
    fi
 
     # TODO: remove this hack at all!!!
-    local agents=`timeout -s 9 30 juju status contrail-agent | awk '/  contrail-agent\//{print $4}' | sort -u`
-    local mip
-    for mip in $agents ; do
-        local mnum=`juju machines | grep '$mip' | awk '{print $1}'`
+    JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+    for machine in $JUJU_MACHINES ; do
         # fix /etc/hosts
         if [ $CLOUD == 'aws' ] ; then
             # we need to wait while machine is up for aws deployment
-            wait_cmd_success "command juju ssh $mnum 'uname -a'"
+            wait_cmd_success "command juju ssh $machine 'uname -a'"
         fi
-        juju_node_ip=`$(which juju) ssh $mnum "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
-        juju_node_hostname=`$(which juju) ssh $mnum "hostname" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
-        command juju ssh $mnum "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
+        juju_node_ip=`$(which juju) ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        juju_node_hostname=`$(which juju) ssh $machine "hostname -f" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
+        command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
     # show results
