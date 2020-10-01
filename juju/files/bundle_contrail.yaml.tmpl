@@ -116,6 +116,7 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+      kernel-hugepages-1g: "{{ HUGE_PAGES_1G }}"
 {%- endif %}
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
   contrail-keystone-auth:
