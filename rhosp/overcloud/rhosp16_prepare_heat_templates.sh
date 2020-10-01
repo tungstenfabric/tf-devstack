@@ -11,5 +11,5 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
   #Getting orgID
   export RHEL_ORG_ID=$(sudo subscription-manager identity | grep "org ID" | sed -e 's/^.*: //')
 
-  cat $my_dir/rhsm.yaml.template | envsubst > ~/rhsm.yaml
+  cat $my_dir/rhsm.yaml.template | envsubst > rhsm.yaml
 fi
