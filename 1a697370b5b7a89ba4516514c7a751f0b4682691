@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74350db2_b62c82aa",
+        "filename": "common/functions.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-01T08:23:10Z",
+      "side": 1,
+      "message": "we discussed this sometime ago - we already have space-separated lists from common.sh",
+      "revId": "1a697370b5b7a89ba4516514c7a751f0b4682691",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d22d505_f0e0d327",
+        "filename": "common/functions.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-01T08:23:10Z",
+      "side": 1,
+      "message": "if we need this everywhere then let\u0027s define it as constant in common.sh",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 16
+      },
+      "revId": "1a697370b5b7a89ba4516514c7a751f0b4682691",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7512b03b_dad7f112",
+        "filename": "common/functions.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-01T08:23:10Z",
+      "side": 1,
+      "message": "ssh ... 2\u003e/dev/null | egrep ...",
+      "range": {
+        "startLine": 169,
+        "startChar": 18,
+        "endLine": 169,
+        "endChar": 63
+      },
+      "revId": "1a697370b5b7a89ba4516514c7a751f0b4682691",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
