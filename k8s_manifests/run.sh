@@ -16,6 +16,7 @@ declare -A STAGES=( \
     ["default"]="k8s manifest tf wait" \
     ["master"]="build k8s manifest tf wait" \
     ["platform"]="k8s" \
+    ["testw"]="wait" \
 )
 
 # constants
@@ -153,7 +154,7 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_pods_active && check_tf_active
+    check_tf_active && check_pods_active
 }
 
 function collect_deployment_env() {

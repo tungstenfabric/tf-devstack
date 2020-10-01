@@ -83,7 +83,7 @@ for ((i=0; i<30; ++i)); do
   fi
 done
 
-# Waiting for images downoad to complete
+# Waiting for images download to complete
 for ((i=0; i<60; ++i)); do
   if maas $PROFILE boot-resources is-importing | grep -q 'false'; then
     sleep 60
