@@ -261,6 +261,7 @@ function tf() {
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
     echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
     echo "Use admin/password to log in (use 'admin_domain' as domain in case of OpenStack deployment)"
+    echo "Or source stackrc for CLI tools after successful deployment"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
@@ -294,6 +295,9 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
         DEPLOYMENT_ENV['SSL_CACERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0')"
     fi
+
+    # NOTE: create stackrc locally to be able to run openstack commands
+    create_stackrc
 }
 
 run_stages $STAGE
