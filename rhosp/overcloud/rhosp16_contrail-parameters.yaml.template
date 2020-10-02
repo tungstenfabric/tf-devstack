@@ -8,6 +8,7 @@ parameter_defaults:
   DnsServers: ${overcloud_nameservers}
   NtpServer: 3.europe.pool.ntp.org
   NovaComputeLibvirtType: ${overcloud_virt_type}
+  NovaSchedulerQueryImageType: false
   DockerInsecureRegistryAddress:
     - ${undercloud_registry}
     - ${undercloud_instance}.ctlplane.${domain}:8787
