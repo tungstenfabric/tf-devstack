@@ -2,6 +2,9 @@
 # 1) including as library (source common/collect_logs.sh; collect_docker_logs)
 # 2) running as script (../common/collect_logs.sh collect_docker_logs)
 
+# centos doesn't have this folder in PATH for ssh connections
+export PATH=$PATH:/usr/sbin
+
 function init_output_logging {
   if [[ -n "$TF_LOG_DIR" ]]; then
     mkdir -p $TF_LOG_DIR
