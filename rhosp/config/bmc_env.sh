@@ -9,10 +9,10 @@ export IPMI_USER=${IPMI_USER:-"ADMIN"}
 export IPMI_PASSWORD=${IPMI_PASSWORD:-"ADMIN"}
 
 export SSH_USER=$(whoami)
+export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
 
 export overcloud_virt_type="qemu"
-export undercloud_local_interface="eth1"
-export local_mtu="1500"
 export domain="lab1.local"
 export undercloud_instance="undercloud"
 export prov_inspection_iprange="192.168.24.51,192.168.24.91"
@@ -36,3 +36,10 @@ export external_vlan="vlan720"
 export external_interface="eth1"
 export external_ip_addr="10.2.0.5"
 export external_net_mask="255.255.255.0"
+
+# TODO: rework after AGENT_NODES, CONTROLLER_NODES be used as an input for rhosp
+export overcloud_cont_instance="1,2,3"
+export overcloud_ctrlcont_instance="1,2,3"
+export overcloud_compute_instance="1,2"
+export overcloud_dpdk_instance="1"
+export overcloud_sriov_instance="1"
