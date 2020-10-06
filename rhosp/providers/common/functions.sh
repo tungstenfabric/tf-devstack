@@ -33,10 +33,11 @@ function collect_stack_details() {
 
         echo "INFO: collect failed resources"
         rm -f ${log_dir}/stack_failed_resources.log
-        local name
-        openstack stack resource list --filter status=FAILED -n 10 -f json overcloud | jq -r -c ".[].resource_name" | while read name ; do
-            echo "ERROR: $name" >> ./stack_failed_resources.log
-            openstack stack resource show -f shell overcloud $name | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_resources.log
+        local resource
+        local stack
+        openstack stack resource list --filter status=FAILED -n 10 -f json overcloud | jq -r -c ".[] | .resource_name+ \" \" + .stack_name" | while read resource stack ; do
+            echo "ERROR: $resource $stack" >> ./stack_failed_resources.log
+            openstack stack resource show -f shell $stack $resource | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_resources.log
             echo -e "\n\n" >> ./stack_failed_resources.log
         done
 
@@ -142,23 +143,6 @@ EOF
     set -e
 }
 
-function set_rhosp_version() {
-    case "$OPENSTACK_VERSION" in
-    "queens" )
-        export RHEL_VERSION='rhel7'
-        export RHOSP_VERSION='rhosp13'
-        ;;
-    "train" )
-        export RHEL_VERSION='rhel8'
-        export RHOSP_VERSION='rhosp16'
-        ;;
-    *)
-        echo "Variable OPENSTACK_VERSION is unset or incorrect"
-        exit 1
-        ;;
-esac
-}
-
 function add_vlan_interface() {
     local vlan_id=$1
     local phys_dev=$2
@@ -180,4 +164,65 @@ NETMASK=$net_mask
 EOF
     ifdown ${vlan_id}
     ifup ${vlan_id}
+}
+
+function wait_ssh() {
+    local addr=$1
+    local ssh_key=${2:-''}
+    if [[ -n "$ssh_key" ]] ; then
+        ssh_key=" -i $ssh_key"
+    fi
+    local interval=5
+    local max=100
+    local silent_cmd=1
+    [[ "$DEBUG" != true ]] || silent_cmd=0 
+    if ! wait_cmd_success "ssh $ssh_opts $ssh_key ${SSH_USER}@${addr} uname -n" $interval $max $silent_cmd ; then
+      echo "ERROR: Could not connect to VM $addr"
+      exit 1
+    fi
+    echo "INFO: VM $addr is available"
+}
+
+function expand() {
+    while read -r line; do
+        if [[ "$line" =~ ^export ]]; then
+            line="${line//\\/\\\\}"
+            line="${line//\"/\\\"}"
+            line="${line//\`/\\\`}"
+            eval echo "\"$line\""
+        else
+            echo $line
+        fi
+    done
+}
+
+function prepare_rhosp_env_file() {
+    local target_env_file=$1
+    local env_file=$(mktemp)
+    source $my_dir/../../config/common.sh
+    cat $my_dir/../../config/common.sh | expand >> $env_file || true
+    source $my_dir/../../config/${RHEL_VERSION}_env.sh
+    cat $my_dir/../../config/${RHEL_VERSION}_env.sh | grep '^export' | expand >> $env_file || true
+    source $my_dir/../../config/${PROVIDER}_env.sh
+    cat $my_dir/../../config/${PROVIDER}_env.sh | grep '^export' | expand >> $env_file || true
+    cat <<EOF >> $env_file
+
+export DEBUG=$DEBUG
+export PROVIDER=$PROVIDER
+export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
+export OPENSTACK_VERSION="$OPENSTACK_VERSION"
+export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
+export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
+export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO
+export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
+export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
+export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
+export DEPLOYER_CONTAINER_REGISTRY="$DEPLOYER_CONTAINER_REGISTRY"
+export OPENSTACK_CONTAINER_REGISTRY="$OPENSTACK_CONTAINER_REGISTRY"
+export ENABLE_TLS=$ENABLE_TLS
+
+EOF
+
+    #Removing duplicate lines
+    awk '!a[$0]++' $env_file > $target_env_file
 }
