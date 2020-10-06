@@ -1,18 +1,10 @@
 #!/bin/bash -e
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
-   exit 1
-fi
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
 
-if [[ -z ${SUDO_USER+x} ]]; then
-   echo "Stop. Please run this scripts with sudo"
-   exit 1
-fi
-
-cd /home/$SUDO_USER
-
-source ./rhosp-environment.sh
+cd
+source rhosp-environment.sh
 
 #Set default gateway to undercloud
 default_dev=$(ip route get $prov_ip | grep -o "dev.*" | awk '{print $2}')
@@ -20,26 +12,29 @@ if [[ -z "$default_dev" || 'lo' == "$default_dev" ]] ; then
    echo "ERROR: undercloud node is not reachable from overcloud via prov network"
    exit 1
 fi
-ip route replace default via ${prov_ip} dev $default_dev
+
 cfg_file="/etc/sysconfig/network-scripts/ifcfg-$default_dev"
+cat <<EOF | sudo bash
+set -x
+ip route replace default via ${prov_ip} dev $default_dev
 sed -i '/^GATEWAY[ ]*=/d' $cfg_file
 echo "GATEWAY=${prov_ip}" >> $cfg_file
-
 sed -i '/nameserver/d'  /etc/resolv.conf
 echo 'nameserver 8.8.8.8' >> /etc/resolv.conf
+EOF
 
-./rhel_provisioning.sh
+sudo -E $my_dir/../providers/common/rhel_provisioning.sh
 
-./${RHOSP_VERSION}_configure_registries_overcloud.sh
+source $my_dir/${RHOSP_VERSION}_configure_registries_overcloud.sh
 
 # to avoid slow ssh connect if dns is not available
-sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
-service sshd reload
+sudo sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
+sudo service sshd reload
 
 undercloud_hosts_entry="$prov_ip    $undercloud_instance"
 [ -n "$domain" ] && undercloud_hosts_entry+=".$domain    $undercloud_instance"
 if ! grep -q "$undercloud_hosts_entry" /etc/hosts ; then
-   echo "$undercloud_hosts_entry" >> /etc/hosts
+   echo "$undercloud_hosts_entry" | sudo tee -a /etc/hosts
 fi
 
 fqdn=$(hostname -f)
@@ -53,5 +48,5 @@ if ! grep -q "$hosts_names" /etc/hosts ; then
       echo "ERROR: failed to detect ip addr for dev $default_dev"
       exit 1
    }
-   echo "$default_ip    $hosts_names" >> /etc/hosts
+   echo "$default_ip    $hosts_names" | sudo tee -a /etc/hosts
 fi
