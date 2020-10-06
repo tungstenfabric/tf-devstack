@@ -179,3 +179,24 @@ EOF
     ifdown ${vlan_id}
     ifup ${vlan_id}
 }
+
+function wait_ssh() {
+  local addr=$1
+  local ssh_key=${2:-''}
+  local max_iter=${3:-20}
+  local iter=0
+  local ssh_opts='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no'
+  if [[ -n "$ssh_key" ]] ; then
+    ssh_opts+=" -i $ssh_key"
+  fi
+  local tf=$(mktemp)
+  while ! scp $ssh_opts -B $tf root@${addr}:/tmp/ ; do
+    if (( iter >= max_iter )) ; then
+      echo "Could not connect to VM $addr"
+      exit 1
+    fi
+    echo "Waiting for VM $addr..."
+    sleep 30
+    ((++iter))
+  done
+}
