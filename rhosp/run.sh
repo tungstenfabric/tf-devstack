@@ -22,30 +22,34 @@ declare -A STAGES=( \
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
 #PROVIDER = [ kvm | vexx | aws | bmc ]
-export PROVIDER=${PROVIDER:-'vexx'}
-if [[ "$PROVIDER" == "kvm" || "$PROVIDER" == "bmc" ]]; then
-    export USE_PREDEPLOYED_NODES=false
-    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
-else
-    export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-true}
-    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'false'}
-fi
-if [[ "$PROVIDER" == "kvm" ]]; then
-    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
-else
-    export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'false'}
-fi
+export PROVIDER=${PROVIDER:-}
+[ -n "$PROVIDER" ] || { echo "ERROR: PROVIDER is not set"; exit -1; }
+
+
+declare -A _default_predeployed_mode=( ['vexx']='true' ['kvm']='false' ['bmc']='false' )
+export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-${_default_predeployed_mode[$PROVIDER]}}
+
+declare -A _default_rhel_registration=( ['vexx']='false' ['kvm']='true' ['bmc']='false' )
+export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-${_default_rhel_registration[$PROVIDER]}}
+
+declare -A _default_net_isolation=( ['vexx']='false' ['kvm']='false' ['bmc']='true' )
+export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-${_default_net_isolation[$PROVIDER]}}
+
+declare -A _default_aio=( ['vexx']='true' ['kvm']='false' ['bmc']='false' )
+export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-${_default_aio[$PROVIDER]}}
+
+declare -A _default_ssh_user=( ['vexx']='cloud-user' ['kvm']='stack' ['bmc']="$(whoami)" )
+export SSH_USER=${SSH_USER:-${_default_ssh_user[$PROVIDER]}}
+
 #IPMI_PASSOWORD (also it's AdminPassword for TripleO)
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'password'}
-user=$(whoami)
 
-export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-'false'}
-export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-false}
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export DEPLOYER='rhosp'
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export RHOSP_VERSION=${RHOSP_VERSION:-'rhosp13'}
-export SSH_USER=${SSH_USER:-'cloud-user'}
+
+
 declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
 export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
 
@@ -77,54 +81,8 @@ declare -A DEPLOYMENT_ENV=(\
 )
 
 #Continue deployment stages with environment specific script
-source $my_dir/providers/common/functions.sh
 source $my_dir/providers/${PROVIDER}/stages.sh
-
-function expand() {
-    while read -r line; do
-        if [[ "$line" =~ ^export ]]; then
-            line="${line//\\/\\\\}"
-            line="${line//\"/\\\"}"
-            line="${line//\`/\\\`}"
-            eval echo "\"$line\""
-        else
-            echo $line
-        fi
-    done
-}
-
-function prepare_rhosp_env_file() {
-    ##### Always creating ~/rhosp-environment.sh #####
-    rm -f ~/rhosp-environment.sh
-    source $my_dir/config/common.sh
-    cat $my_dir/config/common.sh | expand >>~/rhosp-environment.sh || true
-    source $my_dir/config/${RHEL_VERSION}_env.sh
-    cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | expand >> ~/rhosp-environment.sh || true
-    source $my_dir/config/${PROVIDER}_env.sh
-    cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' | expand >> ~/rhosp-environment.sh || true
-    echo "export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES" >> ~/rhosp-environment.sh
-    echo "export PROVIDER=$PROVIDER" >> ~/rhosp-environment.sh
-    echo "export RHOSP_VERSION=$RHOSP_VERSION" >> ~/rhosp-environment.sh
-    echo "export OPENSTACK_VERSION=$OPENSTACK_VERSION" >> ~/rhosp-environment.sh
-    echo "export RHEL_VERSION=$RHEL_VERSION" >> ~/rhosp-environment.sh
-    echo "export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION" >> ~/rhosp-environment.sh
-    echo "export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION" >> ~/rhosp-environment.sh
-    echo "export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO" >> ~/rhosp-environment.sh
-    echo "export CONTRAIL_CONTAINER_TAG=\"$CONTRAIL_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
-    echo "export CONTRAIL_DEPLOYER_CONTAINER_TAG=\"$CONTRAIL_DEPLOYER_CONTAINER_TAG\"" >> ~/rhosp-environment.sh
-    echo "export CONTAINER_REGISTRY=\"$CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
-    echo "export DEPLOYER_CONTAINER_REGISTRY=\"$DEPLOYER_CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
-    echo "export OPENSTACK_CONTAINER_REGISTRY=\"$OPENSTACK_CONTAINER_REGISTRY\"" >> ~/rhosp-environment.sh
-    echo "export IPMI_PASSWORD=\"$IPMI_PASSWORD\"" >> ~/rhosp-environment.sh
-    echo "export ENABLE_TLS=\"$ENABLE_TLS\"" >> ~/rhosp-environment.sh
-    #Removing duplicate lines
-    awk '!a[$0]++' ~/rhosp-environment.sh >/tmp/rhosp-environment.sh
-    cat /tmp/rhosp-environment.sh > ~/rhosp-environment.sh
-}
-
-
 #TODO move inside stage to allow overwrite values by dev-env
-prepare_rhosp_env_file
 if [[ $STAGE == 'provisioning' ]] ; then
   provisioning
   exit

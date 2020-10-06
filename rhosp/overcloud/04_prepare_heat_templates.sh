@@ -4,15 +4,11 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 cd
-source rhosp-environment.sh
 source stackrc
+source rhosp-environment.sh
 
 source "$my_dir/../../common/functions.sh"
 source "$my_dir/../providers/common/functions.sh"
-
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
-export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
-export contrail_dpdk_driver=${contrail_dpdk_driver:-"uio_pci_generic"}
 
 if [[ -n "$ENABLE_TLS" ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"
@@ -47,26 +43,21 @@ export SSH_PRIVATE_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa`
 export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa.pub`
 
 cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
-if [[ "$PROVIDER" == "bmc" ]]; then
-  echo "  ControllerCount: 3" >> misc_opts.yaml
-  echo "  ContrailControllerCount: 3" >> misc_opts.yaml
-  echo "  ComputeCount: 1" >> misc_opts.yaml
-  echo "  ContrailSriovCount: 1" >> misc_opts.yaml
-  echo "  ContrailDpdkCount: 1" >> misc_opts.yaml
-  echo "  ContrailDpdkDriver: $contrail_dpdk_driver" >> misc_opts.yaml
-  echo "  node_admin_username: ${SSH_USER}" >> misc_opts.yaml
-  cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
-      tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
-else
-   if [[ -n "$overcloud_cont_instance" ]] ; then
-      count=$(( $(echo $overcloud_cont_instance | grep -o ',' | wc -l) + 1))
-      echo "  ControllerCount: $count" >> misc_opts.yaml
+function _get_count()
+{
+   if [[ -n "$1" ]] ; then
+      echo $(( $(echo $1 | grep -o ',' | wc -l) + 1))
+   else
+      echo 0
    fi
-   if [[ -n "$overcloud_compute_instance" ]] ; then
-      count=$(( $(echo $overcloud_compute_instance | grep -o ',' | wc -l) + 1))
-      echo "  ComputeCount: $count" >> misc_opts.yaml
-   fi
-fi
+}
+cat <<EOF >> misc_opts.yaml
+  ControllerCount: $(_get_count $overcloud_cont_instance)
+  ContrailControllerCount: $(_get_count $overcloud_ctrlcont_instance)
+  ComputeCount: $(_get_count $overcloud_compute_instance)
+  ContrailDpdkCount: $(_get_count $overcloud_dpdk_instance)
+  ContrailSriovCount: $(_get_count $overcloud_sriov_instance)
+EOF
 
 #Creating file for overcloud rhel registration (rhosp version specific)
 if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
