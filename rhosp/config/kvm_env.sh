@@ -47,7 +47,7 @@ export VBMC_PORT_BASE=16000
 # IP, subnets
 export mgmt_subnet="192.168.${DEPLOY_POSTFIX}"
 export mgmt_gateway="${mgmt_subnet}.1"
-export mgmt_ip="${mgmt_subnet}.2"
+export instance_ip="${mgmt_subnet}.2"
 
 export prov_subnet="192.168.${DEPLOY_POSTFIX_INC}"
 export prov_gateway="${prov_subnet}.1"
@@ -60,7 +60,6 @@ export prov_dhcp_start=${prov_subnet}.100
 export prov_dhcp_end=${prov_subnet}.149
 
 export fixed_vip="${prov_subnet}.200"
-export fixed_controller_ip="${prov_subnet}.211"
 
 # Undercloud MAC addresses
 export undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"
