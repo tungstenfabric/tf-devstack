@@ -179,3 +179,71 @@ EOF
     ifdown ${vlan_id}
     ifup ${vlan_id}
 }
+
+function wait_ssh() {
+  local addr=$1
+  local ssh_key=${2:-''}
+  local max_iter=${3:-20}
+  local iter=0
+  local ssh_opts='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no'
+  if [[ -n "$ssh_key" ]] ; then
+    ssh_opts+=" -i $ssh_key"
+  fi
+  local tf=$(mktemp)
+  while ! scp $ssh_opts -B $tf root@${addr}:/tmp/ ; do
+    if (( iter >= max_iter )) ; then
+      echo "Could not connect to VM $addr"
+      exit 1
+    fi
+    echo "Waiting for VM $addr..."
+    sleep 30
+    ((++iter))
+  done
+}
+
+function expand() {
+    while read -r line; do
+        if [[ "$line" =~ ^export ]]; then
+            line="${line//\\/\\\\}"
+            line="${line//\"/\\\"}"
+            line="${line//\`/\\\`}"
+            eval echo "\"$line\""
+        else
+            echo $line
+        fi
+    done
+}
+
+function prepare_rhosp_env_file() {
+    local target_env_file=$1
+    local env_file=$(mktemp)
+    source $my_dir/config/common.sh
+    cat $my_dir/config/common.sh | expand >> $env_file || true
+    source $my_dir/config/${RHEL_VERSION}_env.sh
+    cat $my_dir/config/${RHEL_VERSION}_env.sh | grep '^export' | expand >> $env_file || true
+    source $my_dir/config/${PROVIDER}_env.sh
+    cat $my_dir/config/${PROVIDER}_env.sh | grep '^export' | expand >> $env_file || true
+    cat <<EOF >> $env_file
+
+export DEBUG=$DEBUG
+export PROVIDER=$PROVIDER
+export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
+export RHOSP_VERSION="$RHOSP_VERSION"
+export OPENSTACK_VERSION="$OPENSTACK_VERSION"
+export RHEL_VERSION="$RHEL_VERSION"
+export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
+export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
+export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO
+export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
+export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
+export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
+export DEPLOYER_CONTAINER_REGISTRY="$DEPLOYER_CONTAINER_REGISTRY"
+export OPENSTACK_CONTAINER_REGISTRY="$OPENSTACK_CONTAINER_REGISTRY"
+export IPMI_PASSWORD="$IPMI_PASSWORD"
+export ENABLE_TLS=$ENABLE_TLS
+
+EOF
+
+    #Removing duplicate lines
+    awk '!a[$0]++' $env_file > $target_env_file
+}
