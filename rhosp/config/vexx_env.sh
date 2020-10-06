@@ -4,6 +4,10 @@ export IPMI_PASSWORD=${IPMI_PASSWORD}
 
 export SSH_USER=${SSH_USER}
 
+export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
+
+export CONFIGURE_DOCKER_LIVERESTORE='false'
+
 #IP, subnets
 export mgmt_subnet=${mgmt_subnet}
 export mgmt_gateway=${mgmt_gateway}

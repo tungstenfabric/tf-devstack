@@ -1,17 +1,15 @@
 #!/bin/bash -ex
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run by root"
-   exit 1
-fi
-
-
-# VBMC base port for IPMI management
-VBMC_PORT_BASE=16000
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+cd
+source rhosp-environment.sh
+source $my_dir/virsh_functions
+
+# VBMC base port for IPMI management
+VBMC_PORT_BASE=16000
 
 OS_MEM=${OS_MEM:-8192}
 CTRL_MEM=${CTRL_MEM:-8192}
@@ -20,9 +18,6 @@ IPA_MEM=${COMP_MEM:-16384}
 
 vm_disk_size=${vm_disk_size:-30G}
 net_driver=${net_driver:-virtio}
-
-source "/home/$SUDO_USER/rhosp-environment.sh"
-source "$my_dir/virsh_functions"
 
 if [[ $RHEL_VERSION == 'rhel8' ]]; then
    rhel_version_libvirt='rhl8.0'
@@ -111,8 +106,8 @@ if [[ -n "$ENABLE_TLS" ]] ; then
 fi
 
 #check that nbd kernel module is loaded
-if ! lsmod |grep '^nbd ' ; then
-  modprobe nbd max_part=8
+if ! sudo lsmod |grep '^nbd ' ; then
+  sudo modprobe nbd max_part=8
 fi
 
 function _start_vm() {
