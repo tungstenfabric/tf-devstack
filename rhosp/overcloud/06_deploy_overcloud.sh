@@ -4,9 +4,10 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 cd
-source rhosp-environment.sh
 source stackrc
-source "$my_dir/../providers/common/functions.sh"
+source rhosp-environment.sh
+source $my_dir/../../common/common.sh
+source $my_dir/../providers/common/functions.sh
 
 #Specific part of deployment
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
@@ -18,16 +19,28 @@ if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then
 fi
 
 # patch hosts to resole overcloud by fqdn
+echo "INFO: update /etc/hosts for overcloud vips fqdns"
 sudo sed -i "/overcloud.${domain}/d" /etc/hosts
 sudo sed -i "/overcloud.internalapi.${domain}/d" /etc/hosts
 sudo sed -i "/overcloud.ctlplane.${domain}/d" /etc/hosts
 
-if [[ -n "$overcloud_cont_prov_ip" ]]; then
-  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.${domain}\" >> /etc/hosts"
-  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.internalapi.${domain}\" >> /etc/hosts"
-  sudo bash -c "echo \"${overcloud_cont_prov_ip} overcloud.ctlplane.${domain}\" >> /etc/hosts"
+if [ -n "$overcloud_cont_prov_ip" ] ; then
+  public_vip=$overcloud_cont_prov_ip
+  internal_api_vip=$overcloud_cont_prov_ip
+  ctlplane_vip=$overcloud_cont_prov_ip
 else
-  sudo bash -c "echo \"$(get_vip public_virtual_ip) overcloud.${domain}\" >> /etc/hosts"
-  sudo bash -c "echo \"$(get_vip internal_api_virtual_ip) overcloud.internalapi.${domain}\" >> /etc/hosts"
-  sudo bash -c "echo \"${fixed_vip} overcloud.ctlplane.${domain}\" >> /etc/hosts"
+  public_vip=$(get_vip public_virtual_ip)
+  internal_api_vip=$(get_vip internal_api_virtual_ip)
+  ctlplane_vip=$fixed_vip
+fi
+  cat <<EOF | sudo tee -a /etc/hosts
+${public_vip} overcloud.${domain}
+${internal_api_vip} overcloud.internalapi.${domain}
+${ctlplane_vip} overcloud.ctlplane.${domain}
+EOF
+cat /etc/hosts
+
+if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
+  add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
+  add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
 fi
