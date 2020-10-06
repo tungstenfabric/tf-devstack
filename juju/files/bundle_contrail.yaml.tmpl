@@ -47,27 +47,27 @@ services:
 {%- endif %}
     expose: true
     to: {{ controller_nodes }}
-  contrail-analyticsdb:
-    charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
-    series: "{{ UBUNTU_SERIES }}"
-    num_units: {{ controller_nodes | count }}
-    options:
-      log-level: "SYS_DEBUG"
-      cassandra-minimum-diskgb: "4"
-{%- if CLOUD == 'maas' %}
-      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
-{%- else %}
-      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
-{%- endif %}
-      docker-registry: "{{ CONTAINER_REGISTRY }}"
-      docker-registry-insecure: true
-      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-{%- if CONTROL_NETWORK %}
-      control-network: "{{ CONTROL_NETWORK }}"
-{%- endif %}
-      min-cluster-size: {{ controller_nodes | count }}
-    expose: true
-    to: {{ controller_nodes }}
+#  contrail-analyticsdb:
+#    charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
+#    series: "{{ UBUNTU_SERIES }}"
+#    num_units: {{ controller_nodes | count }}
+#    options:
+#      log-level: "SYS_DEBUG"
+#      cassandra-minimum-diskgb: "4"
+#{%- if CLOUD == 'maas' %}
+#      cassandra-jvm-extra-opts: "-Xms16g -Xmx16g"
+#{%- else %}
+#      cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
+#{%- endif %}
+#      docker-registry: "{{ CONTAINER_REGISTRY }}"
+#      docker-registry-insecure: true
+#      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+#{%- if CONTROL_NETWORK %}
+#      control-network: "{{ CONTROL_NETWORK }}"
+#{%- endif %}
+#      min-cluster-size: {{ controller_nodes | count }}
+#    expose: true
+#    to: {{ controller_nodes }}
   contrail-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
@@ -185,8 +185,8 @@ services:
 relations:
 # contrail
 - [ contrail-controller, contrail-analytics ]
-- [ contrail-controller, contrail-analyticsdb ]
-- [ contrail-analytics, contrail-analyticsdb ]
+#- [ contrail-controller, contrail-analyticsdb ]
+#- [ contrail-analytics, contrail-analyticsdb ]
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
 - [ contrail-agent-dpdk, contrail-controller ]
 - [ contrail-agent-sriov, contrail-controller ]
@@ -196,7 +196,7 @@ relations:
 
 {%- if SSL_ENABLE == 'true' %}
 - [ easyrsa, contrail-controller ]
-- [ easyrsa, contrail-analyticsdb ]
+#- [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
 - [ easyrsa, contrail-agent-dpdk ]
