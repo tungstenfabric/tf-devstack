@@ -2,6 +2,24 @@
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
+function _run_sudo()
+{
+  cat << EOF | sudo bash
+set -ex
+$@
+EOF
+}
+
+function virsh()
+{
+  _run_sudo virsh "$@"
+}
+
+function vbmc()
+{
+  _run_sudo vbmc "$@"
+}
+
 function build_network_xml() {
   local type="$1"
   local nname="$2"
@@ -107,7 +125,11 @@ function update_network_dhcp() {
   local host=$2
   local mac=$3
   local ip=$4
-  virsh net-update $net_name add ip-dhcp-host "<host mac='$mac' name='$host' ip='$ip' />"
+  local net_data=`mktemp`
+  cat <<EOF > $net_data
+<host mac='$mac' name='$host' ip='$ip' />
+EOF
+  virsh net-update $net_name add ip-dhcp-host $net_data
 }
 
 function create_pool() {
@@ -133,7 +155,7 @@ function create_volume() {
   local vm_disk_size=$3
   delete_volume $name.qcow2 $poolname
   local pool_path=$(get_pool_path $poolname)
-  qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
+  sudo qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
   echo $pool_path/$name.qcow2
 }
 
@@ -206,7 +228,8 @@ function define_machine() {
     local size=${1:-60} ; shift
     more_disks+=" --disk path=${path},device=disk,cache=writeback,bus=virtio,format=qcow2,size=${size}"
   done
-  virt-install --name $name \
+  sudo rm -f /tmp/oc-$name.xml
+  sudo virt-install --name $name \
     --ram $mem \
     --memorybacking hugepages=on \
     --vcpus $vcpus \
@@ -229,7 +252,7 @@ function start_vm() {
 
 function ensure_vbmcd(){
   if ! ps aux | grep -v grep | grep -q vbmcd ; then
-    vbmcd
+    sudo vbmcd
     sleep 5
   fi
 }
@@ -267,7 +290,7 @@ function image_customize() {
   local hdomain=$4
   local ip=$5
   local fqdn=${hname}.${hdomain}
-  virt-customize -a $image \
+  sudo virt-customize -a $image \
     --run-command 'xfs_growfs /' \
     --run-command 'systemctl enable sshd' \
     --run-command 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config' \
