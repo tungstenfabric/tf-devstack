@@ -4,7 +4,8 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-source ~/rhosp-environment.sh
+cd
+source rhosp-environment.sh
 
 # ssh config to do not check host keys and avoid garbadge in known hosts files
 mkdir -p ~/.ssh
