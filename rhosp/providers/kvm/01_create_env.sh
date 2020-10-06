@@ -1,49 +1,51 @@
-#!/bin/bash -ex
+#!/bin/bash -exu
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run by root"
-   exit 1
-fi
-
-
-# VBMC base port for IPMI management
-VBMC_PORT_BASE=16000
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+source rhosp-environment.sh
+source $my_dir/../../../common/common.sh
+source $my_dir/virsh_functions
 
+if [[ $RHEL_VERSION == 'rhel8' ]]; then
+   rhel_version_libvirt='rhl8.0'
+   _default_base_image='/var/lib/libvirt/images/rhel-8.2-x86_64-kvm.qcow2'
+else
+   rhel_version_libvirt=$RHEL_VERSION
+   _default_base_image='/var/lib/libvirt/images/rhel-server-7.9-x86_64-kvm.qcow2'
+fi
+
+undercloud_vmname="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
+undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"
+undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
+
+ipa_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:04"
+ipa_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:05"
+
+BASE_IMAGE=${BASE_IMAGE:-${_default_base_image}}
 OS_MEM=${OS_MEM:-8192}
 CTRL_MEM=${CTRL_MEM:-8192}
 COMP_MEM=${COMP_MEM:-8192}
 IPA_MEM=${COMP_MEM:-16384}
 
-vm_disk_size=${vm_disk_size:-30G}
+vm_disk_size=${vm_disk_size:-60G}
 net_driver=${net_driver:-virtio}
-
-source "/home/$SUDO_USER/rhosp-environment.sh"
-source "$my_dir/virsh_functions"
-
-if [[ $RHEL_VERSION == 'rhel8' ]]; then
-   rhel_version_libvirt='rhl8.0'
-else
-   rhel_version_libvirt=$RHEL_VERSION
-fi
 
 # check if environment is present
 assert_env_exists $undercloud_vmname
 
 # create networks and setup DHCP rules
-create_network_dhcp $NET_NAME_MGMT $mgmt_subnet $BRIDGE_NAME_MGMT
-update_network_dhcp $NET_NAME_MGMT $undercloud_vmname $undercloud_mgmt_mac $mgmt_ip
+create_network_dhcp $NET_NAME_MGMT $mgmt_subnet
+update_network_dhcp $NET_NAME_MGMT $undercloud_vmname $undercloud_mgmt_mac $instance_ip
 if [[ -n "$ENABLE_TLS" ]] ; then
-  update_network_dhcp $NET_NAME_MGMT $ipa_vmname $ipa_mgmt_mac $ipa_mgmt_ip
+  update_network_dhcp $NET_NAME_MGMT $ipa_instance $ipa_mgmt_mac $ipa_mgmt_ip
 fi
 
 if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-  create_network_dhcp $NET_NAME_PROV $prov_subnet $BRIDGE_NAME_PROV 'no' 'no_forward'
+  create_network_dhcp $NET_NAME_PROV $prov_subnet 'no' 'no_forward'
 else
-  create_network_dhcp $NET_NAME_PROV $prov_subnet $BRIDGE_NAME_PROV 'yes' 'no_forward'
+  create_network_dhcp $NET_NAME_PROV $prov_subnet 'yes' 'no_forward'
 fi
 
 # create pool
@@ -67,52 +69,32 @@ function define_overcloud_vms() {
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
 }
 
-function define_overcloud_vms_without_vbmc() {
-  local name=$1
-  local mem=$2
-  local mac=$3
-  local ip=$4
-  local vcpu=${5:-2}
-  local vol_name=$name
-  #create_root_volume $vol_name
-  local vm_name="$vol_name"
-  cp -p $BASE_IMAGE $pool_path/$vol_name.qcow2
-  image_customize $pool_path/$vol_name.qcow2 $vm_name $ssh_public_key $domain $ip
-  update_network_dhcp $NET_NAME_PROV $vm_name $mac $ip
-  define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV/$mac "${pool_path}/${vol_name}.qcow2"
-}
-
-# just define overcloud machines
-if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-  vbmc_port=$VBMC_PORT_BASE
-  for i in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
-    define_overcloud_vms $i $OS_MEM $vbmc_port 4
-    (( vbmc_port+=1 ))
-  done
-  for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
-    define_overcloud_vms $i $COMP_MEM $vbmc_port 4
-    (( vbmc_port+=1 ))
-  done
-  define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4
+vbmc_port=$VBMC_PORT_BASE
+for i in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
+  define_overcloud_vms $i $OS_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
-else
-  define_overcloud_vms_without_vbmc $overcloud_cont_instance $OS_MEM $overcloud_cont_prov_mac $overcloud_cont_prov_ip 4
-  define_overcloud_vms_without_vbmc $overcloud_compute_instance $COMP_MEM $overcloud_compute_prov_mac $overcloud_compute_prov_ip 4
-  define_overcloud_vms_without_vbmc $overcloud_ctrlcont_instance $CTRL_MEM $overcloud_ctrlcont_prov_mac $overcloud_ctrlcont_prov_ip 4
-fi
+done
+for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
+  define_overcloud_vms $i $COMP_MEM $vbmc_port 4
+  (( vbmc_port+=1 ))
+done
+define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4
+(( vbmc_port+=1 ))
 
 # copy image for undercloud and resize them
-cp -p $BASE_IMAGE $pool_path/$undercloud_vm_volume
-image_customize $pool_path/$undercloud_vm_volume $undercloud_instance $ssh_public_key $domain $prov_ip
+undercloud_vm_volume="$pool_path/${undercloud_vmname}.qcow2"
+sudo cp -p $BASE_IMAGE $undercloud_vm_volume
+image_customize $undercloud_vm_volume $undercloud_instance $ssh_public_key $domain $prov_ip
 
 if [[ -n "$ENABLE_TLS" ]] ; then
-  cp -p $BASE_IMAGE $pool_path/$ipa_vm_volume
-  image_customize $pool_path/$ipa_vm_volume $ipa_vmname $ssh_public_key $domain $ipa_prov_ip
+  ipa_vm_volume="$pool_path/${ipa_instance}.qcow2"
+  sudo cp -p $BASE_IMAGE $ipa_vm_volume
+  image_customize $ipa_vm_volume $ipa_instance $ssh_public_key $domain $ipa_prov_ip
 fi
 
 #check that nbd kernel module is loaded
-if ! lsmod |grep '^nbd ' ; then
-  modprobe nbd max_part=8
+if ! sudo lsmod |grep '^nbd ' ; then
+  sudo modprobe nbd max_part=8
 fi
 
 function _start_vm() {
@@ -123,7 +105,7 @@ function _start_vm() {
   local ram=${5:-16384}
 
   # define and start machine
-  virt-install --name=$name \
+  sudo virt-install --name=$name \
     --ram=$ram \
     --vcpus=4,cores=4 \
     --cpu host \
@@ -139,10 +121,10 @@ function _start_vm() {
     --graphics vnc,listen=0.0.0.0
 }
 
-_start_vm "$undercloud_vmname" "$pool_path/$undercloud_vm_volume" \
+_start_vm "$undercloud_vmname" "$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac
 
 if [[ -n "$ENABLE_TLS" ]] ; then
-  _start_vm "$ipa_vmname" "$pool_path/$ipa_vm_volume" \
+  _start_vm "$ipa_instance" "$ipa_vm_volume" \
     $ipa_mgmt_mac $ipa_prov_mac
 fi
