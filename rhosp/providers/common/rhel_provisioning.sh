@@ -43,7 +43,7 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
       subscription-manager repos --disable=* && break
    done
    enable_repo_list=''
-   for r in $RHEL_REPOS; do enable_repo_list+=" --enable=${r}"; done
+   for r in $(echo $RHEL_REPOS | tr ',' ' ') ; do enable_repo_list+=" --enable=${r}"; done
    for i in {1..10} ; do
       echo subscription-manager repos $enable_repo_list ... $i
       subscription-manager repos $enable_repo_list && break
