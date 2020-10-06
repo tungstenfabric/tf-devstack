@@ -1,10 +1,12 @@
 #!/bin/bash -e
 
-
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-source ~/rhosp-environment.sh
+cd
+source rhosp-environment.sh
+source "$my_dir/../provider/common/common.sh"
+source "$my_dir/../providers/common/functions.sh"
 
 # ssh config to do not check host keys and avoid garbadge in known hosts files
 mkdir -p ~/.ssh
@@ -16,7 +18,6 @@ UserKnownHostsFile=/dev/null
 EOF
 chmod 644 ~/.ssh/config
 
-cd $my_dir
 export local_mtu=`/sbin/ip link show $undercloud_local_interface | grep -o "mtu.*" | awk '{print $2}'`
 
 if [[ -n "$ENABLE_TLS" ]] ; then
@@ -29,5 +30,5 @@ else
   export ipa_otp_option=""
 fi
 
-#Specific part of deployment
-source $my_dir/${RHEL_VERSION}_deploy_as_stack.sh
+source $my_dir/${RHOSP_VERSION}_undercloud_deploy.sh
+source $my_dir/${RHOSP_VERSION}_configure_registries_undercloud.sh
