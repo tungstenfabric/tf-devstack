@@ -3,7 +3,8 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
-source ~/rhosp-environment.sh
+cd
+source rhosp-environment.sh
 source "$my_dir/../providers/common/functions.sh"
 
 registries_file="/etc/containers/registries.conf"

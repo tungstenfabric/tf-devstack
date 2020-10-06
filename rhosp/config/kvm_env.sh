@@ -47,7 +47,7 @@ export VBMC_PORT_BASE=16000
 # IP, subnets
 export mgmt_subnet="192.168.${DEPLOY_POSTFIX}"
 export mgmt_gateway="${mgmt_subnet}.1"
-export mgmt_ip="${mgmt_subnet}.2"
+export instance_ip="${mgmt_subnet}.2"
 
 export prov_subnet="192.168.${DEPLOY_POSTFIX_INC}"
 export prov_gateway="${prov_subnet}.1"
