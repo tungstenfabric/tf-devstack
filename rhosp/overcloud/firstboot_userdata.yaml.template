@@ -1,0 +1,25 @@
+heat_template_version: queens
+
+description:  Combined contrail firstboot and root admin resources
+
+resources:
+
+  RootPasswordUserData:
+    type: tripleo-heat-templates/firstboot/userdata_root_password.yaml
+
+  ContrailUserData:
+    type: tripleo-heat-templates/firstboot/contrail/contrail_container_registry.yaml
+
+  userdata:
+    type: OS::Heat::MultipartMime
+    properties:
+    properties:
+      parts:
+      - config: {get_resource: RootPasswordUserData}
+        type: multipart
+      - config: {get_resource: ContrailUserData}
+        type: multipart
+
+outputs:
+  OS::stack_id:
+    value: {get_resource: userdata}
