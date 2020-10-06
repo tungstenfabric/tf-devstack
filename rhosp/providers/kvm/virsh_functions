@@ -2,6 +2,27 @@
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
+function virsh()
+{
+  sudo command virsh $@
+}
+
+function vbmc()
+{
+  sudo command vbmc $@
+}
+
+function virt-install()
+{
+  sudo command virt-install $@
+}
+
+function virt-customize()
+{
+  sudo command virt-customize $@
+}
+
+
 function build_network_xml() {
   local type="$1"
   local nname="$2"
@@ -133,7 +154,7 @@ function create_volume() {
   local vm_disk_size=$3
   delete_volume $name.qcow2 $poolname
   local pool_path=$(get_pool_path $poolname)
-  qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
+  sudo qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
   echo $pool_path/$name.qcow2
 }
 
@@ -229,7 +250,7 @@ function start_vm() {
 
 function ensure_vbmcd(){
   if ! ps aux | grep -v grep | grep -q vbmcd ; then
-    vbmcd
+    sudo vbmcd
     sleep 5
   fi
 }
