@@ -15,8 +15,8 @@ source /etc/os-release
 
 export Hostname=${Hostname:-"${ipa_instance}.${domain}"}
 export FreeIPAIP=${FreeIPAIP:-"${ipa_prov_ip}"}
-export DirectoryManagerPassword=${DirectoryManagerPassword:-"$IPMI_PASSWORD"}
 export AdminPassword=${AdminPassword:-"$IPMI_PASSWORD"}
+export DirectoryManagerPassword=${DirectoryManagerPassword:-"$AdminPassword"}
 export UndercloudFQDN=${UndercloudFQDN:-"${undercloud_instance}.${domain}"}
 export FreeIPAExtraArgs=${FreeIPAExtraArgs:-""}
 export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"${domain}"}

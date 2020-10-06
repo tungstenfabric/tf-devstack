@@ -1,7 +1,8 @@
 #!/bin/bash -ex
 
 ceph_image_env=''
-if [[ "$backend_storage" == "rbd" ]] ; then
+
+if [[ -n "$overcloud_ceph_instance" ]] ; then
   ceph_image_env+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
   ceph_image_env+=" --set ceph_namespace=${OPENSTACK_CONTAINER_REGISTRY}/rhceph"
   ceph_image_env+=' --set ceph_image=rhceph-3-rhel7'
