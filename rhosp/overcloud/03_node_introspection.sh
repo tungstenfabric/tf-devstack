@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
 cd
-source ~/stackrc
-source ~/rhosp-environment.sh
+source stackrc
+source rhosp-environment.sh
 
 if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
    echo "INFO: skip nodes introspection for pre-deployed nodes"
