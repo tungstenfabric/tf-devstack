@@ -9,6 +9,8 @@ export IPMI_USER=${IPMI_USER:-"ADMIN"}
 export IPMI_PASSWORD=${IPMI_PASSWORD:-"ADMIN"}
 
 export SSH_USER=$(whoami)
+export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
 
 export overcloud_virt_type="qemu"
 export undercloud_local_interface="eth1"
