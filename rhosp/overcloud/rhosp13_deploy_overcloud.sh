@@ -22,7 +22,7 @@ else
 fi
 
 storage_env_files=''
-if [[ "$backend_storage" == "rbd" ]] ; then
+if [[ -n "$overcloud_ceph_instance" ]] ; then
     storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
     storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-mds.yaml'
 fi
