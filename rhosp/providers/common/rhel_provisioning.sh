@@ -2,22 +2,10 @@
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
-export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-'true'}
 
-if [[ $EUID -ne 0 ]]; then
-   echo "This script must be run as root"
-   exit 1
-fi
-
-if [[ -z ${RHEL_USER+x} && -z ${RHEL_PASSWORD+x} && -z ${RHEL_POOL_ID+x} ]]; then
-   echo "Stop. Please define variables RHEL_USER, RHEL_PASSWORD and RHEL_POOL_ID"
-   exit 1
-fi
-
-set +x
-register_opts=''
-[ -n "$RHEL_USER" ] && register_opts+=" --username $RHEL_USER"
-[ -n "$RHEL_PASSWORD" ] && register_opts+=" --password $RHEL_PASSWORD"
+cd
+source rhosp-environment.sh
+source $my_dir/common.sh
 
 attach_opts='--auto'
 if [[ -n "$RHEL_POOL_ID" ]] ; then
@@ -25,28 +13,33 @@ if [[ -n "$RHEL_POOL_ID" ]] ; then
 fi
 
 cd
-getenforce
-cat /etc/selinux/config
+sudo getenforce
+sudo cat /etc/selinux/config
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
+   set +x
+   register_opts=''
+   [ -n "$RHEL_USER" ] && register_opts+=" --username $RHEL_USER"
+   [ -n "$RHEL_PASSWORD" ] && register_opts+=" --password $RHEL_PASSWORD"
+
    for i in {1..10} ; do
-      subscription-manager unregister || true
+      sudo subscription-manager unregister || true
       echo subscription-manager register ... $i
-      subscription-manager register $register_opts && break
+      sudo subscription-manager register $register_opts && break
    done
    for i in {1..10} ; do
       echo subscription-manager attach ... $i
-      subscription-manager attach $attach_opts && break
+      sudo subscription-manager attach $attach_opts && break
    done
    set -x
    for i in {1..10} ; do
       echo subscription-manager clean repos ... $i
-      subscription-manager repos --disable=* && break
+      sudo subscription-manager repos --disable=* && break
    done
    enable_repo_list=''
-   for r in $RHEL_REPOS; do enable_repo_list+=" --enable=${r}"; done
+   for r in $(echo $RHEL_REPOS | tr ',' ' ') ; do enable_repo_list+=" --enable=${r}"; done
    for i in {1..10} ; do
       echo subscription-manager repos $enable_repo_list ... $i
-      subscription-manager repos $enable_repo_list && break
+      sudo subscription-manager repos $enable_repo_list && break
    done
 fi
 
