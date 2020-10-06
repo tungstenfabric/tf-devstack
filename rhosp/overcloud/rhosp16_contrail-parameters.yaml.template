@@ -17,7 +17,7 @@ parameter_defaults:
   ContrailSettings:
     LOG_LEVEL: SYS_DEBUG
     JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
-    DPDK_UIO_DRIVER: ${contrail_dpdk_driver}
+    DPDK_UIO_DRIVER: 'vfio-pci'
     ${vrouter_gateway_parameter}
     # custom port to avoid conflict in aio deploy with openstack
 
