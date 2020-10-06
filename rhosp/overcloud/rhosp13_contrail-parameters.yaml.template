@@ -1,31 +1,3 @@
-parameter_defaults:
-  ContrailRegistryInsecure: true
-  ContrailRegistry: ${undercloud_registry_contrail}
-  ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
-  ControlPlaneDefaultRoute: ${prov_ip}
-  ControlPlaneSubnetCidr: ${prov_subnet_len}
-  EC2MetadataIp: ${prov_ip}
-  DnsServers: ${overcloud_nameservers}
-  NtpServer: 3.europe.pool.ntp.org
-  NovaComputeLibvirtType: ${overcloud_virt_type}
-
-  #Custome Contrail container configuration settings
-  ContrailSettings:
-    LOG_LEVEL: SYS_DEBUG
-    JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
-    DPDK_UIO_DRIVER: ${contrail_dpdk_driver}
-    ${vrouter_gateway_parameter}
-    # custom port to avoid conflict in aio deploy with openstack
-
-
-  # Disable online data migration
-  # It has a race inside that appear as an error:
-  #   /usr/bin/bootstrap_host_exec cinder_api su cinder -s /bin/bash -c 'cinder-manage db online_data_migrations'",
-  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stdout: Running batches of 50 until complete.",
-  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
-  #   n \"log-dir\" from group \"DEFAULT\"."
-  EnableOnlineDataMigrations: false
-
-  CloudName: overcloud.${domain}
-  CloudNameInternal: overcloud.internalapi.${domain}
-  CloudNameCtlplane: overcloud.ctlplane.${domain}
+resource_registry:
+  # to enable root password for debugs via console (if no ssh available)
+  OS::TripleO::NodeUserData: firstboot_userdata.yaml

@@ -6,7 +6,8 @@ my_dir="$(dirname $my_file)"
 cd
 source stackrc
 source rhosp-environment.sh
-
+source $my_dir/../../common/common.sh
+  
 mkdir -p images
 pushd images
 
