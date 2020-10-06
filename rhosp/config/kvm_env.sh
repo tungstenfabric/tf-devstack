@@ -6,11 +6,6 @@
 export DEPLOY_POSTFIX=${DEPLOY_POSTFIX:-20}
 export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
 
-export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
-
-export CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-docker.io/tungstenfabric}"
-export CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG:-latest}"
-
 export BASE_IMAGE=${BASE_IMAGE:-~/rhel_7.7.qcow2}
 
 # SSH public key for user stack
@@ -18,7 +13,7 @@ export SSH_USER=${SSH_USER:-'stack'}
 export ssh_private_key=${ssh_private_key:-~/.ssh/id_rsa}
 export ssh_public_key=${ssh_public_key:-~/.ssh/id_rsa.pub}
 
-export ssh_opts="-i $ssh_private_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
+export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
 export poolname="rdimages_${DEPLOY_POSTFIX}"
 
@@ -47,10 +42,9 @@ export VBMC_PORT_BASE=16000
 # IP, subnets
 export mgmt_subnet="192.168.${DEPLOY_POSTFIX}"
 export mgmt_gateway="${mgmt_subnet}.1"
-export mgmt_ip="${mgmt_subnet}.2"
+export instance_ip="${mgmt_subnet}.2"
 
 export prov_subnet="192.168.${DEPLOY_POSTFIX_INC}"
-export prov_gateway="${prov_subnet}.1"
 export prov_cidr="${prov_subnet}.0/24"
 export prov_subnet_len=24
 export prov_ip="${prov_subnet}.2"
@@ -60,7 +54,6 @@ export prov_dhcp_start=${prov_subnet}.100
 export prov_dhcp_end=${prov_subnet}.149
 
 export fixed_vip="${prov_subnet}.200"
-export fixed_controller_ip="${prov_subnet}.211"
 
 # Undercloud MAC addresses
 export undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"

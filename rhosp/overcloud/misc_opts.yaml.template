@@ -1,3 +1,6 @@
+resource_registry:
+  OS::TripleO::ContrailDpdk::Net::SoftwareConfig: tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml
+
 parameter_defaults:
   ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
   CloudDomain: ${domain}
@@ -24,6 +27,7 @@ ${SSH_PUBLIC_KEY}
   # 5.x
   ContrailDpdkHugepages1GB: 8
   ContrailDpdkHugepages2MB: 2048
+  ContrailDpdkDriver: 'vfio-pci'
   ContrailRedisPort: 6389
   ComputeSchedulerHints:
     'capabilities:node': 'overcloud-novacompute-%index%'
