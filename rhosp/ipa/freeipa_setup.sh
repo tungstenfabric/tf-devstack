@@ -13,11 +13,23 @@ set -eux
 
 source /etc/os-release
 
-export Hostname=${Hostname:-"${ipa_instance}.${domain}"}
-export FreeIPAIP=${FreeIPAIP:-"${ipa_prov_ip}"}
-export DirectoryManagerPassword=${DirectoryManagerPassword:-"$IPMI_PASSWORD"}
-export AdminPassword=${AdminPassword:-"$IPMI_PASSWORD"}
-export UndercloudFQDN=${UndercloudFQDN:-"${undercloud_instance}.${domain}"}
+[ -n "$UndercloudFQDN" ] || {
+    echo "ERROR: UndercloudFQDN env variable must be set"
+    exit 1
+}
+[ -n "$AdminPassword" ] || {
+    echo "ERROR: AdminPassword env variable must be set"
+    exit 1
+}
+[ -n "$FreeIPAIP" ] || {
+    echo "ERROR: FreeIPAIP env variable must be set (provisioning network eth1)"
+    exit 1
+}
+
+fqdn=$(hostname -f)
+domain=$(hostname -d)
+export Hostname=${Hostname:-"${fqdn}"}
+export DirectoryManagerPassword=${DirectoryManagerPassword:-"$AdminPassword"}
 export FreeIPAExtraArgs=${FreeIPAExtraArgs:-""}
 export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"${domain}"}
 
