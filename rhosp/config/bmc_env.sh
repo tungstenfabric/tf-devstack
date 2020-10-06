@@ -1,18 +1,6 @@
 #!/bin/bash
 
-export RHOSP_VERSION=${RHOSP_VERSION:-"rhosp13"}
-
-export CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-docker.io/tungstenfabric}"
-export CONTRAIL_CONTAINER_TAG="${CONTRAIL_CONTAINER_TAG:-latest}"
-
-export IPMI_USER=${IPMI_USER:-"ADMIN"}
-export IPMI_PASSWORD=${IPMI_PASSWORD:-"ADMIN"}
-
-export SSH_USER=$(whoami)
-
 export overcloud_virt_type="kvm"
-export undercloud_local_interface="eth1"
-export local_mtu="1500"
 export domain="lab1.local"
 export undercloud_instance="undercloud"
 export prov_inspection_iprange="192.168.24.51,192.168.24.91"
@@ -24,9 +12,6 @@ export prov_cidr="192.168.24.0/${prov_subnet_len}"
 export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
 export fixed_vip="192.168.24.250"
 
-export contrail_dpdk_driver="vfio-pci"
-export backend_storage="rbd"
-
 # Interfaces for providing tests run (need only if network isolation enabled)
 export internal_vlan="vlan710"
 export internal_interface="eth1"
@@ -37,3 +22,16 @@ export external_vlan="vlan720"
 export external_interface="eth1"
 export external_ip_addr="10.2.0.5"
 export external_net_mask="255.255.255.0"
+
+export tenant_ip_net="10.0.0.0/24"
+
+# TODO: rework after AGENT_NODES, CONTROLLER_NODES be used as an input for rhosp
+export overcloud_cont_instance="1,2,3"
+export overcloud_ctrlcont_instance="1,2,3"
+export overcloud_compute_instance="1"
+export overcloud_dpdk_instance="1"
+export overcloud_sriov_instance="1"
+export overcloud_ceph_instance="1,2,3"
+
+# to allow nova to use hp as well (2 are used by vrouter)
+export vrouter_huge_pages_1g='6'
