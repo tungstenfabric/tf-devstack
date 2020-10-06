@@ -2,6 +2,7 @@
 
 export LIBVIRT_DEFAULT_URI=qemu:///system
 
+
 function build_network_xml() {
   local type="$1"
   local nname="$2"
@@ -66,8 +67,8 @@ EOF
 
 function delete_network() {
   local network_name="$1"
-  virsh net-destroy $network_name 2> /dev/null || true
-  virsh net-undefine $network_name 2> /dev/null || true
+  sudo virsh net-destroy $network_name 2> /dev/null || true
+  sudo virsh net-undefine $network_name 2> /dev/null || true
 }
 
 function create_network() {
@@ -77,29 +78,29 @@ function create_network() {
   delete_network $network_name
 
   local fxml=`build_network_xml $type $network_name`
-  virsh net-define $fxml
+  sudo virsh net-define $fxml
   rm $fxml
-  virsh net-autostart $network_name
-  virsh net-start $network_name
+  sudo virsh net-autostart $network_name
+  sudo virsh net-start $network_name
 }
 
 function delete_network_dhcp() {
   local network_name="$1"
-  virsh net-destroy $network_name 2> /dev/null || true
-  virsh net-undefine $network_name 2> /dev/null || true
+  sudo virsh net-destroy $network_name 2> /dev/null || true
+  sudo virsh net-undefine $network_name 2> /dev/null || true
 }
 
 function create_network_dhcp() {
   local network_name=$1
   local addr=$2
-  local brname=$3
-  local dhcp=${4:-'yes'}
-  local forward=${5:-'nat'}
+  local dhcp=${3:-'yes'}
+  local forward=${4:-'nat'}
+  local brname=$network_name
   local fxml=$(build_network_xml_dhcp $network_name $addr $brname $dhcp $forward)
-  virsh net-define $fxml
+  sudo virsh net-define $fxml
   rm -f $fxml
-  virsh net-autostart $network_name
-  virsh net-start $network_name
+  sudo virsh net-autostart $network_name
+  sudo virsh net-start $network_name
 }
 
 function update_network_dhcp() {
@@ -107,24 +108,28 @@ function update_network_dhcp() {
   local host=$2
   local mac=$3
   local ip=$4
-  virsh net-update $net_name add ip-dhcp-host "<host mac='$mac' name='$host' ip='$ip' />"
+  local net_data=`mktemp`
+  cat <<EOF > $net_data
+<host mac='$mac' name='$host' ip='$ip' />
+EOF
+  sudo virsh net-update $net_name add ip-dhcp-host $net_data
 }
 
 function create_pool() {
   local poolname="$1"
   local path="/var/lib/libvirt/$poolname"
-  if ! virsh pool-info $poolname &> /dev/null ; then
-    virsh pool-define-as $poolname dir - - - - "$path"
-    virsh pool-build $poolname
-    virsh pool-start $poolname
-    virsh pool-autostart $poolname
+  if ! sudo virsh pool-info $poolname &> /dev/null ; then
+    sudo virsh pool-define-as $poolname dir - - - - "$path"
+    sudo virsh pool-build $poolname
+    sudo virsh pool-start $poolname
+    sudo virsh pool-autostart $poolname
   fi
 }
 
 function get_pool_path() {
   local poolname=$1
-  virsh pool-info $poolname &>/dev/null || return
-  virsh pool-dumpxml $poolname | sed -n '/path/{s/.*<path>\(.*\)<\/path>.*/\1/;p}'
+  sudo virsh pool-info $poolname &>/dev/null || return
+  sudo virsh pool-dumpxml $poolname | sed -n '/path/{s/.*<path>\(.*\)<\/path>.*/\1/;p}'
 }
 
 function create_volume() {
@@ -133,7 +138,7 @@ function create_volume() {
   local vm_disk_size=$3
   delete_volume $name.qcow2 $poolname
   local pool_path=$(get_pool_path $poolname)
-  qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
+  sudo qemu-img create -f qcow2 -o preallocation=metadata $pool_path/$name.qcow2 $vm_disk_size 1>/dev/null
   echo $pool_path/$name.qcow2
 }
 
@@ -151,7 +156,7 @@ function create_volume_from() {
   </target>
 </volume>
 EOF
-  virsh vol-create-from --pool $pool --file $vol_file --vol $src_vol --inputpool $src_pool 1>/dev/null
+  sudo virsh vol-create-from --pool $pool --file $vol_file --vol $src_vol --inputpool $src_pool 1>/dev/null
   local pool_path=$(get_pool_path $pool)
   echo $pool_path/$vol
 }
@@ -173,7 +178,7 @@ function create_new_volume() {
   </target>
 </volume>
 EOF
-  virsh vol-create --pool $pool --file $vol_file 1>/dev/null
+  sudo virsh vol-create --pool $pool --file $vol_file 1>/dev/null
   local pool_path=$(get_pool_path $pool)
   echo $pool_path/$vol
 }
@@ -206,7 +211,8 @@ function define_machine() {
     local size=${1:-60} ; shift
     more_disks+=" --disk path=${path},device=disk,cache=writeback,bus=virtio,format=qcow2,size=${size}"
   done
-  virt-install --name $name \
+  sudo rm -f /tmp/oc-$name.xml
+  sudo virt-install --name $name \
     --ram $mem \
     --memorybacking hugepages=on \
     --vcpus $vcpus \
@@ -219,17 +225,17 @@ function define_machine() {
     --noautoconsole \
     --graphics vnc,listen=0.0.0.0 \
     --dry-run --print-xml > /tmp/oc-$name.xml
-  virsh define --file /tmp/oc-$name.xml
+  sudo virsh define --file /tmp/oc-$name.xml
 }
 
 function start_vm() {
   local name=$1
-  virsh start $name --force-boot
+  sudo virsh start $name --force-boot
 }
 
 function ensure_vbmcd(){
   if ! ps aux | grep -v grep | grep -q vbmcd ; then
-    vbmcd
+    sudo vbmcd
     sleep 5
   fi
 }
@@ -239,15 +245,15 @@ function call_vbmc() {
   shift
   local opts="$@"
   ensure_vbmcd
-  vbmc $cmd --no-daemon $opts
+  sudo vbmc $cmd --no-daemon $opts
 }
 
 function delete_domain() {
   local name=$1
-  if virsh dominfo $name 2>/dev/null ; then
-    virsh destroy $name || true
+  if sudo virsh dominfo $name 2>/dev/null ; then
+    sudo virsh destroy $name || true
     sleep 2
-    virsh undefine $name || true
+    sudo virsh undefine $name || true
   fi
   delete_vbmc $name
 }
@@ -257,7 +263,7 @@ function delete_volume() {
   local volname=$1
   local poolname=$2
   local pool_path=$(get_pool_path $poolname)
-  virsh vol-delete $volname --pool $poolname 2>/dev/null || rm -f $pool_path/$volname 2>/dev/null
+  sudo virsh vol-delete $volname --pool $poolname 2>/dev/null || rm -f $pool_path/$volname 2>/dev/null
 }
 
 function image_customize() {
@@ -267,11 +273,11 @@ function image_customize() {
   local hdomain=$4
   local ip=$5
   local fqdn=${hname}.${hdomain}
-  virt-customize -a $image \
+  sudo virt-customize -a $image \
     --run-command 'xfs_growfs /' \
     --run-command 'systemctl enable sshd' \
     --run-command 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config' \
-    --root-password password:${IPMI_PASSWORD} \
+    --root-password password:${ADMIN_PASSWORD} \
     --run-command 'yum remove -y cloud-init' \
     --run-command 'echo net.ipv6.bindv6only=0 > /etc/sysctl.conf' \
     --run-command 'echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf' \
@@ -283,7 +289,7 @@ function image_customize() {
     --run-command "echo $ip  ${fqdn}  ${hname} >> /etc/hosts" \
     --hostname ${fqdn} \
     --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
-    --run-command "echo stack:${IPMI_PASSWORD} | chpasswd" \
+    --run-command "echo stack:${ADMIN_PASSWORD} | chpasswd" \
     --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
     --run-command 'stat /home/stack/.ssh || mkdir /home/stack/.ssh && chown stack:stack /home/stack/.ssh && chmod 700 /home/stack/.ssh' \
     --run-command 'echo -n > /home/stack/.ssh/authorized_keys' \
@@ -294,9 +300,9 @@ function image_customize() {
 
 function assert_env_exists() {
   local name=$1
-  if virsh list --all | grep -q "$name" ; then
+  if sudo virsh list --all | grep -q "$name" ; then
     echo 'ERROR: environment present. please clean up first'
-    virsh list --all | grep "$name"
+    sudo virsh list --all | grep "$name"
     exit 1
   fi
 }
@@ -312,7 +318,7 @@ function wait_dhcp() {
     filter+=".*${host}"
   fi
   while true ; do
-    local ips=( `virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1` )
+    local ips=( `sudo virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1` )
     if (( ${#ips[@]} == count )) ; then
       echo "${ips[@]}"
       break
@@ -327,31 +333,10 @@ function wait_dhcp() {
   done
 }
 
-function wait_ssh() {
-  local addr=$1
-  local ssh_key=${2:-''}
-  local max_iter=${3:-20}
-  local iter=0
-  local ssh_opts='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no'
-  if [[ -n "$ssh_key" ]] ; then
-    ssh_opts+=" -i $ssh_key"
-  fi
-  local tf=$(mktemp)
-  while ! scp $ssh_opts -B $tf ${SSH_USER}@${addr}:/tmp/ ; do
-    if (( iter >= max_iter )) ; then
-      echo "Could not connect to VM $addr"
-      exit 1
-    fi
-    echo "Waiting for VM $addr..."
-    sleep 30
-    ((++iter))
-  done
-}
-
 function get_ip_by_mac() {
   local net=$1
   local filter=$2
-  virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1
+  sudo virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1
 }
 
 function delete_vbmc() {
