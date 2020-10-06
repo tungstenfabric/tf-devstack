@@ -1,11 +1,3 @@
-#!/bin/bash -ex
-
-my_file="$(readlink -e "$0")"
-my_dir="$(dirname $my_file)"
-
-source ~/rhosp-environment.sh
-source "$my_dir/../providers/common/functions.sh"
-
 registries_file="/etc/containers/registries.conf"
 current_registries="$(sed -n '/registries.insecure/{n; s/registries = //p}' "$registries_file" | tr -d '[]')"
 echo "INFO: old registries are $current_registries"
