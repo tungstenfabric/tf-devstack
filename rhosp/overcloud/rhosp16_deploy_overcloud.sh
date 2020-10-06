@@ -30,7 +30,7 @@ pre_deploy_nodes_env_files=''
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" --disable-validations"
   pre_deploy_nodes_env_files+=" --deployed-server"
-  pre_deploy_nodes_env_files+=" --overcloud-ssh-user $SSH_USER"
+  pre_deploy_nodes_env_files+=" --overcloud-ssh-user $SSH_USER_OVERCLOUD"
   pre_deploy_nodes_env_files+=" --overcloud-ssh-key .ssh/id_rsa"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-environment.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"

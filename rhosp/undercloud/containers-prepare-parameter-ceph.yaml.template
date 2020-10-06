@@ -1,0 +1,18 @@
+parameter_defaults:
+  ContainerImagePrepare:
+  - push_destination: true
+    excludes:
+      - ose-prometheus
+      - ceilometer
+    set:
+      name_prefix: openstack-
+      name_suffix: ''
+      namespace: ${OPENSTACK_CONTAINER_REGISTRY}/rhosp-rhel8
+      neutron_driver: null
+      rhel_containers: false
+      tag: '16.1'
+      ceph_image: rhceph-4-rhel8
+      ceph_namespace: registry.redhat.io/rhceph
+      ceph_tag: 4
+    tag_from_label: '{version}'
+  ${rhsm_image_registry_credentials}
