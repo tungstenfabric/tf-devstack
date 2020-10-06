@@ -1,30 +1,45 @@
+resource_registry:
+  OS::TripleO::ContrailDpdk::Net::SoftwareConfig: tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml
+
 parameter_defaults:
-  ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
-  CloudDomain: ${domain}
   GlanceBackend: ${glance_backend_storage}
+  EnableGalera: ${enable_galera}
   RabbitUserName: contrail
   RabbitPassword: contrail
-  ContrailInsecure: true
   AdminPassword: ${IPMI_PASSWORD}
-  ContrailWebuiHttp: 8180
-  ContrailConfigDBMinDiskGB: 4
-  ContrailAnalyticsDBMinDiskGB: 4
-  ContrailAuthVersion: 3
+  NodeRootPassword: ${IPMI_PASSWORD}
   InternalTLSCRLPEMFile: ''
-  EnableGalera: false
+  # Live VM migration via ssh
   MigrationSshKey:
     private_key: |
 ${SSH_PRIVATE_KEY}
     public_key: |
 ${SSH_PUBLIC_KEY}
-  ContrailControlRNDCSecret: sHE1SM8nsySdgsoRxwARtA==
-  ContrailDpdkCoremask: "0x07"
-  # 3.x/4.x
-  ContrailDpdkHugePages: '1000'
-  # 5.x
-  ContrailDpdkHugepages1GB: 8
-  ContrailDpdkHugepages2MB: 2048
-  ContrailRedisPort: 6389
+
+  CloudDomain: ${domain}
+  CloudName: overcloud.${domain}
+  CloudNameInternal: overcloud.internalapi.${domain}
+  CloudNameCtlplane: overcloud.ctlplane.${domain}
+  ControlPlaneDefaultRoute: ${prov_ip}
+  ControlPlaneSubnetCidr: ${prov_subnet_len}
+  ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
+  EC2MetadataIp: ${prov_ip}
+  DnsServers: ${overcloud_nameservers}
+  NtpServer: 3.europe.pool.ntp.org
+  NovaComputeLibvirtType: ${overcloud_virt_type}
+  # Disable online data migration
+  # It has a race inside that appear as an error:
+  #   /usr/bin/bootstrap_host_exec cinder_api su cinder -s /bin/bash -c 'cinder-manage db online_data_migrations'",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stdout: Running batches of 50 until complete.",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
+  #   n \"log-dir\" from group \"DEFAULT\"."
+  EnableOnlineDataMigrations: false
+
+  DockerInsecureRegistryAddress:
+    - ${undercloud_registry}
+    - ${undercloud_instance}.ctlplane.${domain}:8787
+
+  # Baremetal nodes placement scheduling
   ComputeSchedulerHints:
     'capabilities:node': 'overcloud-novacompute-%index%'
   ContrailDpdkSchedulerHints:
@@ -43,3 +58,23 @@ ${SSH_PUBLIC_KEY}
   OvercloudControllerFlavor: baremetal
   OvercloudContrailControllerFlavor: baremetal
   OvercloudCephStorageFlavor: baremetal
+
+  ContrailRegistryInsecure: true
+  ContrailRegistry: ${undercloud_registry_contrail}
+  ContrailImageTag: ${CONTRAIL_CONTAINER_TAG}
+
+  ContrailSettings:
+    LOG_LEVEL: SYS_DEBUG
+    JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
+    DPDK_UIO_DRIVER: 'vfio-pci'
+    ${vrouter_gateway_parameter}
+
+  ContrailConfigDBMinDiskGB: 4
+  ContrailAnalyticsDBMinDiskGB: 4
+  ContrailRedisPort: 6389
+
+  ContrailDpdkHugepages1GB: 8
+  ContrailDpdkHugepages2MB: 2048
+  ContrailDpdkDriver: 'vfio-pci'
+
+  ContrailSriovHugepages1GB: 8
