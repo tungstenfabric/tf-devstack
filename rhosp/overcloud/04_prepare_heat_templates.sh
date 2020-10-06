@@ -4,17 +4,13 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 cd
-source rhosp-environment.sh
 source stackrc
+source rhosp-environment.sh
 
 source "$my_dir/../../common/functions.sh"
 source "$my_dir/../providers/common/functions.sh"
 
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
-export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
-export contrail_dpdk_driver=${contrail_dpdk_driver:-"uio_pci_generic"}
-
-if [[ "$backend_storage" == "rbd" ]] ; then
+if [[ -n "$overcloud_ceph_instance" ]] ; then
    export glance_backend_storage="rbd"
 else
    export glance_backend_storage="file"
@@ -53,33 +49,42 @@ export SSH_PRIVATE_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa`
 export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa.pub`
 
 cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
-if [[ "$PROVIDER" == "bmc" ]]; then
-  cat <<EOF >> misc_opts.yaml
-  ControllerCount: 3
-  ContrailControllerCount: 3
-  ComputeCount: 1
-  ContrailSriovCount: 1
-  ContrailDpdkCount: 1
-  ContrailDpdkDriver: ${contrail_dpdk_driver}
-  node_admin_username: ${SSH_USER}
-  CephStorageCount: 3
+
+function _get_count()
+{
+   if [[ -n "$1" ]] ; then
+      echo $(( $(echo $1 | grep -o ',' | wc -l) + 1))
+   else
+      echo 0
+   fi
+}
+
+cat <<EOF >> misc_opts.yaml
+  ControllerCount: $(_get_count $overcloud_cont_instance)
+  ContrailControllerCount: $(_get_count $overcloud_ctrlcont_instance)
+  ComputeCount: $(_get_count $overcloud_compute_instance)
+  ContrailDpdkCount: $(_get_count $overcloud_dpdk_instance)
+  ContrailSriovCount: $(_get_count $overcloud_sriov_instance)
+  CephStorageCount: $(_get_count $overcloud_ceph_instance)
   CephDefaultPoolSize: 2
   CephPoolDefaultPgNum: 8
   ManilaCephFSDataPoolPGNum: 8
   ManilaCephFSMetadataPoolPGNum: 8
-  ContrailVrouterHugepages1GB: 6
 EOF
-  cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
-      tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
-else
-   if [[ -n "$overcloud_cont_instance" ]] ; then
-      count=$(( $(echo $overcloud_cont_instance | grep -o ',' | wc -l) + 1))
-      echo "  ControllerCount: $count" >> misc_opts.yaml
-   fi
-   if [[ -n "$overcloud_compute_instance" ]] ; then
-      count=$(( $(echo $overcloud_compute_instance | grep -o ',' | wc -l) + 1))
-      echo "  ComputeCount: $count" >> misc_opts.yaml
-   fi
+
+if [[ "$CONTRAIL_CONTAINER_TAG" =~ 'r1912' ]] ; then
+  # Disable kernel vrouter hugepages for 1912 as it is not used there
+  sed -i '/ContrailVrouterHugepages/d' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+  cat <<EOF >> misc_opts.yaml
+  ContrailVrouterHugepages1GB: '0'
+  ContrailVrouterHugepages2MB: '128'
+EOF
+fi
+
+if [ -n "$vrouter_huge_pages_1g" ] ; then
+   # enable hugepages: it is set explicitely on bmc setup as nova needs hugepages
+   # because tf-test use such flavor if dpdk nodes are presented 
+   echo "  ContrailVrouterHugepages1GB: $vrouter_huge_pages_1g" >> misc_opts.yaml
 fi
 
 #Creating file for overcloud rhel registration (rhosp version specific)
@@ -87,6 +92,8 @@ if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
    export RHEL_REG_METHOD="disable"
 else
    export RHEL_REG_METHOD="portal"
+   #Getting orgID
+   export RHEL_ORG_ID=$(sudo subscription-manager identity | grep "org ID" | sed -e 's/^.*: //')
 fi
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 
