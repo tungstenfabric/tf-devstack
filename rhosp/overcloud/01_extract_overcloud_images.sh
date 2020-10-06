@@ -9,10 +9,12 @@ source stackrc
 
 mkdir -p images
 pushd images
-for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar; do
-  tar -xvf $i;
-done
-popd
 
-openstack overcloud image upload --image-path images
+for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/rhosp-director-images/ironic-python-agent-latest.tar; do
+  tar -xvf $i
+done
+
+openstack overcloud image upload --image-path .
 openstack image list
+
+popd
