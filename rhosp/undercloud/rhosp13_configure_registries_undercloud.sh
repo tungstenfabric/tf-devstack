@@ -1,11 +1,3 @@
-#!/bin/bash -e
-
-my_file="$(readlink -e "$0")"
-my_dir="$(dirname $my_file)"
-
-source ~/rhosp-environment.sh
-source "$my_dir/../providers/common/functions.sh"
-
 sudo -E bash -c "CONTAINER_REGISTRY='' CONFIGURE_DOCKER_LIVERESTORE=false ${my_dir}/../../common/create_docker_config.sh"
 insecure_registries=$(cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
 echo "INFO: current insecure_registries=$insecure_registries"
