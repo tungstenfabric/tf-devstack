@@ -17,6 +17,9 @@ done
 # import overcloud configuration
 openstack overcloud node import ~/instackenv.json
 openstack baremetal node list
+for n in $(openstack baremetal node list -c Name -f value | grep ^ceph) ; do
+   openstack baremetal node clean $n --clean-steps [{"interface": "deploy", "step": "erase_devices_metadata"}]
+done
 openstack overcloud node introspect --all-manageable --provide
 
 # TODO check every node
