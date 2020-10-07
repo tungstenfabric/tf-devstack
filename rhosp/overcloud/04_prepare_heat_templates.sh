@@ -13,6 +13,7 @@ source "$my_dir/../providers/common/functions.sh"
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG:-"latest"}
 export contrail_dpdk_driver=${contrail_dpdk_driver:-"uio_pci_generic"}
+export glance_backend_storage=${glance_backend_storage:-"file"}
 
 if [[ -n "$ENABLE_TLS" ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"
@@ -48,13 +49,21 @@ export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa.pu
 
 cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
 if [[ "$PROVIDER" == "bmc" ]]; then
-  echo "  ControllerCount: 3" >> misc_opts.yaml
-  echo "  ContrailControllerCount: 3" >> misc_opts.yaml
-  echo "  ComputeCount: 1" >> misc_opts.yaml
-  echo "  ContrailSriovCount: 1" >> misc_opts.yaml
-  echo "  ContrailDpdkCount: 1" >> misc_opts.yaml
-  echo "  ContrailDpdkDriver: $contrail_dpdk_driver" >> misc_opts.yaml
-  echo "  node_admin_username: ${SSH_USER}" >> misc_opts.yaml
+  cat <<EOF >> misc_opts.yaml
+  ControllerCount: 3
+  ContrailControllerCount: 3
+  ComputeCount: 1
+  ContrailSriovCount: 1
+  ContrailDpdkCount: 1
+  ContrailDpdkDriver: ${contrail_dpdk_driver}
+  node_admin_username: ${SSH_USER}
+  GlanceBackend: ${glance_backend_storage}
+  CephStorageCount: 3
+  CephDefaultPoolSize: 1
+  CephPoolDefaultPgNum: 8
+  ManilaCephFSDataPoolPGNum: 8
+  ManilaCephFSMetadataPoolPGNum: 8
+EOF
   cat tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml > \
       tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config.yaml
 else
