@@ -16,6 +16,18 @@ done
 
 # import overcloud configuration
 openstack overcloud node import ~/instackenv.json
+
+# cleanup metadata only on Ceph nodes
+for n in $(openstack baremetal node list -c Name -f value | grep ^overcloud-ceph) ; do
+   openstack baremetal node clean $n --clean-steps '[{"interface": "deploy", "step": "erase_devices_metadata"}]'
+done
+for t in {1..10} ; do
+   if ! openstack baremetal node list -c 'Provisioning State' -f value | grep -qv 'manageable' ; then
+      break
+   fi
+   sleep 30
+done
+
 openstack baremetal node list
 openstack overcloud node introspect --all-manageable --provide
 

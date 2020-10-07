@@ -69,27 +69,28 @@ unset vbmc_port
 unset mac
 
 node_type=controller
+node_number=0
 for node in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
   vbmc_ip=$(get_vbmc_ip $node)
   vbmc_port=$(get_vbmc_port $node)
   mac=$(get_macs $node)
-  define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+  define_machine "node:overcloud-${node_type}-${node_number},boot_option:local" $mac $vbmc_ip $vbmc_port
 done
 
-node_type=compute
+node_type=novacompute
+node_number=0
 for node in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
   vbmc_ip=$(get_vbmc_ip $node)
   vbmc_port=$(get_vbmc_port $node)
   mac=$(get_macs $node)
-  define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+  define_machine "node:overcloud-${node_type}-${node_number},boot_option:local" $mac $vbmc_ip $vbmc_port
 done
 
 node=$overcloud_ctrlcont_instance
-node_type=contrail-controller
 vbmc_ip=$(get_vbmc_ip $node)
 vbmc_port=$(get_vbmc_port $node)
 mac=$(get_macs $node)
-define_machine "profile:${node_type},boot_option:local" $mac $vbmc_ip $vbmc_port
+define_machine "node:overcloud-contrailcontroller-0,boot_option:local" $mac $vbmc_ip $vbmc_port
 
 # remove last comma
 head -n -1 instackenv.json > instackenv.json.tmp
