@@ -8,6 +8,7 @@ undercloud_hostname = ${undercloud_instance}.${domain}
 discovery_iprange = ${prov_inspection_iprange}
 subnets = ctlplane-subnet
 inspection_interface = br-ctlplane
+clean_nodes = true
 ${nova_join_option}
 ${ipa_otp_option}
 
