@@ -14,5 +14,5 @@ for i in /usr/share/rhosp-director-images/overcloud-full-latest.tar /usr/share/r
 done
 popd
 
-openstack overcloud image upload --image-path images
+openstack overcloud image upload --image-path $HOME/images
 openstack image list

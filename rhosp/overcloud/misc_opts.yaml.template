@@ -1,7 +1,7 @@
 parameter_defaults:
   ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
   CloudDomain: ${domain}
-  GlanceBackend: file
+  GlanceBackend: ${glance_backend_storage}
   RabbitUserName: contrail
   RabbitPassword: contrail
   ContrailInsecure: true
