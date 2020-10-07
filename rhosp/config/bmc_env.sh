@@ -10,7 +10,7 @@ export IPMI_PASSWORD=${IPMI_PASSWORD:-"ADMIN"}
 
 export SSH_USER=$(whoami)
 
-export overcloud_virt_type="qemu"
+export overcloud_virt_type="kvm"
 export undercloud_local_interface="eth1"
 export local_mtu="1500"
 export domain="lab1.local"
@@ -25,6 +25,7 @@ export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
 export fixed_vip="192.168.24.250"
 
 export contrail_dpdk_driver="vfio-pci"
+export glance_backend_storage="rbd"
 
 # Interfaces for providing tests run (need only if network isolation enabled)
 export internal_vlan="vlan710"

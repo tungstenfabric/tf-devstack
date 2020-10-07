@@ -1,6 +1,10 @@
 #!/bin/bash -ex
 openstack overcloud container image prepare \
   --namespace ${OPENSTACK_CONTAINER_REGISTRY}/rhosp13  --prefix=openstack- --tag-from-label {version} \
+  -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml \
+  --set ceph_namespace=${OPENSTACK_CONTAINER_REGISTRY}/rhceph \
+  --set ceph_image=rhceph-3-rhel7 \
+  --set ceph_tag=3 \
   --push-destination ${prov_ip}:8787 \
   --output-env-file ./docker_registry.yaml \
   --output-images-file ./overcloud_containers.yaml \
