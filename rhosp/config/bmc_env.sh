@@ -10,7 +10,7 @@ export IPMI_PASSWORD=${IPMI_PASSWORD:-"ADMIN"}
 
 export SSH_USER=$(whoami)
 
-export overcloud_virt_type="qemu"
+export overcloud_virt_type="kvm"
 export undercloud_local_interface="eth1"
 export local_mtu="1500"
 export domain="lab1.local"
