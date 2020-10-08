@@ -120,6 +120,7 @@ function collect_deployment_log() {
         cat <<EOF | ssh $ssh_opts $SSH_USER@$ip
             export TF_LOG_DIR="/home/$SSH_USER/logs"
             cd /home/$SSH_USER
+            sudo yum install -y lsof
             ./collect_logs.sh create_log_dir
             ./collect_logs.sh collect_docker_logs
             ./collect_logs.sh collect_system_stats
