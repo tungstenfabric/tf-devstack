@@ -65,10 +65,10 @@ export TF_LOG_DIR=/tmp/helm-logs/logs
 export SSL_ENABLE=$SSL_ENABLE
 DISTRO=\$(cat /etc/*release | egrep '^ID=' | awk -F= '{print \$2}' | tr -d \")
 if [ "\$DISTRO" == "centos" ]; then
-    sudo yum install -y lsof jq
+    sudo yum install -y jq
 elif [ "\$DISTRO" == "ubuntu" ]; then
     export DEBIAN_FRONTEND=noninteractive
-    sudo -E apt-get install -y lsof jq
+    sudo -E apt-get install -y jq
 fi
 cd /tmp/helm-logs
 source ./collect_logs.sh
