@@ -134,11 +134,11 @@ function machines() {
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
         sudo yum install -y epel-release
-        sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils lsof
+        sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils lsof
+        sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils
     else
         echo "Unsupported OS version"
         exit 1

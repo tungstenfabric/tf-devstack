@@ -90,7 +90,6 @@ tgz_name=\$1
 export WORKSPACE=/tmp/juju-logs
 export TF_LOG_DIR=/tmp/juju-logs/logs
 export SSL_ENABLE=$SSL_ENABLE
-sudo apt-get install -y lsof
 cd /tmp/juju-logs
 source ./collect_logs.sh
 collect_docker_logs

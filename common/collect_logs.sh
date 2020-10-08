@@ -173,7 +173,8 @@ function collect_contrail_logs() {
 }
 
 function save_introspect_info() {
-    if sudo lsof -i ":$4" &>/dev/null ; then
+    local hex_port=$(printf "%04X" "$4")
+    if grep ":$hex_port" /proc/net/tcp* &>/dev/null; then
         echo "INFO: Collecting contrail logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
         sudo timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
     fi
