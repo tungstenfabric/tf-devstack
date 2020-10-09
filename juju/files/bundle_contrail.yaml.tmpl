@@ -45,6 +45,7 @@ services:
 {%- if DATA_NETWORK %}
       data-network: "{{ DATA_NETWORK }}"
 {%- endif %}
+      config-api-worker-count: 3
     expose: true
     to: {{ controller_nodes }}
   contrail-analyticsdb:
