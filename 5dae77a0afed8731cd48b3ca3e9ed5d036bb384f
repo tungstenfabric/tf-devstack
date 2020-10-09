@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "35fdde2e_881f5fb0",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "move this to keystone v3 condition",
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a80f268_b3e255f0",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "is it global variable?",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 30
+      },
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c427cc1_674a2cec",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "local ...",
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b89904bc_0da44b07",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "why double quotes?",
+      "range": {
+        "startLine": 66,
+        "startChar": 19,
+        "endLine": 66,
+        "endChar": 22
+      },
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f746dd73_6360849b",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "if ! ... ; then return ; fi",
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f1adcc4_ccc88332",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "local ...",
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52228786_1397d1e0",
+        "filename": "juju/functions.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-10-09T09:41:18Z",
+      "side": 1,
+      "message": "exit???",
+      "revId": "5dae77a0afed8731cd48b3ca3e9ed5d036bb384f",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
