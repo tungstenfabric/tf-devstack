@@ -237,10 +237,7 @@ function tf() {
     if [[ $ORCHESTRATOR == 'all' ]] ; then
         command juju add-relation kubernetes-master keystone
         command juju add-relation kubernetes-master contrail-agent
-        command juju config kubernetes-master \
-            authorization-mode="Node,RBAC" \
-            enable-keystone-authorization=true \
-            keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
+        setup_keystone_auth
    fi
 
     # TODO: remove this hack at all!!!
