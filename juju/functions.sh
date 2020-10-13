@@ -21,6 +21,7 @@ function get_juju_unit_ips(){
       done
     fi
   done
+  ips=$(echo "$ips" | sed 's/ /\n/g' | sort | uniq)
   echo $ips
 }
 
@@ -103,5 +104,6 @@ sudo iptables -A FORWARD -p tcp --dport 35357 -j ACCEPT
 EOF
 
   command juju config keystone os-public-hostname=$host_address
+  command juju config keystone os-admin-hostname=$host_address
 }
 
