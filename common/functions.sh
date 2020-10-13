@@ -78,7 +78,7 @@ function wait_cmd_success() {
     i=$((i + 1))
     if (( i > max )) ; then
       echo ""
-      echo "ERROR: wait failed in $((i*10))s"
+      echo "ERROR: wait failed in $((i*interval))s"
       eval "$cmd"
       eval "$state"
       return 1
@@ -86,7 +86,7 @@ function wait_cmd_success() {
     sleep $interval
   done
   echo ""
-  echo "INFO: done in $((i*10))s"
+  echo "INFO: done in $((i*interval))s"
   eval "$state"
 }
 
