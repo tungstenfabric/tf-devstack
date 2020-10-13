@@ -36,14 +36,16 @@ function collect_stack_details() {
         local name
         openstack stack resource list --filter status=FAILED -n 10 -f json overcloud | jq -r -c ".[].resource_name" | while read name ; do
             echo "ERROR: $name" >> ./stack_failed_resources.log
-            openstack stack resource show -f value overcloud $name | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_resources.log
+            openstack stack resource show -f shell overcloud $name | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_resources.log
+            echo -e "\n\n" >> ./stack_failed_resources.log
         done
 
         echo "INFO: collect failed deployments"
         rm -f ${log_dir}/stack_failed_deployments.log
         local id
-        openstack software deployment list --format json | jq ".[] | select(.status != \"COMPLETE\") | .id" | while read id ; do
-            openstack software deployment show --format value $id | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_deployments.log
+        openstack software deployment list --format json | jq -r -c ".[] | select(.status != \"COMPLETE\") | .id" | while read id ; do
+            openstack software deployment show --format shell $id | sed 's/\\n/\n/g' >> ${log_dir}/stack_failed_deployments.log
+            echo -e "\n\n" >> ./stack_failed_deployments.log
         done
     fi
 }
