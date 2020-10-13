@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 fmy_file="${BASH_SOURCE[0]}"
 fmy_dir="$(dirname $fmy_file)"
@@ -131,6 +131,8 @@ function label_nodes_by_ip() {
 }
 
 function check_pods_active() {
+  echo "function check_pods_active was started for printenv"
+  printenv
   declare -a pods
   readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
 
@@ -157,6 +159,8 @@ function check_pods_active() {
 }
 
 function check_tf_active() {
+  echo "function check_tf_active was started for printenv"
+  printenv
   if ! command -v contrail-status ; then
     return 1
   fi
