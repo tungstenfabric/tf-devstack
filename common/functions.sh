@@ -157,14 +157,17 @@ function check_pods_active() {
 }
 
 function check_tf_active() {
-  if ! command -v contrail-status ; then
-    return 1
-  fi
+  local machine
   local line=
-  for line in $(sudo contrail-status | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
-    if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
+  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+    if ! ssh $SSH_OPTIONS $machine "command -v contrail-status" 2>/dev/null ; then
       return 1
     fi
+    for line in $(ssh $SSH_OPTIONS $machine "sudo contrail-status" 2>/dev/null | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
+      if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
+        return 1
+      fi
+    done
   done
   return 0
 }
