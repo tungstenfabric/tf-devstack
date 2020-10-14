@@ -121,15 +121,15 @@ function old_k8s_fetch_deployer() {
 
 function manifest() {
     fetch_deployer $deployer_image $deployer_dir || old_k8s_fetch_deployer
-    export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
-    export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
-    export HOST_IP=$NODE_IP
-    export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
-    export LINUX_DISTR=$DISTRO
-    export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    export CONTROLLER_NODES=${CONTROLLER_NODES// /,}
-    export AGENT_NODES=${AGENT_NODES// /,}
-    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    CONTRAIL_REGISTRY=$CONTAINER_REGISTRY \
+    CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG \
+    HOST_IP=$NODE_IP \
+    JVM_EXTRA_OPTS="-Xms1g -Xmx2g" \
+    LINUX_DISTR=$DISTRO \
+    KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
+    CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
+    AGENT_NODES=${AGENT_NODES// /,} \
+    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST $AGENT_NODES $CONTROLLER_NODES > $WORKSPACE/contrail.yaml
 }
 
 function tf() {
