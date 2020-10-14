@@ -135,9 +135,9 @@ function manifest() {
     export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
     export LINUX_DISTR=$DISTRO
     export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    export CONTROLLER_NODES=${CONTROLLER_NODES// /,}
-    export AGENT_NODES=${AGENT_NODES// /,}
-    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    CONTROLLER_NODES=${CONTROLLER_NODES// /,}
+    AGENT_NODES=${AGENT_NODES// /,}
+    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST $AGENT_NODES $CONTROLLER_NODES > $WORKSPACE/contrail.yaml
 }
 
 function tf() {
