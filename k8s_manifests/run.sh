@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
@@ -38,10 +38,14 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 declare -A DEPLOYMENT_ENV
 
 function build() {
+    echo "function build was started for printenv"
+    printenv
     "$my_dir/../common/dev_env.sh"
 }
 
 function logs() {
+    echo "function logs was started for printenv"
+    printenv
     local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
     set +e
     create_log_dir
@@ -96,6 +100,8 @@ EOF
 }
 
 function k8s() {
+    echo "function k8s was started for printenv"
+    printenv
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
@@ -120,19 +126,23 @@ function old_k8s_fetch_deployer() {
 }
 
 function manifest() {
+    echo "function manifest was started for printenv"
+    printenv
     fetch_deployer $deployer_image $deployer_dir || old_k8s_fetch_deployer
-    export CONTRAIL_REGISTRY=$CONTAINER_REGISTRY
-    export CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG
-    export HOST_IP=$NODE_IP
-    export JVM_EXTRA_OPTS="-Xms1g -Xmx2g"
-    export LINUX_DISTR=$DISTRO
-    export KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}"
-    export CONTROLLER_NODES=${CONTROLLER_NODES// /,}
-    export AGENT_NODES=${AGENT_NODES// /,}
-    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    CONTRAIL_REGISTRY=$CONTAINER_REGISTRY \
+    CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG \
+    HOST_IP=$NODE_IP \
+    JVM_EXTRA_OPTS="-Xms1g -Xmx2g" \
+    LINUX_DISTR=$DISTRO \
+    KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
+    CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
+    AGENT_NODES=${AGENT_NODES// /,} \
+    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST $AGENT_NODES $CONTROLLER_NODES > $WORKSPACE/contrail.yaml
 }
 
 function tf() {
+    echo "function tf was started for printenv"
+    printenv
     ensure_kube_api_ready
 
     # label nodes
@@ -153,7 +163,9 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_pods_active && check_tf_active
+    echo "function is_active was started for printenv"
+    printenv
+    check_tf_active && check_pods_active
 }
 
 function collect_deployment_env() {
