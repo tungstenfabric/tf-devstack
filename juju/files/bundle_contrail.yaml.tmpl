@@ -139,7 +139,6 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
     options:
       log-level: 'SYS_DEBUG'
-      service_subnets: '10.96.0.0/12'
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
