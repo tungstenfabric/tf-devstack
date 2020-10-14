@@ -28,7 +28,7 @@ function get_juju_unit_ips(){
 function create_stackrc() {
   local auth_ip=$(command juju config keystone vip)
   if [[ -z "$auth_ip" ]]; then
-    auth_ip=$(command juju status $service --format tabular | grep "$keystone/" | head -1 | awk '{print $5}')
+    auth_ip=$(command juju status $service --format tabular | grep "keystone/" | head -1 | awk '{print $5}')
   fi
   local proto="http"
   # TODO: add detection is SSL for openstack enabled 
