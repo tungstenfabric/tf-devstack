@@ -82,7 +82,7 @@ contrail_configuration:
 {%- else %}
   CLOUD_ORCHESTRATOR: kubernetes
 {%- endif %}
-  SSL_ENABLE: "{{ SSL_ENABLE }}"
+  SSL_ENABLE: "true"
   RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
   CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
 
