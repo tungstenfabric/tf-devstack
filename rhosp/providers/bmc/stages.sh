@@ -1,6 +1,11 @@
 #Stages for bmc deployment (it's part of run.sh)
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
+function provisioning() {
+  :
+  # TO BE IMPL next steps
+}
+
 function machines() {
     cd $my_dir
     sudo -E $my_dir/undercloud/00_provision.sh
