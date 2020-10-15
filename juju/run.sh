@@ -154,10 +154,10 @@ function machines() {
         # in case k8s is deploying before lxd container creating,
         # lxd have wrong parent in config and can't get IP address
         # to prevent it we starts lxd before
-        command juju deploy ubuntu --to lxd:0 || true
+        command juju deploy ubuntu --to lxd:0
     fi
 
-    sudo apt-get update -u && sudo apt-get install -y jq dnsutils
+     retry 'sudo apt-get update -u && sudo apt-get install -y jq dnsutils'
 }
 
 function openstack() {
@@ -263,12 +263,11 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
     local status=`$(which juju) status`
-    if [[ $status =~ "error" ]]; then
-        echo "ERROR: Deployment has failed because juju state is error"
-        echo "$status"
-        exit 1
+    if [[ $(echo "$status" | grep -E 'executing|blocked|waiting') ]] ; then
+        # continue waiting
+        return 1
     fi
-    [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    return 0
 }
 
 function collect_deployment_env() {

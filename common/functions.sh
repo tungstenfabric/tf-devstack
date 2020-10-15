@@ -195,3 +195,16 @@ function setup_timeserver() {
     return 1
   fi
 }
+
+function retry() {
+  local i
+  for ((i=0; i<5; ++i)) ; do
+    if $@ ; then
+      break
+    fi
+    sleep 5
+  done
+  if [[ $i == 5 ]]; then
+    return 1
+  fi
+}
