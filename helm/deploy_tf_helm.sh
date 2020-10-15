@@ -108,7 +108,18 @@ elif [[ $ORCHESTRATOR == "openstack" ]] ; then
     --set images.tags.tf_compute_init=$CONTAINER_REGISTRY/contrail-openstack-compute-init:${CONTRAIL_CONTAINER_TAG}
 fi
 
-wait_nic_up vhost0
+# multinodes "wait_nic_up vhost0"
+IFS=', ' read -r -a array_controller_nodes <<< "$CONTROLLER_NODES"
+IFS=', ' read -r -a array_agent_nodes <<< "$AGENT_NODES"
+devstack_dir="$(basename $(dirname $my_dir))"
+for machine in "${array_controller_nodes[@]}" ; do
+  for node in "${array_agent_nodes[@]}" ; do
+    if [[ "$machine" == "$node" ]]; then
+      ssh $SSH_OPTIONS $machine "source /tmp/${devstack_dir}/common/functions.sh ; wait_nic_up vhost0"
+    fi
+  done
+done
+
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 
 trap - ERR
