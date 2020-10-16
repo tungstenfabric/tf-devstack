@@ -94,8 +94,6 @@ else
   host_var=""
 fi
 
-sudo mkdir -p /var/log/contrail
-
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
@@ -108,7 +106,18 @@ elif [[ $ORCHESTRATOR == "openstack" ]] ; then
     --set images.tags.tf_compute_init=$CONTAINER_REGISTRY/contrail-openstack-compute-init:${CONTRAIL_CONTAINER_TAG}
 fi
 
-wait_nic_up vhost0
+# multinodes "wait_nic_up vhost0"
+devstack_dir="$(basename $(dirname $my_dir))"
+for machine in $CONTROLLER_NODES ; do
+  if echo $AGENT_NODES | grep -q $machine ; then
+    if ! ip a | grep -q "$machine"; then
+      ssh $SSH_OPTIONS $machine "source /tmp/${devstack_dir}/common/functions.sh ; wait_nic_up vhost0"
+    else
+      wait_nic_up vhost0
+    fi
+  fi
+done
+
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 
 trap - ERR
