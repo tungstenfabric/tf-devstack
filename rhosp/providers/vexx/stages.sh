@@ -4,6 +4,9 @@ export CONFIGURE_DOCKER_LIVERESTORE='false'
 
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
+#tmp: remove at next step
+source $my_dir/providers/kvm/virsh_functions
+
 function provisioning() {
     if [[ "${USE_PREDEPLOYED_NODES,,}" != true ]]; then
         echo "ERROR: unsupported configuration for vexx: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
