@@ -54,7 +54,7 @@ function create_stackrc() {
 }
 
 function get_keystone_address() {
-  local keystone_addresses=$(ssh_juju_controller "juju config --model $juju_model_id keystone vip")
+  local keystone_addresses=$(command juju config keystone vip")
   if [[ -z $keystone_addresses ]] ; then
     keystone_addresses=$(command juju status --format json | jq '.applications["keystone"]["units"][]["public-address"]' | sed 's/"//g' | sed 's/\n//g')
   fi
