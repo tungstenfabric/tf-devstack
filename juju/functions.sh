@@ -54,7 +54,7 @@ function create_stackrc() {
 }
 
 function get_keystone_address() {
-  local keystone_addresses=$(command juju config keystone vip")
+  local keystone_addresses=$(command juju config keystone vip)
   if [[ -z $keystone_addresses ]] ; then
     keystone_addresses=$(command juju status --format json | jq '.applications["keystone"]["units"][]["public-address"]' | sed 's/"//g' | sed 's/\n//g')
   fi
@@ -106,4 +106,3 @@ EOF
   command juju config keystone os-public-hostname=$host_address
   command juju config keystone os-admin-hostname=$host_address
 }
-
