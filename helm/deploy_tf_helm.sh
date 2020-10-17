@@ -111,7 +111,7 @@ devstack_dir="$(basename $(dirname $my_dir))"
 for machine in $CONTROLLER_NODES ; do
   if echo $AGENT_NODES | grep -q $machine ; then
     if ! ip a | grep -q "$machine"; then
-      ssh $SSH_OPTIONS $machine "source /tmp/${devstack_dir}/common/functions.sh ; wait_nic_up vhost0"
+      ssh $SSH_OPTIONS $machine 'PATH=$PATH:/usr/sbin ; source /tmp/'"$devstack_dir"'/common/functions.sh ; wait_nic_up vhost0'
     else
       wait_nic_up vhost0
     fi
