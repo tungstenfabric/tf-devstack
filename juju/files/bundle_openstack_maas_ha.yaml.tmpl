@@ -63,7 +63,7 @@ services:
     charm: cs:ceph-osd
     num_units: 3
     options:
-      osd-devices: /var/lib/ceph/storage
+      osd-devices: /dev/sdb
     to:
       - "0"
       - "1"
