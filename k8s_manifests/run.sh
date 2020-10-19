@@ -128,6 +128,8 @@ function manifest() {
     LINUX_DISTR=$DISTRO \
     CLOUD_ORCHESTRATOR=kubernetes \
     KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
+    KUBERNETES_IP_FABRIC_SNAT='true' \
+    KUBERNETES_IP_FABRIC_FORWARDING='false' \
     CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
     AGENT_NODES=${AGENT_NODES// /,} \
     $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
