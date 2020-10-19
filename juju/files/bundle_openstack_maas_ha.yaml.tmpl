@@ -190,7 +190,7 @@ services:
 
   swift-proxy:
     charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
-    num-units: 1
+    num_units: 1
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -202,7 +202,7 @@ services:
       - "lxd:0"
   swift-storage-zone1:
     charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num-units: 1
+    num_units: 1
     options:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       zone: 1
@@ -212,7 +212,7 @@ services:
       - "0"
   swift-storage-zone2:
     charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num-units: 1
+    num_units: 1
     options:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       zone: 2
@@ -222,7 +222,7 @@ services:
       - "1"
   swift-storage-zone3:
     charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num-units: 1
+    num_units: 1
     options:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       zone: 3
