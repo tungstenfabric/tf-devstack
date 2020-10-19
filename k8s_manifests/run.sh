@@ -126,6 +126,7 @@ function manifest() {
     HOST_IP=$NODE_IP \
     JVM_EXTRA_OPTS="-Xms1g -Xmx2g" \
     LINUX_DISTR=$DISTRO \
+    CLOUD_ORCHESTRATOR=kubernetes \
     KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
     CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
     AGENT_NODES=${AGENT_NODES// /,} \
