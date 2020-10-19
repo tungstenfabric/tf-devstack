@@ -50,6 +50,24 @@ services:
       - "lxd:0"
       - "lxd:1"
       - "lxd:2"
+  ceph-mon:
+    charm: cs:ceph-mon
+    num_units: 3
+    options:
+      expected-osd-count: 3
+    to:
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
+  ceph-osd:
+    charm: cs:ceph-osd
+    num_units: 3
+    options:
+      osd-devices: /dev/sdb
+    to:
+      - "0"
+      - "1"
+      - "2"
   keystone:
     charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 3
@@ -188,49 +206,6 @@ services:
     to:
       - "lxd:2"
 
-  swift-proxy:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
-    num_units: 1
-    options:
-      debug: "true"
-      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
-      operator-roles: Member admin
-      zone-assignment: manual
-      replicas: 3
-    expose: true
-    to:
-      - "lxd:0"
-  swift-storage-zone1:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num_units: 1
-    options:
-      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
-      zone: 1
-      block-device: /dev/sdb
-      overwrite: "true"
-    to:
-      - "0"
-  swift-storage-zone2:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num_units: 1
-    options:
-      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
-      zone: 2
-      block-device: /dev/sdb
-      overwrite: "true"
-    to:
-      - "1"
-  swift-storage-zone3:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num_units: 1
-    options:
-      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
-      zone: 3
-      block-device: /dev/sdb
-      overwrite: "true"
-    to:
-      - "2"
-
   # misc
 
   ubuntu:
@@ -283,12 +258,7 @@ relations:
 - [ glance, hacluster-glance ]
 - [ neutron-api, hacluster-neutron ]
 - [ nova-cloud-controller, hacluster-nova ]
+- [ glance, ceph-mon ]
 - [ nova-cloud-controller, memcached ]
+- [ ceph-osd, ceph-mon ]
 - [ nova-cloud-controller:memcache, memcached:cache ]
-
-- [ glance, swift-proxy ]
-- [ swift-proxy:identity-service, keystone:identity-service ]
-- [ swift-proxy:amqp, rabbitmq-server:amqp ]
-- [ swift-proxy:swift-storage, swift-storage-zone1:swift-storage ]
-- [ swift-proxy:swift-storage, swift-storage-zone2:swift-storage ]
-- [ swift-proxy:swift-storage, swift-storage-zone3:swift-storage ]
