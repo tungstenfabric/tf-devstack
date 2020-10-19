@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e338f00a_3cfbdba7",
+        "filename": "rhosp/overcloud/03_node_introspection.sh",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-10-19T20:13:38Z",
+      "side": 1,
+      "message": "why not to use --wait in previous openstack baremetal node clean command?\nin that case we dont need to have own wait..",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 4
+      },
+      "revId": "1a0f09e7daf550e844ef70e8dad7c6fa90d293c8",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
