@@ -127,6 +127,7 @@ function manifest() {
     JVM_EXTRA_OPTS="-Xms1g -Xmx2g" \
     LINUX_DISTR=$DISTRO \
     KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
+    KUBERNETES_IP_FABRIC_FORWARDING='false' \
     CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
     AGENT_NODES=${AGENT_NODES// /,} \
     $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
