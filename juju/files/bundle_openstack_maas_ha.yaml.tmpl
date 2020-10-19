@@ -222,7 +222,7 @@ services:
       - "1"
   swift-storage-zone3:
     charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
-    num-units: 3
+    num-units: 1
     options:
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       zone: 3
@@ -283,10 +283,10 @@ relations:
 - [ glance, hacluster-glance ]
 - [ neutron-api, hacluster-neutron ]
 - [ nova-cloud-controller, hacluster-nova ]
-- [ glance, swift-proxy ]
 - [ nova-cloud-controller, memcached ]
 - [ nova-cloud-controller:memcache, memcached:cache ]
 
+- [ glance, swift-proxy ]
 - [ swift-proxy:identity-service, keystone:identity-service ]
 - [ swift-proxy:amqp, rabbitmq-server:amqp ]
 - [ swift-proxy:swift-storage, swift-storage-zone1:swift-storage ]
