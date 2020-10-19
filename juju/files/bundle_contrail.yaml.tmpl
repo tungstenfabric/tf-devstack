@@ -144,11 +144,7 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       cluster_name: "k8s"
       public_fip_pool: "{'domain':'default-domain','project':'k8s-default','name':'__fip_pool_public__','network':'__public__'}"
-{%- if ORCHESTRATOR != 'all' %}
-      ip_fabric_forwarding: true
-{%- else %}
       ip_fabric_snat: true
-{%- endif %}
   contrail-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
