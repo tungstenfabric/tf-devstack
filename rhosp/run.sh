@@ -125,6 +125,8 @@ function prepare_rhosp_env_file() {
 
 #TODO move inside stage to allow overwrite values by dev-env
 prepare_rhosp_env_file
-
+if [[ $STAGE == 'provisioning' ]] ; then
+  $my_dir/create_env.sh
+fi
 
 run_stages $STAGE
