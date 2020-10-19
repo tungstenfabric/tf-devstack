@@ -87,7 +87,7 @@ fi
 if [[ $CLOUD == 'aws' ]]; then
     juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
 elif [[ $CLOUD == 'maas' ]]; then
-    juju bootstrap --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
+    juju bootstrap --config juju-mgmt-space=default --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
     SWITCH_OPT=''
     juju model-config default-space=default
 elif [[ $CLOUD == 'manual' ]]; then
