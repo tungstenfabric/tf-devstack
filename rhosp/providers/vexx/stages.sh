@@ -4,6 +4,9 @@ export CONFIGURE_DOCKER_LIVERESTORE='false'
 
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
+#tmp: remove at next step
+source $my_dir/providers/kvm/virsh_functions
+
 function provisioning() {
     if [[ "${USE_PREDEPLOYED_NODES,,}" != true ]]; then
         echo "ERROR: unsupported configuration for vexx: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
@@ -11,6 +14,8 @@ function provisioning() {
     fi
     cd $my_dir/providers/vexx
     ./create_env.sh
+    source ${vexxrc:-"${workspace}/vexxrc"}
+    ssh_private_key=${ssh_private_key:-"~/.ssh/workers"}
     wait_ssh ${mgmt_ip} ${ssh_private_key}
     if [[ -n "$ENABLE_TLS" ]] ; then
         wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}

@@ -337,7 +337,7 @@ function wait_ssh() {
     ssh_opts+=" -i $ssh_key"
   fi
   local tf=$(mktemp)
-  while ! scp $ssh_opts -B $tf root@${addr}:/tmp/ ; do
+  while ! scp $ssh_opts -B $tf ${SSH_USER}@${addr}:/tmp/ ; do
     if (( iter >= max_iter )) ; then
       echo "Could not connect to VM $addr"
       exit 1
