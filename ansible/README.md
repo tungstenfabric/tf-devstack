@@ -17,7 +17,7 @@ Minimal:
 OS:
 
 - Centos 7
-- Ubuntu 16.04
+- Ubuntu 18.04, 20.04
 
 NOTE: Windows and MacOS deployments are not supported, please use VM (like VirtualBox) with Linux to run tf-devstack on such machines.
 
@@ -123,7 +123,7 @@ Then use the IP:Port/login/password displayed at the end of the output produced 
 
 - When the system is installed, after running cleanup.sh, repeated run.sh leads to an error
 - For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
-- Deployment scripts are tested on CentOS 7 / Ubuntu 16.04 and AWS / Virtualbox
+- Deployment scripts are tested on CentOS 7 / Ubuntu 18.04 and AWS / Virtualbox
 - Occasional errors prevent deployment of Kubernetes on a VirtualBox machine, retry can help
 - One or more of Tungsten Fabric containers are in "Restarting" status after installation,
 try waiting 2-3 minutes or reboot the instance
