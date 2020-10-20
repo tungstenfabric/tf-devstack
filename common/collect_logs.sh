@@ -195,6 +195,7 @@ function collect_system_stats() {
     ip addr &>$syslogs/ip_addr.log
     ip link &>$syslogs/ip_link.log
     ip route &>$syslogs/ip_route.log
+    cat /proc/meminfo &>$syslogs/proc_meminfo
     cat /etc/hosts &>$syslogs/etc_hosts
     cat /etc/resolv.conf &>$syslogs/etc_resolv.conf
     ls -la /etc/ &>$syslogs/ls_etc.log
