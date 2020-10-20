@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "208b2784_6ed1aa9d",
+        "filename": "rhosp/providers/kvm/02_collecting_node_information.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-10-20T20:51:39Z",
+      "side": 1,
+      "message": "please change to ((++node_number))\notherwise it fails in case of -e set\n(reason comes from c++ lang where prefix ++ and postfix ++ operation diff: postfix - save value to return  and then increment, prefix - increment and than return updated value)",
+      "range": {
+        "startLine": 78,
+        "startChar": 2,
+        "endLine": 78,
+        "endChar": 19
+      },
+      "revId": "027e4d08590733cf1c65a6338edf90d80de7fa44",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
