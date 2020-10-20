@@ -85,6 +85,9 @@ contrail_configuration:
   SSL_ENABLE: "{{ SSL_ENABLE }}"
   RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
   CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
+{%- if APPLY_DEFAULTS is defined and APPLY_DEFAULTS|length  %}
+  APPLY_DEFAULTS: "{{ APPLY_DEFAULTS }}"
+{%- endif %}
 
 {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
   KUBERNETES_PUBLIC_FIP_POOL:
