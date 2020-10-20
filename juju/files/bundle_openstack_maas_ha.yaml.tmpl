@@ -1,11 +1,16 @@
 {% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
 
-heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[0] }}"
-glance-vip:          &glance-vip          "{{ VIRTUAL_IPS[1] }}"
-keystone-vip:        &keystone-vip        "{{ VIRTUAL_IPS[2] }}"
-mysql-vip:           &mysql-vip           "{{ VIRTUAL_IPS[3] }}"
-neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[4] }}"
-nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
+series: {{ UBUNTU_SERIES }}
+variables:
+  heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[0] }}"
+  glance-vip:          &glance-vip          "{{ VIRTUAL_IPS[1] }}"
+  keystone-vip:        &keystone-vip        "{{ VIRTUAL_IPS[2] }}"
+  mysql-vip:           &mysql-vip           "{{ VIRTUAL_IPS[3] }}"
+  neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[4] }}"
+  nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
+
+  default-space:       &default-space       default
+  data-space:          &data-space          data
 
 machines:
   "0":
@@ -41,6 +46,8 @@ services:
   glance:
     charm: "cs:{{ UBUNTU_SERIES }}/glance"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *glance-vip
       debug: "true"
@@ -53,6 +60,8 @@ services:
   ceph-mon:
     charm: cs:ceph-mon
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       expected-osd-count: 3
     to:
@@ -71,6 +80,8 @@ services:
   keystone:
     charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *keystone-vip
       admin-password: "{{ AUTH_PASSWORD }}"
@@ -86,6 +97,8 @@ services:
   mysql:
     charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *mysql-vip
       min-cluster-size: 3
@@ -98,6 +111,8 @@ services:
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       min-cluster-size: 3
     to:
@@ -107,6 +122,8 @@ services:
   neutron-api:
     charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *neutron-api-vip
       debug: "true"
@@ -121,6 +138,8 @@ services:
   heat:
     charm: "cs:heat"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *heat-vip
       debug: "true"
@@ -133,6 +152,8 @@ services:
   nova-cloud-controller:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       vip: *nova-cc-vip
       network-manager: "Neutron"
@@ -147,6 +168,8 @@ services:
   memcached:
     charm: "cs:{{ UBUNTU_SERIES }}/memcached"
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       allow-ufw-ip6-softfail: "True"
     to:
@@ -158,6 +181,8 @@ services:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
+    bindings:
+      "": *default-space
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -171,6 +196,8 @@ services:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
+    bindings:
+      "": *default-space
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -185,6 +212,8 @@ services:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 2
+    bindings:
+      "": *default-space
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -199,6 +228,8 @@ services:
   openstack-dashboard:
     charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
+    bindings:
+      "": *default-space
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
