@@ -85,13 +85,13 @@ if [[ $CLOUD == 'manual' ]] ; then
 fi
 # bootstrap JuJu-controller
 if [[ $CLOUD == 'aws' ]]; then
-    juju bootstrap --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
+    juju bootstrap --config update-status-hook-interval=1440m --no-switch --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=31G cores=8 root-disk=120G" $CLOUD tf-$CLOUD-controller
 elif [[ $CLOUD == 'maas' ]]; then
-    juju bootstrap --config juju-mgmt-space=default --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
+    juju bootstrap --config juju-mgmt-space=default --config update-status-hook-interval=1440m --bootstrap-series=$UBUNTU_SERIES --bootstrap-constraints "mem=4G cores=2 root-disk=40G" $CLOUD tf-$CLOUD-controller
     SWITCH_OPT=''
     juju model-config default-space=default
 elif [[ $CLOUD == 'manual' ]]; then
-    juju bootstrap $SWITCH_OPT --config container-networking-method=fan --config fan-config=$NODE_CIDR=252.0.0.0/8 --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
+    juju bootstrap $SWITCH_OPT --config container-networking-method=fan --config fan-config=$NODE_CIDR=252.0.0.0/8 --config update-status-hook-interval=1440m --bootstrap-series=$UBUNTU_SERIES manual/ubuntu@$NODE_IP tf-$CLOUD-controller
 else
     echo "ERROR: unknown type of cloud: $CLOUD"
     exit 1
