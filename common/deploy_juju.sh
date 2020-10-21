@@ -69,6 +69,18 @@ EOF
     juju add-cloud --local maas -f $cloud_file
     juju add-credential --client maas -f $creds_file
     rm -f "$cloud_file $creds_file"
+
+    # for some reasons MAAS sends manage_etc_hosts as True to cloud-init
+    # and cloud-init adds strange item '127.0.1.1 hostname fqdn' to /etc/hosts
+    # this items looks useless and config-api can't talk to keystone due to this.
+    # change cloud-init settings is available via 'maas deploy' but we use juju
+    # to deploy machines and I didn't found a way how to pass cloud-init data
+    # via juju's bundle.
+    # therefore - using hacking method.
+    sudo cp -R /snap/maas/current/lib/python3.6/site-packages/maasserver /tmp
+    sudo sed -i 's/"manage_etc_hosts": True/"manage_etc_hosts": False/' /tmp/maasserver/compose_preseed.py
+    sudo mount --bind -o nodev,ro /tmp/maasserver /snap/maas/current/lib/python3.6/site-packages/maasserver
+    sudo systemctl restart snap.maas.supervisor.service
 fi
 
 # prepare ssh key authorization for running bootstrap on the same node
