@@ -47,6 +47,7 @@ services:
 {%- endif %}
     expose: true
     to: {{ controller_nodes }}
+{%- if (ANALYTICSDB_ENABLE | lower) == 'true' %}
   contrail-analyticsdb:
     charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
     series: "{{ UBUNTU_SERIES }}"
@@ -68,6 +69,7 @@ services:
       min-cluster-size: {{ controller_nodes | count }}
     expose: true
     to: {{ controller_nodes }}
+{%- endif %}
   contrail-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
@@ -181,8 +183,10 @@ services:
 relations:
 # contrail
 - [ contrail-controller, contrail-analytics ]
+{%- if (ANALYTICSDB_ENABLE | lower) == 'true' %}
 - [ contrail-controller, contrail-analyticsdb ]
 - [ contrail-analytics, contrail-analyticsdb ]
+{%- endif %}
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
 - [ contrail-agent-dpdk, contrail-controller ]
 - [ contrail-agent-sriov, contrail-controller ]
@@ -192,8 +196,10 @@ relations:
 
 {%- if SSL_ENABLE == 'true' %}
 - [ easyrsa, contrail-controller ]
-- [ easyrsa, contrail-analyticsdb ]
 - [ easyrsa, contrail-analytics ]
+{%- if (ANALYTICSDB_ENABLE | lower) == 'true' %}
+- [ easyrsa, contrail-analyticsdb ]
+{%- endif %}
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
 - [ easyrsa, contrail-agent-dpdk ]
 - [ easyrsa, contrail-agent-sriov ]
