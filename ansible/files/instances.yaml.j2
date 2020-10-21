@@ -20,9 +20,11 @@ instances:
     provider: bms
     roles:
       analytics:
+{%- if (LEGACY_ANALYTICS_ENABLE | lower) == 'true' %}
       analytics_snmp:
       analytics_alarm:
       analytics_database:
+{%- endif %}
       config:
       config_database:
       control:
@@ -85,6 +87,9 @@ contrail_configuration:
   SSL_ENABLE: "{{ SSL_ENABLE }}"
   RABBITMQ_USE_SSL: "{{ SSL_ENABLE }}"
   CASSANDRA_SSL_ENABLE: "{{ SSL_ENABLE }}"
+  ANALYTICSDB_ENABLE: "{{ LEGACY_ANALYTICS_ENABLE }}"
+  ANALYTICS_ALARM_ENABLE: "{{ LEGACY_ANALYTICS_ENABLE }}"
+  ANALYTICS_SNMP_ENABLE: "{{ LEGACY_ANALYTICS_ENABLE }}"
 {%- if APPLY_DEFAULTS is defined and APPLY_DEFAULTS|length  %}
   APPLY_DEFAULTS: "{{ APPLY_DEFAULTS }}"
 {%- endif %}
