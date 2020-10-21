@@ -27,17 +27,4 @@ for i in ${overcloud_cont_instance} ${overcloud_ctrlcont_instance} ${overcloud_c
    openstack server delete $i
 done
 
-if [[ "$prov_net_cleanup" == 'true' ]] ; then
-   echo Deleting subnet ${provision_network_name}
-   openstack subnet delete ${provision_network_name}
 
-   echo Deleting network ${provision_network_name}
-   openstack network delete ${provision_network_name}
-fi
-
-if [[ "$mgmt_net_cleanup" == 'true' ]] ; then
-   echo Deleting subnet ${management_network_name}
-   openstack subnet delete $management_network_name
-   echo Deleting network ${management_network_name}
-   openstack network delete $management_network_name
-fi

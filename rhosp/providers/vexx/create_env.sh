@@ -64,42 +64,19 @@ net_tags=""
 [ -n "$PIPELINE_BUILD_TAG" ] && net_tags+=" --tag PipelineBuildTag=${PIPELINE_BUILD_TAG}"
 [ -n "$SLAVE" ] && net_tags+=" --tag SLAVE=${SLAVE}"
 
-mgmt_net_cleanup=${mgmt_net_cleanup:-}
-if ! openstack network show ${management_network_name} >/dev/null 2>&1 ; then
-  [ -z "$mgmt_net_cleanup" ] && mgmt_net_cleanup=true
-  management_network_cidr=${management_network_cidr:-'192.168.10.0/24'}
-  echo "INFO: create network ${management_network_name}"
-  openstack network create $net_tags ${management_network_name}
-  echo "INFO: create subnet ${management_network_name} with cidr=$management_network_cidr"
-  openstack subnet create $net_tags ${management_network_name} --network ${management_network_name} \
-    --subnet-range $management_network_cidr
-  echo "INFO: add subnet ${management_network_name} to ${router_name}"
-  openstack router add subnet ${router_name} ${management_network_name}
-else
-  if [ -z "$management_network_cidr" ] ; then
-    management_network_cidr=$(openstack subnet show ${management_network_name} -c cidr -f value)
-    echo "INFO: detected management_network_cidr=$management_network_cidr"
-  fi
+management_network_cidr=$(openstack subnet show ${management_network_name} -c cidr -f value)
+if [[ -z "$management_network_cidr" ]] ; then
+  echo "ERROR: failed to get management_network_cidr for the network $management_network_name"
+  exit -1
 fi
+echo "INFO: detected management_network_cidr=$management_network_cidr"
 
-prov_net_cleanup=${prov_net_cleanup:-}
-if ! openstack network show ${provision_network_name} >/dev/null 2>&1 ; then
-  [ -z "$prov_net_cleanup" ] && prov_net_cleanup=true
-  provision_network_cidr=${provision_network_cidr:-'192.168.20.0/24'}
-  _prov_subnet=$(echo $provision_network_cidr | cut -d '/' -f1 | cut -d '.' -f1,2,3)
-  _start="${_prov_subnet}.50"
-  _end="${_prov_subnet}.70"
-  echo "INFO: create network $provision_network_name"
-  openstack network create $net_tags ${provision_network_name}
-  echo "INFO: create subnet $provision_network_name with cidr=${provision_network_cidr} and allocation pool: $_start - $_end"
-    openstack subnet create $net_tags ${provision_network_name} --network ${provision_network_name} \
-      --subnet-range ${provision_network_cidr} --allocation-pool start=${_start},end=${_end} --gateway none
-else
-  if [ -z "$provision_network_cidr" ] ; then
-    provision_network_cidr=$(openstack subnet show ${provision_network_name} -c cidr -f value)
-    echo "INFO: detected provision_network_cidr=$provision_network_cidr"
-  fi
+provision_network_cidr=$(openstack subnet show ${provision_network_name} -c cidr -f value)
+if [[ -z "$provision_network_cidr" ]] ; then
+  echo "ERROR: failed to get provision_network_cidr for the network $provision_network_name"
+  exit -1
 fi
+echo "INFO: detected provision_network_cidr=$provision_network_cidr"
 
 #Get latest rhel image
 image_name=$(openstack image list --status active -c Name -f value | grep "prepared-${RHEL_VERSION}" | sort -nr | head -n 1)
@@ -252,8 +229,6 @@ echo export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO >> $vexxrc
 echo export management_network_name=\"$management_network_name\" >> $vexxrc
 echo export provision_network_name=\"$provision_network_name\" >> $vexxrc
 echo export router_name=\"$router_name\" >> $vexxrc
-echo export prov_net_cleanup=$prov_net_cleanup >> $vexxrc
-echo export mgmt_net_cleanup=$mgmt_net_cleanup >> $vexxrc
 
 echo export overcloud_virt_type=\"qemu\" >> $vexxrc
 echo export domain=\"${domain}\" >> $vexxrc
