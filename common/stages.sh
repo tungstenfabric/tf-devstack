@@ -60,6 +60,11 @@ function run_stage() {
   fi
 }
 
+function run_stage_force() {
+  cleanup_stage $1
+  run_stage $@
+}
+
 function finished_stage() {
   [ -e $TF_STAGES_DIR/$1 ]
 }
@@ -78,15 +83,16 @@ function wait() {
 
 function run_stages() {
   [[ -z $STAGE ]] && STAGE="default"
-  stages=${STAGES[$STAGE]}
-  [[ -z $stages ]] && stages="$STAGE"
+  local stages=${STAGES[$STAGE]}
+  local run_func=run_stage
+  [[ -z $stages ]] && stages="$STAGE" && run_func=run_stage_force
 
   load_tf_devenv_profile
 
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
-    run_stage $stage $OPTIONS
+    $run_func $stage $OPTIONS
   done
 
   save_tf_stack_profile
