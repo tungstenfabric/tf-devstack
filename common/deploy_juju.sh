@@ -77,7 +77,7 @@ EOF
     # to deploy machines and I didn't found a way how to pass cloud-init data
     # via juju's bundle.
     # therefore - using hacking method.
-    if ! sudo mount | grep maasserver > /dev/null ; then
+    if [ -d /snap/maas/current ] && ! sudo mount | grep maasserver > /dev/null ; then
         sudo cp -R /snap/maas/current/lib/python3.6/site-packages/maasserver /tmp
         sudo sed -i 's/"manage_etc_hosts": True/"manage_etc_hosts": False/' /tmp/maasserver/compose_preseed.py
         sudo mount --bind -o nodev,ro /tmp/maasserver /snap/maas/current/lib/python3.6/site-packages/maasserver
