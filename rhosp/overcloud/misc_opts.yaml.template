@@ -1,7 +1,7 @@
 parameter_defaults:
   ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
   CloudDomain: ${domain}
-  GlanceBackend: file
+  GlanceBackend: ${glance_backend_storage}
   RabbitUserName: contrail
   RabbitPassword: contrail
   ContrailInsecure: true
@@ -22,6 +22,24 @@ ${SSH_PUBLIC_KEY}
   # 3.x/4.x
   ContrailDpdkHugePages: '1000'
   # 5.x
-  ContrailDpdkHugepages1GB: 2
+  ContrailDpdkHugepages1GB: 8
   ContrailDpdkHugepages2MB: 2048
   ContrailRedisPort: 6389
+  ComputeSchedulerHints:
+    'capabilities:node': 'overcloud-novacompute-%index%'
+  ContrailDpdkSchedulerHints:
+    'capabilities:node': 'overcloud-contraildpdk-%index%'
+  ContrailSriovSchedulerHints:
+    'capabilities:node': 'overcloud-contrailsriov-%index%'
+  ControllerSchedulerHints:
+    'capabilities:node': 'overcloud-controller-%index%'
+  ContrailControllerSchedulerHints:
+    'capabilities:node': 'overcloud-contrailcontroller-%index%'
+  CephStorageSchedulerHints:
+    'capabilities:node': 'overcloud-ceph-%index%'
+  OvercloudComputeFlavor: baremetal
+  OvercloudContrailDpdkFlavor: baremetal
+  OvercloudContrailSriovFlavor: baremetal
+  OvercloudControllerFlavor: baremetal
+  OvercloudContrailControllerFlavor: baremetal
+  OvercloudCephStorageFlavor: baremetal

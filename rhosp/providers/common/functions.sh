@@ -59,42 +59,43 @@ function get_servers_ips() {
     openstack server list -c Networks -f value | awk -F '=' '{print $NF}' | xargs
 }
 
-function get_servers_ips_by_flavor() {
-    local flavor=$1
-    [[ -n "$overcloud_cont_prov_ip" && "$1" == 'control' ]] && echo $overcloud_cont_prov_ip && return
-    [[ -n "$overcloud_ctrlcont_prov_ip" && "$1" == 'contrail-controller' ]] && echo $overcloud_ctrlcont_prov_ip && return
-    [[ -n "$overcloud_compute_prov_ip" && "$1" == 'compute' ]] && echo $overcloud_compute_prov_ip && return
+function get_servers_ips_by_name() {
+    local name=$1
+    [[ -n "$overcloud_cont_prov_ip" && "$name" == 'controller' ]] && echo $overcloud_cont_prov_ip && return
+    [[ -n "$overcloud_ctrlcont_prov_ip" && "$name" == 'contrailcontroller' ]] && echo $overcloud_ctrlcont_prov_ip && return
+    [[ -n "$overcloud_compute_prov_ip" && "$name" == 'novacompute' ]] && echo $overcloud_compute_prov_ip && return
 
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
-    openstack server list --flavor $flavor -c Networks -f value | awk -F '=' '{print $NF}' | xargs
+    openstack server list -c Name -c Networks -f value | grep "overcloud-${name}-" | awk -F '=' '{print $NF}' | xargs
 }
 
 function get_vip() {
     local vip_name=$1
-    local openstack_node=$(get_servers_ips_by_flavor control | awk '{print $1}')
+    local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
     ssh $ssh_opts $SSH_USER@$openstack_node sudo hiera -c /etc/puppet/hiera.yaml $vip_name
 }
 
 function get_openstack_node_ips() {
-    local role=$1
+    local name=$1
     local subdomain=$2
-    local openstack_node=$(get_servers_ips_by_flavor control | awk '{print $1}')
+    local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
     ssh $ssh_opts $SSH_USER@$openstack_node \
-         cat /etc/hosts | grep overcloud-${role}-[0-9]\.${subdomain} | awk '{print $1}'| xargs
+         cat /etc/hosts | grep overcloud-${name}-[0-9]\.${subdomain} | awk '{print $1}'| xargs
 }
 
 function collect_overcloud_env() {
     if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
-        CONTROLLER_NODES=$(get_servers_ips_by_flavor control)
+        CONTROLLER_NODES=$(get_servers_ips_by_name controller)
         AGENT_NODES="$CONTROLLER_NODES"
     elif [[ "${ENABLE_NETWORK_ISOLATION,,}" = true ]] ; then
         CONTROLLER_NODES="$(get_openstack_node_ips contrailcontroller internalapi)"
-        AGENT_NODES="$(get_servers_ips_by_flavor compute) $(get_servers_ips_by_flavor compute-dpdk) $(get_servers_ips_by_flavor compute-sriov)"
+        AGENT_NODES="$(get_servers_ips_by_name novacompute) $(get_servers_ips_by_name contraildpdk) $(get_servers_ips_by_name contrailsriov)"
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_node_ips controller internalapi)
     else
-        CONTROLLER_NODES=$(get_servers_ips_by_flavor contrail-controller)
-        AGENT_NODES=$(get_servers_ips_by_flavor compute)
+        CONTROLLER_NODES=$(get_servers_ips_by_name contrailcontroller)
+        AGENT_NODES=$(get_servers_ips_by_name novacompute)
     fi
+        DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_servers_ips_by_name contraildpdk)
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
         DEPLOYMENT_ENV['AUTH_URL']=$(echo ${OS_AUTH_URL} | sed "s/overcloud/overcloud.internalapi/")

@@ -1,6 +1,16 @@
 #!/bin/bash -ex
+
+ceph_image_env=''
+if [[ "$backend_storage" == "rbd" ]] ; then
+  ceph_image_env+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
+  ceph_image_env+=" --set ceph_namespace=${OPENSTACK_CONTAINER_REGISTRY}/rhceph"
+  ceph_image_env+=' --set ceph_image=rhceph-3-rhel7'
+  ceph_image_env+=' --set ceph_tag=3'
+fi
+
 openstack overcloud container image prepare \
   --namespace ${OPENSTACK_CONTAINER_REGISTRY}/rhosp13  --prefix=openstack- --tag-from-label {version} \
+  $ceph_image_env \
   --push-destination ${prov_ip}:8787 \
   --output-env-file ./docker_registry.yaml \
   --output-images-file ./overcloud_containers.yaml \
