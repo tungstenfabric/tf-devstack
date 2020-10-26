@@ -91,6 +91,7 @@ function collect_overcloud_env() {
         CONTROLLER_NODES="$(get_openstack_node_ips contrailcontroller internalapi)"
         AGENT_NODES="$(get_servers_ips_by_name novacompute) $(get_servers_ips_by_name contraildpdk) $(get_servers_ips_by_name contrailsriov)"
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_node_ips controller internalapi)
+        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips contrailcontroller tenant | tr ' ' ',')"
     else
         CONTROLLER_NODES=$(get_servers_ips_by_name contrailcontroller)
         AGENT_NODES=$(get_servers_ips_by_name novacompute)
