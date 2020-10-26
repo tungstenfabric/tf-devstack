@@ -284,6 +284,8 @@ function collect_deployment_env() {
     export AGENT_NODES="`get_juju_unit_ips contrail-agent`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
+    DEPLOYMENT_ENV['CONTROL_NODES']="$(juju run --unit contrail-controller/leader 'cat /etc/contrail/common_config.env' | grep CONTROL_NODES | cut -d '=' -f 2)"
+
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         echo "INFO: SSL is enabled. collecting certs"
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
