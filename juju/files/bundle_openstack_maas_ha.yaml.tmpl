@@ -213,7 +213,8 @@ services:
     series: {{ UBUNTU_SERIES }}
     num_units: 2
     bindings:
-      "": *default-space
+      #"": *default-space
+      "": *data-space
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
