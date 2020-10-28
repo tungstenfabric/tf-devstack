@@ -19,6 +19,7 @@ K8S_VERSION=${K8S_VERSION:-"v1.16.11"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
+CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # Apply docker cli workaround
 workaround_kubespray_docker_cli
@@ -158,5 +159,31 @@ ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cl
 mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config
 sudo chown -R $(id -u):$(id -g) ~/.kube
+
+if [[ "openstack" == "${ORCHESTRATOR}" && "${CNI}" == "calico" ]]
+then
+  k=/usr/local/bin/kubectl
+  echo "Patch calico-node daemonset"
+  $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "FELIX_IPINIPMTU", "value": "1400"}}]'
+  $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/initContainers/0/env/-", "value": {"name": "CNI_MTU", "value": "1400"}}]'
+  $k rollout restart daemonset calico-node -n kube-system
+
+  echo "Patch calico CNI template on all nodes"
+  # local master
+  sudo sed --in-place=.backup -re 's!^(\s*)("log_level":.*)$!\1\2\n\1"mtu": __CNI_MTU__,!'  /etc/cni/net.d/calico.conflist.template
+
+  # remotes
+  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+    if ! ip a | grep -q "$machine"; then
+      echo "Patch calico CNI template at $machine"
+      ssh $ssh_opts $machine <<'PATCH'
+sudo sed --in-place=.backup -re 's!^(\s*)("log_level":.*)$!\1\2\n\1"mtu": __CNI_MTU__,!'  /etc/cni/net.d/calico.conflist.template
+PATCH
+    fi
+  done
+
+  echo "Patch calico-node pods"
+  $k -n kube-system get pods --selector k8s-app=calico-node -o name | while read x; do $k -n kube-system delete $x; done
+fi
 
 cd ../
