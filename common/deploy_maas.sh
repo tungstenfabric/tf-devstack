@@ -98,8 +98,11 @@ if ! maas $PROFILE boot-resources is-importing | grep -q 'false' ; then
 fi
 
 # Add machines
+i=1
 for n in $IPMI_IPS ; do
   maas $PROFILE machines create \
+      hostname="srv$i" \
+      fqdn="srv$i.maas" \
       architecture="amd64/generic" \
       hwe_kernel="ga-18.04" \
       power_type="ipmi" \
@@ -107,6 +110,7 @@ for n in $IPMI_IPS ; do
       power_parameters_power_user=${IPMI_USER} \
       power_parameters_power_pass=${IPMI_PASS} \
       power_parameters_power_address=${n}
+  i=$((i + 1))
 done
 
 sleep 180
