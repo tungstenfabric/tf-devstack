@@ -19,6 +19,7 @@ K8S_VERSION=${K8S_VERSION:-"v1.16.11"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
+CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # Apply docker cli workaround
 workaround_kubespray_docker_cli

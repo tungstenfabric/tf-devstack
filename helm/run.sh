@@ -118,6 +118,29 @@ function k8s() {
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
+
+    echo "Patch calico-node daemonset"
+    kubectl  -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "FELIX_IPINIPMTU", "value": "1400"}}]'
+    kubectl  -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/initContainers/0/env/-", "value": {"name": "CNI_MTU", "value": "1400"}}]'
+    kubectl rollout restart daemonset calico-node -n kube-system
+
+    echo "Patch calico CNI template on all nodes"
+    # local master
+    sudo sed --in-place=.backup -re 's!^(\s*)("log_level":.*)$!\1\2\n\1"mtu": __CNI_MTU__,!'  /etc/cni/net.d/calico.conflist.template
+
+    # remotes
+    local ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+    for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+      if ! ip a | grep -q "$machine"; then
+        echo "Patch calico CNI template at $machine"
+        ssh $ssh_opts $machine <<'PATCH'
+sudo sed --in-place=.backup -re 's!^(\s*)("log_level":.*)$!\1\2\n\1"mtu": __CNI_MTU__,!'  /etc/cni/net.d/calico.conflist.template
+PATCH
+      fi
+    done
+
+    echo "Patch calico-node pods"
+    kubectl -n kube-system get pods --selector k8s-app=calico-node -o name | while read x; do kubectl -n kube-system delete $x; done
 }
 
 function openstack() {
