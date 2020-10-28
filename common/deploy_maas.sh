@@ -64,15 +64,16 @@ maas login $PROFILE $MAAS_ENDPOINT - <<< $(echo $MAAS_API_KEY)
 set_ssh_keys
 SSH_KEY=$(cat ~/.ssh/id_rsa.pub)
 maas $PROFILE sshkeys create "key=$SSH_KEY"
-
+echo "INFO: Configure dns"
 # Configure dns
 maas $PROFILE maas set-config name=upstream_dns value=$UPSTREAM_DNS
-
+echo "INFO: Configure dhcp"
 # Configure dhcp
 maas $PROFILE ipranges create type=dynamic \
     start_ip=${DHCP_RESERVATION_IP_START} end_ip=${DHCP_RESERVATION_IP_END}
 maas $PROFILE vlan update 0 0 dhcp_on=True primary_rack=$(hostname)
 
+echo "INFO: boot-resources import"
 # Import images.
 # Import may fail without any error messages, loop is workaround.
 for ((i=0; i<30; ++i)); do
@@ -82,7 +83,7 @@ for ((i=0; i<30; ++i)); do
     break
   fi
 done
-
+echo "INFO: boot-resources is-importing"
 # Waiting for images download to complete
 for ((i=0; i<60; ++i)); do
   if maas $PROFILE boot-resources is-importing | grep -q 'false'; then
@@ -98,8 +99,12 @@ if ! maas $PROFILE boot-resources is-importing | grep -q 'false' ; then
 fi
 
 # Add machines
+echo "INFO:  add machines"
+i=1
 for n in $IPMI_IPS ; do
   maas $PROFILE machines create \
+      hostname="srv$i.maas" \
+      fqdn="srv$i.maas" \
       architecture="amd64/generic" \
       hwe_kernel="ga-18.04" \
       power_type="ipmi" \
@@ -107,7 +112,9 @@ for n in $IPMI_IPS ; do
       power_parameters_power_user=${IPMI_USER} \
       power_parameters_power_pass=${IPMI_PASS} \
       power_parameters_power_address=${n}
+  i=$((i + 1))
 done
+ echo "INFO:  add machines [end]"
 
 sleep 180
 for ((i=0; i<30; ++i)); do
