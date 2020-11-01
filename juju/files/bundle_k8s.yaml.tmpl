@@ -18,6 +18,8 @@ machines:
   {%- set agent_nodes = common_nodes + range(controllers_count|int, all_nodes_count) | list %}
 {%- endif %}
 {%- set all_nodes = range(0, all_nodes_count) | list %}
+{%- set controller_nodes = range(0, controllers_count|int) | list %}
+
 {%- for i in range(0, all_nodes_count) %}
   {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
@@ -42,8 +44,7 @@ services:
     num_units: 1
     options:
       channel: 3.2/stable
-    to:
-      - "0"
+    to: {{ controller_nodes }}
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
@@ -56,8 +57,7 @@ services:
       channel: '1.18/stable'
       service-cidr: '10.96.0.0/12'
       snapd_refresh: 'max'
-    to:
-      - "0"
+    to: {{ controller_nodes }}
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
