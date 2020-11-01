@@ -41,7 +41,7 @@ services:
   etcd:
     series: "{{ UBUNTU_SERIES }}"
     charm: cs:~containers/etcd-501
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     options:
       channel: 3.2/stable
     to: {{ controller_nodes }}
@@ -49,7 +49,7 @@ services:
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
     charm: cs:~containers/kubernetes-master-827
-    num_units: 1
+    num_units: {{ controller_nodes | count }}
     expose: true
     options:
       enable-metrics: false
