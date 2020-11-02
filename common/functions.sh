@@ -124,7 +124,7 @@ function label_nodes_by_ip() {
   wait_cmd_success "kubectl get nodes --no-headers" 5 2
   for node in $(kubectl get nodes --no-headers | cut -d ' ' -f 1) ; do
     local nodeip=$(kubectl get node $node -o=jsonpath='{.status.addresses[?(@.type=="InternalIP")].address}')
-    if echo $node_ips | grep -F $nodeip; then
+    if echo $node_ips | grep -wF $nodeip; then
       kubectl label node --overwrite $node $label
     fi
   done
