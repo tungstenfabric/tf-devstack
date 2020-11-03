@@ -19,6 +19,9 @@ fetch_deployer $deployer_image $deployer_dir || git clone "$TF_HELM_URL" $deploy
 
 # label nodes
 label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $AGENT_NODES
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  label_nodes_by_ip opencontrail.org/vrouter-kernel=enabled $CONTROLLER_NODES
+fi
 
 cd $WORKSPACE/tf-helm-deployer
 
