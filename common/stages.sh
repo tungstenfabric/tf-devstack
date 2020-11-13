@@ -41,11 +41,11 @@ SSL_ENABLE="$SSL_ENABLE"
 LEGACY_ANALYTICS_ENABLE="$LEGACY_ANALYTICS_ENABLE"
 HUGE_PAGES_1G=${HUGE_PAGES_1G}
 EOF
+  echo "tf setup profile $file"
+  cat ${file}
   for key in ${!DEPLOYMENT_ENV[@]} ; do
     echo "${key}='${DEPLOYMENT_ENV[$key]}'" >> $file
   done
-  echo "tf setup profile $file"
-  cat ${file}
 }
 
 function run_stage() {
