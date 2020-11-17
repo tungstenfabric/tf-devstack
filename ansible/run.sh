@@ -214,6 +214,16 @@ function openstack() {
 }
 
 function tf() {
+    if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+      sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+          -e config_file=$tf_deployer_dir/instances.yaml \
+          $tf_deployer_dir/playbooks/install_k8s.yml
+    fi
+    if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+            -e config_file=$tf_deployer_dir/instances.yaml \
+            $tf_deployer_dir/playbooks/install_openstack.yml
+    fi
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
