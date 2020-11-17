@@ -214,6 +214,8 @@ function openstack() {
 }
 
 function tf() {
+    k8s
+    openstack
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
