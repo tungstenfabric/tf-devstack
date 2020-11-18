@@ -214,6 +214,23 @@ function openstack() {
 }
 
 function tf() {
+
+    # generate new inventory file
+    rm -rf $tf_deployer_dir/instances.yaml
+    export NODE_IP
+    export CONTAINER_REGISTRY
+    export CONTRAIL_CONTAINER_TAG
+    export OPENSTACK_VERSION
+    export USER=$(whoami)
+    python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
+
+    if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+            -e config_file=$tf_deployer_dir/instances.yaml \
+            $tf_deployer_dir/playbooks/install_openstack.yml \
+            --tags [nova, neutron, heat, ironic, ironic-notification-manager]
+    fi
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
