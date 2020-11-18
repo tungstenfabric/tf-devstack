@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -o errexit
 my_file="$(readlink -e "$0")"
