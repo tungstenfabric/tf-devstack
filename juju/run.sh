@@ -264,11 +264,11 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
     local status=`$(which juju) status`
-    if [[ $(echo "$status" | grep -E 'executing|blocked|waiting') ]] ; then
-        # continue waiting
-        return 1
+    if [[ $(echo "$status" | grep -E 'error') ]]; then
+        # stop waiting
+        return 0
     fi
-    return 0
+    return 1
 }
 
 function collect_deployment_env() {
