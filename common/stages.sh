@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # This script should be sourced after functions.sh wherever it's used
 
@@ -91,6 +91,8 @@ function run_stages() {
 
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
+    echo "CONTAINER_REGISTRY is $CONTAINER_REGISTRY"
+    echo "CONTRAIL_CONTAINER_TAG is $CONTRAIL_CONTAINER_TAG"
     echo "INFO: Running stage $stage at $(date)"
     $run_func $stage $OPTIONS
   done
