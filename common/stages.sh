@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # This script should be sourced after functions.sh wherever it's used
 
@@ -14,6 +14,8 @@ function load_tf_devenv_profile() {
   else
     echo
     echo '[there is no tf devenv configuration to load]'
+    echo "CONTAINER_REGISTRY is $CONTAINER_REGISTRY"
+    echo "CONTRAIL_CONTAINER_TAG is $CONTRAIL_CONTAINER_TAG"
   fi
   # set to tungstenfabric if not set
   [ -z "$CONTAINER_REGISTRY" ] && CONTAINER_REGISTRY='tungstenfabric' || true
@@ -92,6 +94,8 @@ function run_stages() {
   echo "INFO: Applying stages ${stages[@]}"
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
+    echo "CONTAINER_REGISTRY is $CONTAINER_REGISTRY"
+    echo "CONTRAIL_CONTAINER_TAG is $CONTRAIL_CONTAINER_TAG"
     $run_func $stage $OPTIONS
   done
 

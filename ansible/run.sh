@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -o errexit
 my_file="$(readlink -e "$0")"
@@ -214,6 +214,8 @@ function openstack() {
 }
 
 function tf() {
+    k8s
+    openstack
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
