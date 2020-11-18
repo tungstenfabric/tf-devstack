@@ -99,3 +99,9 @@ make helm-toolkit
 ./tools/deployment/component/compute-kit/compute-kit.sh
 
 kill_helm_serve
+
+k=/usr/local/bin/kubectl
+# Patch keystone probes
+$k -n openstack patch deployment/keystone-api --type='json' -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/livenessProbe/failureThreshold", "value": 30}, {"op": "replace", "path": "/spec/template/spec/containers/0/livenessProbe/timeoutSeconds", "value": 30}, {"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/failureThreshold", "value": 30}, {"op": "replace", "path": "/spec/template/spec/containers/0/readinessProbe/timeoutSeconds", "value": 30}]'
+$k -n openstack rollout restart deployment keystone-api
+
