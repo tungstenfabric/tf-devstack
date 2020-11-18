@@ -100,4 +100,4 @@ if [[ -n $SWITCH_OPT ]] ; then
     juju switch tf-$CLOUD-controller
 fi
 
-juju model-config logging-config="<root>=DEBUG"
+juju model-config logging-config="<root>=DEBUG" automatically-retry-hooks=false
