@@ -32,6 +32,24 @@ label_nodes_by_ip openstack-compute-node=enabled $AGENT_NODES
 [ ! -d "$WORKSPACE/openstack-helm-infra" ] && git clone http://github.com/openstack/openstack-helm-infra $WORKSPACE/openstack-helm-infra
 [ ! -d "$WORKSPACE/openstack-helm" ] && git clone http://github.com/openstack/openstack-helm $WORKSPACE/openstack-helm
 
+# keystone overrides
+cat <<'YAML' > "$WORKSPACE/openstack-helm/keystone/values_overrides/tf.yaml"
+---
+pod:
+  probes:
+    api:
+      api:
+        readiness:
+          params:
+            failureThreshold: 30
+            timeoutSeconds: 30
+        liveness:
+          params:
+            failureThreshold: 30
+            timeoutSeconds: 30
+...
+YAML
+
 # build infra charts
 helm init -c
 cd $WORKSPACE/openstack-helm-infra
@@ -99,3 +117,4 @@ make helm-toolkit
 ./tools/deployment/component/compute-kit/compute-kit.sh
 
 kill_helm_serve
+
