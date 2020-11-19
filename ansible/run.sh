@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -o errexit
 my_file="$(readlink -e "$0")"
@@ -184,6 +184,9 @@ function machines() {
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
     rm -rf /tmp/rekjreekrbjrekj.txt
 
+    export CONTRAIL_CONTAINER_TAG_PLATFORM=${CONTRAIL_CONTAINER_TAG:-}
+    export DEPLOYER_CONTAINER_REGISTRY_PLATFORM=${DEPLOYER_CONTAINER_REGISTRY:-}
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/configure_instances.yml
@@ -214,6 +217,35 @@ function openstack() {
 }
 
 function tf() {
+    cat $tf_deployer_dir/instances.yaml
+    cat /etc/docker/daemon.json
+
+    if [[ "$CONTRAIL_CONTAINER_TAG_PLATFORM" != "$CONTRAIL_CONTAINER_TAG" || \
+    "$DEPLOYER_CONTAINER_REGISTRY_PLATFORM" != "$DEPLOYER_CONTAINER_REGISTRY" ]]; then
+        # generate new inventory file
+        export NODE_IP
+        export CONTAINER_REGISTRY
+        export CONTRAIL_CONTAINER_TAG
+        export OPENSTACK_VERSION
+        export USER=$(whoami)
+        python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
+
+        cat $tf_deployer_dir/instances.yaml
+
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/configure_instances.yml
+
+        cat /etc/docker/daemon.json
+
+        if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+            sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+                -e config_file=$tf_deployer_dir/instances.yaml \
+                $tf_deployer_dir/playbooks/install_openstack.yml \
+                --tags "nova,neutron,heat,ironic-notification-manager"
+        fi
+    fi
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
