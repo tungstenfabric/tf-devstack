@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5ead25e9_9744cf1e",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-11-19T12:38:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ce9cd625_7bb9d05d",
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "449b3a65_c7e1926a",
         "filename": "ansible/run.sh",
         "patchSetId": 6
@@ -33,6 +51,24 @@
       "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41134eaf_8925cf0a",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-11-19T12:38:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "449b3a65_c7e1926a",
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     },
     {
       "key": {
@@ -56,6 +92,30 @@
       "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13cb350e_6a47b250",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-11-19T12:38:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dd035f8_59a57f85",
+      "range": {
+        "startLine": 231,
+        "startChar": 38,
+        "endLine": 231,
+        "endChar": 44
+      },
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
