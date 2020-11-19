@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce9cd625_7bb9d05d",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-19T10:29:11Z",
+      "side": 1,
+      "message": "please remove empty line here",
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "449b3a65_c7e1926a",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-19T10:29:11Z",
+      "side": 1,
+      "message": "why do we need \u0027rm\u0027?",
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dd035f8_59a57f85",
+        "filename": "ansible/run.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-19T10:29:11Z",
+      "side": 1,
+      "message": "ironic is not required while we have separate ironic-notification-manager",
+      "range": {
+        "startLine": 231,
+        "startChar": 38,
+        "endLine": 231,
+        "endChar": 44
+      },
+      "revId": "c3e22ec4f2d7dd11ae793cb1cdb635687988b0c5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
