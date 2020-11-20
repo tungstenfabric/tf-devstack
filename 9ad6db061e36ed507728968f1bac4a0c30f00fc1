@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aacb0ee9_e65d3948",
+        "filename": "ansible/run.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-20T05:57:24Z",
+      "side": 1,
+      "message": "please revert this",
+      "revId": "9ad6db061e36ed507728968f1bac4a0c30f00fc1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f981f9da_a4f6911a",
+        "filename": "ansible/run.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-20T05:57:24Z",
+      "side": 1,
+      "message": "why do we need this?",
+      "revId": "9ad6db061e36ed507728968f1bac4a0c30f00fc1",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
