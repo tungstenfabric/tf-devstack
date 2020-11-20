@@ -214,6 +214,28 @@ function openstack() {
 }
 
 function tf() {
+    if ! cat $tf_deployer_dir/instances.yaml | grep CONTRAIL_CONTAINER_TAG | grep -q $CONTRAIL_CONTAINER_TAG || \
+    ! cat $tf_deployer_dir/instances.yaml | grep CONTAINER_REGISTRY | grep -q $CONTAINER_REGISTRY; then
+        # generate new inventory file
+        export NODE_IP
+        export CONTAINER_REGISTRY
+        export CONTRAIL_CONTAINER_TAG
+        export OPENSTACK_VERSION
+        export USER=$(whoami)
+        python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
+
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/configure_instances.yml
+
+        if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+            sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+                -e config_file=$tf_deployer_dir/instances.yaml \
+                $tf_deployer_dir/playbooks/install_openstack.yml \
+                --tags "nova,neutron,heat,ironic-notification-manager"
+        fi
+    fi
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
