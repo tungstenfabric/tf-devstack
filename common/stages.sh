@@ -27,6 +27,9 @@ function save_tf_stack_profile() {
   echo
   echo '[update tf stack configuration]'
   mkdir -p "$(dirname $file)"
+
+  collect_deployment_env
+
   cat <<EOF > $file
 DEPLOYER=${DEPLOYER}
 CONTRAIL_CONTAINER_TAG=${CONTRAIL_CONTAINER_TAG}
@@ -77,8 +80,6 @@ function cleanup_stage() {
 function wait() {
   local timeout=${WAIT_TIMEOUT:-1200}
   wait_cmd_success is_active 10 $((timeout/10))
-  # collect additional env information about deployment for saving to profile after successful run
-  collect_deployment_env
 }
 
 function logs() {
@@ -109,6 +110,7 @@ function run_stages() {
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
     $run_func $stage $OPTIONS
+    last_stage=$stage
   done
 
   save_tf_stack_profile

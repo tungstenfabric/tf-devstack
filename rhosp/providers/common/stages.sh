@@ -85,5 +85,7 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    collect_overcloud_env
+    if [[ $last_stage == 'wait' ]] ; then
+        collect_overcloud_env
+    fi
 }
