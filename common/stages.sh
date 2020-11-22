@@ -23,6 +23,8 @@ function load_tf_devenv_profile() {
 }
 
 function save_tf_stack_profile() {
+  collect_deployment_env
+
   local file=${1:-$TF_STACK_PROFILE}
   echo
   echo '[update tf stack configuration]'
@@ -77,8 +79,6 @@ function cleanup_stage() {
 function wait() {
   local timeout=${WAIT_TIMEOUT:-1200}
   wait_cmd_success is_active 10 $((timeout/10))
-  # collect additional env information about deployment for saving to profile after successful run
-  collect_deployment_env
 }
 
 function run_stages() {
