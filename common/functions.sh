@@ -208,3 +208,30 @@ function retry() {
     return 1
   fi
 }
+
+function is_after_stage() {
+  local stage=$1
+  [[ -z $STAGE ]] && STAGE="default"
+  local stages=${STAGES[$STAGE]}
+
+  if [[ $stage == $last_stage ]] ; then
+    return 0
+  fi
+
+  i=0
+  stage_index=None
+  for s in $stages ; do
+    if [[ $s = $stage ]] ; then
+      stage_index=$i
+    elif [[ $s = $last_stage ]] ; then
+      last_stage_index=$i
+    fi
+    i=$((i+1))
+  done
+
+  if [[ $stage_index < $last_stage_index ]] ; then
+    return 0
+  fi
+
+  return 1
+}

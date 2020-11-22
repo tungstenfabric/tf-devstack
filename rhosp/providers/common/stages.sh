@@ -85,5 +85,7 @@ function is_active() {
 }
 
 function collect_deployment_env() {
-    collect_overcloud_env
+    if is_after_stage 'wait' ; then
+        collect_overcloud_env
+    fi
 }
