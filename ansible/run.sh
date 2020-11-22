@@ -236,6 +236,8 @@ function collect_deployment_env() {
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
     fi
+
+    cp $tf_deployer_dir/instances.yaml $TF_CONFIG_DIR/
 }
 
 run_stages $STAGE
