@@ -208,3 +208,17 @@ function retry() {
     return 1
   fi
 }
+
+function is_after_stage() {
+  local stage=$1
+  if [[ $stage == $last_stage ]] ; then
+    return 0
+  fi
+
+  local all_stages=${STAGES["all"]}
+  stages_after=${all_stages##*$stage}
+  if [[ $stages_after == *"$last_stage"* ]] ; then
+      return 0
+  fi
+  return 1
+}
