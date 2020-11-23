@@ -1,0 +1,23 @@
+
+{%- set hosts = {} %}
+{%- set controller_role = 'controller' %}
+{%- if  overcloud_compute_instance is defined and overcloud_compute_instance|length and 
+        overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length %}
+  {%- set controller_role = 'contrailaio' %}
+{% endif %}
+{%- if overcloud_cont_instance is defined and overcloud_cont_instance|length %}
+  {%- set _ =  hosts.update({controller_role: overcloud_cont_instance.split(',')}) %}
+{%- endif %}
+{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length %}
+  {%- set _ = hosts.update({'contrailcontroller': overcloud_ctrlcont_instance.split(',')}) %}
+{%- endif %}
+{%- if overcloud_compute_instance is defined and overcloud_compute_instance|length %}
+  {%- set _ = hosts.update({'compute': overcloud_compute_instance.split(',')}) %}
+{%- endif %}
+parameter_defaults:
+  HostnameMap:
+{%- for role, nodes in hosts.items() %}
+  {%- for node in nodes %}
+    overcloud-{{ role }}-{{ loop.index - 1 }}: {{ node }}
+  {%- endfor %}
+{%- endfor %}
