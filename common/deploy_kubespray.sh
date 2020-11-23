@@ -8,6 +8,13 @@ source "$my_dir/common.sh"
 source "$my_dir/functions.sh"
 source "$my_dir/workaround.sh"
 
+function is_kubeapi_accessible() {
+  local x
+  2>/dev/null exec {x}</dev/tcp/$1/6443 || return 1
+  exec {x}<&-
+  return 0
+}
+
 # parameters
 
 KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.12"}
@@ -160,12 +167,20 @@ mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config
 sudo chown -R $(id -u):$(id -g) ~/.kube
 
+if ! wait_cmd_success "is_kubeapi_accessible ${masters[0]}" 5 12
+then
+  echo "Kubernetes API is not accessible"
+  exit 1
+fi
 if [[ "openstack" == "${ORCHESTRATOR}" && "${CNI}" == "calico" ]]
 then
   # NB. calico requires custom mtu settings when network is over vxlan
   # because of an extra packet header otherwise packet loss is observed.
   # this is what we have in vexx.
   k=/usr/local/bin/kubectl
+  echo "Wait for calico-node daemonset"
+  wait_cmd_success "$k -n kube-system get daemonset/calico-node" 5 36
+
   echo "Patch calico-node daemonset"
   $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "FELIX_IPINIPMTU", "value": "1400"}}]'
   $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/initContainers/0/env/-", "value": {"name": "CNI_MTU", "value": "1400"}}]'
