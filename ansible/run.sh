@@ -160,7 +160,7 @@ function machines() {
     # docker-compose MUST be first here, because it will install the right version of PyYAML
     sudo python2 -m pip install 'docker-compose==1.24.1' 'ansible==2.7.11'
     # jinja is reqiured to create some configs
-    sudo python3 -m pip install jinja2
+    sudo python3 -m pip install jinja2 pyyaml
 
     set_ssh_keys
 
@@ -214,6 +214,30 @@ function openstack() {
 }
 
 function tf() {
+    instance_container_tag=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['contrail_configuration']['CONTRAIL_CONTAINER_TAG'])")
+    instance_registry=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['global_configuration']['CONTAINER_REGISTRY'])")
+
+    if [[ $instance_container_tag != $CONTRAIL_CONTAINER_TAG || $instance_registry != $CONTAINER_REGISTRY ]]; then
+        # generate new inventory file
+        export NODE_IP
+        export CONTAINER_REGISTRY
+        export CONTRAIL_CONTAINER_TAG
+        export OPENSTACK_VERSION
+        export USER=$(whoami)
+        python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
+
+        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        -e config_file=$tf_deployer_dir/instances.yaml \
+        $tf_deployer_dir/playbooks/configure_instances.yml
+
+        if [[ "$ORCHESTRATOR" == "openstack" ]]; then
+            sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+                -e config_file=$tf_deployer_dir/instances.yaml \
+                $tf_deployer_dir/playbooks/install_openstack.yml \
+                --tags "nova,neutron,heat,ironic-notification-manager"
+        fi
+    fi
+
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
