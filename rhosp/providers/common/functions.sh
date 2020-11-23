@@ -52,8 +52,8 @@ function collect_stack_details() {
 }
 
 function get_servers_ips() {
-    if [[ -n "$overcloud_cont_prov_ip" ]]; then
-        echo "$overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip"
+    if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+        echo "${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ }"
         return
     fi
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
@@ -62,10 +62,13 @@ function get_servers_ips() {
 
 function get_servers_ips_by_name() {
     local name=$1
-    [[ -n "$overcloud_cont_prov_ip" && "$name" == 'controller' ]] && echo $overcloud_cont_prov_ip && return
-    [[ -n "$overcloud_ctrlcont_prov_ip" && "$name" == 'contrailcontroller' ]] && echo $overcloud_ctrlcont_prov_ip && return
-    [[ -n "$overcloud_compute_prov_ip" && "$name" == 'novacompute' ]] && echo $overcloud_compute_prov_ip && return
-
+    if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+        [[ "$name" == 'controller' ]] && echo "${overcloud_cont_prov_ip//,/ }" && return
+        [[ "$name" == 'contrailcontroller' ]] && echo "${overcloud_ctrlcont_prov_ip//,/ }" && return
+        [[ "$name" == 'novacompute' ]] && echo "${overcloud_compute_prov_ip//,/ }" && return
+        echo "ERROR: unsupported node role $name"
+        exit 1;
+    fi
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
     openstack server list -c Networks -f value --name "\-${name}-" | awk -F '=' '{print $NF}' | xargs
 }
@@ -85,7 +88,7 @@ function get_openstack_node_ips() {
 }
 
 function collect_overcloud_env() {
-    if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+    if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
         CONTROLLER_NODES=$(get_servers_ips_by_name controller)
         AGENT_NODES="$CONTROLLER_NODES"
     else
@@ -219,7 +222,6 @@ export OPENSTACK_VERSION="$OPENSTACK_VERSION"
 export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
 export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
 export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
-export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO
 export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
 export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
 export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"

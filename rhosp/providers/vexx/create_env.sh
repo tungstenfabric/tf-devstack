@@ -43,14 +43,29 @@ while true ; do
     break
   fi
 done
-overcloud_cont_instance="${RHOSP_VERSION}-overcloud-cont-${rhosp_id}"
-overcloud_compute_instance=
-overcloud_ctrlcont_instance=
-if [[ "${DEPLOY_COMPACT_AIO,,}" != 'true' ]] ; then
-  overcloud_compute_instance="${RHOSP_VERSION}-overcloud-compute-${rhosp_id}"
-  overcloud_ctrlcont_instance="${RHOSP_VERSION}-overcloud-ctrlcont-${rhosp_id}"
-fi
 
+function make_instances_names() {
+  local nodes="$1"
+  local type=$2
+  local res=''
+  local i
+  for i in ${nodes//,/ } ; do
+    [ -z "$res" ] || res+=","
+    res+="${RHOSP_VERSION}-${type}-${rhosp_id}-$i"
+  done
+  echo $res
+}
+
+if [ -n "$OPENSTACK_CONTROLLER_NODES" ] ; then
+  # separate openstack nodes
+  overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
+  overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
+else
+  # aio
+  overcloud_cont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-cont")
+  overcloud_ctrlcont_instance=''
+fi
+overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
 
 management_network_name=${management_network_name:-"management"}
 management_network_cidr=$(openstack subnet show ${management_network_name} -c cidr -f value)
@@ -125,7 +140,7 @@ function create_vm() {
 create_vm $undercloud_instance $undercloud_flavor "${management_network_name},${provision_network_name}:insecure"
 
 # Creating overcloud nodes
-for instance_name in ${overcloud_cont_instance} ${overcloud_compute_instance} ${overcloud_ctrlcont_instance}; do
+for instance_name in ${overcloud_cont_instance//,/ } ${overcloud_compute_instance//,/ } ${overcloud_ctrlcont_instance//,/ }; do
   create_vm $instance_name $overcloud_flavor "${provision_network_name}:insecure"
 done
 
@@ -149,13 +164,19 @@ function get_overcloud_node_ip(){
   get_openstack_vm_ip $1 $provision_network_name
 }
 
-overcloud_cont_prov_ip=$(get_overcloud_node_ip ${overcloud_cont_instance})
-overcloud_compute_prov_ip=
-overcloud_ctrlcont_prov_ip=
-if [[ "${DEPLOY_COMPACT_AIO,,}" != 'true' ]] ; then
-  overcloud_compute_prov_ip=$(get_overcloud_node_ip ${overcloud_compute_instance})
-  overcloud_ctrlcont_prov_ip=$(get_overcloud_node_ip ${overcloud_ctrlcont_instance})
-fi
+function collect_node_ips() {
+  local i
+  local res=''
+  for i in $(echo $@ | tr ',' ' ') ; do
+    [ -z "$res" ] || res+=','
+    res+=$(get_overcloud_node_ip $i)
+  fi
+  echo $res
+}
+
+overcloud_cont_prov_ip=$(collect_node_ips $overcloud_cont_instance)
+overcloud_compute_prov_ip=$(collect_node_ips $overcloud_compute_instance)
+overcloud_ctrlcont_prov_ip=$(collect_node_ips $overcloud_ctrlcont_instance)
 
 prov_allocation_pool=$(openstack subnet show -f json -c allocation_pools $provision_network_name)
 prov_end_addr=$(echo "$prov_allocation_pool" | jq -rc '.allocation_pools[0].end')
@@ -218,7 +239,7 @@ function wait_overcloud_node() {
 }
 
 jobs=""
-for i in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip ; do
+for i in ${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ; do
   wait_overcloud_node $i &
   jobs+=" $!"
 done
