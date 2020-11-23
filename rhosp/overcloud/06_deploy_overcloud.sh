@@ -24,10 +24,11 @@ sudo sed -i "/overcloud.${domain}/d" /etc/hosts
 sudo sed -i "/overcloud.internalapi.${domain}/d" /etc/hosts
 sudo sed -i "/overcloud.ctlplane.${domain}/d" /etc/hosts
 
-if [ -n "$overcloud_cont_prov_ip" ] ; then
-  public_vip=$overcloud_cont_prov_ip
-  internal_api_vip=$overcloud_cont_prov_ip
-  ctlplane_vip=$overcloud_cont_prov_ip
+if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+  # TODO: use first ip instead of vip as they have problems in vexx
+  public_vip=$(echo $overcloud_cont_prov_ip | cut -d ',' -f 1)
+  internal_api_vip=$public_vip
+  ctlplane_vip=$public_vip
 else
   public_vip=$(get_vip public_virtual_ip)
   internal_api_vip=$(get_vip internal_api_virtual_ip)
