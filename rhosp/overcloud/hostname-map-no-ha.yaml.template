@@ -1,5 +1,0 @@
-parameter_defaults:
-  HostnameMap:
-    overcloud-controller-0: $overcloud_cont_instance
-    overcloud-contrailcontroller-0: $overcloud_ctrlcont_instance
-    overcloud-compute-0: $overcloud_compute_instance
