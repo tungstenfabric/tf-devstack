@@ -30,7 +30,7 @@ if [[ -n "$overcloud_ceph_instance" ]] ; then
     storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-mds.yaml'
 fi
 
-if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
   role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
 else
   role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
@@ -52,15 +52,16 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-bootstrap-environment-rhel.yaml"
   pre_deploy_nodes_env_files+=" -e tripleo-heat-templates/environments/deployed-server-pacemaker-environment.yaml"
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
+  pre_deploy_nodes_env_files+=" -e hostname-map.yaml"
 
-  if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+  if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
     export OVERCLOUD_ROLES="ContrailAio"
-    export ContrailAio_hosts="${overcloud_cont_prov_ip}"
+    export ContrailAio_hosts="${overcloud_cont_prov_ip//,/ }"
   else
     export OVERCLOUD_ROLES="Controller Compute ContrailController"
-    export Controller_hosts="${overcloud_cont_prov_ip}"
-    export Compute_hosts="${overcloud_compute_prov_ip}"
-    export ContrailController_hosts="${overcloud_ctrlcont_prov_ip}"
+    export Controller_hosts="${overcloud_cont_prov_ip//,/ }"
+    export Compute_hosts="${overcloud_compute_prov_ip//,/ }"
+    export ContrailController_hosts="${overcloud_ctrlcont_prov_ip//,/ }"
   fi
   nohup tripleo-heat-templates/deployed-server/scripts/get-occ-config.sh &
   job=$!

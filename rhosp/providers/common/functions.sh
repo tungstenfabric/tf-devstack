@@ -52,8 +52,8 @@ function collect_stack_details() {
 }
 
 function get_servers_ips() {
-    if [[ -n "$overcloud_cont_prov_ip" ]]; then
-        echo "$overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip"
+    if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+        echo "${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ }"
         return
     fi
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
@@ -62,45 +62,118 @@ function get_servers_ips() {
 
 function get_servers_ips_by_name() {
     local name=$1
-    [[ -n "$overcloud_cont_prov_ip" && "$name" == 'controller' ]] && echo $overcloud_cont_prov_ip && return
-    [[ -n "$overcloud_ctrlcont_prov_ip" && "$name" == 'contrailcontroller' ]] && echo $overcloud_ctrlcont_prov_ip && return
-    [[ -n "$overcloud_compute_prov_ip" && "$name" == 'novacompute' ]] && echo $overcloud_compute_prov_ip && return
-
+    if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
+        [[ "$name" == 'controller' ]] && echo "${overcloud_cont_prov_ip//,/ }" && return
+        [[ "$name" == 'contrailcontroller' ]] && echo "${overcloud_ctrlcont_prov_ip//,/ }" && return
+        [[ "$name" == 'novacompute' ]] && echo "${overcloud_compute_prov_ip//,/ }" && return
+        echo "ERROR: unsupported node role $name"
+        exit 1;
+    fi
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
     openstack server list -c Networks -f value --name "\-${name}-" | awk -F '=' '{print $NF}' | xargs
 }
 
 function get_vip() {
     local vip_name=$1
-    local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
     ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo hiera -c /etc/puppet/hiera.yaml $vip_name
+}
+
+function update_undercloud_etc_hosts() {
+    # patch hosts to resole overcloud by fqdn
+    echo "INFO: remove from /etc/hosts old overcloud fqdns if any"
+    sudo sed -i "/overcloud.${domain}/d" /etc/hosts
+    sudo sed -i "/overcloud.internalapi.${domain}/d" /etc/hosts
+    sudo sed -i "/overcloud.ctlplane.${domain}/d" /etc/hosts
+    sudo sed -i "/overcloud-/d" /etc/hosts
+
+    local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
+    local public_vip=$(get_vip public_virtual_ip $openstack_node)
+    local internal_api_vip=$(get_vip internal_api_virtual_ip $openstack_node)
+    local ctlplane_vip=$fixed_vip
+    echo "INFO: update /etc/hosts for overcloud vips fqdns"
+    cat <<EOF | sudo tee -a /etc/hosts
+# Overcloud VIPs and Nodes
+${public_vip} overcloud.${domain}
+${internal_api_vip} overcloud.internalapi.${domain}
+${ctlplane_vip} overcloud.ctlplane.${domain}
+EOF
+    ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo grep "overcloud\-" /etc/hosts 2>/dev/null | sudo tee -a /etc/hosts
+
+    echo "INFO: updated undercloud /etc/hosts"
+    sudo cat /etc/hosts
 }
 
 function get_openstack_node_ips() {
     local openstack_node=$1
     local name=$2
     local network=$3
+    if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
+        [[ "$name" == 'controller' ]] && echo "${overcloud_cont_prov_ip//,/ }" && return
+        [[ "$name" == 'contrailcontroller' ]] && echo "${overcloud_ctrlcont_prov_ip//,/ }" && return
+        [[ "$name" == 'novacompute' ]] && echo "${overcloud_compute_prov_ip//,/ }" && return
+        [[ "$name" == 'contraildpdk' ]] && echo "${overcloud_dpdk_prov_ip//,/ }" && return
+        [[ "$name" == 'contrailsriov' ]] && echo "${overcloud_sriov_prov_ip//,/ }" && return
+        [[ "$name" == 'storage' ]] && echo "${overcloud_ceph_prov_ip//,/ }" && return
+        echo "ERROR: unsupported node role $name"
+        exit 1;
+    fi
     ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node \
          cat /etc/hosts | grep overcloud-${name}-[0-9]\.${network} | awk '{print $1}'| xargs
 }
 
-function collect_overcloud_env() {
-    if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
-        CONTROLLER_NODES=$(get_servers_ips_by_name controller)
-        AGENT_NODES="$CONTROLLER_NODES"
-    else
-        local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
+function _print_fqdn() {
+    [ -z "$2" ] || printf "%s.$1 " ${2//,/ }
+}
 
-        DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_node_ips $openstack_node controller internalapi)
-        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
-        DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_node_ips $openstack_node contraildpdk tenant)
-        DEPLOYMENT_ENV['SRIOV_AGENT_NODES']=$(get_openstack_node_ips $openstack_node contrailsriov tenant)
-        AGENT_NODES="$(get_openstack_node_ips $openstack_node novacompute tenant)"
-        CONTROLLER_NODES="$(get_openstack_node_ips $openstack_node contrailcontroller internalapi)"
+function get_openstack_node_names() {
+    local openstack_node=$1
+    local name=$2
+    local network=$3
+    if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
+        local suffix="$domain"
+        if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
+            # use network param only for network isolation case
+            suffix="${network}.${suffix}" 
+        fi
+        [[ "$name" == 'controller' ]] && _print_fqdn $suffix $overcloud_cont_instance && return
+        [[ "$name" == 'contrailcontroller' ]] && _print_fqdn $suffix $overcloud_ctrlcont_instance && return
+        [[ "$name" == 'novacompute' ]] && _print_fqdn $suffix $overcloud_compute_instance && return
+        [[ "$name" == 'contraildpdk' ]] && _print_fqdn $suffix $overcloud_dpdk_instance && return
+        [[ "$name" == 'contrailsriov' ]] && _print_fqdn $suffix $overcloud_sriov_instance && return
+        [[ "$name" == 'storage' ]] && _print_fqdn $suffix $overcloud_ceph_instance && return
+        echo "ERROR: unsupported node role $name"
+        exit 1;
     fi
+    ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node \
+         cat /etc/hosts | grep overcloud-${name}-[0-9]\.${network} | awk '{print $2}'| xargs
+}
+
+function get_openstack_nodes() {
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        get_openstack_node_names $@
+    else
+        get_openstack_node_ips $@
+    fi
+}
+
+function collect_overcloud_env() {
+    local openstack_node=$(get_servers_ips_by_name controller | awk '{print $1}')
+    DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_nodes $openstack_node controller internalapi)
+    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller internalapi)"
+    if [ -z "$CONTROLLER_NODES" ] ; then
+        # Openstack and Contrail Controllers are on same nodes (aio)
+        CONTROLLER_NODES="${DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']}"
+    fi
+    AGENT_NODES="$(get_openstack_nodes $openstack_node novacompute tenant)"
+    if [ -z "$AGENT_NODES" ] ; then
+        # Agents and Contrail Controllers are on same nodes (aio)
+        AGENT_NODES="$CONTROLLER_NODES"
+    fi
+    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
+    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
+    DEPLOYMENT_ENV['SRIOV_AGENT_NODES']=$(get_openstack_nodes $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
     [ -z "${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}"
-
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
         DEPLOYMENT_ENV['AUTH_URL']=$(echo ${OS_AUTH_URL} | sed "s/overcloud/overcloud.internalapi/")
@@ -109,6 +182,17 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['AUTH_PORT']="35357"
     fi
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
+    if [ -n "$ENABLE_TLS" ] ; then
+        DEPLOYMENT_ENV['SSL_ENABLE']='true'
+        if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+            local cafile='/etc/ipa/ca.crt'
+        else
+            local cafile='/etc/contrail/ssl/certs/ca-cert.pem'
+        fi
+        DEPLOYMENT_ENV['SSL_KEY']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 /etc/contrail/ssl/private/server-privkey.pem 2>/dev/null)"
+        DEPLOYMENT_ENV['SSL_CERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 /etc/contrail/ssl/certs/server.pem 2>/dev/null)"
+        DEPLOYMENT_ENV['SSL_CACERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 $cafile 2>/dev/null)"
+    fi
 }
 
 function collect_deployment_log() {
@@ -219,7 +303,6 @@ export OPENSTACK_VERSION="$OPENSTACK_VERSION"
 export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
 export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
 export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
-export DEPLOY_COMPACT_AIO=$DEPLOY_COMPACT_AIO
 export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
 export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
 export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
