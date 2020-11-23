@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8d0a209_23aed117",
+        "filename": "ansible/run.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 382
+      },
+      "writtenOn": "2020-11-23T10:30:48Z",
+      "side": 1,
+      "message": "what is \u0027instance\u0027 in the name?",
+      "range": {
+        "startLine": 217,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 26
+      },
+      "revId": "504ae420d77a52fa8f4571361da9862d24d29cd7",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
