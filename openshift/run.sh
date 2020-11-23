@@ -82,28 +82,6 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
-function logs() {
-    local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
-    set +e
-
-    create_log_dir
-    cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
-    collect_system_stats
-    collect_contrail_status
-    collect_docker_logs
-    collect_kubernetes_objects_info
-    collect_kubernetes_logs
-    collect_contrail_logs
-
-    tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
-    rm -rf $TF_LOG_DIR
-
-    # Restore errexit state
-    if [[ $errexit_state == 1 ]]; then
-        set -e
-    fi
-}
-
 function platform() {
     sudo yum install -y jq iproute \
         wget git tcpdump net-tools bind-utils yum-utils iptables-services \
@@ -153,6 +131,11 @@ function is_active() {
 function collect_deployment_env() {
     # no additinal info is needed
     :
+}
+
+function collect_logs() {
+    cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
+    collect_logs_from_machines
 }
 
 run_stages $STAGE

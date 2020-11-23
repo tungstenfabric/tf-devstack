@@ -77,66 +77,6 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
-function logs() {
-    echo "INFO: collecting logs..."
-    local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
-    set +e
-    create_log_dir
-
-set -x
-    cat <<EOF >/tmp/logs.sh
-#!/bin/bash
-tgz_name=\$1
-export WORKSPACE=/tmp/juju-logs
-export TF_LOG_DIR=/tmp/juju-logs/logs
-export SSL_ENABLE=$SSL_ENABLE
-cd /tmp/juju-logs
-source ./collect_logs.sh
-collect_docker_logs
-collect_juju_logs
-collect_contrail_status
-collect_system_stats
-collect_contrail_logs
-collect_openstack_logs
-collect_kubernetes_logs
-collect_kubernetes_objects_info
-chmod -R a+r logs
-pushd logs
-tar -czf \$tgz_name *
-popd
-cp logs/\$tgz_name \$tgz_name
-rm -rf logs
-EOF
-chmod a+x /tmp/logs.sh
-
-    local machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | awk '{print $1}'`
-    echo "INFO: machines to ssh: $machines"
-    local machine=''
-    for machine in $machines ; do
-        echo "INFO: collecting from $machine"
-        local tgz_name=`echo "logs-$machine.tgz" | tr '/' '-'`
-        mkdir -p $TF_LOG_DIR/$machine
-        command juju ssh $machine "mkdir -p /tmp/juju-logs"
-        command juju scp $my_dir/../common/collect_logs.sh $machine:/tmp/juju-logs/collect_logs.sh
-        command juju scp /tmp/logs.sh $machine:/tmp/juju-logs/logs.sh
-        command juju ssh $machine /tmp/juju-logs/logs.sh $tgz_name
-        command juju scp $machine:/tmp/juju-logs/$tgz_name $TF_LOG_DIR/$machine/
-        pushd $TF_LOG_DIR/$machine/
-        tar -xzf $tgz_name
-        rm -rf $tgz_name
-        popd
-    done
-    collect_juju_status
-
-    tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
-    rm -rf $TF_LOG_DIR
-
-    # Restore errexit state
-    if [[ $errexit_state == 1 ]]; then
-        set -e
-    fi
-}
-
 function juju() {
     $my_dir/../common/deploy_juju.sh
 }
@@ -297,6 +237,11 @@ function collect_deployment_env() {
 
     # NOTE: create stackrc locally to be able to run openstack commands
     create_stackrc
+}
+
+function collect_logs() {
+    collect_logs_from_machines
+    collect_juju_status
 }
 
 run_stages $STAGE
