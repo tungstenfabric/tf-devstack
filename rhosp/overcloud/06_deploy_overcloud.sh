@@ -18,28 +18,8 @@ if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then
   exit -1
 fi
 
-# patch hosts to resole overcloud by fqdn
-echo "INFO: remove from /etc/hosts old overcloud vips fqdns if any"
-sudo sed -i "/overcloud.${domain}/d" /etc/hosts
-sudo sed -i "/overcloud.internalapi.${domain}/d" /etc/hosts
-sudo sed -i "/overcloud.ctlplane.${domain}/d" /etc/hosts
-
-if [ -n "$overcloud_cont_prov_ip" ] ; then
-  public_vip=$overcloud_cont_prov_ip
-  internal_api_vip=$overcloud_cont_prov_ip
-  ctlplane_vip=$overcloud_cont_prov_ip
-else
-  public_vip=$(get_vip public_virtual_ip)
-  internal_api_vip=$(get_vip internal_api_virtual_ip)
-  ctlplane_vip=$fixed_vip
-fi
-  echo "INFO: update /etc/hosts for overcloud vips fqdns"
-  cat <<EOF | sudo tee -a /etc/hosts
-${public_vip} overcloud.${domain}
-${internal_api_vip} overcloud.internalapi.${domain}
-${ctlplane_vip} overcloud.ctlplane.${domain}
-EOF
-sudo cat /etc/hosts
+# update hosts file for tf-test
+update_undercloud_etc_hosts
 
 if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
   add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}

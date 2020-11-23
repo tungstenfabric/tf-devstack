@@ -1,3 +1,0 @@
-parameter_defaults:
-  HostnameMap:
-    overcloud-contrailaio-0: $overcloud_cont_instance
