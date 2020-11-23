@@ -1,0 +1,29 @@
+{%- set instances = [] %}
+{%- set instances_ips = [] %}
+{%- if overcloud_cont_instance is defined and overcloud_cont_instance|length %}
+{%- set instances = instances + overcloud_cont_instance.split(',') %}
+{%- set instances_ips = instances_ips + overcloud_cont_prov_ip.split(',') %}
+{%- endif %}
+{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length %}
+{%- set instances = instances + overcloud_ctrlcont_instance.split(',') %}
+{%- set instances_ips = instances_ips+  overcloud_ctrlcont_prov_ip.split(',') %}
+{%- endif %}
+{%- if overcloud_compute_instance is defined and overcloud_compute_instance|length %}
+{%- set instances = instances + overcloud_compute_instance.split(',') %}
+{%- set instances_ips = instances_ips+ overcloud_compute_prov_ip.split(',') %}
+{%- endif %}
+resource_registry:
+  OS::TripleO::DeployedServer::ControlPlanePort: tripleo-heat-templates/deployed-server/deployed-neutron-port.yaml
+
+parameter_defaults:
+  DeployedServerPortMap:
+{%- for instance in instances %}
+    {{ instance }}-ctlplane:
+      fixed_ips:
+        - ip_address: {{ instances_ips[loop.index - 1] }}
+      subnets:
+        - cidr: {{ prov_subnet_len }}
+      network:
+        tags:
+          {{ prov_cidr }}
+{% endfor %}

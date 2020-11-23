@@ -28,7 +28,7 @@ function _overcloud_preprovisioned_nodes()
     cd
     local jobs=""
     local ip
-    for ip in $overcloud_cont_prov_ip $overcloud_compute_prov_ip $overcloud_ctrlcont_prov_ip; do
+    for ip in ${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ; do
         local tf_devstack_path=$(dirname $my_dir)
         scp -r rhosp-environment.sh $tf_devstack_path $SSH_USER_OVERCLOUD@$ip:
         ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip ./$(basename $tf_devstack_path)/rhosp/overcloud/03_setup_predeployed_nodes.sh &
