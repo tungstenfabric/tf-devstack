@@ -22,6 +22,30 @@
       "revId": "504ae420d77a52fa8f4571361da9862d24d29cd7",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64b80b42_1ef6b43d",
+        "filename": "ansible/run.sh",
+        "patchSetId": 15
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 991
+      },
+      "writtenOn": "2020-11-23T11:07:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8d0a209_23aed117",
+      "range": {
+        "startLine": 217,
+        "startChar": 4,
+        "endLine": 217,
+        "endChar": 26
+      },
+      "revId": "504ae420d77a52fa8f4571361da9862d24d29cd7",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
