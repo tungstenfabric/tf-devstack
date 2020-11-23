@@ -11,11 +11,23 @@ export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"docker.io/tungstenfabric"}
 
-# export OPENSTACK_CONTROLLER_NODES=${OPENSTACK_CONTROLLER_NODES:-}
-# export CONTROLLER_NODES=${CONTROLLER_NODES:-1}
-# export AGENT_NODES=${AGENT_NODES:-}
-# export DPDK_AGENT_NODES=${DPDK_AGENT_NODES:-}
-# export SRIOV_AGENT_NODES=${SRIOV_AGENT_NODES:-}
+export OPENSTACK_CONTROLLER_NODES=${OPENSTACK_CONTROLLER_NODES:-}
+export CONTROLLER_NODES=${CONTROLLER_NODES:-'1'}
+export AGENT_NODES=${AGENT_NODES:-}
+export DPDK_AGENT_NODES=${DPDK_AGENT_NODES:-}
+export SRIOV_AGENT_NODES=${SRIOV_AGENT_NODES:-}
+if [[ "$CONTROLLER_NODES" == "$NODE_IP" ]] ; then
+    # Default case.
+    # but in rhosp NODE_IP is either jumphost (kvm)
+    # or an undercloud. So, set to default to count 1 AIO node.
+    CONTROLLER_NODES="1"
+fi
+if [[ "$AGENT_NODES" == "$NODE_IP" ]] ; then
+    # Default case - AIO.
+    # but in rhosp NODE_IP is either jumphost (kvm)
+    # or an undercloud. So, set to default to count 1 AIO node.
+    AGENT_NODES=""
+fi
 
 declare -A _default_predeployed_mode=( ['vexx']='true' ['kvm']='false' ['bmc']='false' )
 export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-${_default_predeployed_mode[$PROVIDER]}}
@@ -25,10 +37,6 @@ export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-${_default_rhel_regi
 
 declare -A _default_net_isolation=( ['vexx']='false' ['kvm']='false' ['bmc']='true' )
 export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-${_default_net_isolation[$PROVIDER]}}
-
-declare -A _default_aio=( ['vexx']='true' ['kvm']='false' ['bmc']='false' )
-export DEPLOY_COMPACT_AIO=${DEPLOY_COMPACT_AIO:-${_default_aio[$PROVIDER]}}
-
 
 declare -A _default_rhosp_version=( ['queens']='rhosp13' ['train']='rhosp16' )
 export RHOSP_VERSION=${RHOSP_VERSION:-${_default_rhosp_version[$OPENSTACK_VERSION]}}
