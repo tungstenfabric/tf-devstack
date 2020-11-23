@@ -112,7 +112,7 @@ source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
-if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
+if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
    role_file=tripleo-heat-templates/roles/ContrailAio.yaml
    sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
    sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
@@ -120,13 +120,8 @@ else
    role_file=tripleo-heat-templates/roles_data_contrail_aio.yaml
 fi
 if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
-   if [[ "${DEPLOY_COMPACT_AIO,,}" == 'true' ]] ; then
-      cat $my_dir/ctlplane-assignments-aio.yaml.template | envsubst >ctlplane-assignments.yaml
-      cat $my_dir/hostname-map-aio.yaml.template | envsubst >hostname-map.yaml
-   else
-      cat $my_dir/ctlplane-assignments-no-ha.yaml.template | envsubst >ctlplane-assignments.yaml
-      cat $my_dir/hostname-map-no-ha.yaml.template | envsubst >hostname-map.yaml
-   fi
+   $my_dir/../../common/jinja2_render.py < $my_dir/ctlplane-assignments.yaml.j2 >ctlplane-assignments.yaml
+   $my_dir/../../common/jinja2_render.py < $my_dir/hostname-map.yaml.j2 >hostname-map.yaml
    sed -i -re 's/disable_constraints: False/disable_constraints: True/' $role_file
 fi
 
