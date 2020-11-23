@@ -24,10 +24,11 @@ ipa_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:04"
 ipa_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:05"
 
 BASE_IMAGE=${BASE_IMAGE:-${_default_base_image}}
+UNDERCLOUD_MEM=${UNDERCLOUD_MEM:-16384}
+IPA_MEM=${IPA_MEM:-4096}
 OS_MEM=${OS_MEM:-8192}
 CTRL_MEM=${CTRL_MEM:-8192}
 COMP_MEM=${COMP_MEM:-8192}
-IPA_MEM=${COMP_MEM:-16384}
 
 vm_disk_size=${vm_disk_size:-60G}
 net_driver=${net_driver:-virtio}
@@ -78,8 +79,10 @@ for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
   define_overcloud_vms $i $COMP_MEM $vbmc_port 4
   (( vbmc_port+=1 ))
 done
-define_overcloud_vms $overcloud_ctrlcont_instance $CTRL_MEM $vbmc_port 4
-(( vbmc_port+=1 ))
+for i in $(echo $overcloud_ctrlcont_instance | sed 's/,/ /g') ; do
+  define_overcloud_vms $i $CTRL_MEM $vbmc_port 4
+  (( vbmc_port+=1 ))
+done
 
 # copy image for undercloud and resize them
 undercloud_vm_volume="$pool_path/${undercloud_vmname}.qcow2"
@@ -102,7 +105,7 @@ function _start_vm() {
   local image=$2
   local mgmt_mac=$3
   local prov_mac=$4
-  local ram=${5:-16384}
+  local ram=${5}
 
   # define and start machine
   sudo virt-install --name=$name \
@@ -122,9 +125,9 @@ function _start_vm() {
 }
 
 _start_vm "$undercloud_vmname" "$undercloud_vm_volume" \
-  $undercloud_mgmt_mac $undercloud_prov_mac
+  $undercloud_mgmt_mac $undercloud_prov_mac $UNDERCLOUD_MEM
 
 if [[ -n "$ENABLE_TLS" ]] ; then
   _start_vm "$ipa_instance" "$ipa_vm_volume" \
-    $ipa_mgmt_mac $ipa_prov_mac
+    $ipa_mgmt_mac $ipa_prov_mac $IPA_MEM
 fi
