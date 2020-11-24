@@ -28,6 +28,7 @@ if [[ -n "$CONTAINER_REGISTRY" ]] ; then
     DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
   fi
 fi
+export DOCKER_REGISTRY_MIRRORS=$(python3 -c "import json; f=open('$docker_config'); r=json.load(f).get('registry-mirrors', []); print('\n'.join(r))" 2>/dev/null)
 
 python3 ${my_dir}/jinja2_render.py <"${my_dir}/files/docker_daemon.json.j2" > $docker_config
 

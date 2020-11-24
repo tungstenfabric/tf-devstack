@@ -2,6 +2,10 @@
   {%- if DOCKER_MTU is defined and DOCKER_MTU|length %}
   "mtu": {{ DOCKER_MTU }},
   {% endif %}
+  {%- if DOCKER_REGISTRY_MIRRORS is defined and DOCKER_REGISTRY_MIRRORS|length %}
+  {%- set reg_list = DOCKER_REGISTRY_MIRRORS.split('\n') %}
+  "registry-mirrors": [ "{{ reg_list | join('","') }}" ],
+  {% endif %}
   {%- if DOCKER_INSECURE_REGISTRIES is defined and DOCKER_INSECURE_REGISTRIES|length %}
   {%- set reg_list = DOCKER_INSECURE_REGISTRIES.split('\n') %}
   "insecure-registries": [ "{{ reg_list | join('","') }}" ],
