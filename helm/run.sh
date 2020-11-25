@@ -8,6 +8,7 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
+source "$my_dir/functions.sh"
 
 init_output_logging
 
