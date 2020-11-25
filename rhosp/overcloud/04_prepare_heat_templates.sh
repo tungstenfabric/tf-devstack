@@ -23,7 +23,7 @@ function _get_count()
 if [[ -n "$overcloud_ceph_instance" ]] ; then
    export glance_backend_storage="rbd"
 else
-   export glance_backend_storage="file"
+   export glance_backend_storage="swift"
 fi
 
 if [[ -n "$ENABLE_TLS" ]] ; then
@@ -103,7 +103,7 @@ fi
 
 if [ -n "$vrouter_huge_pages_1g" ] ; then
    # enable hugepages: it is set explicitely on bmc setup as nova needs hugepages
-   # because tf-test use such flavor if dpdk nodes are presented 
+   # because tf-test use such flavor if dpdk nodes are presented
    echo "  ContrailVrouterHugepages1GB: $vrouter_huge_pages_1g" >> misc_opts.yaml
 fi
 
