@@ -195,7 +195,7 @@ PATCH
   done
 
   echo "Patch calico-node pods"
-  $k -n kube-system get pods --selector k8s-app=calico-node -o name | while read x; do $k -n kube-system delete $x; done
+  $k -n kube-system delete pods --selector k8s-app=calico-node
 fi
 
 cd ../
