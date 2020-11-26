@@ -1,7 +1,6 @@
 
 function _run()
 {
-    source $WORKSPACE/rhosp-environment.sh
     cat <<EOF | ssh $ssh_opts stack@${instance_ip}
 source /etc/profile
 source rhosp-environment.sh
@@ -10,20 +9,12 @@ EOF
 }
 
 function machines() {
-    _run machines
-}
-
-function undercloud() {
-    _run undercloud
-}
-
-function overcloud() {
     # dirty hack - somehow started vbmc port becomes down at time of this stage
     echo "INFO: vbmc ports status"
     sudo vbmc --no-daemon list || true
     echo "INFO: start all vbmc ports"
     sudo vbmc --no-daemon start $(vbmc --no-daemon list -c 'Domain name' -f value) || true
-    _run overcloud
+    _run machines
 }
 
 function tf_no_deploy() {
@@ -34,8 +25,8 @@ function tf() {
     _run tf
 }
 
-function is_active() {
-    _run is_active
+function wait() {
+    _run wait
 }
 
 function logs() {
@@ -43,7 +34,7 @@ function logs() {
 }
 
 function collect_deployment_env() {
-    _run collect_deployment_env
+    echo "INFO: skip collect_deployment_env - nothing to do on kvm node"
 }
 
 trap on_exit EXIT
