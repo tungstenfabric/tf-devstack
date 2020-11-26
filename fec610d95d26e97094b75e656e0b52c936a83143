@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd442e54_037969ac",
+        "filename": "rhosp/providers/vexx/create_env.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-11-26T11:43:09Z",
+      "side": 1,
+      "message": "2",
+      "range": {
+        "startLine": 53,
+        "startChar": 50,
+        "endLine": 53,
+        "endChar": 51
+      },
+      "revId": "fec610d95d26e97094b75e656e0b52c936a83143",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8805984_a53fd248",
+        "filename": "rhosp/providers/vexx/create_env.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-11-26T11:43:09Z",
+      "side": 1,
+      "message": "why not\nwhile (( $i \u003c\u003d $nodes_count )) ; do echo $i; i\u003d$(( i + 1)); done",
+      "range": {
+        "startLine": 57,
+        "startChar": 2,
+        "endLine": 57,
+        "endChar": 30
+      },
+      "revId": "fec610d95d26e97094b75e656e0b52c936a83143",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
