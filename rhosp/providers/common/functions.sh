@@ -17,6 +17,10 @@ function collect_stack_details() {
         echo "WARNING: empty log_dir provided.. logs collection skipped"
         return
     }
+    if [ ! -e ~/stackrc ] ; then
+        echo "WARNING: there is no ~/stackrc. Stack was not deployed."
+        return
+    fi
     source ~/stackrc
     # collect stack details
     echo "INFO: collect stack outputs"
@@ -25,7 +29,7 @@ function collect_stack_details() {
     openstack stack environment show -f json overcloud | sed 's/\\n/\n/g' > ${log_dir}/stack_environment.log
 
     # ensure stack is not failed
-    status=$(openstack stack show -f json overcloud | jq ".stack_status")
+    local status=$(openstack stack show -f json overcloud | jq ".stack_status")
     if [[ ! "$status" =~ 'COMPLETE' ]] ; then
         echo "ERROR: stack status $status"
         echo "ERROR: openstack stack failures list"
@@ -51,17 +55,8 @@ function collect_stack_details() {
     fi
 }
 
-function get_servers_ips() {
-    if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
-        echo "${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ${overcloud_dpdk_prov_ip//,/ } ${overcloud_sriov_prov_ip//,/ } ${overcloud_ceph_prov_ip//,/ }"
-        return
-    fi
-    [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
-    openstack server list -c Networks -f value | awk -F '=' '{print $NF}' | xargs
-}
-
 function get_ctlplane_ips() {
-    local name=$1
+    local name=${1:-}
     if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
         [[ "$name" == 'controller' ]] && echo "${overcloud_cont_prov_ip//,/ }" && return
         [[ "$name" == 'contrailcontroller' ]] && echo "${overcloud_ctrlcont_prov_ip//,/ }" && return
@@ -69,11 +64,16 @@ function get_ctlplane_ips() {
         [[ "$name" == 'contraildpdk' ]] && echo "${overcloud_dpdk_prov_ip//,/ }" && return
         [[ "$name" == 'contrailsriov' ]] && echo "${overcloud_sriov_prov_ip//,/ }" && return
         [[ "$name" == 'storage' ]] && echo "${overcloud_ceph_prov_ip//,/ }" && return
+        [ -z "$name" ] && echo "${overcloud_cont_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_dpdk_prov_ip//,/ } ${overcloud_sriov_prov_ip//,/ } ${overcloud_ceph_prov_ip//,/ }" && return
         echo "ERROR: unsupported node role $name"
         exit 1;
     fi
     [[ -z "$OS_AUTH_URL" ]] && source ~/stackrc
-    openstack server list -c Networks -f value --name "\-${name}-" | awk -F '=' '{print $NF}' | xargs
+    if [[ -n "$name" ]]; then
+        openstack server list -c Networks -f value --name "\-${name}-" | awk -F '=' '{print $NF}' | xargs
+    else
+        openstack server list -c Networks -f value | awk -F '=' '{print $NF}' | xargs
+    fi
 }
 
 function get_first_controller_ctlplane_ip() {
@@ -106,11 +106,7 @@ function get_openstack_node_names() {
     local name=$2
     local network=$3
     if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
-        local suffix="$domain"
-        if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
-            # use network param only for network isolation case
-            suffix="${network}.${suffix}" 
-        fi
+        local suffix="${network}.${domain}"
         [[ "$name" == 'controller' ]] && _print_fqdn $suffix $overcloud_cont_instance && return
         [[ "$name" == 'contrailcontroller' ]] && _print_fqdn $suffix $overcloud_ctrlcont_instance && return
         [[ "$name" == 'novacompute' ]] && _print_fqdn $suffix $overcloud_compute_instance && return
@@ -137,8 +133,8 @@ function update_undercloud_etc_hosts() {
     echo "INFO: remove from undercloud /etc/hosts old overcloud fqdns if any"
     sudo sed -i "/overcloud-/d" /etc/hosts
     echo "INFO: update /etc/hosts with overcloud ips & fqdns"
-    ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo grep "overcloud\-" /etc/hosts 2>/dev/null | sudo tee -a /etc/hosts
     local openstack_node=$(get_first_controller_ctlplane_ip)
+    ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo grep "overcloud\-" /etc/hosts 2>/dev/null | sudo tee -a /etc/hosts
     if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
         # User first Controller for AIO case.
         # Openstack & contrail control plane & agent (compute) are on same node.
@@ -170,18 +166,21 @@ EOF
 
 function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
-    DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']=$(get_openstack_nodes $openstack_node controller internalapi)
-    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller internalapi)"
+    DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
+    # agent and contrail conroller to be on same network fo vdns test
+    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
-        CONTROLLER_NODES="${DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']}"
+        CONTROLLER_NODES="$(get_openstack_nodes $openstack_node controller tenant)"
     fi
     AGENT_NODES="$(get_openstack_nodes $openstack_node novacompute tenant)"
     if [ -z "$AGENT_NODES" ] ; then
         # Agents and Contrail Controllers are on same nodes (aio)
         AGENT_NODES="$CONTROLLER_NODES"
     fi
-    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
+    # control nodes are for net isolation case when tenant is on different networks
+    # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
+    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
     DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
     DEPLOYMENT_ENV['SRIOV_AGENT_NODES']=$(get_openstack_nodes $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
@@ -194,7 +193,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['AUTH_PORT']="35357"
     fi
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
-    if [ -n "$ENABLE_TLS" ] ; then
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
         if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
             local cafile='/etc/ipa/ca.crt'
@@ -218,34 +217,61 @@ function collect_deployment_log() {
     create_log_dir
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
+    collect_openstack_logs
     collect_stack_details ${TF_LOG_DIR}/${host_name}
     if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
-        cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
+        sudo cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
     fi
 
     #Collecting overcloud logs
     local ip=''
-    for ip in $(get_servers_ips); do
+    for ip in $(get_ctlplane_ips); do
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER_OVERCLOUD@$ip:
         cat <<EOF | ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip
-            export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
-            cd /home/$SSH_USER_OVERCLOUD
-            ./collect_logs.sh create_log_dir
-            ./collect_logs.sh collect_docker_logs
-            ./collect_logs.sh collect_system_stats
-            ./collect_logs.sh collect_contrail_logs
+[[ "$DEBUG" == true ]] && set -x
+export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
+cd /home/$SSH_USER_OVERCLOUD
+./collect_logs.sh create_log_dir
+./collect_logs.sh collect_docker_logs
+./collect_logs.sh collect_system_stats
+./collect_logs.sh collect_openstack_logs
+./collect_logs.sh collect_contrail_logs
+[[ ! -f /var/log/ipaclient-install.log ]] || {
+    sudo cp /var/log/ipaclient-install.log \$TF_LOG_DIR
+    sudo chown $SSH_USER_OVERCLOUD:$SSH_USER_OVERCLOUD \$TF_LOG_DIR/ipaclient-install.log
+    sudo chmod 644 \$TF_LOG_DIR/ipaclient-install.log
+}
 EOF
-        source_name=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip hostname -s)
+        local source_name=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip hostname -s)
         mkdir ${TF_LOG_DIR}/${source_name}
-        scp -r $ssh_opts $SSH_USER_OVERCLOUD@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
+        rsync -a --safe-links -e "ssh $ssh_opts" $SSH_USER_OVERCLOUD@$ip:logs/ ${TF_LOG_DIR}/${source_name}/
     done
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER@$ipa_mgmt_ip:
+        cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
+[[ "$DEBUG" == true ]] && set -x
+export TF_LOG_DIR="/home/$SSH_USER/logs"
+cd /home/$SSH_USER
+./collect_logs.sh create_log_dir
+./collect_logs.sh collect_system_stats
+[[ ! -f /var/log/ipaclient-install.log ]] || {
+    sudo cp /var/log/ipaclient-install.log \$TF_LOG_DIR
+    sudo chown $SSH_USER:$SSH_USER \$TF_LOG_DIR/ipaclient-install.log
+    sudo chmod 644 \$TF_LOG_DIR/ipaclient-install.log
+}
+[[ ! -f /var/log/ipaserver-install.log ]] || {
+    sudo cp /var/log/ipaserver-install.log \$TF_LOG_DIR
+    sudo chown $SSH_USER:$SSH_USER \$TF_LOG_DIR/ipaserver-install.log
+    sudo chmod 644 \$TF_LOG_DIR/ipaserver-install.log
+}
+EOF
+        mkdir ${TF_LOG_DIR}/ipa
+        rsync -a --safe-links -e "ssh $ssh_opts" $SSH_USER@$ip:logs/ ${TF_LOG_DIR}/ipa/
+    fi
 
     # Save to archive all yaml files and tripleo templates
     tar -czf ${TF_LOG_DIR}/tht.tgz -C ~ *.yaml tripleo-heat-templates
-
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
-
-    set -e
 }
 
 function add_vlan_interface() {
@@ -331,4 +357,22 @@ EOF
 
     #Removing duplicate lines
     awk '!a[$0]++' $env_file > $target_env_file
+}
+
+function add_node_to_ipa(){
+    local name=$1
+    local zone=$2
+    local addr=$3
+    local services="$4"
+    local host="$5"
+    ipa dnsrecord-find --name=${name} ${zone} || ipa dnsrecord-add --a-ip-address=$addr ${zone} ${name}
+    ipa host-find ${name}.${zone} || ipa host-add ${name}.${zone}
+    local s
+    for s in $services ; do
+        local principal="${s}/${name}.${zone}@${domain^^}"
+        if ! ipa service-find $principal ; then
+            ipa service-add $principal
+            ipa service-add-host --hosts $host $principal
+        fi
+    done
 }
