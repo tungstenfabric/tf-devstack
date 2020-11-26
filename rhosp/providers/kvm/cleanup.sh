@@ -3,8 +3,12 @@
 source $my_dir/providers/kvm/virsh_functions
 
 # delete stack to unregister nodes
-# unregister undercloud
-ssh -T $ssh_opts stack@${instance_ip} "ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION ./tf-devstack/rhosp/providers/common/cleanup.sh"
+# unregister undercloud & overcloud
+ssh $ssh_opts $SSH_USER@${instance_ip} "ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION ./tf-devstack/rhosp/providers/common/cleanup.sh"
+
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+    ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip} "sudo subscription-manager unregister" || true
+fi
 
 function delete_node() {
     local name=$1

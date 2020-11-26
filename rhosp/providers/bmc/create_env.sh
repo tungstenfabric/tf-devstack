@@ -30,7 +30,7 @@ prepare_rhosp_env_file rhosp-environment.sh
 tf_dir=$(readlink -e $my_dir/../../..)
 rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@$instance_ip:
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
-  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir root@${ipa_mgmt_ip}:
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@${ipa_mgmt_ip}:
 fi
