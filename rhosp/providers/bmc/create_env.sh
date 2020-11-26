@@ -22,15 +22,20 @@ if [ -n "$SSH_EXTRA_OPTIONS" ] ; then
   export ssh_opts="$ssh_opts $SSH_EXTRA_OPTIONS"
 fi
 
-# env is created externally, just check availability
-wait_ssh ${instance_ip} ${ssh_private_key}
-
 cd $WORKSPACE
 prepare_rhosp_env_file rhosp-environment.sh
 tf_dir=$(readlink -e $my_dir/../../..)
-rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@$instance_ip:
 
-if [[ -n "$ENABLE_TLS" ]] ; then
-  wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
-  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir root@${ipa_mgmt_ip}:
+function _prep_machine() {
+  local addr=$1
+  wait_ssh ${addr} ${ssh_private_key}
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@$addr:
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$addr:.ssh/id_rsa
+  eval "ssh $ssh_opts -i $ssh_private_key $SSH_USER@$addr 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'"
+}
+
+_prep_machine $instance_ip
+
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+  _prep_machine $ipa_mgmt_ip
 fi
