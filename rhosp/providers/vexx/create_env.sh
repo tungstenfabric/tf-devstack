@@ -24,6 +24,7 @@ fi
 # instances params
 domain=${domain:-'vexxhost.local'}
 undercloud_flavor=${undercloud_flavor:-'v2-standard-4'}
+ipa_flavor=${ipa_flavor:-'v2-highcpu-2'}
 disk_size_gb=100
 
 #ssh options
@@ -42,6 +43,10 @@ while true ; do
     break
   fi
 done
+
+# Enable IPA instance if tls enabled
+ipa_instance=''
+[[ "$ENABLE_TLS" != 'ipa' ]] || ipa_instance="${RHOSP_VERSION}-ipa-${rhosp_id}"
 
 declare -A INSTANCE_FLAVORS
 
@@ -122,6 +127,7 @@ export PROVIDER="vexx"
 export overcloud_virt_type="qemu"
 export domain="${domain}"
 export undercloud_instance="${undercloud_instance}"
+export ipa_instance="${ipa_instance}"
 export overcloud_cont_instance="${overcloud_cont_instance}"
 export overcloud_compute_instance="${overcloud_compute_instance}"
 export overcloud_ctrlcont_instance="${overcloud_ctrlcont_instance}"
@@ -157,6 +163,11 @@ jobs=''
 # Creating undercloud node
 create_vm $undercloud_instance $undercloud_flavor "${management_network_name},${provision_network_name}:insecure" &
 jobs+=" $!"
+# Creating ipa node if enabled
+if [[ -n "$ipa_instance" ]] ; then
+  create_vm $ipa_instance $ipa_flavor "${management_network_name},${provision_network_name}:insecure" &
+  jobs+=" $!"
+fi
 # Creating overcloud nodes
 for instance_name in ${overcloud_cont_instance//,/ } ${overcloud_compute_instance//,/ } ${overcloud_ctrlcont_instance//,/ }; do
     create_vm $instance_name ${INSTANCE_FLAVORS[${instance_name}]} "${provision_network_name}:insecure" &
@@ -164,7 +175,7 @@ for instance_name in ${overcloud_cont_instance//,/ } ${overcloud_compute_instanc
 done
 # wait for nodes creation done
 for j in $jobs ; do
-  wait $j
+  command wait $j
 done
 
 
@@ -183,6 +194,13 @@ function get_openstack_vm_ip() {
 
 undercloud_mgmt_ip=$(get_openstack_vm_ip $undercloud_instance $management_network_name)
 prov_ip=$(get_openstack_vm_ip $undercloud_instance $provision_network_name)
+
+ipa_mgmt_ip=''
+ipa_prov_ip=''
+if [[ -n "$ipa_instance" ]] ; then
+  ipa_mgmt_ip=$(get_openstack_vm_ip $ipa_instance $management_network_name)
+  ipa_prov_ip=$(get_openstack_vm_ip $ipa_instance $provision_network_name)
+fi
 
 function get_overcloud_node_ip(){
   get_openstack_vm_ip $1 $provision_network_name
@@ -245,12 +263,16 @@ prov_ip_cidr=${prov_ip}/$prov_subnet_len
 wait_ssh ${undercloud_mgmt_ip} ${ssh_private_key}
 prepare_rhosp_env_file $WORKSPACE/rhosp-environment.sh
 tf_dir=$(readlink -e $my_dir/../../..)
-rsync -a -e "ssh -i $ssh_private_key $ssh_opts" \
-  $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$undercloud_mgmt_ip:
-
-# Copy ssh key to undercloud
+rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$undercloud_mgmt_ip:
 rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
 ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+  # prepare ipa node
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$ipa_mgmt_ip:
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$ipa_mgmt_ip:.ssh/id_rsa
+  ssh $ssh_opts -i $ssh_private_key $SSH_USER@$ipa_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+fi
 
 # wait overcloud nodes are ready
 function wait_overcloud_node() {
@@ -268,7 +290,7 @@ for i in ${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${over
   jobs+=" $!"
 done
 for j in $jobs ; do
-  wait $j
+  command wait $j
 done
 
 # Update vexxrc
@@ -277,15 +299,17 @@ echo INFO: "update vexxrc file $vexxrc"
 cat <<EOF >> $vexxrc
 export instance_ip="${undercloud_mgmt_ip}"
 export prov_ip="${prov_ip}"
+export ipa_mgmt_ip="${ipa_mgmt_ip}"
+export ipa_prov_ip="${ipa_prov_ip}"
 export undercloud_admin_host="${undercloud_admin_host}"
 export undercloud_public_host="${undercloud_public_host}"
 export fixed_vip="${fixed_vip}"
 export prov_ip_cidr="${prov_ip_cidr}"
 export prov_cidr="${prov_cidr}"
 export prov_subnet_len="${prov_subnet_len}"
-export prov_inspection_iprange=${prov_inspection_iprange}
-export prov_dhcp_start=${prov_dhcp_start}
-export prov_dhcp_end=${prov_dhcp_end}
+export prov_inspection_iprange="${prov_inspection_iprange}"
+export prov_dhcp_start="${prov_dhcp_start}"
+export prov_dhcp_end="${prov_dhcp_end}"
 export overcloud_cont_prov_ip="${overcloud_cont_prov_ip}"
 export overcloud_compute_prov_ip="${overcloud_compute_prov_ip}"
 export overcloud_ctrlcont_prov_ip="${overcloud_ctrlcont_prov_ip}"
