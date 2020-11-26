@@ -1,5 +1,5 @@
 tls_env_files=''
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   tls_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-tls.yaml'
   tls_env_files+=' -e tripleo-heat-templates/environments/ssl/tls-everywhere-endpoints-dns.yaml'
   tls_env_files+=' -e tripleo-heat-templates/environments/services/haproxy-public-tls-certmonger.yaml'
@@ -10,7 +10,9 @@ else
 fi
 
 rhel_reg_env_files=''
-if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] ; then
+if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' && "$USE_PREDEPLOYED_NODES" != 'true' ]] ; then
+  # use rhel registration options in eneabled and for non predeployed nodes.
+  # for predeployed nodes registration is made in rhel_provisioning.sh
   rhel_reg_env_files+=" -e tripleo-heat-templates/environments/rhsm.yaml"
   rhel_reg_env_files+=" -e rhsm.yaml"
 fi
