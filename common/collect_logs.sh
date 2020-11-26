@@ -89,8 +89,9 @@ function collect_openstack_logs() {
     mkdir -p $log_dir
     local ldir
     for ldir in '/etc/nova' '/var/log/nova' '/var/lib/config-data/puppet-generated/nova' '/var/log/containers/nova' \
-                '/etc/haproxy' '/var/log/upstart' \
+                '/etc/haproxy' '/var/log/upstart' '/var/lib/config-data/puppet-generated/haproxy' '/var/log/containers/haproxy' \
                 '/etc/neutron' '/var/log/neutron' '/var/lib/config-data/puppet-generated/neutron' '/var/log/containers/neutron' \
+                '/etc/cinder' '/var/log/cinder' '/var/lib/config-data/puppet-generated/cinder' '/var/log/containers/cinder' \
                 '/etc/keystone' '/var/log/keystone' '/var/lib/config-data/puppet-generated/keystone' '/var/log/containers/keystone' \
                 '/etc/heat' '/var/log/heat' '/var/lib/config-data/puppet-generated/heat' '/var/log/containers/heat' \
                 '/etc/glance' '/var/log/glance' '/var/lib/config-data/puppet-generated/glance' '/var/log/containers/glance' \
@@ -125,6 +126,7 @@ function collect_contrail_logs() {
     for cl_path in '/var/log/contrail' '/var/log/containers/contrail' ; do
         if sudo ls $cl_path >/dev/null 2>&1 ; then
             mkdir -p $log_dir/contrail_logs
+            local ii
             for ii in `sudo ls $cl_path/`; do
                 echo "INFO: Collecting contrail logs: $cl_path/$ii"
                 sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
@@ -176,7 +178,7 @@ function save_introspect_info() {
     local hex_port=$(printf "%04X" "$4")
     if grep ":$hex_port" /proc/net/tcp* &>/dev/null; then
         echo "INFO: Collecting contrail logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
-        sudo timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus > $1/$3.xml.log
+        sudo timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus >$1/$3.xml.log || true
     fi
 }
 

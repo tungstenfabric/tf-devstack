@@ -233,6 +233,7 @@ function collect_deployment_log() {
             ./collect_logs.sh create_log_dir
             ./collect_logs.sh collect_docker_logs
             ./collect_logs.sh collect_system_stats
+            ./collect_logs.sh collect_openstack_logs
             ./collect_logs.sh collect_contrail_logs
 EOF
         source_name=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip hostname -s)
