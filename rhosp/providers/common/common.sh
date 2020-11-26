@@ -60,7 +60,26 @@ declare -A _default_ssh_user_overcloud=( ['vexx']='cloud-user' ['kvm']='heat-adm
 export SSH_USER_OVERCLOUD=${SSH_USER_OVERCLOUD:-${_default_ssh_user_overcloud[$PROVIDER]}}
 
 export SSH_EXTRA_OPTIONS=${SSH_EXTRA_OPTIONS:-}
-export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
+export ssh_opts="-T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
+
+declare -A RHOSP_NETWORKS=( \
+    ['ctlplane']='contrail HTTP haproxy' \
+    ['internalapi']='contrail HTTP haproxy novnc-proxy redis rabbitmq mysql libvirt libvirt-vnc qemu' \
+    ['storage']='HTTP haproxy' \
+    ['storagemgmt']='HTTP haproxy' \
+    ['external']='HTTP haproxy' \
+    ['tenant']='contrail' \
+)
+declare -A RHOSP_VIP_NETWORKS=( \
+    ['ctlplane']='haproxy' \
+    ['internalapi']='haproxy redis mysql' \
+    ['storage']='haproxy' \
+    ['storagemgmt']='haproxy' \
+    ['external']='' \
+    ['tenant']='' \
+)
+export RHOSP_NETWORKS
+export RHOSP_VIP_NETWORKS
 
 # empty - disabled
 # ipa   - use FreeIPA

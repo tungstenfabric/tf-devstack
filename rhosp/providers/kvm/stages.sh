@@ -10,20 +10,12 @@ EOF
 }
 
 function machines() {
-    _run machines
-}
-
-function undercloud() {
-    _run undercloud
-}
-
-function overcloud() {
     # dirty hack - somehow started vbmc port becomes down at time of this stage
     echo "INFO: vbmc ports status"
     sudo vbmc --no-daemon list || true
     echo "INFO: start all vbmc ports"
     sudo vbmc --no-daemon start $(vbmc --no-daemon list -c 'Domain name' -f value) || true
-    _run overcloud
+    _run machines
 }
 
 function tf_no_deploy() {
