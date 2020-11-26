@@ -26,7 +26,7 @@ else
    export glance_backend_storage="file"
 fi
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"
 else
    export overcloud_nameservers="[ \"8.8.8.8\", \"8.8.4.4\" ]"

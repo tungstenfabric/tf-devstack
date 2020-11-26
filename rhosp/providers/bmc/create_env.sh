@@ -29,8 +29,12 @@ cd $WORKSPACE
 prepare_rhosp_env_file rhosp-environment.sh
 tf_dir=$(readlink -e $my_dir/../../..)
 rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@$instance_ip:
+rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$instance_ip:.ssh/id_rsa
+ssh $ssh_opts -i $ssh_private_key $SSH_USER@$instance_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
-  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir root@${ipa_mgmt_ip}:
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment.sh $tf_dir $SSH_USER@${ipa_mgmt_ip}:
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$ipa_mgmt_ip:.ssh/id_rsa
+  ssh $ssh_opts -i $ssh_private_key $SSH_USER@$ipa_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 fi
