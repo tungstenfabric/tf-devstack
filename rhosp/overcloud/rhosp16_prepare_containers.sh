@@ -24,4 +24,4 @@ echo 'sudo openstack overcloud container image upload --config-file ./contrail_c
 sudo openstack overcloud container image upload --config-file ./contrail_containers.yaml
 
 echo Checking catalog in docker registry
-openstack tripleo container image list
+sudo openstack tripleo container image list

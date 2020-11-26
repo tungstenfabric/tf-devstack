@@ -40,3 +40,8 @@ export vrouter_huge_pages_1g='6'
 export sriov_physical_interface="ens2f3"
 export sriov_physical_network="sriov1"
 export sriov_vf_number="4"
+
+# IPA params
+export ipa_instance="ipa"
+#export ipa_mgmt_ip="$ipa_mgmt_ip" - defined outside
+export ipa_prov_ip="192.168.24.5"
