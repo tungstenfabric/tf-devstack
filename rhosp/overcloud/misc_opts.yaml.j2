@@ -1,0 +1,150 @@
+{%- if vrouter_huge_pages_1g is defined and vrouter_huge_pages_1g|length %}
+  {%- set hp1gb = vrouter_huge_pages_1g %}
+  {%- set hp2mb = '' %}
+  {%- set kernel_args = "default_hugepagesz=1GB hugepagesz=1G hugepages=" + vrouter_huge_pages_1g %}
+  {%- set sysctl_hp = vrouter_huge_pages_1g %}
+{% else %}
+  {%- set hp1gb = '' %}
+  {%- set hp2mb = '512' %}
+  {%- set kernel_args = '' %}
+  {%- set sysctl_hp = '512' %}
+{%- endif %}
+
+{%- set overcloud_cont_instance = overcloud_cont_instance | default('') %}
+{%- set overcloud_cont_instance = (overcloud_cont_instance.split(',') | length) if overcloud_cont_instance != '' else 0 %}
+
+{%- set overcloud_ctrlcont_instance = overcloud_ctrlcont_instance | default('') %}
+{%- set overcloud_ctrlcont_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
+
+{%- set overcloud_compute_instance = overcloud_compute_instance | default('') %}
+{%- set overcloud_compute_instance = (overcloud_compute_instance.split(',') | length) if overcloud_compute_instance != '' else 0 %}
+
+{%- set overcloud_dpdk_instance = overcloud_dpdk_instance | default('') %}
+{%- set overcloud_dpdk_instance = (overcloud_dpdk_instance.split(',') | length)  if overcloud_dpdk_instance != '' else 0 %}
+
+{%- set overcloud_sriov_instance = overcloud_sriov_instance | default('') %}
+{%- set overcloud_sriov_instance = (overcloud_sriov_instance.split(',') | length)  if overcloud_sriov_instance != '' else 0 %}
+
+{%- set overcloud_ceph_instance = overcloud_ceph_instance | default('') %}
+{%- set overcloud_ceph_instance = (overcloud_ceph_instance.split(',') | length)  if overcloud_ceph_instance != '' else 0 %}
+
+{%- if overcloud_cont_instance > 1 %}
+  {%- set enable_galera = 'true' %}
+  {%- if overcloud_ceph_instance > 0 %}
+    {%- set glance_backend_storage = 'ceph' %}
+  {% else %}
+    {%- set glance_backend_storage = 'swift' %}
+  {%- endif %}
+{% else %}
+    {%- set enable_galera = 'false' %}
+    {%- set glance_backend_storage = 'file' %}
+{%- endif %}
+
+resource_registry:
+  OS::TripleO::ContrailDpdk::Net::SoftwareConfig: tripleo-heat-templates/network/config/contrail/contrail-dpdk-nic-config-single.yaml
+{%- if overcloud_ceph_instance > 0 %}
+  OS::TripleO::CephStorage::Net::SoftwareConfig: tripleo-heat-templates/network/config/single-nic-vlans/ceph-storage.yaml
+{%- endif %}
+
+parameter_defaults:
+  GlanceBackend: '{{ glance_backend_storage }}'
+  EnableGalera: '{{ enable_galera }}'
+  RabbitUserName: 'contrail'
+  RabbitPassword: 'contrail'
+  AdminPassword: '{{ ADMIN_PASSWORD }}'
+  NodeRootPassword: '{{ ADMIN_PASSWORD }}'
+  InternalTLSCRLPEMFile: ''
+  # Live VM migration via ssh
+  MigrationSshKey:
+    private_key: |
+{{ SSH_PRIVATE_KEY }}
+    public_key: |
+{{ SSH_PUBLIC_KEY }}
+
+  CloudDomain: '{{ domain }}'
+  CloudName: 'overcloud.{{ domain }}'
+  CloudNameCtlplane: 'overcloud.ctlplane.{{ domain }}'
+  CloudNameInternal: 'overcloud.internalapi.{{ domain }}'
+  CloudNameStorage: 'overcloud.storage.{{ domain }}'
+  CloudNameStorageManagement: 'overcloud.storagemgmt.{{ domain }}'
+  ControlPlaneDefaultRoute: '{{ prov_ip }}'
+  ControlPlaneSubnetCidr: {{ prov_subnet_len }}
+  ControlFixedIPs: [{'ip_address':'{{ fixed_vip }}'}]
+  EC2MetadataIp: '{{ prov_ip }}'
+  DnsServers: '{{ overcloud_nameservers }}'
+  NtpServer: '3.europe.pool.ntp.org'
+  NovaComputeLibvirtType: '{{ overcloud_virt_type }}'
+  # Disable online data migration
+  # It has a race inside that appear as an error:
+  #   /usr/bin/bootstrap_host_exec cinder_api su cinder -s /bin/bash -c 'cinder-manage db online_data_migrations'",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stdout: Running batches of 50 until complete.",
+  #   Apr 25 09:52:43 rhosp13-overcloud-cont-6131 os-collect-config: "stderr: Option \"logdir\" from group \"DEFAULT\" is deprecated. Use optio
+  #   n \"log-dir\" from group \"DEFAULT\"."
+  EnableOnlineDataMigrations: false
+
+  DockerInsecureRegistryAddress:
+    - '{{ undercloud_registry }}'
+    - '{{ undercloud_instance }}.ctlplane.{{ domain }}:8787'
+
+  # Baremetal nodes placement scheduling
+  ComputeSchedulerHints:
+    'capabilities:node': 'overcloud-novacompute-%index%'
+  ContrailDpdkSchedulerHints:
+    'capabilities:node': 'overcloud-contraildpdk-%index%'
+  ContrailSriovSchedulerHints:
+    'capabilities:node': 'overcloud-contrailsriov-%index%'
+  ControllerSchedulerHints:
+    'capabilities:node': 'overcloud-controller-%index%'
+  ContrailControllerSchedulerHints:
+    'capabilities:node': 'overcloud-contrailcontroller-%index%'
+  CephStorageSchedulerHints:
+    'capabilities:node': 'overcloud-ceph-%index%'
+  OvercloudComputeFlavor: baremetal
+  OvercloudContrailDpdkFlavor: baremetal
+  OvercloudContrailSriovFlavor: baremetal
+  OvercloudControllerFlavor: baremetal
+  OvercloudContrailControllerFlavor: baremetal
+  OvercloudCephStorageFlavor: baremetal
+
+  ContrailRegistryInsecure: true
+  ContrailRegistry: '{{ undercloud_registry_contrail }}'
+  ContrailImageTag: '{{ CONTRAIL_CONTAINER_TAG }}'
+
+  ContrailSettings:
+    LOG_LEVEL: 'SYS_DEBUG'
+    JVM_EXTRA_OPTS: '-Xms1g -Xmx4g'
+    DPDK_UIO_DRIVER: 'vfio-pci'
+    {{ vrouter_gateway_parameter }}
+
+  ContrailConfigDBMinDiskGB: 4
+  ContrailAnalyticsDBMinDiskGB: 4
+  ContrailRedisPort: 6389
+
+  ContrailDpdkHugepages1GB: '8'
+  ContrailDpdkHugepages2MB: '2048'
+  ContrailDpdkDriver: 'vfio-pci'
+
+  ContrailSriovHugepages1GB: 8
+
+  ContrailVrouterHugepages1GB: '{{ hp1gb }}'
+  ContrailVrouterHugepages2MB: '{{ hp2mb }}'
+  ComputeParameters:
+    KernelArgs: '{{ kernel_args }}'
+    ExtraSysctlSettings:
+      vm.nr_hugepages:
+        value: {{ sysctl_hp }}
+      vm.max_map_count:
+        value: 128960
+
+  ControllerCount: {{ overcloud_cont_instance }}
+  ContrailControllerCount: {{ overcloud_ctrlcont_instance }}
+  ComputeCount: {{ overcloud_compute_instance }}
+  ContrailDpdkCount: {{ overcloud_dpdk_instance }}
+  ContrailSriovCount: {{ overcloud_sriov_instance }}
+  CephStorageCount: {{ overcloud_ceph_instance }}
+{%- if overcloud_ceph_instance > 0 %}
+  CephDefaultPoolSize: 2
+  CephPoolDefaultPgNum: 8
+  ManilaCephFSDataPoolPGNum: 8
+  ManilaCephFSMetadataPoolPGNum: 8
+{%- endif %}
