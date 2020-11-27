@@ -35,3 +35,8 @@ export overcloud_ceph_instance="1,2,3"
 
 # to allow nova to use hp as well (2 are used by vrouter)
 export vrouter_huge_pages_1g='6'
+
+# IPA params
+export ipa_instance="ipa"
+#export ipa_mgmt_ip="$ipa_mgmt_ip" - defined outside
+export ipa_prov_ip="192.168.24.5"

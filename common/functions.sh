@@ -157,9 +157,10 @@ function check_pods_active() {
 }
 
 function check_tf_active() {
+  local nodes="${@:-$CONTROLLER_NODES $AGENT_NODES}"
   local machine
   local line=
-  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+  for machine in $(echo "$nodes" | tr " " "\n" | sort -u) ; do
     if ! ssh $SSH_OPTIONS $machine "command -v contrail-status" 2>/dev/null ; then
       return 1
     fi

@@ -18,8 +18,10 @@ ${SSH_PUBLIC_KEY}
 
   CloudDomain: ${domain}
   CloudName: overcloud.${domain}
-  CloudNameInternal: overcloud.internalapi.${domain}
   CloudNameCtlplane: overcloud.ctlplane.${domain}
+  CloudNameInternal: overcloud.internalapi.${domain}
+  CloudNameStorage: overcloud.storage.${domain}
+  CloudNameStorageManagement: overcloud.storagemgmt.${domain}
   ControlPlaneDefaultRoute: ${prov_ip}
   ControlPlaneSubnetCidr: ${prov_subnet_len}
   ControlFixedIPs: [{'ip_address':'${fixed_vip}'}]
