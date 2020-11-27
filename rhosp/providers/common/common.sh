@@ -62,6 +62,16 @@ export SSH_USER_OVERCLOUD=${SSH_USER_OVERCLOUD:-${_default_ssh_user_overcloud[$P
 export SSH_EXTRA_OPTIONS=${SSH_EXTRA_OPTIONS:-}
 export ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"
 
+declare -A RHOSP_NETWORKS=( \
+    ['ctlplane']='contrail HTTP' \
+    ['internalapi']='contrail HTTP novnc-proxy redis rabbitmq mysql libvirt qemu' \
+    ['storage']='HTTP' \
+    ['storagemgmt']='HTTP' \
+    ['external']='HTTP' \
+    ['tenant']='contrail' \
+)
+export RHOSP_NETWORKS
+
 # empty - disabled
 # ipa   - use FreeIPA
 export ENABLE_TLS=${ENABLE_TLS:-}

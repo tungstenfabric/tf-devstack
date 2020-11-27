@@ -194,7 +194,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['AUTH_PORT']="35357"
     fi
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
-    if [ -n "$ENABLE_TLS" ] ; then
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
         if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
             local cafile='/etc/ipa/ca.crt'
@@ -214,6 +214,7 @@ function collect_deployment_log() {
     create_log_dir
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
+    collect_openstack_logs
     collect_stack_details ${TF_LOG_DIR}/${host_name}
     if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
         cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
@@ -224,18 +225,32 @@ function collect_deployment_log() {
     for ip in $(get_servers_ips); do
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER_OVERCLOUD@$ip:
         cat <<EOF | ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip
-            export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
-            cd /home/$SSH_USER_OVERCLOUD
-            ./collect_logs.sh create_log_dir
-            ./collect_logs.sh collect_docker_logs
-            ./collect_logs.sh collect_system_stats
-            ./collect_logs.sh collect_openstack_logs
-            ./collect_logs.sh collect_contrail_logs
+export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
+cd /home/$SSH_USER_OVERCLOUD
+./collect_logs.sh create_log_dir
+./collect_logs.sh collect_docker_logs
+./collect_logs.sh collect_system_stats
+./collect_logs.sh collect_openstack_logs
+./collect_logs.sh collect_contrail_logs
+[[ ! -f /var/log/ipaclient-install.log ]] || cp /var/log/ipaclient-install.log \$TF_LOG_DIR
 EOF
         source_name=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip hostname -s)
         mkdir ${TF_LOG_DIR}/${source_name}
         scp -r $ssh_opts $SSH_USER_OVERCLOUD@$ip:logs/* ${TF_LOG_DIR}/${source_name}/
     done
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER@$ip:
+        cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
+export TF_LOG_DIR="/home/$SSH_USER/logs"
+cd /home/$SSH_USER
+./collect_logs.sh create_log_dir
+./collect_logs.sh collect_system_stats
+[[ ! -f /var/log/ipaclient-install.log ]] || cp /var/log/ipaclient-install.log \$TF_LOG_DIR
+[[ ! -f /var/log/ipaserver-install.log ]] || cp /var/log/ipaserver-install.log \$TF_LOG_DIR
+EOF
+        mkdir ${TF_LOG_DIR}/ipa
+        scp -r $ssh_opts $SSH_USER@$ip:logs/* ${TF_LOG_DIR}/ipa/
+    fi
 
     # Save to archive all yaml files and tripleo templates
     tar -czf ${TF_LOG_DIR}/tht.tgz -C ~ *.yaml tripleo-heat-templates
@@ -328,4 +343,22 @@ EOF
 
     #Removing duplicate lines
     awk '!a[$0]++' $env_file > $target_env_file
+}
+
+function add_node_to_ipa(){
+    local name=$1
+    local zone=$2
+    local addr=$3
+    local services="$4"
+    local host="$5"
+    ipa dnsrecord-find ${zone} ${name} || ipa dnsrecord-add --a-ip-address=$addr ${zone} ${name}
+    ipa host-find ${name}.${zone} || ipa host-add ${name}.${zone}
+    local s
+    for s in $services ; do
+        local principal="${s}/${name}.${zone}@${domain^^}"
+        if ! ipa service-find $principal ; then
+            ipa service-add $principal
+            ipa service-add-host --hosts $host $principal
+        fi
+    done
 }
