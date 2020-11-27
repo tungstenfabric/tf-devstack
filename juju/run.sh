@@ -213,6 +213,10 @@ function is_active() {
 }
 
 function collect_deployment_env() {
+    if ! is_after_stage 'wait' ; then
+        # deployment environment for juju is needed after wait stage only
+        return 0
+    fi
     echo "INFO: collect deployment env"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
