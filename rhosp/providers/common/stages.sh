@@ -1,59 +1,122 @@
 
-function machines() {
-    $my_dir/providers/common/rhel_provisioning.sh
-    if [[ -n "$ENABLE_TLS" ]] ; then
-        local fqdn=$(hostname -f)
-        ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip} ./tf-devstack/rhosp/providers/common/rhel_provisioning.sh
-        ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip} \
-            UndercloudFQDN=$fqdn \
-            AdminPassword=$ADMIN_PASSWORD \
-            FreeIPAIP=$ipa_prov_ip \
-            ./tf-devstack/rhosp/ipa/freeipa_setup.sh
-        scp $ssh_opts $SSH_USER@${ipa_mgmt_ip}:./undercloud_otp ~/
-    fi
+function _setup_ipa() {
+    local fqdn=$(hostname -f)
+    cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
+./tf-devstack/rhosp/providers/common/rhel_provisioning.sh
+export UndercloudFQDN=$fqdn
+export AdminPassword=$ADMIN_PASSWORD
+export FreeIPAIP=$ipa_prov_ip
+export FreeIPAIPSubnet=$prov_subnet_len
+./tf-devstack/rhosp/ipa/freeipa_setup.sh
+EOF
 }
 
-function undercloud() {
-    if [[ -n "$ENABLE_TLS" ]] ; then
-        export OTP_PASSWORD=$(cat ~/undercloud_otp)
+function _enroll_ipa_overcloud_node() {
+    local ip=$1
+    local fqdn=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip hostname -f)
+    cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip} >${fqdn}.otp
+sudo novajoin-ipa-setup \
+    --principal admin \
+    --password "$ADMIN_PASSWORD" \
+    --server \$(hostname -f) \
+    --realm ${domain^^} \
+    --domain ${domain} \
+    --hostname ${fqdn} \
+    --precreate
+EOF
+    scp $ssh_opts ${fqdn}.otp $SSH_USER_OVERCLOUD@$ip:
+    cat <<EOF | ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip >${fqdn}.otp
+sudo hostnamectl set-hostname $fqdn
+sudo ipa-client-install --verbose -U -w $(cat ${fqdn}.otp) --hostname $fqdn --domain=$domain
+EOF
+}
+
+function _overcloud_setup_overcloud_node() {
+    local ip=$1
+    local tf_devstack_path=$(dirname $my_dir)
+    scp $ssh_opts -r rhosp-environment.sh $tf_devstack_path $SSH_USER_OVERCLOUD@$ip:
+    ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip ./$(basename $tf_devstack_path)/rhosp/overcloud/03_setup_predeployed_nodes.sh
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        _enroll_ipa_overcloud_node $ip
     fi
-    $my_dir/undercloud/undercloud_deploy.sh
 }
 
 function _overcloud_preprovisioned_nodes()
 {
-    if [[ "$RHOSP_VERSION" == 'rhosp13' ]] ; then
-        ./overcloud/03_setup_predeployed_nodes_access.sh
-    fi
     cd
     local jobs=""
+    declare -A jobs_descr
     local ip
     for ip in ${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ; do
-        local tf_devstack_path=$(dirname $my_dir)
-        scp -r rhosp-environment.sh $tf_devstack_path $SSH_USER_OVERCLOUD@$ip:
-        ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip ./$(basename $tf_devstack_path)/rhosp/overcloud/03_setup_predeployed_nodes.sh &
+        _overcloud_setup_overcloud_node $ip &
+        jobs_descr[$!]="_overcloud_setup_overcloud_node $ip"
         jobs+=" $!"
     done
     echo "Parallel pre-installation overcloud nodes. pids: $jobs. Waiting..."
     local res=0
     local i
     for i in $jobs ; do
-        command wait $i || res=1
+        command wait $i || {
+            echo "ERROR: failed ${jobs_descr[$i]}"
+            res=1
+        }
     done
-    if [[ "${res}" == 1 ]]; then
-        echo errors appeared during overcloud nodes pre-installation. Exiting
-        exit 1
-    fi
+    [[ "${res}" == 0 ]] || exit 1
 }
 
-function overcloud() {
+function _undercloud() {
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        export OTP_PASSWORD=$(cat ~/undercloud_otp)
+    fi
+    $my_dir/undercloud/undercloud_deploy.sh
+}
+
+function _overcloud() {
     cd $my_dir
     if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
         ./overcloud/01_extract_overcloud_images.sh
         ./overcloud/03_node_introspection.sh
     else
-        _overcloud_preprovisioned_nodes
+        # this script uses openstack mistral and cannot be run at machines step
+        ./overcloud/03_setup_predeployed_nodes_access.sh
     fi
+}
+
+function machines() {
+    # provision
+    $my_dir/providers/common/rhel_provisioning.sh &
+    local jobs="$!"
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+        _setup_ipa &
+        command wait $! || {
+            echo "ERROR: failed to setup ipa"
+            exit 1
+        }
+        scp $ssh_opts $SSH_USER@${ipa_mgmt_ip}:./undercloud_otp ~/
+    fi
+    command wait $jobs || {
+        echo "ERROR: failed to provision undercloud"
+        exit 1
+    }
+    # deploy undercloud & enroll overcloud nodes
+    declare -A jobs_descr
+    _undercloud &
+    jobs="$!"
+    jobs_descr[$!]="_undercloud"
+    _overcloud_preprovisioned_nodes &
+    jobs+=" $!"
+    jobs_descr[$!]="_overcloud_preprovisioned_nodes"
+    local i
+    local res=0
+    for i in $jobs ; do
+        command wait $i || {
+            echo "ERROR: failed ${jobs_descr[$i]}"
+            res=1
+        }
+    done
+    [[ "${res}" == 0 ]] || exit 1
+    # prepare overcloud images and introspection
+    _overcloud
 }
 
 # TODO:
