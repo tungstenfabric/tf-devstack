@@ -21,7 +21,7 @@ chmod 644 ~/.ssh/config
 
 export local_mtu=`/sbin/ip link show $undercloud_local_interface | grep -o "mtu.*" | awk '{print $2}'`
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   export undercloud_nameservers="$ipa_prov_ip"
   export nova_join_option="enable_novajoin = True"
   export ipa_otp_option="ipa_otp = \"$OTP_PASSWORD\""
