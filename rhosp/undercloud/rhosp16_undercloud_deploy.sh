@@ -4,7 +4,7 @@ pkgs="python3-tripleoclient rhosp-director-images rhosp-director-images-ipa"
 [[ -z "$overcloud_ceph_instance" ]] || pkgs+=" ceph-ansible"
 sudo dnf install -y $pkgs
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   # WA for TLS
   #   To avoid error:
   #     ipa-getkeytab -s rhosp16-ipa-20.dev.localdomain -p nova/rhosp16-undercloud-20.dev.localdomain -k /etc/novajoin/krb5.keytab
@@ -27,7 +27,7 @@ HOTPLUG=no
 NM_CONTROLLED=no
 BOOTPROTO=none
 IPADDR=$prov_ip
-NETMASK=255.255.255.0
+PREFIX=$prov_subnet_len
 EOF
   sudo modprobe ipv6 || true
   sudo ifdown eth1
