@@ -97,8 +97,8 @@ function collect_openstack_logs() {
                 '/etc/glance' '/var/log/glance' '/var/lib/config-data/puppet-generated/glance' '/var/log/containers/glance' \
                 '/etc/octavia' '/var/log/octavia' '/var/lib/config-data/puppet-generated/octavia' '/var/log/containers/octavia' \
                 ; do
-        if sudo ls "$ldir" ; then
-            sudo cp -R $ldir $log_dir/
+        if sudo ls "$ldir" >/dev/null 2>&1 ; then
+            sudo cp -R -P $ldir $log_dir/
         fi
     done
 
@@ -189,6 +189,12 @@ function collect_system_stats() {
     [ -z "$host_name" ] || syslogs+="/${host_name}"
     syslogs+="/system"
     mkdir -p "$syslogs"
+    cat /proc/cmdline &> $syslogs/lx_cmdline.log
+    ls /sys/devices/system/node/node*/hugepages/ &> $syslogs/hugepages.log
+    echo "nr_hugepages" &>> $syslogs/hugepages.log
+    cat /sys/devices/system/node/node*/hugepages/hugepages-*/nr_hugepages &>> $syslogs/hugepages.log
+    echo "free_hugepages" &>> $syslogs/hugepages.log
+    cat /sys/devices/system/node/node*/hugepages/hugepages-*/free_hugepages &>> $syslogs/hugepages.log
     ps ax -H &> $syslogs/ps.log
     sudo netstat -lpn &> $syslogs/netstat.log
     free -h &> $syslogs/mem.log
