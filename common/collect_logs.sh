@@ -97,8 +97,8 @@ function collect_openstack_logs() {
                 '/etc/glance' '/var/log/glance' '/var/lib/config-data/puppet-generated/glance' '/var/log/containers/glance' \
                 '/etc/octavia' '/var/log/octavia' '/var/lib/config-data/puppet-generated/octavia' '/var/log/containers/octavia' \
                 ; do
-        if sudo ls "$ldir" ; then
-            sudo cp -R $ldir $log_dir/
+        if sudo ls "$ldir" 2>/dev/null ; then
+            sudo cp -R -P $ldir $log_dir/
         fi
     done
 
