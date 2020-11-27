@@ -167,6 +167,16 @@ mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config
 sudo chown -R $(id -u):$(id -g) ~/.kube
 
+# NB. kubespray deletes k8s_POD_kube-apiserver ct in the end to
+# trigger a kube-apiserver reset thus kube API can be available
+# for a moment and then disappears. the port test is not enough
+# let's wait for k8s_POD_kube-apiserver cts first to catch the
+# kube-apiserver POD restart.
+if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q -a --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12
+then
+  echo "Kubernetes API POD is not available"
+  exit 1
+fi
 if ! wait_cmd_success "is_kubeapi_accessible ${masters[0]}" 5 12
 then
   echo "Kubernetes API is not accessible"
