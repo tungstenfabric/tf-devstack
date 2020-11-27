@@ -39,7 +39,7 @@ assert_env_exists $undercloud_vmname
 # create networks and setup DHCP rules
 create_network_dhcp $NET_NAME_MGMT $mgmt_subnet
 update_network_dhcp $NET_NAME_MGMT $undercloud_vmname $undercloud_mgmt_mac $instance_ip
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   update_network_dhcp $NET_NAME_MGMT $ipa_instance $ipa_mgmt_mac $ipa_mgmt_ip
 fi
 
@@ -89,7 +89,7 @@ undercloud_vm_volume="$pool_path/${undercloud_vmname}.qcow2"
 sudo cp -p $BASE_IMAGE $undercloud_vm_volume
 image_customize $undercloud_vm_volume $undercloud_instance $ssh_public_key $domain $prov_ip
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   ipa_vm_volume="$pool_path/${ipa_instance}.qcow2"
   sudo cp -p $BASE_IMAGE $ipa_vm_volume
   image_customize $ipa_vm_volume $ipa_instance $ssh_public_key $domain $ipa_prov_ip
@@ -127,7 +127,7 @@ function _start_vm() {
 _start_vm "$undercloud_vmname" "$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac $UNDERCLOUD_MEM
 
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   _start_vm "$ipa_instance" "$ipa_vm_volume" \
     $ipa_mgmt_mac $ipa_prov_mac $IPA_MEM
 fi
