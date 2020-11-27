@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 sudo yum update -y
-sudo yum install -y ntp wget yum-utils vim iproute jq curl bind-utils bridge-utils net-tools python-heat-agent*
+sudo yum install -y ntp wget yum-utils vim iproute jq curl bind-utils bridge-utils net-tools ipa-client python-heat-agent*
 
 sudo chkconfig ntpd on
 sudo service ntpd start
