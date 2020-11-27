@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f8d8924_070c4e5a",
+        "filename": "rhosp/providers/vexx/create_env.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-11-27T12:21:28Z",
+      "side": 1,
+      "message": "just one \u003d",
+      "range": {
+        "startLine": 52,
+        "startChar": 19,
+        "endLine": 52,
+        "endChar": 21
+      },
+      "revId": "7d9f0fca8cc83cb46ed6a25d233d85472202b848",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
