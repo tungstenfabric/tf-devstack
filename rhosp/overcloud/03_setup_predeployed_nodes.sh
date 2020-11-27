@@ -19,8 +19,16 @@ cfg_file="/etc/sysconfig/network-scripts/ifcfg-$default_dev"
 sudo ip route replace default via ${prov_ip} dev $default_dev
 sudo sed -i '/^GATEWAY[ ]*=/d' $cfg_file
 echo "GATEWAY=${prov_ip}" | sudo tee -a $cfg_file
+
 sudo sed -i '/nameserver/d'  /etc/resolv.conf
-echo 'nameserver 8.8.8.8' | sudo tee -a /etc/resolv.conf
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+   echo "nameserver $ipa_prov_ip" | sudo tee -a /etc/resolv.conf
+   if ! sudo grep -q "$domain" /etc/resolv.conf ; then
+      sudo sed -i "0,/nameserver/s/\(nameserver.*\)/search ${domain}\n\1/" /etc/resolv.conf
+   fi
+else
+   echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
+fi
 
 $my_dir/../providers/common/rhel_provisioning.sh
 

@@ -17,32 +17,31 @@ fi
 cd
 sudo getenforce
 sudo cat /etc/selinux/config
-if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
-   set +x
-   register_opts=''
-   [ -n "$RHEL_USER" ] && register_opts+=" --username $RHEL_USER"
-   [ -n "$RHEL_PASSWORD" ] && register_opts+=" --password $RHEL_PASSWORD"
 
-   for i in {1..10} ; do
-      sudo subscription-manager unregister || true
-      echo subscription-manager register ... $i
-      sudo subscription-manager register $register_opts && break
-   done
-   for i in {1..10} ; do
-      echo subscription-manager attach ... $i
-      sudo subscription-manager attach $attach_opts && break
-   done
-   set -x
-   for i in {1..10} ; do
-      echo subscription-manager clean repos ... $i
-      sudo subscription-manager repos --disable=* && break
-   done
+function _register_system() {
+   sudo subscription-manager unregister || true
+   sudo subscription-manager register $@
+}
+
+if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
+   [[ "$-" =~ e ]] && state+="; set -e"
+   set +x
+   echo "subscription-manager register system"
+   eval "$state"
+  
+   echo "subscription-manager attach ... $i"
+   retry sudo subscription-manager attach $attach_opts
+
+   echo "subscription-manager clean repos ... $i"
+   retry sudo subscription-manager repos --disable=*
+   
+   echo "subscription-manager repos $enable_repo_list ... $i"
    enable_repo_list=''
    for r in $(echo $RHEL_REPOS | tr ',' ' ') ; do enable_repo_list+=" --enable=${r}"; done
-   for i in {1..10} ; do
-      echo subscription-manager repos $enable_repo_list ... $i
-      sudo subscription-manager repos $enable_repo_list && break
-   done
+   retry sudo subscription-manager repos $enable_repo_list
+else
+   sudo subscription-manager config --rhsm.auto_enable_yum_plugins=0
+   sudo subscription-manager config --rhsm.manage_repos=0
 fi
 
-$my_dir/${RHEL_VERSION}_provisioning.sh
+source $my_dir/${RHEL_VERSION}_provisioning.sh
