@@ -194,7 +194,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['AUTH_PORT']="35357"
     fi
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
-    if [ -n "$ENABLE_TLS" ] ; then
+    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
         if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
             local cafile='/etc/ipa/ca.crt'
