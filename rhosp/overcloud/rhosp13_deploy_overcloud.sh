@@ -1,6 +1,6 @@
 
 tls_env_files=''
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   tls_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-tls.yaml'
   tls_env_files+=' -e tripleo-heat-templates/environments/ssl/tls-everywhere-endpoints-dns.yaml'
   tls_env_files+=' -e tripleo-heat-templates/environments/services/haproxy-public-tls-certmonger.yaml'
