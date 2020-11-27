@@ -22,6 +22,29 @@
       "revId": "7d9f0fca8cc83cb46ed6a25d233d85472202b848",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "980ffbec_f7cbcd7e",
+        "filename": "rhosp/providers/vexx/create_env.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-11-27T12:23:06Z",
+      "side": 1,
+      "message": "res+\u003d$node_name",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 18
+      },
+      "revId": "7d9f0fca8cc83cb46ed6a25d233d85472202b848",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
     }
   ]
 }
