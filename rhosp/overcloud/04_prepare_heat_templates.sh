@@ -23,7 +23,7 @@ function _get_count()
 if [[ -n "$overcloud_ceph_instance" ]] ; then
    export glance_backend_storage="rbd"
 else
-   export glance_backend_storage="file"
+   export glance_backend_storage="swift"
 fi
 
 if [[ -n "$ENABLE_TLS" ]] ; then
