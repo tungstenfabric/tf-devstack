@@ -152,6 +152,9 @@ function tf() {
                       || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
     cd $JUJU_REPO
 
+    # do not retry hooks during tf deployment
+    juju model-config automatically-retry-hooks=false
+
     $my_dir/../common/deploy_juju_bundle.sh
 
     # add relations between orchestrator and Contrail
