@@ -10,12 +10,12 @@ source "$my_dir/common.sh"
 if [[ -n "$CONTROLLER_NODES" || -n "$AGENT_NODES" ]]; then
     for node in $CONTROLLER_NODES ; do
         if [[ $node != $NODE_IP && $CLOUD == 'manual' ]]; then
-            juju add-machine ssh:ubuntu@$node
+            juju add-machine ssh:$SSH_USER@$node
         fi
     done
     for node in $AGENT_NODES ; do
         if [[ $node != $NODE_IP && $CLOUD == 'manual' && ! " $CONTROLLER_NODES " =~ " $node " ]]; then
-            juju add-machine ssh:ubuntu@$node
+            juju add-machine ssh:$SSH_USER@$node
         fi
     done
 fi

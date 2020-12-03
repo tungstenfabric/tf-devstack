@@ -6,7 +6,6 @@
 # - old_XXX_fetch_deployer - deprecated deployer method saved for backward compatibility. Will be removed in the future.
 
 function old_ansible_fetch_deployer() {
-
     local deployer_image="contrail-kolla-ansible-deployer"
     sudo rm -rf "$tf_deployer_dir"
     sudo rm -rf "$openstack_deployer_dir"
