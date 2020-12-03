@@ -218,3 +218,45 @@ function is_after_stage() {
   fi
   return 1
 }
+
+function sync_ntp() {
+  cat >/tmp/sync.sh <<EOF
+#!/bin/bash
+if ps ax | grep "bin/chronyd" | grep -v grep ; then
+  echo "INFO: check sync with chronyd"
+  i=12
+  while ! chronyc -n sources | grep "^\^\*" ; do
+    echo "INFO: time is not synced. force it (\$i)"
+    sudo systemctl stop chronyd.service
+    for server in \$(grep "^server " /etc/chrony.conf | awk '{print \$2}') ; do
+      sudo chronyd -q server \$server iburst
+    done
+    sudo systemctl start chronyd.service
+    sleep 10
+    if ! ((i=-1)) ; then
+      echo "ERROR: time can not be synced. Exiting..."
+      return 1
+    fi
+  done
+elif ps ax | grep "bin/ntpd" | grep -v grep  ; then
+  echo "INFO: check sync with ntpd"
+  i=12
+  while ! ntpq -n -c pe | grep "^\*" ; do
+    echo "INFO: time is not synced. force it (\$i)"
+    sudo systemctl stop ntpd.service
+    sudo ntpd -gq
+    sudo systemctl start ntpd.service
+    sleep 10
+    if ! ((i=-1)) ; then
+      echo "ERROR: time can not be synced. Exiting..."
+      return 1
+    fi
+  done
+fi
+EOF
+
+  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
+    scp $SSH_OPTIONS /tmp/sync.sh $SSH_USER@$machine:/tmp/sync.sh
+    ssh $SSH_OPTIONS $SSH_USER$machine bash -e /tmp/sync.sh
+  done
+}
