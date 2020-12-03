@@ -39,5 +39,3 @@ echo $lxd_machines
 for machine in $lxd_machines ; do
   wait_cmd_success 'juju ssh --proxy $machine "sudo apt-get update -y"'
 done
-# wait a bit while juju re-runs all failed hooks
-sleep 120
