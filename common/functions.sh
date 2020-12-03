@@ -218,3 +218,21 @@ function is_after_stage() {
   fi
   return 1
 }
+
+function sync_time() {
+  echo "INFO: check time sync on nodes and force sync $(date)"
+  echo "INFO: controller nodes - $CONTROLLER_NODES"
+  echo "INFO: agent nodes - $AGENT_NODES"
+  echo "INFO: openstack controller nodes - $OPENSTACK_CONTROLLER_NODES"
+  if [[ $DEPLOYER == 'rhosp' ]]; then
+    # TODO:
+    echo "INFO: skip time checking for RHOSP"
+    return
+  fi
+
+  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES $OPENSTACK_CONTROLLER_NODES" | tr " " "\n" | sort -u) ; do
+    echo "INFO: machine $machine"
+    scp $SSH_OPTIONS ${fmy_dir}/sync.sh $SSH_USER@$machine:/tmp/sync_time.sh
+    ssh $SSH_OPTIONS $SSH_USER$machine /tmp/sync_time.sh
+  done
+}
