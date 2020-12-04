@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "81476ec1_5ae4ce07",
+        "filename": "common/functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-12-04T11:05:06Z",
+      "side": 1,
+      "message": "i see sometimes strange issue with time unsync in contrail-status in rhosp...\nit might be useful for rhosp as well.. at least ntdp service restart (as I saw that restart helped)",
+      "range": {
+        "startLine": 226,
+        "startChar": 0,
+        "endLine": 230,
+        "endChar": 4
+      },
+      "revId": "3d54983734e24b15e409c3dc37f51d8d2c8279d5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0f64219_baf41ad4",
+        "filename": "common/functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-12-04T11:05:06Z",
+      "side": 1,
+      "message": "why not to push this script in tf-destack .. i mean no reason to generate it..",
+      "range": {
+        "startLine": 231,
+        "startChar": 0,
+        "endLine": 232,
+        "endChar": 25
+      },
+      "revId": "3d54983734e24b15e409c3dc37f51d8d2c8279d5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ae48a51_71ca81b9",
+        "filename": "common/functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-12-04T11:05:06Z",
+      "side": 1,
+      "message": "+ OPENSTACK_CONTROLLER_NODES",
+      "range": {
+        "startLine": 267,
+        "startChar": 43,
+        "endLine": 267,
+        "endChar": 57
+      },
+      "revId": "3d54983734e24b15e409c3dc37f51d8d2c8279d5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd8caf56_1e0177ff",
+        "filename": "common/functions.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-12-04T11:05:06Z",
+      "side": 1,
+      "message": "in parallel ?",
+      "range": {
+        "startLine": 269,
+        "startChar": 44,
+        "endLine": 269,
+        "endChar": 59
+      },
+      "revId": "3d54983734e24b15e409c3dc37f51d8d2c8279d5",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
