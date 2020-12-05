@@ -209,22 +209,14 @@ function retry() {
   fi
 }
 
-function is_after_stage() {
-  local stage=$1
-
-  stages_after=$(echo "${STAGES["all"]}" | sed "s/^.*$stage/$stage/")
-  if [[ $stages_after == *"$last_stage"* ]] ; then
-      return 0
-  fi
-  return 1
-}
-
 function sync_time() {
   echo "INFO: check time sync on nodes and force sync $(date)"
   echo "INFO: controller nodes - $CONTROLLER_NODES"
   echo "INFO: agent nodes - $AGENT_NODES"
   echo "INFO: openstack controller nodes - $OPENSTACK_CONTROLLER_NODES"
-  if [[ $DEPLOYER == 'rhosp' ]]; then
+  # TODO: this function is called before wait. thus we have to think how to collect
+  # *_NODES for below cases here
+  if [[ $DEPLOYER == 'rhosp' || ($DEPLOYER == 'juju' && $CLOUD == 'maas') ]]; then
     # TODO:
     echo "INFO: skip time checking for RHOSP"
     return
