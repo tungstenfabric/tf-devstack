@@ -209,16 +209,6 @@ function retry() {
   fi
 }
 
-function is_after_stage() {
-  local stage=$1
-
-  stages_after=$(echo "${STAGES["all"]}" | sed "s/^.*$stage/$stage/")
-  if [[ $stages_after == *"$last_stage"* ]] ; then
-      return 0
-  fi
-  return 1
-}
-
 function sync_time() {
   echo "INFO: check time sync on nodes and force sync $(date)"
   echo "INFO: controller nodes - $CONTROLLER_NODES"
