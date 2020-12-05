@@ -18,7 +18,7 @@ declare -A STAGES=( \
     ["all"]="build juju machines k8s openstack tf wait logs" \
     ["default"]="juju machines k8s openstack tf wait" \
     ["master"]="build juju machines k8s openstack tf wait" \
-    ["platform"]="juju machines k8s openstack" \
+    ["platform"]="juju machines k8s openstack wait" \
 )
 
 export PATH=$PATH:/snap/bin
@@ -206,13 +206,18 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    local valid_statuses='executing|waiting'
+    if is_after_stage 'tf' ; then
+        valid_statuses='executing|blocked|waiting'
+    fi
     local status=`$(which juju) status`
     if [[ $status =~ "error" ]]; then
         echo "ERROR: Deployment has failed because juju state is error"
         echo "$status"
         exit 1
     fi
-    [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    echo "DEBUG: valid_statuses: $valid_statuses"
+    [[ ! $(echo "$status" | egrep $valid_statuses) ]]
 }
 
 function collect_deployment_env() {

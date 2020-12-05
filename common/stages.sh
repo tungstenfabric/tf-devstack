@@ -5,6 +5,8 @@
 STAGE=$1
 [[ -n $2 ]] && shift && OPTIONS="$@"
 
+last_stage=''
+
 function load_tf_devenv_profile() {
   if [ -e "$TF_DEVENV_PROFILE" ] ; then
     echo
@@ -84,19 +86,32 @@ function wait() {
 }
 
 function logs() {
-    echo "INFO: collecting logs..."
-    local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
-    set +e
+  echo "INFO: collecting logs..."
+  local errexit_state=$(echo $SHELLOPTS| grep errexit | wc -l)
+  set +e
 
-    create_log_dir
-    collect_logs
-    tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
-    rm -rf $TF_LOG_DIR
+  create_log_dir
+  collect_logs
+  tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
+  rm -rf $TF_LOG_DIR
 
-    # Restore errexit state
-    if [[ $errexit_state == 1 ]]; then
-        set -e
-    fi
+  # Restore errexit state
+  if [[ $errexit_state == 1 ]]; then
+    set -e
+  fi
+}
+
+function is_after_stage() {
+  local stage=$1
+
+  if [ -z "$last_stage" ]; then
+    return 1
+  fi
+  stages_after=$(echo "${STAGES["all"]}" | sed "s/^.*$stage/$stage/")
+  if [[ $stages_after == *"$last_stage"* ]] ; then
+    return 0
+  fi
+  return 1
 }
 
 function run_stages() {
@@ -111,6 +126,7 @@ function run_stages() {
   for stage in ${stages[@]} ; do
     echo "INFO: Running stage $stage at $(date)"
     $run_func $stage $OPTIONS
+    echo "INFO: Stage $stage was run successfully $(date)"
     last_stage=$stage
   done
 
