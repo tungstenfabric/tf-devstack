@@ -77,6 +77,9 @@ fi
 popd
 cp -r contrail-tripleo-heat-templates/* tripleo-heat-templates
 
+#Fix for SRIOV (TODO: make physical interface parameter)
+sed -i 's/ens2f1/ens2f3/g' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+
 cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
 
 cat <<EOF >> misc_opts.yaml
