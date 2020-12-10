@@ -82,17 +82,15 @@ function cleanup_stage() {
 function wait() {
   sync_time
   local timeout=${WAIT_TIMEOUT:-1200}
-  if ! wait_cmd_success is_active 10 $((timeout/10))
-  then
-      local e=$?
-      local w=$-
-      set -o xtrace
-      is_active
-      if ! [[ "${w}" =~ x ]]
-      then
-        set +o xtrace
-      fi
-      return $e
+  if ! wait_cmd_success is_active 10 $((timeout/10)) ; then
+    echo "ERROR: wait failed $(date)"
+    local w=$-
+    set -o xtrace
+    is_active
+    if ! [[ "${w}" =~ x ]]; then
+      set +o xtrace
+    fi
+    return 1
   fi
 }
 
