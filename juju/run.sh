@@ -90,7 +90,7 @@ function machines() {
         fi
         $my_dir/../common/add_juju_machines.sh
     fi
-    if [[ $ORCHESTRATOR == 'all' ]] ; then
+    if [[ $ORCHESTRATOR == 'hybrid' ]] ; then
         # in case k8s is deploying before lxd container creating,
         # lxd have wrong parent in config and can't get IP address
         # to prevent it we starts lxd before
@@ -102,7 +102,7 @@ function machines() {
 }
 
 function openstack() {
-    if [[ "$ORCHESTRATOR" != "openstack" && $ORCHESTRATOR != 'all' ]]; then
+    if [[ "$ORCHESTRATOR" != "openstack" && $ORCHESTRATOR != 'hybrid' ]]; then
         echo "INFO: Skipping openstack deployment"
         return
     fi
@@ -133,7 +133,7 @@ function openstack() {
 }
 
 function k8s() {
-    if [[ "$ORCHESTRATOR" != "kubernetes" && $ORCHESTRATOR != 'all' ]]; then
+    if [[ "$ORCHESTRATOR" != "kubernetes" && $ORCHESTRATOR != 'hybrid' ]]; then
         echo "INFO: Skipping k8s deployment"
         return
     fi
@@ -158,7 +158,7 @@ function tf() {
     $my_dir/../common/deploy_juju_bundle.sh
 
     # add relations between orchestrator and Contrail
-    if [[ $ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'all' ]] ; then
+    if [[ $ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation contrail-keystone-auth keystone
         command juju add-relation contrail-openstack neutron-api
         command juju add-relation contrail-openstack heat
@@ -172,13 +172,13 @@ function tf() {
             command juju add-relation contrail-agent:juju-info nova-compute:juju-info
         fi
     fi
-    if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'all' ]] ; then
+    if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
         command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
         command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
         command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
     fi
-    if [[ $ORCHESTRATOR == 'all' ]] ; then
+    if [[ $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation kubernetes-master keystone
         command juju add-relation kubernetes-master contrail-agent
         setup_keystone_auth
@@ -221,7 +221,7 @@ function collect_deployment_env() {
         return 0
     fi
     echo "INFO: collect deployment env"
-    if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "all" ]] ; then
+    if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi

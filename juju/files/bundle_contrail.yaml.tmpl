@@ -25,7 +25,7 @@ services:
       vip: *contrail-controller-vip
 {%- endif %}
       min-cluster-size: {{ controller_nodes | count }}
-{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid' %}
       auth-mode: "rbac"
 {%- else %}
       auth-mode: "no-auth"
@@ -120,7 +120,7 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       kernel-hugepages-1g: "{{ HUGE_PAGES_1G }}"
 {%- endif %}
-{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid' %}
   contrail-keystone-auth:
     charm: "{{ JUJU_REPO }}/contrail-keystone-auth"
     series: "{{ UBUNTU_SERIES }}"
@@ -135,7 +135,7 @@ services:
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
 {%- endif %}
-{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
   contrail-kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
@@ -206,16 +206,16 @@ relations:
 {%- else %}
 - [ easyrsa, contrail-agent ]
 {%- endif %}
-{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
 - [ easyrsa, contrail-kubernetes-master ]
 {%- endif %}
 {%- endif %}
 
-{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid' %}
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
 {%- endif %}
-{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
 - [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
 - [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
 {%- endif %}

@@ -199,7 +199,7 @@ export VIRTUAL_IPS="*ip_1 ip_2 ip_3 ip_4 ip_5 ip_6 ip_7*"
 2. Set environment variables:
 
 ``` bash
-export ORCHESTRATOR='all'
+export ORCHESTRATOR='hybrid'
 export CLOUD='manual'  # by default
 ```
 
@@ -251,7 +251,7 @@ Environment variable list:
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
-- ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "all" are supported
+- ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "hybrid" are supported
 - CLOUD - cloud for juju deployment, "aws", "maas" and "manual" are supported, "manual" by default
 - CONTROL_NETWORK - The CIDR of the control network (e.g. 192.168.0.0/24). This network will be used for Contrail endpoints. If not specified, default network will be used. Optional.
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
