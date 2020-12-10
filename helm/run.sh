@@ -15,9 +15,9 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build k8s openstack tf wait logs" \
-    ["default"]="k8s openstack tf wait" \
-    ["master"]="build k8s openstack tf wait" \
+    ["all"]="build k8s openstack tf wait_ logs" \
+    ["default"]="k8s openstack tf wait_" \
+    ["master"]="build k8s openstack tf wait_" \
     ["platform"]="k8s openstack" \
 )
 
@@ -75,6 +75,17 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
      check_pods_active && check_tf_active
+}
+
+function wait_() {
+    if ! wait
+    then
+        local e=$?
+        set -o xtrace
+        is_active
+        set +o xtrace
+        return $e
+    fi
 }
 
 function collect_deployment_env() {
