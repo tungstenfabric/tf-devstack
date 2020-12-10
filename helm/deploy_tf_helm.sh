@@ -43,6 +43,16 @@ function kill_helm_serve() {
   (pgrep -f "helm serve" | xargs -n1 -r kill) || :
 }
 
+function wait_vhost0_up() {
+  local a=$1
+  local d="$(basename $(dirname $my_dir))"
+  if ! ip a | grep -q "${a}"; then
+    ssh $SSH_OPTIONS ${a} "export PATH=\$PATH:/usr/sbin ; source /tmp/${d}/common/functions.sh ; wait_nic_up vhost0"
+  else
+    wait_nic_up vhost0
+  fi
+}
+
 trap 'catch_errors' ERR
 function catch_errors() {
   local exit_code=$?
@@ -102,6 +112,10 @@ helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
   kubectl -n kube-system scale deployment tiller-deploy --replicas=1
 elif [[ $ORCHESTRATOR == "openstack" ]] ; then
+  for machine in $AGENT_NODES ; do
+    wait_vhost0_up $machine
+  done
+
   # upgrade of neutron and nova containers with tf ones
   helm upgrade neutron $WORKSPACE/openstack-helm/neutron --namespace=openstack --force --reuse-values \
     --set images.tags.tf_neutron_init=$CONTAINER_REGISTRY/contrail-openstack-neutron-init:${CONTRAIL_CONTAINER_TAG}
@@ -110,14 +124,9 @@ elif [[ $ORCHESTRATOR == "openstack" ]] ; then
 fi
 
 # multinodes "wait_nic_up vhost0"
-devstack_dir="$(basename $(dirname $my_dir))"
 for machine in $CONTROLLER_NODES ; do
   if echo $AGENT_NODES | grep -q $machine ; then
-    if ! ip a | grep -q "$machine"; then
-      ssh $SSH_OPTIONS $machine "export PATH=\$PATH:/usr/sbin ; source /tmp/$devstack_dir/common/functions.sh ; wait_nic_up vhost0"
-    else
-      wait_nic_up vhost0
-    fi
+    wait_vhost0_up $machine
   fi
 done
 
