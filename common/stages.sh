@@ -82,7 +82,14 @@ function cleanup_stage() {
 function wait() {
   sync_time
   local timeout=${WAIT_TIMEOUT:-1200}
-  wait_cmd_success is_active 10 $((timeout/10))
+  if ! wait_cmd_success is_active 10 $((timeout/10))
+  then
+      local e=$?
+      set -o xtrace
+      is_active
+      set +o xtrace
+      return $e
+  fi
 }
 
 function logs() {
