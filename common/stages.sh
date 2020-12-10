@@ -85,9 +85,13 @@ function wait() {
   if ! wait_cmd_success is_active 10 $((timeout/10))
   then
       local e=$?
+      local w=$-
       set -o xtrace
       is_active
-      set +o xtrace
+      if ! [[ "${w}" =~ x ]]
+      then
+        set +o xtrace
+      fi
       return $e
   fi
 }
