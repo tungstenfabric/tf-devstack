@@ -78,9 +78,9 @@ popd
 cp -r contrail-tripleo-heat-templates/* tripleo-heat-templates
 
 #SRIOV parameters tuning
-sed -i 's/ens2f1:7/ens2f1:4/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
-#Fix for SRIOV (TODO: make physical interface parameter)
-sed -i 's/ens2f1/ens2f3/g' tripleo-heat-templates/environments/contrail/contrail-services.yaml
+contrailsriovnumvfs="${sriov_physical_interface}:${sriov_vf_number}"
+sed -i "s/ContrailSriovNumVFs:.*/ContrailSriovNumVFs: [\"$contrailsriovnumvfs\"]/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
+sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 
 cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
 
