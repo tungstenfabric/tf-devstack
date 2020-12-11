@@ -197,6 +197,10 @@ function tf() {
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
+    if [[ $ORCHESTRATOR == 'hybrid' ]]
+    then
+      wait_cmd_success patch_apiserver_certificate 20 90
+    fi
     # show results
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
     echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
