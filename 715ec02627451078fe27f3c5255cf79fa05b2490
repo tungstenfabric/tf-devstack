@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00b42267_f5a0b753",
+        "filename": "rhosp/providers/common/functions.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 437
+      },
+      "writtenOn": "2020-12-11T16:40:06Z",
+      "side": 1,
+      "message": "1. add local node before for\n2. in case of sinlge node the result would be like \";ip:ethx:4\"\n- see first ; is not needed",
+      "range": {
+        "startLine": 210,
+        "startChar": 8,
+        "endLine": 210,
+        "endChar": 161
+      },
+      "revId": "715ec02627451078fe27f3c5255cf79fa05b2490",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": true
+    }
+  ]
+}
