@@ -69,8 +69,10 @@ function get_service_machine() {
 }
 
 function setup_keystone_auth() {
+  local a=$(kubectl -n default get services --no-headers -o jsonpath='{.items[0].spec.clusterIP}')
   command juju config kubernetes-master \
       authorization-mode="Node,RBAC" \
+      extra_sans="${a}" \
       enable-keystone-authorization=true \
       keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
 
