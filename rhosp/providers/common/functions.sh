@@ -206,6 +206,10 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['SSL_CACERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 $cafile 2>/dev/null)"
     fi
     DEPLOYMENT_ENV['HUGE_PAGES_1G']=$vrouter_huge_pages_1g
+    for node in ${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}; do
+        [ -z "${DEPLOYMENT_ENV['SRIOV_CONFIGURATION']}" ] || DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+=';'
+        DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+="$node:$sriov_physical_network:$sriov_physical_interface:$sriov_vf_number";
+    done
 }
 
 function collect_deployment_log() {
