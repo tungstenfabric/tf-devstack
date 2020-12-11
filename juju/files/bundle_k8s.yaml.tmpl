@@ -81,7 +81,7 @@ services:
   # misc
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
-{%- if ORCHESTRATOR == 'all' %}
+{%- if ORCHESTRATOR == 'hybrid' %}
     num_units: {{ all_nodes | count + 1 }}
 {%- else %}
     num_units: {{ all_nodes | count }}

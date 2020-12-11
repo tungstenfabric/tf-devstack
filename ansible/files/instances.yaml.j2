@@ -30,21 +30,21 @@ instances:
       control:
       webui:
 
-  {%- if node == CONTROLLER_NODES[0] and ORCHESTRATOR in ['openstack', 'all'] %}
+  {%- if node == CONTROLLER_NODES[0] and ORCHESTRATOR in ['openstack', 'hybrid'] %}
       openstack:
   {%- endif %}
 
-  {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+  {%- if ORCHESTRATOR in ['kubernetes', 'hybrid'] %}
       k8s_master:
       kubemanager:
   {%- endif %}
 
   {%- if node in AGENT_NODES %}
       vrouter:
-    {%- if ORCHESTRATOR in ['openstack', 'all'] %}
+    {%- if ORCHESTRATOR in ['openstack', 'hybrid'] %}
       openstack_compute:
     {%- endif %}
-    {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+    {%- if ORCHESTRATOR in ['kubernetes', 'hybrid'] %}
       k8s_node:
     {%- endif %}
   {%- endif %}
@@ -57,10 +57,10 @@ instances:
     provider: bms
     roles:
       vrouter:
-    {%- if ORCHESTRATOR in ['openstack', 'all'] %}
+    {%- if ORCHESTRATOR in ['openstack', 'hybrid'] %}
       openstack_compute:
     {%- endif %}
-    {%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+    {%- if ORCHESTRATOR in ['kubernetes', 'hybrid'] %}
       k8s_node:
     {%- endif %}
   {%- endif %}
@@ -79,7 +79,7 @@ contrail_configuration:
   JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
   VROUTER_ENCRYPTION: FALSE
   LOG_LEVEL: SYS_DEBUG
-{%- if ORCHESTRATOR in ['openstack', 'all'] %}
+{%- if ORCHESTRATOR in ['openstack', 'hybrid'] %}
   CLOUD_ORCHESTRATOR: openstack
 {%- else %}
   CLOUD_ORCHESTRATOR: kubernetes
@@ -94,7 +94,7 @@ contrail_configuration:
   APPLY_DEFAULTS: "{{ APPLY_DEFAULTS }}"
 {%- endif %}
 
-{%- if ORCHESTRATOR in ['kubernetes', 'all'] %}
+{%- if ORCHESTRATOR in ['kubernetes', 'hybrid'] %}
   KUBERNETES_PUBLIC_FIP_POOL:
     domain: default-domain
     name: __fip_pool_public__
@@ -102,7 +102,7 @@ contrail_configuration:
     project: k8s-default
 {%- endif %}
 
-{%- if ORCHESTRATOR in ['openstack', 'all'] %}
+{%- if ORCHESTRATOR in ['openstack', 'hybrid'] %}
   OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
   AUTH_MODE: keystone
   KEYSTONE_AUTH_URL_VERSION: /v3
