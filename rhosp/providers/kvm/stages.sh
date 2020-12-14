@@ -1,7 +1,6 @@
 
 function _run()
 {
-    source $WORKSPACE/rhosp-environment.sh
     cat <<EOF | ssh $ssh_opts stack@${instance_ip}
 source /etc/profile
 source rhosp-environment.sh
