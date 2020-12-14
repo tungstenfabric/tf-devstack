@@ -25,4 +25,7 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
 )
 
-run_stages $STAGE
+export WORKSPACE=${WORKSPACE:-$(pwd)}
+source "$WORKSPACE/rhosp-environment.sh"
+
+run_stage s$STAGE
