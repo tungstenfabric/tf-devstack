@@ -183,9 +183,9 @@ function collect_overcloud_env() {
     fi
     DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
     DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
-    DEPLOYMENT_ENV['SRIOV_AGENT_NODES']=$(get_openstack_nodes $openstack_node contrailsriov tenant)
+    sriov_agent_nodes=$(get_openstack_nodes $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
-    [ -z "${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}"
+    [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
         DEPLOYMENT_ENV['AUTH_URL']=$(echo ${OS_AUTH_URL} | sed "s/overcloud/overcloud.internalapi/")
@@ -206,7 +206,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['SSL_CACERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 $cafile 2>/dev/null)"
     fi
     DEPLOYMENT_ENV['HUGE_PAGES_1G']=$vrouter_huge_pages_1g
-    for node in ${DEPLOYMENT_ENV['SRIOV_AGENT_NODES']}; do
+    for node in $sriov_agent_nodes; do
         [ -z "${DEPLOYMENT_ENV['SRIOV_CONFIGURATION']}" ] || DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+=';'
         DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+="$node:$sriov_physical_network:$sriov_physical_interface:$sriov_vf_number";
     done
