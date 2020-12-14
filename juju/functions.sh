@@ -151,3 +151,30 @@ chmod a+x /tmp/logs.sh
     popd
   done
 }
+
+# This is_ready function is called after openstack and k8s stages
+function is_ready() {
+    local max_errors=5
+    local status=`$(which juju) status --format short`
+    local error_apps=`echo "$status" | grep error | awk '{print$2}' | sed 's/://g'`
+    local app=''
+    for app in $error_apps ; do
+        all_errors=`$(which juju) show-status-log $app | grep error | wc -l`
+        if (( $all_errors > $max_errors )); then
+            echo "ERROR: Deployment has failed because juju state is error"
+            echo "$status"
+            # immediately exit from wait function
+            exit 1
+        fi
+    done
+    local allowed_not_active="neutron-api kubernetes-master kubernetes-worker"
+    local blocked_apps=`echo "$status" | grep blocked | awk '{print$2}' | cut -f1 -d"/"`
+    local waiting_apps=`echo "$status" | grep waiting | awk '{print$2}' | sed 's/://g'`
+    for app in $blocked_apps $waiting_apps ; do
+        if [[ $allowed_not_active != *"$app"* ]] ; then
+            # continue waiting
+            return 1
+        fi
+    done
+    [[ ! $(echo "$status" | egrep 'executing') ]]
+}
