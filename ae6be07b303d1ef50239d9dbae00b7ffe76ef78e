@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70504149_c9b61bfb",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-12-14T11:13:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27de1c6b_ae6bca9b",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 40
+      },
+      "revId": "ae6be07b303d1ef50239d9dbae00b7ffe76ef78e",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94472f8f_7e6a209b",
         "filename": "rhosp/run.sh",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "ae6be07b303d1ef50239d9dbae00b7ffe76ef78e",
       "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dca53f0_bf0b7347",
+        "filename": "rhosp/run.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 844
+      },
+      "writtenOn": "2020-12-14T11:13:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94472f8f_7e6a209b",
+      "range": {
+        "startLine": 31,
+        "startChar": 9,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "ae6be07b303d1ef50239d9dbae00b7ffe76ef78e",
+      "serverId": "c72cd27d-1743-4a55-84a4-cd13b8400c52",
+      "unresolved": false
     }
   ]
 }
