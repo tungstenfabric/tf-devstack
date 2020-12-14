@@ -2,6 +2,8 @@
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+export WORKSPACE=${WORKSPACE:-$(pwd)}
+source "$WORKSPACE/rhosp-environment.sh"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
