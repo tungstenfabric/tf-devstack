@@ -130,6 +130,8 @@ function openstack() {
         export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
     fi
     $my_dir/../common/deploy_juju_bundle.sh
+
+    wait_cmd_success is_ready 10 120
 }
 
 function k8s() {
@@ -139,6 +141,7 @@ function k8s() {
     fi
     export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     $my_dir/../common/deploy_juju_bundle.sh
+    wait_cmd_success is_ready 10 120
 }
 
 function tf() {
@@ -213,6 +216,30 @@ function is_active() {
         exit 1
     fi
     [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+}
+
+# This is_ready function is called after openstack and k8s stages
+function is_ready() {
+    local max_errors=5
+    local status=`$(which juju) status --format short`
+    local error_apps=`echo "$status" | grep error | awk '{print$2}' | sed 's/://g'`
+    for app in $error_apps ; do
+        all_errors=`$(which juju) show-status-log $app | grep error | wc -l`
+        if (( $all_errors > $max_errors )); then
+            echo "ERROR: Deployment has failed because juju state is error"
+            echo "$status"
+            exit 1
+        fi
+    done
+    local allowed_not_active="neutron-api kubernetes-master kubernetes-worker"
+    local blocked_apps=`echo "$status" | grep blocked | awk '{print$2}' | cut -f1 -d"/"`
+    local waiting_apps=`echo "$status" | grep waiting | awk '{print$2}' | sed 's/://g'`
+    for app in $blocked_apps $waiting_apps ; do
+        if [[ $allowed_not_active != *"$app"* ]] ; then
+            return 1
+        fi
+    done
+    [[ ! $(echo "$status" | egrep 'executing') ]]
 }
 
 function collect_deployment_env() {
