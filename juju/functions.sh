@@ -151,3 +151,35 @@ chmod a+x /tmp/logs.sh
     popd
   done
 }
+
+# This is_ready function is called after openstack and k8s stages
+function is_ready() {
+  # constants
+  local max_errors=10
+  local allowed_not_active="neutron-api kubernetes-master kubernetes-worker"
+
+  local status=`$(which juju) status --format short`
+  local error_apps=`echo "$status" | grep error | awk '{print$2}' | sed 's/://g'`
+  local app=''
+  for app in $error_apps ; do
+    local all_errors=`$(which juju) show-status-log $app --days 1 | grep error | wc -l`
+    if (( all_errors > max_errors )); then
+      echo "ERROR: Deployment has unrecoverable error state. Exiting..."
+      echo "ERROR: status:"
+      echo "$status"
+      echo "ERROR: status-log for app $app:"
+      $(which juju) show-status-log $app --days 1
+      # immediately exit from wait function due to unrecoverable error state
+      exit 1
+    fi
+  done
+  local blocked_apps=`echo "$status" | grep blocked | awk '{print$2}' | cut -f1 -d"/"`
+  local waiting_apps=`echo "$status" | grep waiting | awk '{print$2}' | sed 's/://g'`
+  for app in $blocked_apps $waiting_apps ; do
+    if [[ $allowed_not_active != *"$app"* ]] ; then
+      # continue waiting
+      return 1
+    fi
+  done
+  [[ ! $(echo "$status" | egrep 'executing') ]]
+}
