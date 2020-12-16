@@ -70,10 +70,15 @@ function tf_no_deploy() {
     ./overcloud/05_prepare_containers.sh
 }
 
-function tf() {
+function tf_no_time() {
     cd $my_dir
     tf_no_deploy
     ./overcloud/06_deploy_overcloud.sh
+}
+
+function tf() {
+    sync_time
+    tf_no_time
 }
 
 function logs() {
