@@ -45,6 +45,7 @@ export CONTROL_NETWORK=${CONTROL_NETWORK:-}
 export DATA_NETWORK=${DATA_NETWORK:-}
 export ENABLE_DPDK_SRIOV=${ENABLE_DPDK_SRIOV:-'false'}
 export AUTH_PASSWORD="password"
+export ENABLE_NAGIOS=${ENABLE_NAGIOS:-'false'}
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -175,12 +176,21 @@ function tf() {
             command juju add-relation contrail-openstack nova-compute
             command juju add-relation contrail-agent:juju-info nova-compute:juju-info
         fi
+        if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
+            # add nrpe relation to superior of contrail-agent
+            command juju add-relation nova-compute nrpe
+        fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
         command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
         command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
         command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+        if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
+            # add nrpe relation to superior of contrail-agent and contail-kubernetes-master
+            command juju add-relation kubernetes-master nrpe
+            command juju add-relation kubernetes-worker nrpe
+        fi
     fi
     if [[ $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation kubernetes-master keystone
@@ -254,6 +264,8 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['SSL_CERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep server.pem | head -1 | xargs sudo base64 -w 0')"
         DEPLOYMENT_ENV['SSL_CACERT']="$(command juju ssh 0 'sudo find /etc/contrail 2>/dev/null | grep ca-cert.pem | head -1 | xargs sudo base64 -w 0')"
     fi
+
+    DEPLOYMENT_ENV['ENABLE_NAGIOS']="${ENABLE_NAGIOS}"
 
     # NOTE: create stackrc locally to be able to run openstack commands
     create_stackrc

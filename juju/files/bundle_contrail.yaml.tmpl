@@ -164,6 +164,16 @@ services:
     to:
       - "0"
 {%- endif %}
+{%- if ENABLE_NAGIOS == 'true' %}
+  nagios:
+    charm: cs:nagios-40
+    num_units: 1
+    to:
+    - "0"
+    expose: true
+  nrpe:
+    charm: cs:nrpe-69
+{%- endif %}
 {%- if CLOUD == 'maas' %}
   keepalived:
     charm: cs:~containers/keepalived
@@ -214,14 +224,28 @@ relations:
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid' %}
 - [ contrail-controller, contrail-keystone-auth ]
 - [ contrail-openstack, contrail-controller ]
+{%- if ENABLE_NAGIOS == 'true' %}
+- [ nrpe:nrpe-external-master, contrail-keystone-auth:nrpe-external-master ]
+{%- endif %}
 {%- endif %}
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
 - [ contrail-kubernetes-master:contrail-controller, contrail-controller:contrail-controller ]
 - [ contrail-kubernetes-master:contrail-kubernetes-config, contrail-kubernetes-node:contrail-kubernetes-config ]
+{%- if ENABLE_NAGIOS == 'true' %}
+- [ nrpe:nrpe-external-master, contrail-kubernetes-master:nrpe-external-master ]
+{%- endif %}
 {%- endif %}
 {%- if CLOUD == 'maas' %}
 - [ contrail-controller:http-services, haproxy:reverseproxy ]
 - [ contrail-controller:https-services, haproxy:reverseproxy ]
 - [ contrail-analytics:http-services, haproxy:reverseproxy ]
 - [ keepalived:juju-info, haproxy:juju-info ]
+{%- endif %}
+
+{%- if ENABLE_NAGIOS == 'true' %}
+- [ nrpe:nrpe-external-master, contrail-controller:nrpe-external-master ]
+- [ nrpe:nrpe-external-master, contrail-analytics:nrpe-external-master ]
+- [ nrpe:nrpe-external-master, contrail-analyticsdb:nrpe-external-master ]
+- [ nrpe:nrpe-external-master, contrail-agent:nrpe-external-master ]
+- [ nrpe:monitors, nagios:monitors ]
 {%- endif %}
