@@ -110,6 +110,7 @@ function platform() {
 }
 
 function tf() {
+    sync_time
     [ ! -f "$settings_file" ] && {
         echo "ERROR: $settings_file doesnt exist. run.sh platform is to be called first"
         return 1
