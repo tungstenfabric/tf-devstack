@@ -67,6 +67,7 @@ function manifest() {
 }
 
 function tf() {
+    sync_time
     ensure_kube_api_ready
 
     # label nodes
