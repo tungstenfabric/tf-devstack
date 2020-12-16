@@ -79,8 +79,12 @@ function cleanup_stage() {
   rm -f $TF_STAGES_DIR/$stage
 }
 
-function wait() {
+function tf() {
   sync_time
+  do_tf
+}
+
+function wait() {
   local timeout=${WAIT_TIMEOUT:-1200}
   if ! wait_cmd_success is_active 10 $((timeout/10)) ; then
     echo "ERROR: wait failed $(date)"

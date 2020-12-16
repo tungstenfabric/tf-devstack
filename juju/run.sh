@@ -145,7 +145,7 @@ function k8s() {
     wait_cmd_success is_ready 10 120
 }
 
-function tf() {
+function do_tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
     fi

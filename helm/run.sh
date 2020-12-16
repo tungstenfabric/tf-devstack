@@ -68,7 +68,7 @@ function openstack() {
     fi
 }
 
-function tf() {
+function do_tf() {
     $my_dir/deploy_tf_helm.sh
 }
 

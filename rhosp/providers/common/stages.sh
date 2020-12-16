@@ -70,7 +70,7 @@ function tf_no_deploy() {
     ./overcloud/05_prepare_containers.sh
 }
 
-function tf() {
+function do_tf() {
     cd $my_dir
     tf_no_deploy
     ./overcloud/06_deploy_overcloud.sh

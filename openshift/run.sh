@@ -109,7 +109,7 @@ function platform() {
         -i inventory/hosts.aio.contrail playbooks/prerequisites.yml
 }
 
-function tf() {
+function do_tf() {
     [ ! -f "$settings_file" ] && {
         echo "ERROR: $settings_file doesnt exist. run.sh platform is to be called first"
         return 1

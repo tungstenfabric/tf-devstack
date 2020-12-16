@@ -29,8 +29,8 @@ function tf_no_deploy() {
     _run tf_no_deploy
 }
 
-function tf() {
-    _run tf
+function do_tf() {
+    _run do_tf
 }
 
 function is_active() {

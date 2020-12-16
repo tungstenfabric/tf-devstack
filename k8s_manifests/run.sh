@@ -66,7 +66,7 @@ function manifest() {
     $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
 }
 
-function tf() {
+function do_tf() {
     ensure_kube_api_ready
 
     # label nodes
