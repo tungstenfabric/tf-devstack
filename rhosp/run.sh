@@ -16,10 +16,10 @@ init_output_logging
 
 # stages declaration
 declare -A STAGES=( \
-    ["all"]="build machines undercloud overcloud tf wait logs" \
-    ["default"]="machines undercloud overcloud tf wait" \
-    ["master"]="build machines undercloud overcloud tf wait" \
-    ["platform"]="machines undercloud overcloud" \
+    ["all"]="build machines undercloud overcloud sync_time tf wait logs" \
+    ["default"]="machines undercloud overcloud sync_time tf wait" \
+    ["master"]="build machines undercloud overcloud sync_time tf wait" \
+    ["platform"]="machines undercloud overcloud sync_time" \
 )
 
 # deployment related environment set by any stage and put to tf_stack_profile at the end

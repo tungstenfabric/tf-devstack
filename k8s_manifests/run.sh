@@ -13,10 +13,10 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build k8s manifest tf wait logs" \
-    ["default"]="k8s manifest tf wait" \
-    ["master"]="build k8s manifest tf wait" \
-    ["platform"]="k8s" \
+    ["all"]="build k8s sync_time manifest tf wait logs" \
+    ["default"]="k8s sync_time manifest tf wait" \
+    ["master"]="build k8s sync_time manifest tf wait" \
+    ["platform"]="k8s sync_time" \
 )
 
 # constants

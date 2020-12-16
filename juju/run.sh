@@ -15,10 +15,10 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build juju machines k8s openstack tf wait logs" \
-    ["default"]="juju machines k8s openstack tf wait" \
-    ["master"]="build juju machines k8s openstack tf wait" \
-    ["platform"]="juju machines k8s openstack" \
+    ["all"]="build juju machines k8s openstack sync_time tf wait logs" \
+    ["default"]="juju machines k8s openstack sync_time tf wait" \
+    ["master"]="build juju machines k8s openstack sync_time tf wait" \
+    ["platform"]="juju machines k8s openstack sync_time" \
 )
 
 export PATH=$PATH:/snap/bin

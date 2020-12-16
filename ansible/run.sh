@@ -14,10 +14,10 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build machines k8s openstack tf wait logs" \
-    ["default"]="machines k8s openstack tf wait" \
-    ["master"]="build machines k8s openstack tf wait" \
-    ["platform"]="machines k8s openstack" \
+    ["all"]="build machines k8s openstack sync_time tf wait logs" \
+    ["default"]="machines k8s openstack sync_time tf wait" \
+    ["master"]="build machines k8s openstack sync_time tf wait" \
+    ["platform"]="machines k8s openstack sync_time" \
 )
 
 # default env variables

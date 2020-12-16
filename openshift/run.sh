@@ -13,10 +13,10 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build platform tf wait logs" \
-    ["default"]="platform tf wait" \
-    ["master"]="build platform tf wait" \
-    ["platform"]="platform" \
+    ["all"]="build platform sync_time tf wait logs" \
+    ["default"]="platform sync_time tf wait" \
+    ["master"]="build platform sync_time tf wait" \
+    ["platform"]="platform sync_time" \
 )
 
 # constants
