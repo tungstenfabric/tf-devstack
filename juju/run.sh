@@ -146,6 +146,7 @@ function k8s() {
 }
 
 function tf() {
+    sync_time
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
     fi
