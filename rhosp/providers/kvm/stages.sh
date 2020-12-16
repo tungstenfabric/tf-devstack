@@ -30,7 +30,7 @@ function tf_no_deploy() {
 }
 
 function tf() {
-    _run tf
+    _run tf_no_time
 }
 
 function is_active() {

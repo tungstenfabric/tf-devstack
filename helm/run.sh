@@ -69,6 +69,7 @@ function openstack() {
 }
 
 function tf() {
+    sync_time
     $my_dir/deploy_tf_helm.sh
 }
 

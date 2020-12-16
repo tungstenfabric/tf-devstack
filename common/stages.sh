@@ -80,7 +80,6 @@ function cleanup_stage() {
 }
 
 function wait() {
-  sync_time
   local timeout=${WAIT_TIMEOUT:-1200}
   if ! wait_cmd_success is_active 10 $((timeout/10)) ; then
     echo "ERROR: wait failed $(date)"
