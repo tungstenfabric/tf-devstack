@@ -25,7 +25,7 @@ export PATH=$PATH:/snap/bin
 
 # default env variables
 export DEPLOYER='juju'
-# max wait in seconds after deployment (openstack ~ 1300, k8s ~ 2100, maas ~ 2400???3600)
+# max wait in seconds after TF deployment (openstack AIO ~ 1300, k8s AIO ~ 2100, maas HA ~ 2400???3600)
 export WAIT_TIMEOUT=${WAIT_TIMEOUT:-3600}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}  # openstack | kubernetes
@@ -131,7 +131,7 @@ function openstack() {
     fi
     $my_dir/../common/deploy_juju_bundle.sh
 
-    wait_cmd_success is_ready 10 120
+    wait_cmd_success is_ready 10 $((WAIT_TIMEOUT/10))
 }
 
 function k8s() {
@@ -142,7 +142,7 @@ function k8s() {
     export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     $my_dir/../common/deploy_juju_bundle.sh
 
-    wait_cmd_success is_ready 10 120
+    wait_cmd_success is_ready 10 $((WAIT_TIMEOUT/10))
 }
 
 function tf() {
