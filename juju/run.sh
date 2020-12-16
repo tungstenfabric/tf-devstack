@@ -131,7 +131,7 @@ function openstack() {
     fi
     $my_dir/../common/deploy_juju_bundle.sh
 
-    wait_cmd_success is_ready 10 120
+    wait_cmd_success is_ready 10 180
 }
 
 function k8s() {
@@ -142,7 +142,7 @@ function k8s() {
     export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     $my_dir/../common/deploy_juju_bundle.sh
 
-    wait_cmd_success is_ready 10 120
+    wait_cmd_success is_ready 10 180
 }
 
 function tf() {
