@@ -11,31 +11,10 @@ source $my_dir/../../common/common.sh
 source $my_dir/../../common/functions.sh
 source $my_dir/../providers/common/functions.sh
 
-function _get_count()
-{
-   if [[ -n "$1" ]] ; then
-      echo $(( $(echo $1 | grep -o ',' | wc -l) + 1))
-   else
-      echo 0
-   fi
-}
-
-if [[ -n "$overcloud_ceph_instance" ]] ; then
-   export glance_backend_storage="rbd"
-else
-   export glance_backend_storage="file"
-fi
-
-if [[ -n "$ENABLE_TLS" ]] ; then
+if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"
 else
    export overcloud_nameservers="[ \"8.8.8.8\", \"8.8.4.4\" ]"
-fi
-
-if (( $(_get_count $overcloud_cont_instance) > 1 )) ; then
-   export enable_galera=true
-else
-   export enable_galera=false
 fi
 
 export undercloud_registry=${prov_ip}:8787
@@ -82,48 +61,7 @@ contrailsriovnumvfs="${sriov_physical_interface}:${sriov_vf_number}"
 sed -i "s/ContrailSriovNumVFs:.*/ContrailSriovNumVFs: [\"$contrailsriovnumvfs\"]/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 
-cat $my_dir/misc_opts.yaml.template | envsubst > misc_opts.yaml
-
-cat <<EOF >> misc_opts.yaml
-  ControllerCount: $(_get_count $overcloud_cont_instance)
-  ContrailControllerCount: $(_get_count $overcloud_ctrlcont_instance)
-  ComputeCount: $(_get_count $overcloud_compute_instance)
-  ContrailDpdkCount: $(_get_count $overcloud_dpdk_instance)
-  ContrailSriovCount: $(_get_count $overcloud_sriov_instance)
-  CephStorageCount: $(_get_count $overcloud_ceph_instance)
-  CephDefaultPoolSize: 2
-  CephPoolDefaultPgNum: 8
-  ManilaCephFSDataPoolPGNum: 8
-  ManilaCephFSMetadataPoolPGNum: 8
-EOF
-
-if [ -n "$vrouter_huge_pages_1g" ] ; then
-  # use 1gb pages
-  cat <<EOF >> misc_opts.yaml
-  ContrailVrouterHugepages1GB: '$vrouter_huge_pages_1g'
-  ContrailVrouterHugepages2MB: ''
-  ComputeParameters:
-    KernelArgs: "default_hugepagesz=1GB hugepagesz=1G hugepages=$vrouter_huge_pages_1g"
-    ExtraSysctlSettings:
-      vm.nr_hugepages:
-        value: $vrouter_huge_pages_1g
-      vm.max_map_count:
-        value: 128960
-EOF
-else
-  # use 2mb pages
-  cat <<EOF >> misc_opts.yaml
-  ContrailVrouterHugepages1GB: ''
-  ContrailVrouterHugepages2MB: '512'
-  ComputeParameters:
-    KernelArgs: ''
-    ExtraSysctlSettings:
-      vm.nr_hugepages:
-        value: 512
-      vm.max_map_count:
-        value: 128960
-EOF
-fi
+$my_dir/../../common/jinja2_render.py < $my_dir/misc_opts.yaml.j2 >misc_opts.yaml
 
 #Creating rhosp specific contrail-parameters.yaml
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
