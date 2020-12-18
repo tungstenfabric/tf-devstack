@@ -121,11 +121,7 @@ function get_openstack_node_names() {
 }
 
 function get_openstack_nodes() {
-    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         get_openstack_node_names $@
-    else
-        get_openstack_node_ips $@
-    fi
 }
 
 function update_undercloud_etc_hosts() {
@@ -180,7 +176,7 @@ function collect_overcloud_env() {
     fi
     # control nodes are for net isolation case when tenant is on different networks
     # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
-    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
+    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
     DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
     sriov_agent_nodes=$(get_openstack_nodes $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
