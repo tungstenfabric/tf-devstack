@@ -33,3 +33,7 @@ if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
     echo "$tenant_ip_route" | sudo tee -a $brctl_cfg_file
   fi
 fi
+
+# Sync time can be done on post deploy in RHOSP as bmc/kvm nodes are provisioned
+# during tf deploy
+sync_time $(get_ctlplane_ips)
