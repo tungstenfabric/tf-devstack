@@ -120,14 +120,6 @@ function get_openstack_node_names() {
          cat /etc/hosts | grep overcloud-${name}-[0-9]\.${network} | awk '{print $2}'| xargs
 }
 
-function get_openstack_nodes() {
-    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
-        get_openstack_node_names $@
-    else
-        get_openstack_node_ips $@
-    fi
-}
-
 function update_undercloud_etc_hosts() {
     # patch hosts to resole overcloud by fqdn
     echo "INFO: remove from undercloud /etc/hosts old overcloud fqdns if any"
@@ -166,15 +158,15 @@ EOF
 
 function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
-    DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
+    DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_node_names $openstack_node controller internalapi)"
     # agent and contrail conroller to be on same network fo vdns test for ipa case
     # so, use tenant
-    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
+    CONTROLLER_NODES="$(get_openstack_node_names $openstack_node contrailcontroller tenant)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
-        CONTROLLER_NODES="$(get_openstack_nodes $openstack_node controller tenant)"
+        CONTROLLER_NODES="$(get_openstack_node_names $openstack_node controller tenant)"
     fi
-    AGENT_NODES="$(get_openstack_nodes $openstack_node novacompute tenant)"
+    AGENT_NODES="$(get_openstack_node_names $openstack_node novacompute tenant)"
     if [ -z "$AGENT_NODES" ] ; then
         # Agents and Contrail Controllers are on same nodes (aio)
         AGENT_NODES="$CONTROLLER_NODES"
@@ -182,16 +174,20 @@ function collect_overcloud_env() {
     DEPLOYMENT_ENV['CONFIG_API_VIP']="overcloud.internalapi.${domain}"
     DEPLOYMENT_ENV['ANALYTICS_API_VIP']="overcloud.internalapi.${domain}"
     # TODO: not clear if it is needed in tls case with network isolation
-    # DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller internalapi)"
-    # [ -n "${DEPLOYMENT_ENV['CONFIG_NODES']}" ] || DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
+    # DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_node_names $openstack_node contrailcontroller internalapi)"
+    # [ -n "${DEPLOYMENT_ENV['CONFIG_NODES']}" ] || DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_node_names $openstack_node controller internalapi)"
     # DEPLOYMENT_ENV['ANALYTICS_NODES']="${DEPLOYMENT_ENV['CONFIG_NODES']}"
     # DEPLOYMENT_ENV['ANALYTICSDB_NODES']="${DEPLOYMENT_ENV['CONFIG_NODES']}"
     # ==
     # control nodes are for net isolation case when tenant is on different networks
     # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
     DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
-    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
-    sriov_agent_nodes=$(get_openstack_nodes $openstack_node contrailsriov tenant)
+    if [ -z "${DEPLOYMENT_ENV['CONTROL_NODES']}" ] ; then
+        # Openstack and Contrail Controllers are on same nodes (aio)
+        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node controller tenant)"
+    fi
+    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_node_names $openstack_node contraildpdk tenant)
+    local sriov_agent_nodes=$(get_openstack_node_names $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
     [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
     if [[ -f ~/overcloudrc ]] ; then
@@ -213,6 +209,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['SSL_CACERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 $cafile 2>/dev/null)"
     fi
     DEPLOYMENT_ENV['HUGE_PAGES_1G']=$vrouter_huge_pages_1g
+    local node
     for node in $sriov_agent_nodes; do
         [ -z "${DEPLOYMENT_ENV['SRIOV_CONFIGURATION']}" ] || DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+=';'
         DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+="$node:$sriov_physical_network:$sriov_physical_interface:$sriov_vf_number";
