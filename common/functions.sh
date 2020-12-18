@@ -215,22 +215,27 @@ function retry() {
 }
 
 function sync_time() {
+  local user=${1:-$SSH_USER}
+  shift || true
+  local nodes="${@:-$CONTROLLER_NODES $AGENT_NODES $OPENSTACK_CONTROLLER_NODES}"
   echo "INFO: check time sync on nodes and force sync $(date)"
   echo "INFO: controller nodes - $CONTROLLER_NODES"
   echo "INFO: agent nodes - $AGENT_NODES"
   echo "INFO: openstack controller nodes - $OPENSTACK_CONTROLLER_NODES"
   # TODO: this function is called before wait. thus we have to think how to collect
   # *_NODES for below cases here
-  if [[ $DEPLOYER == 'rhosp' || ($DEPLOYER == 'juju' && $CLOUD == 'maas') ]]; then
+  if [[ $DEPLOYER == 'juju' && $CLOUD == 'maas' ]]; then
     # TODO:
-    echo "INFO: skip time checking for RHOSP"
+    echo "INFO: skip time checking for juju maas"
     return
   fi
 
   local machine
-  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES $OPENSTACK_CONTROLLER_NODES" | tr " " "\n" | sort -u) ; do
-    echo "INFO: machine $machine"
-    scp $SSH_OPTIONS ${fmy_dir}/sync_time.sh $SSH_USER@$machine:/tmp/sync_time.sh
-    ssh $SSH_OPTIONS $SSH_USER$machine /tmp/sync_time.sh
+  for machine in $(echo $nodes | tr " " "\n" | sort -u) ; do
+    local addr="$machine"
+    [ -z "$user" ] || addr="$user@$addr"
+    echo "INFO: machine $addr"
+    scp $SSH_OPTIONS ${fmy_dir}/sync_time.sh ${addr}:/tmp/sync_time.sh
+    ssh $SSH_OPTIONS ${addr} /tmp/sync_time.sh
   done
 }
