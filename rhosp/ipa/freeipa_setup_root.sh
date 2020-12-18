@@ -117,16 +117,31 @@ if [[ $VERSION_ID != 8* ]]; then
    rm -f /etc/httpd/conf.d/ssl.conf
 fi
 
-# Set up FreeIPA
-ipa-server-install -U -r `hostname -d|tr "[a-z]" "[A-Z]"` \
-                   -p $DirectoryManagerPassword -a $AdminPassword \
-                   --hostname `hostname -f` \
-                   --ip-address=$FreeIPAIP \
-                   --setup-dns --auto-forwarders --auto-reverse $FreeIPAExtraArgs
 
+function install_ipa_server() {
+    ipa-server-install -U --uninstall || true
+
+    # Set up FreeIPA
+    local res=0
+    ipa-server-install -U -r `hostname -d|tr "[a-z]" "[A-Z]"` \
+                    -p $DirectoryManagerPassword -a $AdminPassword \
+                    --hostname `hostname -f` \
+                    --ip-address=$FreeIPAIP \
+                    --setup-dns --auto-forwarders --auto-reverse $FreeIPAExtraArgs || res=1
+    return $res
+}
+
+for i in {1..5} ; do
+    if install_ipa_server ; then
+        break
+    fi
+done
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1571897
 ## * Set CA to create CRL on restart
 sed -i "s/ca.crl.MasterCRL.publishOnStart=.*/ca.crl.MasterCRL.publishOnStart=true/" /etc/pki/pki-tomcat/ca/CS.cfg
 systemctl restart pki-tomcatd@pki-tomcat.service
 #
+
+# wait a bit after pki restart
+sleep 10
