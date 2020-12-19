@@ -167,7 +167,8 @@ EOF
 function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
     DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
-    # agent and contrail conroller to be on same network fo vdns test
+    # agent and contrail conroller to be on same network fo vdns test for ipa case
+    # so, use tenant
     CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
@@ -187,11 +188,12 @@ function collect_overcloud_env() {
     [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
-        DEPLOYMENT_ENV['AUTH_URL']=$(echo ${OS_AUTH_URL} | sed "s/overcloud/overcloud.internalapi/")
-        DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
-        DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
-        DEPLOYMENT_ENV['AUTH_PORT']="35357"
     fi
+    DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
+    DEPLOYMENT_ENV['AUTH_PASSWORD']="${OS_PASSWORD}"
+    DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
+    DEPLOYMENT_ENV['CONFIG_API_VIP']="overcloud.internalapi.${domain}"
+    DEPLOYMENT_ENV['ANALYTICS_API_VIP']="overcloud.internalapi.${domain}"
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
     if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
