@@ -37,4 +37,4 @@ fi
 
 # Sync time can be done on post deploy in RHOSP as bmc/kvm nodes are provisioned
 # during tf deploy
-sync_time $SSH_USER $(get_ctlplane_ips)
+sync_time $SSH_USER_OVERCLOUD $(get_ctlplane_ips)
