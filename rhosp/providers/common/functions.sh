@@ -167,7 +167,8 @@ EOF
 function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
     DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
-    # agent and contrail conroller to be on same network fo vdns test
+    # agent and contrail conroller to be on same network fo vdns test for ipa case
+    # so, use tenant
     CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
@@ -177,6 +178,11 @@ function collect_overcloud_env() {
     if [ -z "$AGENT_NODES" ] ; then
         # Agents and Contrail Controllers are on same nodes (aio)
         AGENT_NODES="$CONTROLLER_NODES"
+    fi
+    DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_nodes $openstack_node contrailcontroller internalapi)"
+    if [ -z "${DEPLOYMENT_ENV['CONFIG_NODES']}" ] ; then
+        # aio
+        DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
     fi
     # control nodes are for net isolation case when tenant is on different networks
     # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
