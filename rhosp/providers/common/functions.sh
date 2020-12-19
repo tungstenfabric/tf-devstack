@@ -168,12 +168,12 @@ function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
     DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
     # agent and contrail conroller to be on same network fo vdns test
-    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
+    CONTROLLER_NODES="$(get_openstack_node_ips $openstack_node contrailcontroller internalapi)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
-        CONTROLLER_NODES="$(get_openstack_nodes $openstack_node controller tenant)"
+        CONTROLLER_NODES="$(get_openstack_node_ips $openstack_node controller internalapi)"
     fi
-    AGENT_NODES="$(get_openstack_nodes $openstack_node novacompute tenant)"
+    AGENT_NODES="$(get_openstack_node_ips $openstack_node novacompute tenant)"
     if [ -z "$AGENT_NODES" ] ; then
         # Agents and Contrail Controllers are on same nodes (aio)
         AGENT_NODES="$CONTROLLER_NODES"
@@ -181,8 +181,8 @@ function collect_overcloud_env() {
     # control nodes are for net isolation case when tenant is on different networks
     # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
     DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
-    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_nodes $openstack_node contraildpdk tenant)
-    sriov_agent_nodes=$(get_openstack_nodes $openstack_node contrailsriov tenant)
+    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_node_ips $openstack_node contraildpdk tenant)
+    sriov_agent_nodes=$(get_openstack_node_ips $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
     [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
     if [[ -f ~/overcloudrc ]] ; then
