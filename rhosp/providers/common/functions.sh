@@ -168,10 +168,10 @@ function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
     DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_nodes $openstack_node controller internalapi)"
     # agent and contrail conroller to be on same network fo vdns test
-    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller tenant)"
+    CONTROLLER_NODES="$(get_openstack_nodes $openstack_node contrailcontroller internalapi)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
-        CONTROLLER_NODES="$(get_openstack_nodes $openstack_node controller tenant)"
+        CONTROLLER_NODES="$(get_openstack_nodes $openstack_node controller internalapi)"
     fi
     AGENT_NODES="$(get_openstack_nodes $openstack_node novacompute tenant)"
     if [ -z "$AGENT_NODES" ] ; then
