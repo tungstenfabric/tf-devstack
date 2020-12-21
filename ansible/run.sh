@@ -136,8 +136,21 @@ function openstack() {
     fi
 }
 
+function wait_vhost0_up() {
+    local u=${1:-$SSH_USER}
+    for machine in "${AGENT_NODES}"
+    do
+        local a="$machine"
+        [ -z "$u" ] || a="${u}@${a}"
+        scp $SSH_OPTIONS ${fmy_dir}/functions.sh ${a}:/tmp/functions.sh
+        if ! ssh $SSH_OPTIONS ${a} "export PATH=\$PATH:/usr/sbin ; source /tmp/functions.sh ; wait_nic_up vhost0" 
+        then
+            return 1
+        fi
+    done
+}
+
 function tf() {
-    sync_time
     current_container_tag=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['contrail_configuration']['CONTRAIL_CONTAINER_TAG'])")
     current_registry=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['global_configuration']['CONTAINER_REGISTRY'])")
 
@@ -165,6 +178,13 @@ function tf() {
     sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
+
+    if ! wait_cmd_success wait_vhost0_up 5 24
+    then
+        echo "vhost0 interface(s) cannot obtain an IP address"
+        return 1
+    fi
+    sync_time
     echo "Contrail Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
     echo "Use admin/$AUTH_PASSWORD to log in"
