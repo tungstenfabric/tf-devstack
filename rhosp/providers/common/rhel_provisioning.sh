@@ -49,6 +49,11 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
    for r in $(echo $RHEL_REPOS | tr ',' ' ') ; do enable_repo_list+=" --enable=${r}"; done
    echo "subscription-manager repos $enable_repo_list ... $i"
    wait_cmd_success "sudo subscription-manager repos $enable_repo_list" 2 5
+
+   #Set release to prevent upgrade to 8.3 (Tripleo supports only 8.2)
+   if [[ "$PROVIDER" == 'kvm' && "$RHEL_VERSION" == 'rhel8' ]] ; then
+      sudo subscription-manager release --set=8.2
+   fi
 else
    sudo subscription-manager config --rhsm.auto_enable_yum_plugins=0
    sudo subscription-manager config --rhsm.manage_repos=0
