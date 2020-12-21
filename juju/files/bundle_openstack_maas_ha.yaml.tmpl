@@ -190,6 +190,9 @@ services:
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
+      sriov-numvfs: "{{ SRIOV_PHYSICAL_INTERFACE }}:{{ SRIOV_VF }}"
+      sriov-physical-interface: "{{ SRIOV_PHYSICAL_INTERFACE }}"
+      sriov-physical-network: "{{ SRIOV_PHYSICAL_NETWORK }}"
     to:
       - "3"
   nova-compute-dpdk:

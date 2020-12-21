@@ -53,6 +53,9 @@ AWS_REGION=${AWS_REGION:-'us-east-1'}
 
 MAAS_ENDPOINT=${MAAS_ENDPOINT:-''}
 MAAS_API_KEY=${MAAS_API_KEY:-''}
+SRIOV_PHYSICAL_NETWORK=${SRIOV_PHYSICAL_NETWORK:-'physnet1'}
+SRIOV_PHYSICAL_INTERFACE=${SRIOV_PHYSICAL_INTERFACE:-'ens2f1'}
+SRIOV_VF=${SRIOV_VF:-7}
 
 source /etc/lsb-release
 export UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
@@ -257,7 +260,12 @@ function collect_deployment_env() {
     echo "INFO: agent_nodes: $AGENT_NODES"
 
     DEPLOYMENT_ENV['CONTROL_NODES']="$(command juju run --unit contrail-controller/leader 'cat /etc/contrail/common_config.env' | grep CONTROL_NODES | cut -d '=' -f 2)"
-
+    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_juju_unit_ips contrail-agent-dpdk)
+    sriov_agent_nodes=$(get_juju_unit_ips contrail-agent-sriov)
+    for node in $sriov_agent_nodes; do
+        [ -z "${DEPLOYMENT_ENV['SRIOV_CONFIGURATION']}" ] || DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+=';'
+        DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+="$node:$SRIOV_PHYSICAL_NETWORK:$SRIOV_PHYSICAL_INTERFACE:$SRIOV_VF";
+    done
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         echo "INFO: SSL is enabled. collecting certs"
         # in case of Juju several files can be placed inside subfolders (for different charms). take any.
