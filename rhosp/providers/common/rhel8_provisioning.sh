@@ -4,6 +4,10 @@ sudo dnf remove -y docker-ce-cli || true
 # fix module otherwise upstream usage leads to packages conflicts
 sudo dnf module disable -y container-tools idm
 sudo dnf module enable -y container-tools:2.0 idm:DL1
+
+#Set release to prevent upgrade to 8.3 (Tripleo supports only 8.2)
+sudo subscription-manager release --set=8.2
+
 sudo dnf distro-sync -y 
 
 sudo dnf update -y
