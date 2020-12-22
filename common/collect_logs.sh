@@ -83,12 +83,15 @@ function collect_kolla_logs() {
 }
 
 function collect_openstack_logs() {
-    echo "INFO: Collecting openstack logs"
-
-    local log_dir="$TF_LOG_DIR/openstack"
+    local hname=$1
+    echo "INFO: Collecting openstack logs $hname"
+    local log_dir="$TF_LOG_DIR"
+    [ -z "$hname" ] ||  log_dir+="/$hname"
+    log_dir+="/openstack"
     mkdir -p $log_dir
     local ldir
     for ldir in '/etc/nova' '/var/log/nova' '/var/lib/config-data/puppet-generated/nova' '/var/log/containers/nova' \
+                '/var/lib/config-data/puppet-generated/nova_libvirt' '/var/log/containers/libvirt' \
                 '/etc/haproxy' '/var/log/upstart' '/var/lib/config-data/puppet-generated/haproxy' '/var/log/containers/haproxy' \
                 '/etc/neutron' '/var/log/neutron' '/var/lib/config-data/puppet-generated/neutron' '/var/log/containers/neutron' \
                 '/etc/cinder' '/var/log/cinder' '/var/lib/config-data/puppet-generated/cinder' '/var/log/containers/cinder' \
