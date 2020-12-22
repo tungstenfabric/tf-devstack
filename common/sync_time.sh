@@ -3,6 +3,7 @@
 if ps ax | grep "bin/chronyd" | grep -v grep ; then
   echo "INFO: check sync with chronyd"
   i=12
+  systemctl restart chronyd
   while ! chronyc -n sources | grep "^\^\*" ; do
     echo "INFO: time is not synced. force it ($i)"
     sudo systemctl stop chronyd.service
@@ -19,6 +20,7 @@ if ps ax | grep "bin/chronyd" | grep -v grep ; then
 elif ps ax | grep "bin/ntpd" | grep -v grep  ; then
   echo "INFO: check sync with ntpd"
   i=12
+  systemctl restart ntpd
   while ! /usr/sbin/ntpq -n -c pe | grep "^\*" ; do
     echo "INFO: time is not synced. force it ($i)"
     sudo systemctl stop ntpd.service
