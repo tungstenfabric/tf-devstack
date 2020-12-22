@@ -24,7 +24,7 @@ fi
 # instances params
 domain=${domain:-'vexxhost.local'}
 undercloud_flavor=${undercloud_flavor:-'v2-standard-4'}
-ipa_flavor=${ipa_flavor:-'v2-highcpu-2'}
+ipa_flavor=${ipa_flavor:-'v2-highcpu-4'}
 disk_size_gb=100
 
 #ssh options
