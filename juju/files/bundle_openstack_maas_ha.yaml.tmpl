@@ -186,11 +186,11 @@ services:
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
-      virt-type: "qemu"
+      virt-type: "kvm"
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
-      pci-passthrough-whitelist: '{"devname":"{{ SRIOV_PHYSICAL_INTERFACE }}", "physical_network":"SRIOV_PHYSICAL_NETWORK"}'
+      pci-passthrough-whitelist: '{"devname":"{{ SRIOV_PHYSICAL_INTERFACE }}", "physical_network":"{{ SRIOV_PHYSICAL_NETWORK }}"}'
     to:
       - "3"
   nova-compute-dpdk:
