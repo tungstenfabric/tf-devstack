@@ -52,12 +52,17 @@ EOF
 
 yum -y remove openstack-dashboard
 if [[ $VERSION_ID == 7* ]]; then
-    epel_repo=$(yum repolist all| awk  '/epel/{print($1)}' | cut -d '/' -f1 | head -n 1)
+    # [cloud-user@rhosp13-ipa-13624 ~]$ yum repolist all  
+    # Failed to set locale, defaulting to C
+    # Loaded plugins: search-disabled-repos
+    # repo id         repo name     status
+    # !epel           epel          disabled
+    epel_repo=$(yum repolist all| awk  '/epel/{print($1)}' | cut -d '/' -f1 | head -n 1 | tr -d '!')
     if [ -z "$epel_repo" ] ; then
         wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         yum localinstall -y epel-release-latest-7.noarch.rpm
         for i in {1..3} ; do 
-            epel_repo=$(yum repolist | awk '/epel/{print($1)}' | cut -d '/' -f1 | head -n 1)
+            epel_repo=$(yum repolist | awk '/epel/{print($1)}' | cut -d '/' -f1 | head -n 1 | tr -d '!')
             [ -n "$epel_repo" ] && break
         done
     fi
