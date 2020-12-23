@@ -225,7 +225,7 @@ function collect_deployment_log() {
     create_log_dir
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
-    collect_openstack_logs
+    collect_openstack_logs $host_name
     collect_stack_details ${TF_LOG_DIR}/${host_name}
     if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
         sudo cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
