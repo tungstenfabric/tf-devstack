@@ -101,8 +101,8 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-agent"
     series: "{{ UBUNTU_SERIES }}"
     options:
-      sriov-numvfs: "{{ SRIOV_PHYSICAL_INTERFACE }}:{{ SRIOV_VF }}"
       sriov-physical-interface: "{{ SRIOV_PHYSICAL_INTERFACE }}"
+      sriov-numvfs: "{{ SRIOV_VF }}"
       kernel-hugepages-1g: "8"
       kernel-hugepages-2m: "2048"
       log-level: "SYS_DEBUG"
