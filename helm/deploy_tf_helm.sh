@@ -25,22 +25,8 @@ fi
 
 cd $WORKSPACE/tf-helm-deployer
 
-helm init --client-only
-
-# install plugin to make helm work without CNI
-if [ "$ORCHESTRATOR" == "kubernetes" ]; then
-  kubectl -n kube-system scale deployment tiller-deploy --replicas=0
-  helm plugin install https://github.com/rimusz/helm-tiller || :
-  helm tiller stop >/dev/null &2>&1 || :
-  export HELM_HOST=127.0.0.1:44134
-  helm tiller start-ci
-fi
-
 function kill_helm_serve() {
-  if [ "$ORCHESTRATOR" == "kubernetes" ]; then
-    helm tiller stop >/dev/null &2>&1 || :
-  fi
-  (pgrep -f "helm serve" | xargs -n1 -r kill) || :
+  sudo -H docker rm -f nginx-for-helm || true
 }
 
 function wait_vhost0_up() {
@@ -60,10 +46,9 @@ function catch_errors() {
   exit $exit_code
 }
 
-(pgrep -f "helm serve" | xargs -n1 -r kill) || :
-helm serve &
+sudo -H docker rm -f nginx-for-helm || true
+sudo -H docker run --name nginx-for-helm --rm --detach -v $WORKSPACE/tf-helm-deployer/:/usr/share/nginx/html/charts -p 8879:80 nginx
 sleep 5
-helm repo add local http://localhost:8879/charts
 make all
 
 # Refactor for AGENT_NODES and CONTROLLER_NODES
@@ -109,9 +94,7 @@ fi
 
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
-if [ "$ORCHESTRATOR" == "kubernetes" ]; then
-  kubectl -n kube-system scale deployment tiller-deploy --replicas=1
-elif [[ $ORCHESTRATOR == "openstack" ]] ; then
+if [[ $ORCHESTRATOR == "openstack" ]] ; then
   for machine in $AGENT_NODES ; do
     wait_vhost0_up $machine
   done
