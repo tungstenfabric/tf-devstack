@@ -72,7 +72,7 @@ parameter_defaults:
   ControlFixedIPs: [{'ip_address':'{{ fixed_vip }}'}]
   EC2MetadataIp: '{{ prov_ip }}'
   DnsServers: {{ overcloud_nameservers }}
-  NtpServer: '3.europe.pool.ntp.org'
+  NtpServer: '{{ NTP_SERVERS }}'
   NovaComputeLibvirtType: '{{ overcloud_virt_type }}'
   # Disable online data migration
   # It has a race inside that appear as an error:

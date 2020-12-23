@@ -5,6 +5,7 @@ local_interface = ${undercloud_local_interface}
 local_mtu = ${local_mtu}
 overcloud_domain_name = ${domain}
 undercloud_nameservers = ${undercloud_nameservers}
+undercloud_ntp_servers = ${NTP_SERVERS}
 undercloud_hostname = ${undercloud_instance}.${domain}
 undercloud_admin_host = ${undercloud_admin_host}
 undercloud_public_host = ${undercloud_public_host}
