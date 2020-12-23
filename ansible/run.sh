@@ -95,12 +95,6 @@ function machines() {
     fi
 
     # generate inventory file
-
-    export NODE_IP
-    export CONTAINER_REGISTRY
-    export CONTRAIL_CONTAINER_TAG
-    export OPENSTACK_VERSION
-    export USER=$(whoami)
     python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
 
     # create Ansible temporary dir under current user to avoid create it under root
@@ -142,12 +136,7 @@ function tf() {
     current_registry=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['global_configuration']['CONTAINER_REGISTRY'])")
 
     if [[ $current_container_tag != $CONTRAIL_CONTAINER_TAG || $current_registry != $CONTAINER_REGISTRY ]]; then
-        # generate new inventory file
-        export NODE_IP
-        export CONTAINER_REGISTRY
-        export CONTRAIL_CONTAINER_TAG
-        export OPENSTACK_VERSION
-        export USER=$(whoami)
+        # generate new inventory file due to possible new input
         python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
 
         sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
