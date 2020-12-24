@@ -210,6 +210,15 @@ function collect_system_stats() {
     cat /etc/hosts &>$syslogs/etc_hosts
     cat /etc/resolv.conf &>$syslogs/etc_resolv.conf
     ls -la /etc/ &>$syslogs/ls_etc.log
+    if ps ax | grep -v grep | grep -q "bin/chronyd" ; then
+        local chrony_cfg_file='/etc/chrony.conf'
+        [ -e "$chrony_cfg_file" ] || chrony_cfg_file='/etc/chrony/chrony.conf'
+        sudo cp $chrony_cfg_file $syslogs/  || true
+        chronyc -n sources &>> $syslogs/chrony_sources.log || true
+    elif ps ax | grep -v grep | grep -q "bin/ntpd" ; then
+        sudo cp /etc/ntp.conf $syslogs/ || true
+        /usr/sbin/ntpq -n -c pe &>> $syslogs/ntpq.log || true
+    fi
     if [ -e /var/log/messages ] ; then
         yes | sudo cp /var/log/messages* $syslogs/
     fi

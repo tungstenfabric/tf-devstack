@@ -236,6 +236,6 @@ function sync_time() {
     [ -z "$user" ] || addr="$user@$addr"
     echo "INFO: machine $addr"
     scp $SSH_OPTIONS ${fmy_dir}/sync_time.sh ${addr}:/tmp/sync_time.sh
-    ssh $SSH_OPTIONS ${addr} /tmp/sync_time.sh
+    ssh $SSH_OPTIONS ${addr} DEBUG=$DEBUG /tmp/sync_time.sh
   done
 }
