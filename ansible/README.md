@@ -67,11 +67,11 @@ You can select OpenStack as orchestrator with environment variables before insta
 
 ``` bash
 export ORCHESTRATOR=openstack
-export OPENSTACK_VERSION=queens
+export OPENSTACK_VERSION=rocky
 ./run.sh
 ```
 
-OpenStack version may be selected from queens (default), ocata, rocky, train.
+OpenStack version may be selected from queens, rocky (default), train.
 
 ## Customized deployments and deployment steps
 

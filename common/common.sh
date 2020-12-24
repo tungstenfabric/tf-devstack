@@ -4,6 +4,11 @@
 
 set -o errexit
 
+if [[ $(whoami) == root ]]; then
+  echo "ERROR: Please run script as non-root user"
+  exit 1
+fi
+
 # working environment
 export WORKSPACE=${WORKSPACE:-$(pwd)}
 TF_CONFIG_DIR=${TF_CONFIG_DIR:-"${HOME}/.tf"}
@@ -12,11 +17,11 @@ TF_STACK_PROFILE="${TF_CONFIG_DIR}/stack.env"
 TF_STAGES_DIR="${TF_CONFIG_DIR}/.stages"
 
 # determined variables
-DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
-PHYS_INT=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
-NODE_IP=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
-NODE_CIDR=`ip r | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+ dev $PHYS_INT " | awk '{print $1}'`
-
+export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+export PHYS_INT=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
+export NODE_IP=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
+export NODE_CIDR=`ip r | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+ dev $PHYS_INT " | awk '{print $1}'`
+export SSH_USER=${SSH_USER:-${IMAGE_SSH_USER:-$(whoami)}}
 # defaults
 
 # run build contrail
@@ -38,8 +43,3 @@ export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 export LEGACY_ANALYTICS_ENABLE=${LEGACY_ANALYTICS_ENABLE:-true}
 export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"}
-
-if [[ $(whoami) == root ]]; then
-  echo Please run script as non-root user
-  exit 1
-fi
