@@ -234,7 +234,7 @@ function sync_time() {
   for machine in $(echo $nodes | tr " " "\n" | sort -u) ; do
     local addr="$machine"
     [ -z "$user" ] || addr="$user@$addr"
-    echo "INFO: machine $addr"
+    echo "INFO: sync time on machine $addr"
     scp $SSH_OPTIONS ${fmy_dir}/sync_time.sh ${addr}:/tmp/sync_time.sh
     ssh $SSH_OPTIONS ${addr} DEBUG=$DEBUG /tmp/sync_time.sh
   done
