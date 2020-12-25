@@ -194,7 +194,7 @@ function collect_deployment_env() {
 }
 
 function collect_logs() {
-    cp $tf_deployer_dir/instances.yaml ${TF_LOG_DIR}/
+    cp $TF_CONFIG_DIR/*.yaml ${TF_LOG_DIR}/ || /bin/true
     collect_logs_from_machines
 }
 

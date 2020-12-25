@@ -38,12 +38,12 @@ else
     collect_kubernetes_logs
     collect_kubernetes_objects_info
 fi
-chmod -R a+r logs
+sudo chmod -R a+r logs
 pushd logs
 tar -czf \$tgz_name *
 popd
 cp logs/\$tgz_name \$tgz_name
-rm -rf logs
+sudo rm -rf logs
 EOF
     chmod a+x /tmp/logs.sh
 
