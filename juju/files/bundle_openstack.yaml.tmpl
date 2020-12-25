@@ -146,6 +146,16 @@ services:
     expose: true
     to:
       - lxd:0
+{%- if ENABLE_NAGIOS == 'true' %}
+  nagios:
+    charm: cs:nagios-40
+    num_units: 1
+    to:
+    - "0"
+    expose: true
+  nrpe:
+    charm: cs:nrpe-69
+{%- endif %}
 
 {#%- if UBUNTU_SERIES == 'focal' %}
   keystone-mysql-router:
@@ -235,3 +245,6 @@ relations:
 {%- endif %}
 
 {%- endif %#}
+{%- if ENABLE_NAGIOS == 'true' %}
+- [ nrpe:monitors, nagios:monitors ]
+{%- endif %}
