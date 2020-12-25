@@ -248,6 +248,16 @@ function collect_deployment_env() {
         # deployment environment for juju is needed after wait stage only
         return 0
     fi
+
+    # NOTE: hack for SRIOV deployments
+    # TODO: implement this in charms
+    # nova-compute reads configuration once at start but it should re-read it when
+    # new VF number is stored in the system. Here just a nova-compute restart for sriov node
+    # to let tests pass
+    if [[ ${ENABLE_DPDK_SRIOV,,} == 'true' ]]; then
+        command juju ssh nova-compute-sriov/0 "sudo systemctl restart nova-compute"
+    fi
+
     echo "INFO: collect deployment env"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
