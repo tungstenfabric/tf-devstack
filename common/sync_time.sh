@@ -6,7 +6,6 @@ function chrony_sync() {
   local out="$(chronyc -n sources)"
   if ! echo "$out" | grep -q "^\^\*" ; then
     echo "INFO: time is not synced, force it"
-    echo "$out"
     sudo systemctl stop chronyd.service
     local cfg_file='/etc/chrony.conf'
     [ -e "$cfg_file" ] || cfg_file='/etc/chrony/chrony.conf'
@@ -23,7 +22,6 @@ function ntp_sync() {
   local out="$(/usr/sbin/ntpq -n -c pe)"
   if ! echo "$out" | grep -q "^\*" ; then
     echo "INFO: time is not synced, force it"
-    echo "$out"
     sudo systemctl stop ntpd.service
     timeout 120 sudo ntpd -gq
     sudo systemctl start ntpd.service
@@ -34,9 +32,11 @@ function ntp_sync() {
 if ps ax | grep -v grep | grep -q "bin/chronyd" ; then
   sudo systemctl restart chronyd
   time_sync_func=chrony_sync
+  show_time="chronyc -n sources"
 elif ps ax | grep -v grep | grep -q "bin/ntpd" ; then
   sudo systemctl restart ntpd
   time_sync_func=ntp_sync
+  show_time="/usr/sbin/ntpq -n -c pe"
 fi
 
 if [ -z "$time_sync_func" ] ; then
@@ -44,10 +44,11 @@ if [ -z "$time_sync_func" ] ; then
   exit 1
 fi
 
-i=12
+i=24
 while ! $time_sync_func ; do
-  if ! ((i=-1)) ; then
+  if ! ((i-=1)) ; then
     echo "ERROR: time can not be synced. Exiting..."
+    $show_time
     exit 1
   fi
   sleep 10
