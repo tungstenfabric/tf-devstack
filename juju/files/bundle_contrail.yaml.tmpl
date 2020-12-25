@@ -165,12 +165,6 @@ services:
       - "0"
 {%- endif %}
 {%- if ENABLE_NAGIOS == 'true' %}
-  nagios:
-    charm: cs:nagios-40
-    num_units: 1
-    to:
-    - "0"
-    expose: true
   nrpe:
     charm: cs:nrpe-69
 {%- endif %}
@@ -247,5 +241,4 @@ relations:
 - [ nrpe:nrpe-external-master, contrail-analytics:nrpe-external-master ]
 - [ nrpe:nrpe-external-master, contrail-analyticsdb:nrpe-external-master ]
 - [ nrpe:nrpe-external-master, contrail-agent:nrpe-external-master ]
-- [ nrpe:monitors, nagios:monitors ]
 {%- endif %}
