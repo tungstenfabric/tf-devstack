@@ -78,6 +78,17 @@ services:
       docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
       docker_runtime_package: 'docker-ce'
 
+{%- if ENABLE_NAGIOS == 'true' %}
+  nagios:
+    charm: cs:nagios-40
+    num_units: 1
+    to:
+    - "0"
+    expose: true
+  nrpe:
+    charm: cs:nrpe-69
+{%- endif %}
+
   # misc
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
@@ -101,5 +112,9 @@ relations:
 - [ etcd:certificates, easyrsa:client ]
 - [ kubernetes-master:container-runtime, docker:docker]
 - [ kubernetes-worker:container-runtime, docker:docker]
+
+{%- if ENABLE_NAGIOS == 'true' %}
+- [ nrpe:monitors, nagios:monitors ]
+{%- endif %}
 
 - [ ubuntu, ntp ]
