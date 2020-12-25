@@ -78,6 +78,15 @@ services:
       docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
       docker_runtime_package: 'docker-ce'
 
+{%- if ENABLE_NAGIOS == 'true' %}
+  nagios:
+    charm: cs:nagios-40
+    num_units: 1
+    to:
+    - "0"
+    expose: true
+{%- endif %}
+
   # misc
   ubuntu:
     charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"

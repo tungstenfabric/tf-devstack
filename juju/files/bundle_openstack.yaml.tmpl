@@ -146,6 +146,14 @@ services:
     expose: true
     to:
       - lxd:0
+{%- if ENABLE_NAGIOS == 'true' and ORCHESTRATOR == 'openstack' %}
+  nagios:
+    charm: cs:nagios-40
+    num_units: 1
+    to:
+    - "0"
+    expose: true
+{%- endif %}
 
 {#%- if UBUNTU_SERIES == 'focal' %}
   keystone-mysql-router:

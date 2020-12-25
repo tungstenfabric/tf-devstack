@@ -201,7 +201,10 @@ function tf() {
         command juju add-relation kubernetes-master keystone
         command juju add-relation kubernetes-master contrail-agent
         setup_keystone_auth
-   fi
+    fi
+    if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
+        command juju add-relation nrpe:monitors nagios:monitors
+    fi
 
     # TODO: remove this hack at all!!!
     JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
