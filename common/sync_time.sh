@@ -11,7 +11,7 @@ function chrony_sync() {
     [ -e "$cfg_file" ] || cfg_file='/etc/chrony/chrony.conf'
     local server
     for server in $(grep "^server " $cfg_file | awk '{print $2}') ; do
-      sudo chronyd -q server $server iburst
+      timeout 120 sudo chronyd -q server $server iburst
     done
     sudo systemctl start chronyd.service
     return 1
