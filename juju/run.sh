@@ -151,6 +151,11 @@ function k8s() {
 }
 
 function tf() {
+    export CONTROLLER_NODES="`get_juju_unit_ips contrail-controller`"
+    echo "INFO: controller_nodes: $CONTROLLER_NODES"
+    export AGENT_NODES="`get_juju_unit_ips contrail-agent`"
+    echo "INFO: agent_nodes: $AGENT_NODES"
+
     sync_time
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
