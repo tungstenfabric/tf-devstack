@@ -33,6 +33,7 @@ if ps ax | grep -v grep | grep -q "bin/chronyd" ; then
   time_sync_func=chrony_sync
   show_time="chronyc -n sources"
 elif ps ax | grep -v grep | grep -q "bin/ntpd" ; then
+  sudo systemctl restart ntpd
   time_sync_func=ntp_sync
   show_time="/usr/sbin/ntpq -n -c pe"
 fi
