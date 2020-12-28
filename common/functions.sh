@@ -222,13 +222,6 @@ function sync_time() {
   echo "INFO: controller nodes - $CONTROLLER_NODES"
   echo "INFO: agent nodes - $AGENT_NODES"
   echo "INFO: openstack controller nodes - $OPENSTACK_CONTROLLER_NODES"
-  # TODO: this function is called before wait. thus we have to think how to collect
-  # *_NODES for below cases here
-  if [[ $DEPLOYER == 'juju' && $CLOUD == 'maas' ]]; then
-    # TODO:
-    echo "INFO: skip time checking for juju maas"
-    return
-  fi
 
   local machine
   for machine in $(echo $nodes | tr " " "\n" | sort -u) ; do
