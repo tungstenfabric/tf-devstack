@@ -34,7 +34,7 @@ export overcloud_sriov_instance="1"
 export overcloud_ceph_instance="1,2,3"
 
 # to allow nova to use hp as well (2 are used by vrouter)
-export vrouter_huge_pages_1g='6'
+export vrouter_huge_pages_1g='32'
 
 #SRIOV parameters
 export sriov_physical_interface="ens2f3"
