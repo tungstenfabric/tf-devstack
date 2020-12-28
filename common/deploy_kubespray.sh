@@ -17,12 +17,12 @@ function is_kubeapi_accessible() {
 
 # parameters
 
-KUBESPRAY_TAG=${KUBESPRAY_TAG:="master"}
+KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.14"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
-K8S_VERSION=${K8S_VERSION:-"v1.18.14"}
+K8S_VERSION=${K8S_VERSION:-"v1.18.10"}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
@@ -117,6 +117,8 @@ fi
 
 sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo 'helm_version: "v2.16.11"' >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo 'helm_stable_repo_url: "https://charts.helm.sh/stable"' >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
 # DNS
 # Allow host and hostnet pods to resolve cluster domains
