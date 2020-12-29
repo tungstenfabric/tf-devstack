@@ -68,14 +68,6 @@ function get_service_machine() {
   echo $machine
 }
 
-function patch_apiserver_certificate() {
-  local a=$(kubectl -n default get services --no-headers -o jsonpath='{.items[0].spec.clusterIP}')
-  if [ -z "${a}" ]; then
-    return 1
-  fi
-  command juju config kubernetes-master extra_sans="${a}"
-}
-
 function setup_keystone_auth() {
   command juju config kubernetes-master \
       authorization-mode="Node,RBAC" \
