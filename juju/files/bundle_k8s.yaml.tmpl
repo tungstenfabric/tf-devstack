@@ -33,22 +33,28 @@ services:
 
   easyrsa:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/easyrsa-303
+    charm: cs:~containers/easyrsa-342
     num_units: 1
+    resources:
+      easyrsa: 5
     to:
     - 0
 
   etcd:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/etcd-501
+    charm: cs:~containers/etcd-546
     num_units: {{ controller_nodes | count }}
     options:
-      channel: 3.2/stable
+      channel: 3.4/stable
+    resources:
+      core: 0
+      etcd: 3
+      snapshot: 0
     to: {{ controller_nodes }}
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-master-827
+    charm: cs:~containers/kubernetes-master-926
     num_units: {{ controller_nodes | count }}
     expose: true
     options:
@@ -57,16 +63,32 @@ services:
       channel: '1.18/stable'
       service-cidr: '10.96.0.0/12'
       snapd_refresh: 'max'
+    resources:
+      cdk-addons: 0
+      core: 0
+      kube-apiserver: 0
+      kube-controller-manager: 0
+      kube-proxy: 0
+      kube-scheduler: 0
+      kubectl: 0
     to: {{ controller_nodes }}
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-worker-665
+    charm: cs:~containers/kubernetes-worker-718
     num_units: {{ agent_nodes | count }}
     options:
       ingress: false
       channel: '1.18/stable'
       snapd_refresh: 'max'
+    resources:
+      cni-amd64: 690
+      cni-arm64: 681
+      cni-s390x: 693
+      core: 0
+      kube-proxy: 0
+      kubectl: 0
+      kubelet: 0
     to: {{ agent_nodes }}
 
   docker:
