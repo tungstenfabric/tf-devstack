@@ -25,8 +25,24 @@ fi
 
 cd $WORKSPACE/tf-helm-deployer
 
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  helm init -c --stable-repo-url=https://charts.helm.sh/stable
+
+  # install plugin to make helm work without CNI
+  kubectl -n kube-system scale deployment tiller-deploy --replicas=0
+  helm plugin install https://github.com/rimusz/helm-tiller || :
+  helm tiller stop >/dev/null &2>&1 || :
+  export HELM_HOST=127.0.0.1:44134
+  helm tiller start-ci
+fi
+
 function kill_helm_serve() {
-  sudo -H docker rm -f nginx-for-helm || true
+  if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+    helm tiller stop >/dev/null &2>&1 || :
+    (pgrep -f "helm serve" | xargs -n1 -r kill) || :
+  elif [[ $ORCHESTRATOR == "openstack" ]] ; then
+    sudo -H docker rm -f nginx-for-helm || :
+  fi
 }
 
 function wait_vhost0_up() {
@@ -46,8 +62,13 @@ function catch_errors() {
   exit $exit_code
 }
 
-sudo -H docker rm -f nginx-for-helm || true
-sudo -H docker run --name nginx-for-helm --rm --detach -v $WORKSPACE/tf-helm-deployer/:/usr/share/nginx/html/charts -p 8879:80 nginx
+if [ "$ORCHESTRATOR" == "kubernetes" ]; then
+  (pgrep -f "helm serve" | xargs -n1 -r kill) || :
+  helm serve &
+elif [[ $ORCHESTRATOR == "openstack" ]] ; then
+  sudo -H docker rm -f nginx-for-helm || true
+  sudo -H docker run --name nginx-for-helm --rm --detach -v $WORKSPACE/tf-helm-deployer/:/usr/share/nginx/html/charts -p 8879:80 nginx
+fi
 sleep 5
 make all
 

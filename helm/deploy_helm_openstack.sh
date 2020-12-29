@@ -84,7 +84,7 @@ conf:
 YAML
 
 # build infra charts
-helm init -c
+helm init -c --stable-repo-url=https://charts.helm.sh/stable
 cd $WORKSPACE/openstack-helm-infra
 
 function kill_helm_serve() {
