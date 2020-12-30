@@ -34,7 +34,7 @@ openstack_deployer_image=${OPENSTACK_DEPLOYER:-"tf-kolla-ansible-src"}
 export ANSIBLE_CONFIG=$tf_deployer_dir/ansible.cfg
 
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
-OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
 export AUTH_PASSWORD='contrail123'
 
 export DOMAINSUFFIX=${DOMAINSUFFIX-$(hostname -d)}
