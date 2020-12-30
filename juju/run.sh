@@ -216,15 +216,6 @@ function tf() {
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
     done
 
-    # workarounds a kube-apiserver certificate issue
-    # keystone-auth cannot reach kube-apiserver service over tls by its cluster ip
-    # which differs from the one configured inside the certificate, it's the host ip now.
-    # let's generate a certificate for the service containing the cluster
-    # ip in SAN (subject alternative names) list.
-    if [[ $ORCHESTRATOR == 'hybrid' ]]; then
-      wait_cmd_success patch_apiserver_certificate 20 90
-    fi
-
     # show results
     TF_UI_IP=${TF_UI_IP:-"$NODE_IP"}
     echo "Tungsten Fabric Web UI will be available at https://$TF_UI_IP:8143"
@@ -240,7 +231,22 @@ function is_active() {
         echo "$status"
         exit 1
     fi
-    [[ ! $(echo "$status" | egrep 'executing|blocked|waiting') ]]
+    if echo "$status" | egrep 'executing|blocked|waiting' ; then
+        return 1
+    fi
+
+    # NOTE: kubernetes can't be deployed in AIO configuration properly -
+    # worker and master charms have same place for server.crt and thus if
+    # worker writes it after master then master can't accept connections
+    # to some IP-s/names.
+    # If this deployment has kubernetes in AIO and it's server cert is incorrect
+    # then script has to override it. just one way was found. it's to add
+    # something to extra_sans after deployment
+    if ! check_kubernetes_master_cert ; then
+        return 1
+    fi
+
+    return 0
 }
 
 function collect_deployment_env() {
