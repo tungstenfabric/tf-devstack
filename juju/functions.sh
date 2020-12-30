@@ -68,14 +68,6 @@ function get_service_machine() {
   echo $machine
 }
 
-function patch_apiserver_certificate() {
-  local a=$(kubectl -n default get services --no-headers -o jsonpath='{.items[0].spec.clusterIP}')
-  if [ -z "${a}" ]; then
-    return 1
-  fi
-  command juju config kubernetes-master extra_sans="${a}"
-}
-
 function setup_keystone_auth() {
   command juju config kubernetes-master \
       authorization-mode="Node,RBAC" \
@@ -192,4 +184,35 @@ function is_ready() {
     fi
   done
   [[ ! $(echo "$status" | egrep 'executing') ]]
+}
+
+function check_kubernetes_master_cert() {
+  # NOTE: kubernetes can't be deployed in AIO configuration properly -
+  # worker and master charms have same place for server.crt and thus if
+  # worker writes it after master then master can't accept connections
+  # to some IP-s/names.
+  # If this deployment has kubernetes in AIO and it's server cert is incorrect
+  # then script has to override it. just one way was found. it's to add
+  # something to extra_sans after deployment
+  if [[ $ORCHESTRATOR != 'hybrid' && $ORCHESTRATOR != 'kubernetes' ]]; then
+    # only kubernetes related
+    return 0
+  fi
+  if [[ "$CONTROLLER_NODES" != "$AGENT_NODES" ]]; then
+    # only specific AIO setup
+    return 0
+  fi
+  if sudo grep -q "fake-name" /root/cdk/server.crt ; then
+    # only if cert doesn't have specific server's IP
+    command juju run-action --wait kubernetes-master/leader restart
+    return 0
+  fi
+
+  # change setting
+  if ! command juju config kubernetes-master extra_sans | grep -q 'fake-name' ; then
+    command juju config kubernetes-master extra_sans='fake-name'
+    # wait a bit to let hook run. then return back to wait loop
+    sleep 10
+  fi
+  return 1
 }
