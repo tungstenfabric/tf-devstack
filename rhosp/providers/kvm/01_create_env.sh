@@ -6,7 +6,7 @@ my_dir="$(dirname $my_file)"
 
 source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
-source $my_dir/virsh_functions
+source $my_dir/../../../contrib/infra/kvm/functions.sh
 
 if [[ $RHEL_VERSION == 'rhel8' ]]; then
    rhel_version_libvirt='rhl8.0'

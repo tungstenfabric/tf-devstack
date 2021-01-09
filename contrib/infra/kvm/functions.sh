@@ -65,6 +65,17 @@ function create_network_dhcp() {
   sudo virsh net-start $network_name
 }
 
+function update_network_dhcp() {
+  local net_name=$1
+  local host=$2
+  local mac=$3
+  local ip=$4
+  local net_data=`mktemp`
+  cat <<EOF > $net_data
+<host mac='$mac' name='$host' ip='$ip' />
+EOF
+  sudo virsh net-update $net_name add ip-dhcp-host $net_data
+}
 
 function create_pool() {
   local poolname="$1"
@@ -232,6 +243,21 @@ function start_vm() {
   sudo virsh start $name --force-boot
 }
 
+function ensure_vbmcd(){
+  if ! ps aux | grep -v grep | grep -q vbmcd ; then
+    sudo vbmcd
+    sleep 5
+  fi
+}
+
+function call_vbmc() {
+  local cmd=$1
+  shift
+  local opts="$@"
+  ensure_vbmcd
+  sudo vbmc $cmd --no-daemon $opts
+}
+
 function delete_domain() {
   local name=$1
   if sudo virsh dominfo $name 2>/dev/null ; then
@@ -246,6 +272,38 @@ function delete_volume() {
   local poolname=$2
   local pool_path=$(get_pool_path $poolname)
   sudo virsh vol-delete $volname --pool $poolname 2>/dev/null || rm -f $pool_path/$volname 2>/dev/null
+}
+
+function image_customize() {
+  local image=$1
+  local hname=$2
+  local ssh_public_key=$3
+  local hdomain=$4
+  local ip=$5
+  local fqdn=${hname}.${hdomain}
+  sudo virt-customize -a $image \
+    --run-command 'xfs_growfs /' \
+    --run-command 'systemctl enable sshd' \
+    --run-command 'sed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config' \
+    --root-password password:${ADMIN_PASSWORD} \
+    --run-command 'yum remove -y cloud-init' \
+    --run-command 'echo net.ipv6.bindv6only=0 > /etc/sysctl.conf' \
+    --run-command 'echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf' \
+    --run-command 'echo net.ipv4.ip_forward = 1 >> /etc/sysctl.conf' \
+    --run-command "echo ::1  localhost.$hdomain localhost  ip6-localhost ip6-loopback > /etc/hosts" \
+    --run-command 'echo ff02::1 ip6-allnodes >> /etc/hosts' \
+    --run-command 'echo ff02::2 ip6-allrouters >> /etc/hosts' \
+    --run-command "echo 127.0.0.1  localhost.${hdomain}  localhost >> /etc/hosts" \
+    --run-command "echo $ip  ${fqdn}  ${hname} >> /etc/hosts" \
+    --hostname ${fqdn} \
+    --run-command 'id -u stack || useradd -m stack -s /bin/bash' \
+    --run-command "echo stack:${ADMIN_PASSWORD} | chpasswd" \
+    --run-command 'echo "stack ALL=(root) NOPASSWD:ALL" > /etc/sudoers.d/stack' \
+    --run-command 'stat /home/stack/.ssh || mkdir /home/stack/.ssh && chown stack:stack /home/stack/.ssh && chmod 700 /home/stack/.ssh' \
+    --run-command 'echo -n > /home/stack/.ssh/authorized_keys' \
+    --ssh-inject root:file:$ssh_public_key \
+    --ssh-inject stack:file:$ssh_public_key \
+    --selinux-relabel
 }
 
 function assert_env_exists() {
@@ -270,6 +328,7 @@ function wait_dhcp() {
   while true ; do
     local ips=( `sudo virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1` )
     if (( ${#ips[@]} == count )) ; then
+      echo "INFO: created IP-s: ${ips[@]}"
       break
     fi
     if (( iter >= max_iter )) ; then
@@ -286,6 +345,38 @@ function get_ip_by_mac() {
   local net=$1
   local filter=$2
   sudo virsh net-dhcp-leases $net | sed 1,2d | grep "$filter" | awk '{print($5)}' | cut -d '/' -f 1
+}
+
+function delete_vbmc() {
+  local domain=$1
+  call_vbmc stop  $domain || true
+  sleep 2
+  call_vbmc delete $domain || true
+}
+
+function start_vbmc() {
+  local port=$1
+  local domain=$2
+  local ipmi_address=$3
+  local ipmi_user=$4
+  local ipmi_password=$5
+  local i=''
+  for i in {1..5} ; do
+    call_vbmc add --port $port --address $ipmi_address \
+      --username $ipmi_user --password $ipmi_password \
+      $domain
+    sleep 2
+    local status=$(call_vbmc show -f value $domain | awk '/status /{print($2)}')
+    [[ "$status" == 'running' ]] && break
+    # try start
+    call_vbmc start $domain
+    sleep 2
+    status=$(call_vbmc show -f value $domain | awk '/status /{print($2)}')
+    [[ "$status" == 'running' ]] && break
+    sleep 2
+    # delete and try re-create
+    delete_vbmc $domain
+  done
 }
 
 function wait_ssh() {
