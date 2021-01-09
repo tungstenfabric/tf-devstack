@@ -5,7 +5,7 @@ my_dir="$(dirname $my_file)"
 
 source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
-source $my_dir/virsh_functions
+source $my_dir/../../../contrib/infra/kvm/functions.sh
 
 # collect MAC addresses of overcloud machines
 function get_macs() {

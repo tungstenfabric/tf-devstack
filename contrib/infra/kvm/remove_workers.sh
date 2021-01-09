@@ -21,6 +21,7 @@ fi
 
 for vm_name in `virsh list --all | grep "${prefix}${BASE_VM_NAME}_" | awk '{print $2}'` ; do
   delete_domain $vm_name
+  delete_vbmc $vm_name
   vol_path=$(get_pool_path $POOL_NAME)
   vol_name="$vm_name.qcow2"
   delete_volume $vol_name $POOL_NAME
