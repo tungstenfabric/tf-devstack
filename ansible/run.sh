@@ -36,6 +36,7 @@ export ANSIBLE_CONFIG=$tf_deployer_dir/ansible.cfg
 ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
 export AUTH_PASSWORD='contrail123'
+export VIRT_TYPE=qemu
 
 export DOMAINSUFFIX=${DOMAINSUFFIX-$(hostname -d)}
 

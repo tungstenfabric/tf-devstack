@@ -108,7 +108,7 @@ contrail_configuration:
   KEYSTONE_AUTH_URL_VERSION: /v3
 kolla_config:
   kolla_globals:
-    nova_compute_virt_type: qemu
+    nova_compute_virt_type: "{{ VIRT_TYPE }}"
     enable_haproxy: no
     enable_ironic: yes
     enable_ironic_notifications: yes
