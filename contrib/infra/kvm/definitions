@@ -1,0 +1,61 @@
+export ENVIRONMENT_OS=${ENVIRONMENT_OS:-'centos7'}
+export KVM_NETWORK="${KVM_NETWORK:-devstack}"
+export KVM_BRIDGE="${KVM_BRIDGE:-devbr}"
+export BASE_IMAGE_POOL=${BASE_IMAGE_POOL:-'images'}
+export NET_DRIVER=${NET_DRIVER:-'e1000'}
+export BASE_VM_NAME="devstack"
+export POOL_NAME="devstack"
+export DOMAIN="localdomain"
+
+declare -a ADDITIONAL_DISKS=('/var/lib/docker')
+export ADDITIONAL_DISKS
+export ADDITIONAL_DISK_SIZE=${DISK_DOCKER_SIZE:-'120'}
+
+export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
+
+#                CPU     Memory     AWS (Canada)   vm_type
+# v2-standard-1   1       4 GB      t2.small       xsmall
+# v2-standard-2   2       8 GB      t2.large       small
+# v2-standard-4   4       16 GB     t2.xlarge      medium
+# v2-standard-8   8       32 GB     m4.2xlarge     large
+
+# type to 'vcpus mem'
+declare -A VM_TYPES=( ['large']='8 32768' \
+                      ['medium']='4 16384' \
+                      ['small']='2 8192' \
+                      ['xsmall']='1 4096' )
+
+declare -A OS_VARIANTS=( ['CENTOS7']='rhel7' \
+                         ['CENTOS8']='rhel8' \
+                         ['RHEL7']='rhel7' \
+                         ['RHEL8']='rhel8' \
+                         ['UBUNTU16']='ubuntu16.04' \
+                         ['UBUNTU18']='ubuntu18.04' )
+
+declare -A OS_IMAGES=( ['CENTOS7']='centos7' \
+                       ['CENTOS8']='centos8' \
+                       ['RHEL7']='rhel7' \
+                       ['RHEL8']='rhel8' \
+                       ['UBUNTU16']='ubuntu16' \
+                       ['UBUNTU18']='ubuntu18' )
+
+declare -A OS_IMAGE_USERS=( ['CENTOS7']='centos' \
+                            ['CENTOS8']='centos' \
+                            ['RHEL7']='cloud-user' \
+                            ['RHEL8']='cloud-user' \
+                            ['UBUNTU16']='ubuntu' \
+                            ['UBUNTU18']='ubuntu' )
+
+declare -A OS_IMAGES_UP=( ['CENTOS7']='centos' \
+                          ['CENTOS8']='centos' \
+                          ['RHEL7']='' \
+                          ['RHEL8']='' \
+                          ['UBUNTU16']='ubuntu' \
+                          ['UBUNTU18']='ubuntu' )
+
+declare -A OS_IMAGES_DOWN=( ['CENTOS7']='' \
+                            ['CENTOS8']='' \
+                            ['RHEL7']='' \
+                            ['RHEL8']='' \
+                            ['UBUNTU16']='' \
+                            ['UBUNTU18']='' )
