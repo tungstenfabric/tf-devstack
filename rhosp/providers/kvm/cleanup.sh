@@ -1,6 +1,6 @@
+#!/bin/bash
 
-
-source $my_dir/providers/kvm/virsh_functions
+source $my_dir/../contrib/infra/kvm/functions.sh
 
 # delete stack to unregister nodes
 # unregister undercloud & overcloud
@@ -16,6 +16,7 @@ function delete_node() {
     local pool=${3:-"$poolname"}
 
     delete_domain $name
+    delete_vbmc $name
     delete_volume "$disk" $pool
 }
 
