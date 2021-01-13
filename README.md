@@ -71,7 +71,7 @@ Make required changes in sources fetched to contrail directory. For example, fet
 
 ``` bash
 cd contrail/controller
-git fetch "https://review.opencontrail.org/Juniper/contrail-controller" refs/changes/..... && git checkout FETCH_HEAD
+git fetch "https://gerrit.tungsten.io/tungstenfabric/tf-controller" refs/changes/..... && git checkout FETCH_HEAD
 cd ../../
 ```
 
