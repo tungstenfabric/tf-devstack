@@ -215,6 +215,11 @@ function retry() {
 }
 
 function sync_time() {
+  if [[ "$DEPLOYER" == 'openshift' ]]; then
+    # skip it for openshift
+    return
+  fi
+
   local user=${1:-$SSH_USER}
   shift || true
   local nodes="${@:-$CONTROLLER_NODES $AGENT_NODES $OPENSTACK_CONTROLLER_NODES}"
