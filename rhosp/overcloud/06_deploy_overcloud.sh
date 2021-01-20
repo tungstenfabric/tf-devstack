@@ -9,6 +9,7 @@ source rhosp-environment.sh
 source $my_dir/../../common/common.sh
 source $my_dir/../../common/functions.sh
 source $my_dir/../providers/common/functions.sh
+source $my_dir/../providers/common/common.sh
 
 #Specific part of deployment
 source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
