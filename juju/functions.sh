@@ -160,7 +160,7 @@ chmod a+x /tmp/logs.sh
 function is_ready() {
   # constants
   local max_errors=10
-  local allowed_not_active="neutron-api kubernetes-master kubernetes-worker"
+  local allowed_not_active="neutron-api kubernetes-master kubernetes-worker ironic-conductor"
 
   # TODO: rework to jq
   # juju status --format json | jq -r '.applications[] | ."charm-name" + " " +  ."application-status".current'

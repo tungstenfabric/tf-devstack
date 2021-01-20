@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO:
+# support openstack train for MAAS deployment
+# support ironic in MAAS deployment
+
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
@@ -46,6 +50,7 @@ export DATA_NETWORK=${DATA_NETWORK:-}
 export ENABLE_DPDK_SRIOV=${ENABLE_DPDK_SRIOV:-'false'}
 export AUTH_PASSWORD="password"
 export ENABLE_NAGIOS=${ENABLE_NAGIOS:-'false'}
+export ENABLE_IRONIC=${ENABLE_IRONIC:-'false'}
 
 AWS_ACCESS_KEY=${AWS_ACCESS_KEY:-''}
 AWS_SECRET_KEY=${AWS_SECRET_KEY:-''}
@@ -60,7 +65,7 @@ export SRIOV_VF=${SRIOV_VF:-4}
 
 source /etc/lsb-release
 export UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'train'}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 
 export CONTAINER_REGISTRY
@@ -122,6 +127,10 @@ function openstack() {
     export BUNDLE="$my_dir/files/bundle_openstack.yaml.tmpl"
 
     if [ $CLOUD == 'maas' ] ; then
+        if [[ ${ENABLE_IRONIC^^} == 'TRUE' ]]; then
+            echo "ERROR: Ironic is not supported yet in MAAS env. Please disable it with 'export ENABLE_IRONIC=false'."
+            exit 1
+        fi
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
         if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
             echo "ERROR: We support deploy with 7 virtual ip addresses only now."
@@ -137,6 +146,9 @@ function openstack() {
     $my_dir/../common/deploy_juju_bundle.sh
 
     wait_cmd_success is_ready 10 $((WAIT_TIMEOUT/10))
+
+    # this should be done after openstak deploy
+    command juju run-action --wait ironic-conductor/leader set-temp-url-secret
 }
 
 function k8s() {
@@ -184,6 +196,10 @@ function tf() {
         if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
             # add nrpe relation to superior of contrail-agent
             command juju add-relation nova-compute nrpe
+        fi
+        if [[ ${ENABLE_IRONIC,,} == 'true' ]] ; then
+            # add nrpe relation to superior of contrail-agent
+            command juju add-relation contrail-openstack-ironic rabbitmq-server
         fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'hybrid' ]] ; then

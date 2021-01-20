@@ -104,6 +104,27 @@ services:
     to:
       - lxd:0
 
+  swift-proxy:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
+    num_units: 1
+    options:
+      zone-assignment: manual
+      replicas: 1
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - lxd:0
+  swift-storage:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    num_units: 1
+    options:
+      block-device: '/etc/swift/storagedev1.img|15G'
+      zone: 1
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    to:
+      - 0
+
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
   placement:
     charm: "cs:{{ UBUNTU_SERIES }}/placement"
@@ -146,7 +167,31 @@ services:
     expose: true
     to:
       - lxd:0
-{%- if ENABLE_NAGIOS == 'true' %}
+
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+  ironic-api:
+    charm: "cs:~openstack-charmers-next/{{ UBUNTU_SERIES }}/ironic-api"
+    num_units: 1
+    options:
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - lxd:0
+  ironic-conductor:
+    charm: "cs:~openstack-charmers-next/{{ UBUNTU_SERIES }}/ironic-conductor"
+    num_units: 1
+    options:
+      default-network-interface: flat
+      provisioning-network: fakex
+      cleaning-network: fakey
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - lxd:0
+{%- endif %}
+{%- if ENABLE_NAGIOS.lower() == 'true' %}
   nagios:
     charm: cs:nagios-40
     num_units: 1
@@ -172,6 +217,12 @@ services:
     charm: cs:mysql-router
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
   placement-mysql-router:
+    charm: cs:mysql-router
+{%- endif %}
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+  ironic-api-mysql-router:
+    charm: cs:mysql-router
+  ironic-conductor-mysql-router:
     charm: cs:mysql-router
 {%- endif %}
 {%- endif %#}
@@ -206,6 +257,10 @@ relations:
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
+- [ swift-proxy, rabbitmq-server ]
+- [ swift-proxy, keystone ]
+- [ swift-proxy, swift-storage ]
+- [ swift-proxy:object-store, glance:object-store ]
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
 - [ placement, keystone:identity-service ]
 - [ placement, nova-cloud-controller ]
@@ -223,6 +278,10 @@ relations:
 - [ heat:shared-db, mysql:shared-db ]
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
 - [ placement, mysql:shared-db ]
+{%- endif %}
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+- [ ironic-api:shared-db, mysql:shared-db ]
+- [ ironic-conductor:shared-db, mysql:shared-db ]
 {%- endif %}
 
 {#%- else %}
@@ -243,8 +302,23 @@ relations:
 - [ placement:shared-db, placement-mysql-router:shared-db ]
 - [ placement-mysql-router:db-router, mysql-innodb-cluster:db-router ]
 {%- endif %}
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+- [ ironic-api:shared-db, ironic-api-mysql-router:shared-db ]
+- [ ironic-api-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+- [ ironic-conductor:shared-db, ironic-conductor-mysql-router:shared-db ]
+- [ ironic-conductor-mysql-router:db-router, mysql-innodb-cluster:db-router ]
+{%- endif %}
 
 {%- endif %#}
-{%- if ENABLE_NAGIOS == 'true' %}
+
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+- [ ironic-api:identity-service, keystone:identity-service ]
+- [ ironic-api:amqp, rabbitmq-server:amqp ]
+- [ ironic-conductor, ironic-api ]
+- [ ironic-conductor, keystone ]
+- [ ironic-conductor:amqp, rabbitmq-server:amqp ]
+{%- endif %}
+
+{%- if ENABLE_NAGIOS.lower() == 'true' %}
 - [ nrpe:monitors, nagios:monitors ]
 {%- endif %}
