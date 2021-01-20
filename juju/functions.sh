@@ -95,12 +95,16 @@ function setup_keystone_auth() {
   # the keystone should listen on vhost0 network
   # we need the reachability between keystone and keystone auth pod via vhost0 interface
   command juju ssh $keystone_machine << EOF
-sudo iptables -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
-sudo iptables -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
-sudo iptables -A OUTPUT -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
-sudo iptables -A OUTPUT -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
-sudo iptables -A FORWARD -p tcp --dport  5000 -j ACCEPT
-sudo iptables -A FORWARD -p tcp --dport 35357 -j ACCEPT
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+sudo apt-get install -y iptables-persistent
+sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
+sudo iptables --wait -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
+sudo iptables --wait -A OUTPUT -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
+sudo iptables --wait -A OUTPUT -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
+sudo iptables --wait -A FORWARD -p tcp --dport  5000 -j ACCEPT
+sudo iptables --wait -A FORWARD -p tcp --dport 35357 -j ACCEPT
+sudo netfilter-persistent save
 EOF
 
   command juju config keystone os-public-hostname=$host_address
