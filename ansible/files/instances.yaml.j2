@@ -74,6 +74,7 @@ default_configuration:
   VXLAN_VN_ID_MODE: automatic
 contrail_configuration:
   CONTRAIL_CONTAINER_TAG: "{{ CONTRAIL_CONTAINER_TAG }}"
+  CONTROL_NODES: "{{ CONTROL_NODES.replace(' ', ',') }}"
   CONFIG_DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   DATABASE_NODEMGR__DEFAULTS__minimum_diskGB: "2"
   JVM_EXTRA_OPTS: "-Xms1g -Xmx2g"
