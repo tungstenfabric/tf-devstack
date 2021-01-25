@@ -97,6 +97,7 @@ function setup_keystone_auth() {
   command juju ssh $keystone_machine << EOF
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+sudo apt-get update
 sudo apt-get install -y iptables-persistent
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
