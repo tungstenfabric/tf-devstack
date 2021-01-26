@@ -147,8 +147,10 @@ function openstack() {
 
     wait_cmd_success is_ready 10 $((WAIT_TIMEOUT/10))
 
-    # this should be done after openstak deploy
-    command juju run-action --wait ironic-conductor/leader set-temp-url-secret
+    if [[ ${ENABLE_IRONIC,,} == 'true' && ($ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'hybrid') ]] ; then
+        # this should be done after openstak deploy
+        command juju run-action --wait ironic-conductor/leader set-temp-url-secret
+    fi
 }
 
 function k8s() {
