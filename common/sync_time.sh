@@ -18,40 +18,54 @@ function chrony_sync() {
   fi
 }
 
+function ntp_query_state() {
+  timeout 60 /usr/sbin/ntpq -n -c pe
+}
+
 function ntp_sync() {
-  local out="$(/usr/sbin/ntpq -n -c pe)"
-  if ! echo "$out" | grep -q "^\*" ; then
-    echo "INFO: time is not synced, force it"
-    sudo systemctl stop ntpd.service
-    timeout 120 sudo ntpd -gq
-    sudo systemctl start ntpd.service
-    return 1
+  if ! ntp_query_state | grep -q "^\*" ; then
+    echo "INFO: $(date): time is not synced, force it"
+    timeout 60 sudo systemctl stop ntpd.service
+    timeout 60 sudo ntpd -gq
+    timeout 60 sudo systemctl start ntpd.service
+    ntp_query_state | grep -q "^\*"
   fi
 }
 
+function chrony_show_time() {
+  echo -e "INFO: $(date):\n$(timeout 120 chronyc -n sources)"
+}
+
+function ntp_show_time() {
+  echo -e "INFO: $(date):\n$(ntp_query_state)"
+}
+
 if ps ax | grep -v grep | grep -q "bin/chronyd" ; then
+  echo "INFO: $(date): ensure time is synced (chronyd)"
   time_sync_func=chrony_sync
-  show_time="chronyc -n sources"
+  show_time=chrony_show_time
 elif ps ax | grep -v grep | grep -q "bin/ntpd" ; then
-  sudo systemctl restart ntpd
+  echo "INFO: $(date): ensure time is synced (ntpd)"
+  timeout 60 sudo systemctl restart ntpd
+  sleep 2
   time_sync_func=ntp_sync
-  show_time="/usr/sbin/ntpq -n -c pe"
+  show_time=ntp_show_time
 fi
 
 if [ -z "$time_sync_func" ] ; then
-  echo "ERROR: unknown time sync system"
+  echo "ERROR: $(date): unknown time sync system"
   exit 1
 fi
 
 i=30
 while ! $time_sync_func ; do
   if ! ((i-=1)) ; then
-    echo "ERROR: time can not be synced. Exiting..."
+    echo "ERROR: $(date): time can not be synced. Exiting..."
     $show_time
     exit 1
   fi
+  echo "INFO: $(date): time is not synced, retry $i in 20 sec"
   sleep 20
-  echo "INFO: time can not be synced, retry $i"
 done
 
-echo "INFO: time is synced"
+echo "INFO: $(date): time is synced"
