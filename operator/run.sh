@@ -8,6 +8,8 @@ source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
 source "$my_dir/functions.sh"
 
+tf_operator_image=tf-operator-src
+
 init_output_logging
 
 # stages declaration
@@ -20,6 +22,7 @@ declare -A STAGES=( \
 
 # constants
 export DEPLOYER='operator'
+export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
@@ -34,6 +37,8 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 declare -A DEPLOYMENT_ENV
 
 function k8s() {
+    sudo yum -y install epel-release
+    sudo yum install -y jq bind-utils
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
@@ -46,31 +51,32 @@ function build() {
 }
 
 function tf() {
-    # prepare repos
-    [ ! -d "$WORKSPACE/tf-operator" ] && git clone http://github.com/progmaticlab/tf-operator.git $WORKSPACE/tf-operator
-    [ ! -d "$WORKSPACE/tf-operator-containers" ] && git clone http://github.com/progmaticlab/tf-operator-containers.git $WORKSPACE/tf-operator-containers
+    # get tf-operator
+    [ -d $OPERATOR_REPO ] || fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO \
+                      || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
 
-    # Build tf-operator and CRDs container
-    cd tf-operator
-    ./scripts/setup_build_software.sh
-    # source profile or relogin for add /usr/local/go/bin to the PATH
-    source ~/.bash_profile 
+    # prepare kustomize for operator
+    local operator_template="$OPERATOR_REPO/deploy/kustomize/operator/templates/kustomization.yaml"
+    "$my_dir/../common/jinja2_render.py" < ${operator_template}.j2 > $operator_template
 
-    sudo usermod -a -G docker centos
-    newgrp docker << EOF 
-    ./scripts/build.sh
-EOF
+    # prepare kustomize for contrail
+    local templates_to_render=`ls $OPERATOR_REPO/deploy/kustomize/contrail/templates/*.j2`
+    local template
+    for template in $templates_to_render ; do
+        local rendered_yaml=$(echo "${template%.*}")
+        "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
+    done
 
-    # Build tf provisioner and statusmonitor containers and push them to local registry
-    cd ../tf-operator-containers
-    WORKSPACE=$PWD
-    ./scripts/setup_build_tools.sh
-    ./scripts/build.sh
+    # apply crds
+    kubectl apply -f $OPERATOR_REPO/deploy/crds/
 
-    # Run tf-operator and AIO Tungsten fabric cluster
-    cd ../tf-operator
-    WORKSPACE=$PWD
-    ./scripts/run_operator.sh
+    wait_cmd_success 'kubectl wait crds --for=condition=Established --timeout=2m managers.contrail.juniper.net'
+
+    # apply operator
+    kubectl apply -k $OPERATOR_REPO/deploy/kustomize/operator/templates/
+
+    # apply contrail cluster
+    kubectl apply -k $OPERATOR_REPO/deploy/kustomize/contrail/templates/
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh

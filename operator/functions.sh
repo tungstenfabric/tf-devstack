@@ -40,36 +40,3 @@ EOF
         popd
     done
 }
-
-# TODO: remove
-# temporary reload common check_pods_active to pass webui1-webui-statefulset pod while it isn't ready
-# will be removed later
-function check_pods_active() {
-  declare -a pods
-  readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
-
-  if [[ ${#pods[@]} == '0' ]]; then
-    return 1
-  fi
-
-  #check if all pods are running
-  for pod in "${pods[@]}" ; do
-    local pod_name="$(echo $pod | awk '{print $2}')"
-    if [[ "$pod_name" == *'webui'* ]]; then
-      continue
-    fi
-    local status="$(echo $pod | awk '{print $4}')"
-    if [[ "$status" == 'Completed' ]]; then
-      continue
-    elif [[ "$status" != "Running" ]] ; then
-      return 1
-    else
-      local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
-      local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
-      if [ "$containers_running" != "$containers_total" ] ; then
-        return 1
-      fi
-    fi
-  done
-  return 0
-}
