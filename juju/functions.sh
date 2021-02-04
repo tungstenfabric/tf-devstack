@@ -68,6 +68,15 @@ function get_service_machine() {
   echo $machine
 }
 
+function setup_iptables_persistent() {
+  command juju ssh $1 <<'EOF'
+echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
+echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
+sudo apt-get update
+DEBIAN_FRONTEND=noninteractive sudo apt-get install -y iptables-persistent
+EOF
+}
+
 function setup_keystone_auth() {
   command juju config kubernetes-master \
       authorization-mode="Node,RBAC" \
@@ -94,11 +103,10 @@ function setup_keystone_auth() {
 
   # the keystone should listen on vhost0 network
   # we need the reachability between keystone and keystone auth pod via vhost0 interface
+  retry command juju ssh $keystone_machine "sudo apt-get update"
+  retry setup_iptables_persistent $keystone_machine
+
   command juju ssh $keystone_machine << EOF
-echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
-echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-sudo apt-get update
-sudo apt-get install -y iptables-persistent
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
 sudo iptables --wait -A OUTPUT -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
