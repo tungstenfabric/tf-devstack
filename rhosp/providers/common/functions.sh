@@ -239,6 +239,7 @@ function collect_deployment_log() {
 export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
 cd /home/$SSH_USER_OVERCLOUD
 ./collect_logs.sh create_log_dir
+./collect_logs.sh collect_contrail_status
 ./collect_logs.sh collect_docker_logs
 ./collect_logs.sh collect_system_stats
 ./collect_logs.sh collect_openstack_logs
