@@ -22,12 +22,21 @@ echo "INFO: MTU $default_iface_mtu detected"
 export DOCKER_MTU=$default_iface_mtu
 export CONFIGURE_DOCKER_LIVERESTORE=${CONFIGURE_DOCKER_LIVERESTORE:-'true'}
 export DOCKER_INSECURE_REGISTRIES=$(python3 -c "import json; f=open('$docker_config'); r=json.load(f).get('insecure-registries', []); print('\n'.join(r))" 2>/dev/null)
-if [[ -n "$CONTAINER_REGISTRY" ]] ; then
-  registry=`echo $CONTAINER_REGISTRY | sed 's|^.*://||' | cut -d '/' -f 1`
-  if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
-    DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
+
+function _update_insecure_registries_var() {
+  if [[ -n "$1" ]] ; then
+    registry=`echo $1 | sed 's|^.*://||' | cut -d '/' -f 1`
+    if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
+      DOCKER_INSECURE_REGISTRIES=$(echo -e "${DOCKER_INSECURE_REGISTRIES}\n${registry}" | grep '.\+' | sort | uniq)
+    fi
   fi
+}
+
+_update_insecure_registries_var $CONTAINER_REGISTRY
+if [[ -n "$DEPLOYER_CONTAINER_REGISTRY" && "$DEPLOYER_CONTAINER_REGISTRY" != "$CONTAINER_REGISTRY" ]] ; then
+  _update_insecure_registries_var $DEPLOYER_CONTAINER_REGISTRY
 fi
+
 export DOCKER_REGISTRY_MIRRORS=$(python3 -c "import json; f=open('$docker_config'); r=json.load(f).get('registry-mirrors', []); print('\n'.join(r))" 2>/dev/null)
 
 python3 ${my_dir}/jinja2_render.py <"${my_dir}/files/docker_daemon.json.j2" > $docker_config

@@ -157,7 +157,7 @@ sudo -E $my_dir/create_docker_config.sh
 for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
   if ! ip a | grep -q "$machine"; then
     ssh $ssh_opts $machine "sudo yum install -y python3 python3-pip"
-    ssh $ssh_opts $machine "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY ; sudo -E /tmp/${devstack_dir}/common/create_docker_config.sh"
+    ssh $ssh_opts $machine "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY ; export DEPLOYER_CONTAINER_REGISTRY=$DEPLOYER_CONTAINER_REGISTRY ; sudo -E /tmp/${devstack_dir}/common/create_docker_config.sh"
   fi
 done
 
