@@ -1,5 +1,8 @@
 
-sudo CONTAINER_REGISTRY="" CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../../common/create_docker_config.sh
+sudo  CONTAINER_REGISTRY="" \
+      DEPLOYER_CONTAINER_REGISTRY="" \
+      CONFIGURE_DOCKER_LIVERESTORE=false $my_dir/../../common/create_docker_config.sh
+
 insecure_registries=$(sudo cat /etc/sysconfig/docker | awk -F '=' '/^INSECURE_REGISTRY=/{print($2)}' | tr -d '"')
 if ! echo "$insecure_registries" | grep -q "${prov_ip}:8787" ; then
    insecure_registries+=" --insecure-registry ${prov_ip}:8787"
