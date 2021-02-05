@@ -38,6 +38,7 @@ function collect_docker_logs() {
     sudo docker ps -a > $log_dir/__docker-ps.txt
     sudo docker images > $log_dir/__docker-images.txt
     sudo docker volume ls > $log_dir/__docker-volumes.txt
+    sudo docker info > $log_dir/__docker-info.txt
     local containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
     local line
     local params
