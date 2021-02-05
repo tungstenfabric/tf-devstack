@@ -20,7 +20,7 @@ declare -A STAGES=( \
 )
 
 # constants
-export DEPLOYER='openshift'
+export DEPLOYER='openshift3'
 export OPENSHIFT_VERSION=${OPENSHIFT_VERSION-"3.11"}
 [ -n "$OPENSHIFT_VERSION" ] && openshift_image_tag="v$OPENSHIFT_VERSION"
 

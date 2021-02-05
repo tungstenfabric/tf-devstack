@@ -215,8 +215,8 @@ function retry() {
 }
 
 function sync_time() {
-  if [[ "$DEPLOYER" == 'openshift' ]]; then
-    # skip it for openshift
+  if [[ "$DEPLOYER" == 'openshift3' ]]; then
+    # skip it for openshift3
     return
   fi
 

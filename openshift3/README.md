@@ -1,4 +1,6 @@
-# Openshift deployer
+# Openshift deployer (version 3.X)
+
+This deployer is obsolete and will be deprecated soon. Now it's not supported.
 
 Openshift deployer provides deployment for TF with Kubernetes by means of openshift-ansible.
 
