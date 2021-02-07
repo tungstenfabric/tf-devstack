@@ -15,9 +15,9 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build k8s tf wait logs" \
-    ["default"]="k8s tf wait" \
-    ["platform"]="k8s" \
+    ["all"]="build machines k8s tf wait logs" \
+    ["default"]="machines k8s manifest tf wait" \
+    ["platform"]="machines k8s" \
 )
 
 # constants
@@ -36,9 +36,12 @@ CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
 # deployment related environment set by any stage and put to tf_stack_profile at the end
 declare -A DEPLOYMENT_ENV
 
-function k8s() {
+function machines() {
     sudo yum -y install epel-release
-    sudo yum install -y jq bind-utils
+    sudo yum install -y jq bind-utils git
+}
+
+function k8s() {
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
@@ -50,10 +53,12 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
-function tf() {
+function manifest() {
     # get tf-operator
-    [ -d $OPERATOR_REPO ] || fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO \
-                      || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
+    if [[ ! -d $OPERATOR_REPO ]] ; then
+        fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO \
+            || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
+    fi
 
     # prepare kustomize for operator
     local operator_template="$OPERATOR_REPO/deploy/kustomize/operator/templates/kustomization.yaml"
@@ -66,6 +71,11 @@ function tf() {
         local rendered_yaml=$(echo "${template%.*}")
         "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
     done
+}
+
+function tf() {
+    sync_time
+    ensure_kube_api_ready
 
     # apply crds
     kubectl apply -f $OPERATOR_REPO/deploy/crds/
