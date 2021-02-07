@@ -229,6 +229,10 @@ function collect_system_stats() {
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
     fi
+    if [ -d /etc/sysconfig ] ; then
+        mkdir -p $syslogs/sysconfig
+        sudo cp -r /etc/sysconfig/* $syslogs/sysconfig/ 2>/dev/null
+    fi
     sudo dmesg &> $syslogs/dmesg.log
     sudo chown -R $SUDO_UID:$SUDO_GID $syslogs
     sudo find $syslogs -type f -exec chmod a+r {} \;
