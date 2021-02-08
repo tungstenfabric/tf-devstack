@@ -143,6 +143,10 @@ echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluste
 # Fix coredns deployment on single node
 echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 
+# Set explicetely k8s cluster name (some orchestrators like operator use name from kubernetes
+# and tf-test use hardcoded 'k8s' cluster name)
+echo "cluster_name: \"k8s\"" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+
 # enable docker live restore option
 #
 # set live-restore via config file to avoid conflicts between command line and 
