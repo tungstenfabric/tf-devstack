@@ -61,6 +61,7 @@ elif [ "$DISTRO" == "ubuntu" ]; then
 else
     echo "Unsupported OS version" && exit 1
 fi
+sudo pyhton3 -m pip install --upgrade pip
 
 # prepare ssh key authorization for all-in-one single node deployment
 
