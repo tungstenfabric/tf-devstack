@@ -44,4 +44,26 @@ Environment variable list:
 
 TODO
 
+## Build your own operator with tf-dev-env and deploy AIO setup
+## Prepare VM with CentOS 7 with 32GB RAM, 4 CPUs, 64GB diskspace
+## Run tf-operator and AIO Tingsten fabric cluster
+```bash
+sudo yum install -y git
+git clone https://github.com/tungstenfabric/tf-dev-env.git
+./tf-dev-env/run.sh fetch
+```
+## Make changes in the operator code if any (contrail/tf-operator/)
+## Build operator and src container
+```bash
+./tf-dev-env/run.sh package operator-containers
+./tf-dev-env/run.sh package src-containers
+```
+# Deploy AIO setup with locally built operator
+```bash
+git clone https://github.com/tungstenfabric/tf-devstack.git
+export CONTRAIL_DEPLOYER_CONTAINER_TAG="latest"
+export DEPLOYER_CONTAINER_REGISTRY="locahost:5000"
+./tf-devstack/operator/run.sh
+```
+
 ## Known Issues

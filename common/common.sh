@@ -46,4 +46,4 @@ export AGENT_NODES="$(echo $AGENT_NODES | tr ',' ' ')"
 export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 export LEGACY_ANALYTICS_ENABLE=${LEGACY_ANALYTICS_ENABLE:-true}
-export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"}
+export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no"}
