@@ -1,0 +1,238 @@
+#!/bin/bash
+
+function start_lb_vm() {
+  local name=$1
+  local disk=$2
+  local mem=$3
+  local cpu=$4
+
+  if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
+    local hugepages_opt=" --memorybacking hugepages=on "
+  else
+    local hugepages_opt=""
+  fi
+
+  sudo virt-install --name $name \
+    --disk "$disk" \
+    --memory $mem \
+    --cpu host \
+    --vcpus $cpu \
+    --os-type linux \
+    --os-variant rhel7 \
+    --network network=${VIRTUAL_NET},model=virtio \
+    --noreboot \
+    --noautoconsole \
+    ${hugepages_opt} \
+    --import
+  sudo virsh start $name
+}
+
+function start_openshift_vm() {
+  local name=$1
+  local mem=$2
+  local cpu=$3
+  local ignition_file_name=$4
+
+  local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda coreos.inst.image_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
+
+  if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
+    local hugepages_opt=" --memorybacking hugepages=on "
+  else
+    local hugepages_opt=""
+  fi
+
+  sudo virt-install --name $name \
+    --disk "${LIBVIRT_DIR}/$name.qcow2,size=60" \
+    --memory $mem \
+    --cpu host \
+    --vcpus $cpu \
+    --os-type linux \
+    --os-variant rhel7 \
+    --network network=${VIRTUAL_NET},model=virtio \
+    --noreboot \
+    --noautoconsole \
+    ${hugepages_opt} \
+    --location rhcos-install/ --extra-args "${extra_args}"
+}
+
+function get_ip_mac() {
+  local name=$1
+
+  local i
+  local ip
+  local mac
+  for ((i=0; i<40; ++i)); do
+    sleep 5
+    local info
+    if ! info="$(sudo virsh domifaddr $name | grep ipv4 | head -n1 2>/dev/null)" ; then
+      continue
+    fi
+    ip=$(echo $info | awk '{print $4}' | cut -d'/' -f1)
+    mac=$(echo $info | awk '{print $2}')
+    if [[ -n "$ip" && -n "$mac" ]]; then
+      break
+    fi
+  done
+  if [[ -z "$ip" || -z "$mac" ]]; then
+    return 1
+  fi
+  echo "$ip $mac"
+}
+
+function create_haproxy_cfg() {
+  local cfgfile=$1
+
+  cat <<EOF >$cfgfile
+global
+  log 127.0.0.1 local2
+  chroot /var/lib/haproxy
+  pidfile /var/run/haproxy.pid
+  maxconn 4000
+  user haproxy
+  group haproxy
+  daemon
+  stats socket /var/lib/haproxy/stats
+defaults
+  mode tcp
+  log global
+  option tcplog
+  option dontlognull
+  option redispatch
+  retries 3
+  timeout queue 1m
+  timeout connect 10s
+  timeout client 1m
+  timeout server 1m
+  timeout check 10s
+  maxconn 3000
+# 6443 points to control plan
+frontend ${KUBERNETES_CLUSTER_NAME}-api *:6443
+  default_backend master-api
+backend master-api
+  balance source
+  server bootstrap bootstrap.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:6443 check
+EOF
+
+  local i
+  for i in $(seq 1 ${controller_count}) ; do
+    echo "  server master-${i} master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:6443 check" >> $cfgfile
+  done
+
+  cat <<EOF >> $cfgfile
+
+# 22623 points to control plane
+frontend ${KUBERNETES_CLUSTER_NAME}-mapi *:22623
+  default_backend master-mapi
+backend master-mapi
+  balance source
+  server bootstrap bootstrap.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:22623 check
+EOF
+
+  for i in $(seq 1 ${controller_count}) ; do
+    echo "  server master-${i} master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:22623 check" >> $cfgfile
+  done
+
+  cat <<EOF >> $cfgfile
+# 80 points to master nodes
+frontend ${KUBERNETES_CLUSTER_NAME}-http *:80
+  default_backend ingress-http
+backend ingress-http
+  balance source
+EOF
+
+  for i in $(seq 1 ${controller_count}) ; do
+    echo "  server master-${i} master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:80 check" >> $cfgfile
+  done
+
+  cat <<EOF >> $cfgfile
+# 443 points to master nodes
+frontend ${KUBERNETES_CLUSTER_NAME}-https *:443
+  default_backend infra-https
+backend infra-https
+  balance source
+EOF
+
+  for i in $(seq 1 ${controller_count}) ; do
+    echo "  server master-${i} master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}:443 check" >> $cfgfile
+  done
+}
+
+function download_artefacts() {
+  if [[ ! -f ${DOWNLOADS_DIR}/${CLIENT} ]]; then
+    wget -nv "$CLIENT_URL" -O "${DOWNLOADS_DIR}/$CLIENT"
+    tar -xf "${DOWNLOADS_DIR}/${CLIENT}"
+    rm -f README.md
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${INSTALLER} ]]; then
+    wget -nv "$INSTALLER_URL" -O "${DOWNLOADS_DIR}/$INSTALLER"
+    tar -xf "${DOWNLOADS_DIR}/${INSTALLER}"
+    rm -f rm -f README.md
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_IMAGE} ]]; then
+    wget -nv "$RHCOS_URL" -O "${DOWNLOADS_DIR}/${RHCOS_IMAGE}"
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_KERNEL} ]]; then
+    wget -nv "${RHCOS_MIRROR}/${RHCOS_VERSION}/$RHCOS_KERNEL" -O "${DOWNLOADS_DIR}/$RHCOS_KERNEL"
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_INITRAMFS} ]]; then
+    wget -nv "${RHCOS_MIRROR}/${RHCOS_VERSION}/$RHCOS_INITRAMFS" -O "${DOWNLOADS_DIR}/$RHCOS_INITRAMFS"
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${LB_IMAGE} ]]; then
+    wget -nv "$LB_IMG_URL" -O "${DOWNLOADS_DIR}/$LB_IMAGE"
+  fi
+}
+
+function prepare_rhcos_install() {
+  mkdir -p rhcos-install
+  cp "${DOWNLOADS_DIR}/${RHCOS_KERNEL}" "rhcos-install/vmlinuz"
+  cp "${DOWNLOADS_DIR}/${RHCOS_INITRAMFS}" "rhcos-install/initramfs.img"
+  cat <<EOF > rhcos-install/.treeinfo
+[general]
+arch = x86_64
+family = Red Hat CoreOS
+platforms = x86_64
+version = ${OCP_VER}
+[images-x86_64]
+initrd = initramfs.img
+kernel = vmlinuz
+EOF
+}
+
+function prepare_install_config() {
+  cat <<EOF > ${INSTALL_DIR}/install-config.yaml
+apiVersion: v1
+baseDomain: ${KUBERNETES_CLUSTER_DOMAIN}
+compute:
+- hyperthreading: Disabled
+  name: worker
+  replicas: 0
+controlPlane:
+  hyperthreading: Disabled
+  name: master
+  replicas: ${controller_count}
+metadata:
+  name: ${KUBERNETES_CLUSTER_NAME}
+networking:
+  clusterNetworks:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  networkType: Contrail
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  none: {}
+pullSecret: '${OPENSHIFT_PULL_SECRET}'
+sshKey: '$(cat ${OPENSHIFT_PUB_KEY})'
+EOF
+
+  cat $INSTALL_DIR/install-config.yaml
+}
+
+function bootstrap_finished() {
+  local name=$1
+
+  if sudo virsh list | grep -q $name ; then
+    return 1
+  fi
+  return 0
+}

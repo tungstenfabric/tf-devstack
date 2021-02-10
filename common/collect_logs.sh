@@ -24,10 +24,19 @@ function create_log_dir() {
     mkdir -p $TF_LOG_DIR
 }
 
+function _docker_ps() {
+    sudo docker ps -a --format '{{.ID}} {{.Names}}'
+}
+
+function _crictl_ps() {
+    sudo crictl ps -a -o json | jq -r -c ".[][] | .id + \" \" + .metadata.name"
+}
+
 function collect_docker_logs() {
+    local tool=${1:-docker}
     echo "INFO: Collecting docker logs"
 
-    if ! which docker &>/dev/null ; then
+    if ! which $tool &>/dev/null ; then
         echo "INFO: There is no any docker installed"
         return 0
     fi
@@ -35,18 +44,18 @@ function collect_docker_logs() {
     local log_dir="$TF_LOG_DIR/docker"
     mkdir -p $log_dir
 
-    sudo docker ps -a > $log_dir/__docker-ps.txt
-    sudo docker images > $log_dir/__docker-images.txt
-    sudo docker volume ls > $log_dir/__docker-volumes.txt
-    sudo docker info > $log_dir/__docker-info.txt
-    local containers="$(sudo docker ps -a --format '{{.ID}} {{.Names}}')"
+    sudo $tool ps -a > $log_dir/__docker-ps.txt
+    sudo $tool images > $log_dir/__docker-images.txt
+    sudo $tool info > $log_dir/__docker-info.txt
+    sudo $tool volume ls > $log_dir/__docker-volumes.txt
+    local containers="$(_${tool}_ps)"
     local line
     local params
     while read -r line
     do
         read -r -a params <<< "$line"
-        sudo docker logs ${params[0]} &> $log_dir/${params[1]}.log
-        sudo docker inspect ${params[0]} &> $log_dir/${params[1]}.inspect
+        sudo $tool logs ${params[0]} &> $log_dir/${params[1]}.log
+        sudo $tool inspect ${params[0]} &> $log_dir/${params[1]}.inspect
     done <<< "$containers"
 
     sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR/docker
@@ -282,8 +291,9 @@ function collect_juju_logs() {
 }
 
 function collect_kubernetes_logs() {
+    local tool=${1:-kubectl}
     echo "INFO: Collecting kubernetes logs"
-    if ! which kubectl &>/dev/null ; then
+    if ! which $tool &>/dev/null ; then
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
@@ -292,46 +302,48 @@ function collect_kubernetes_logs() {
     mkdir -p $KUBE_LOG_DIR
 
     local namespace=''
-    local namespaces=`kubectl get namespaces -o name | awk -F '/' '{ print $2 }'`
+    local namespaces=`$tool get namespaces -o name | awk -F '/' '{ print $2 }'`
     for namespace in $namespaces ; do
         local pod=''
-        local pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
+        local pods=`$tool get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
         for pod in $pods ; do
             local container
-            local init_containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.initContainers[*].name}')
-            local containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.containers[*].name}')
+            local init_containers=$($tool get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.initContainers[*].name}')
+            local containers=$($tool get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.containers[*].name}')
             for container in $init_containers $containers; do
                 mkdir -p "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}"
-                kubectl logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
+                $tool logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
             done
         done
     done
 }
 
 function _collect_kubernetes_object_info() {
-    local log_dir=$1
-    local resource=$2
-    local namespace=$3
+    local tool=$1
+    local log_dir=$2
+    local resource=$3
+    local namespace=$4
     local namespace_param=''
     if [[ -n "$namespace" ]]; then
         namespace_param="-n $namespace"
     fi
     echo "INFO: collect info for $resource"
     local object=''
-    local objects_list=$(kubectl get ${namespace_param} ${resource} -o name)
+    local objects_list=$($tool get ${namespace_param} ${resource} -o name)
     for object in $objects_list ; do
         echo "INFO: processing $object"
         mkdir -p "${log_dir}/${resource}"
         local name=${object#*/}
         local path_prefix="${log_dir}/${resource}/${namespace:+${namespace}_}${name}"
-        kubectl get ${namespace_param} ${resource} ${name} -o yaml 1> "${path_prefix}_get.txt" 2> /dev/null
-        kubectl describe ${namespace_param} ${resource} ${name} 1> "${path_prefix}_desc.txt" 2> /dev/null
+        $tool get ${namespace_param} ${resource} ${name} -o yaml 1> "${path_prefix}_get.txt" 2> /dev/null
+        $tool describe ${namespace_param} ${resource} ${name} 1> "${path_prefix}_desc.txt" 2> /dev/null
     done
 }
 
 function collect_kubernetes_objects_info() {
+    local tool=${1:-kubectl}
     echo "INFO: Collecting kubernetes object info"
-    if ! which kubectl &>/dev/null ; then
+    if ! which $tool &>/dev/null ; then
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
@@ -339,26 +351,26 @@ function collect_kubernetes_objects_info() {
     local KUBE_OBJ_DIR=$TF_LOG_DIR/kubernetes_obj_info
     mkdir -p $KUBE_OBJ_DIR
 
-    kubectl get namespaces > $TF_LOG_DIR/kubernetes_namespaces
-    kubectl get nodes -o wide > $TF_LOG_DIR/kubernetes_nodes
-    kubectl get all --all-namespaces > $TF_LOG_DIR/kubernetes_all
-    kubectl api-resources > $TF_LOG_DIR/kubernetes_api-resources
+    $tool get namespaces > $TF_LOG_DIR/kubernetes_namespaces
+    $tool get nodes -o wide > $TF_LOG_DIR/kubernetes_nodes
+    $tool get all --all-namespaces > $TF_LOG_DIR/kubernetes_all
+    $tool api-resources > $TF_LOG_DIR/kubernetes_api-resources
 
     local resource
     local resources="pod daemonset.apps deployment.apps replicaset.apps statefulset.apps configmaps endpoints"
     resources+=" persistentvolumeclaims secrets serviceaccounts services jobs"
     local namespace=''
-    local namespaces=$(kubectl get namespaces -o name | awk -F '/' '{ print $2 }')
+    local namespaces=$($tool get namespaces -o name | awk -F '/' '{ print $2 }')
     for namespace in $namespaces ; do
         echo "INFO: Processing namespace $namespace"
         for resource in $resources ; do
-            _collect_kubernetes_object_info $KUBE_OBJ_DIR $resource $namespace
+            _collect_kubernetes_object_info $tool $KUBE_OBJ_DIR $resource $namespace
         done
     done
 
     resources="persistentvolumes customresourcedefinitions storageclasses"
     for resource in $resources ; do
-        _collect_kubernetes_object_info $KUBE_OBJ_DIR $resource
+        _collect_kubernetes_object_info $tool $KUBE_OBJ_DIR $resource
     done
 
     echo "INFO: info collected"

@@ -56,16 +56,6 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
-function _process_manifest() {
-    local folder=$1
-    local templates_to_render=`ls $folder/*.j2`
-    local template
-    for template in $templates_to_render ; do
-        local rendered_yaml=$(echo "${template%.*}")
-        "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
-    done
-}
-
 function manifest() {
     # get tf-operator
     if [[ ! -d $OPERATOR_REPO ]] ; then
