@@ -101,3 +101,15 @@ if [[ -n $SWITCH_OPT ]] ; then
 fi
 
 juju model-config logging-config="<root>=DEBUG"
+
+cloud_init=$WORKSPACE/cloudinit-userdata.yaml
+cat << 'CLOUD_INIT' > $cloud_init
+cloudinit-userdata: |
+  apt:
+    preserve_sources_list: false
+    sources_list: |
+CLOUD_INIT
+while IFS= read -r x; do
+  echo "      ${x% multiverse*}" >> $cloud_init
+done < /etc/apt/sources.list
+juju model-config $cloud_init
