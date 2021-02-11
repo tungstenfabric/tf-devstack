@@ -33,6 +33,7 @@ fi
 
 # wait a bit while juju creates lxd machines in it's database
 sleep 30
+# and do apt-get update cause cloud-init may silently fail on it and skip it
 lxd_machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep "\/lxd\/" | awk '{print $1}'`
 echo "INFO: lxd machines:"
 echo $lxd_machines

@@ -199,10 +199,6 @@ function tf() {
             # add nrpe relation to superior of contrail-agent
             command juju add-relation nova-compute nrpe
         fi
-        if [[ ${ENABLE_IRONIC,,} == 'true' ]] ; then
-            # add nrpe relation to superior of contrail-agent
-            command juju add-relation contrail-openstack-ironic rabbitmq-server
-        fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni

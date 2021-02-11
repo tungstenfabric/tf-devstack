@@ -157,20 +157,6 @@ services:
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
 {%- endif %}
 
-{%- if ENABLE_IRONIC.lower() == 'true' and (ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid') %}
-  contrail-openstack-ironic:
-    series: "{{ UBUNTU_SERIES }}"
-    charm: "{{ JUJU_REPO }}/contrail-openstack-ironic"
-    num_units: 1
-    options:
-      log-level: 'SYS_DEBUG'
-      docker-registry: "{{ CONTAINER_REGISTRY }}"
-      docker-registry-insecure: true
-      image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
-    to:
-      - "0"
-{%- endif %}
-
 {%- if SSL_ENABLE.lower() == 'true' %}
   easyrsa:
     # this must be one in HA
@@ -213,10 +199,6 @@ relations:
 - [ contrail-agent, contrail-controller ]
 {%- endif %}
 
-{%- if ENABLE_IRONIC.lower() == 'true' and (ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid') %}
-- [ contrail-controller, contrail-openstack-ironic ]
-{%- endif %}
-
 {%- if SSL_ENABLE.lower() == 'true' %}
 - [ easyrsa, contrail-controller ]
 - [ easyrsa, contrail-analytics ]
@@ -231,9 +213,6 @@ relations:
 {%- endif %}
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
 - [ easyrsa, contrail-kubernetes-master ]
-{%- endif %}
-{%- if ENABLE_IRONIC.lower() == 'true' and (ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid') %}
-- [ easyrsa, contrail-openstack-ironic ]
 {%- endif %}
 {%- endif %}
 
