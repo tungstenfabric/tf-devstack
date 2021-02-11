@@ -10,7 +10,7 @@ parameter_defaults:
       namespace: ${OPENSTACK_CONTAINER_REGISTRY}/rhosp-rhel8
       neutron_driver: null
       rhel_containers: false
-      tag: '16.1'
+      tag: '${OPENSTACK_CONTAINER_TAG}'
       ceph_image: rhceph-4-rhel8
       ceph_namespace: registry.redhat.io/rhceph
       ceph_tag: 4
