@@ -46,6 +46,9 @@ export RHEL_VERSION=${RHEL_VERSION:-${_default_rhel_version[$OPENSTACK_VERSION]}
 declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
 export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
 
+declare -A _osc_tag_default=( ['rhosp13']='13.0' ['rhosp16']='16.1' )
+export OPENSTACK_CONTAINER_TAG=${OPENSTACK_CONTAINER_TAG:-${_osc_tag_default[${RHOSP_VERSION}]}}
+
 export IPMI_USER=${IPMI_USER:-'ADMIN'}
 export IPMI_PASSWORD=${IPMI_PASSWORD:-'ADMIN'}
 export ADMIN_PASSWORD=${ADMIN_PASSWORD:-'qwe123QWE'}

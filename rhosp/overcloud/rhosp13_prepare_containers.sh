@@ -13,7 +13,7 @@ openstack overcloud container image prepare \
   --push-destination ${prov_ip}:8787 \
   --output-env-file ./docker_registry.yaml \
   --output-images-file ./overcloud_containers.yaml \
-  --tag '13.0'
+  --tag "${OPENSTACK_CONTAINER_TAG}"
 
 echo 'openstack overcloud container image upload --config-file ./overcloud_containers.yaml'
 openstack overcloud container image upload --config-file ./overcloud_containers.yaml
