@@ -134,6 +134,7 @@ collect_juju_logs
 collect_contrail_status
 collect_system_stats
 collect_contrail_logs
+collect_core_dumps
 collect_openstack_logs
 collect_kubernetes_logs
 collect_kubernetes_objects_info
