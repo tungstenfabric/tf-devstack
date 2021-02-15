@@ -144,9 +144,7 @@ function collect_contrail_logs() {
     local proto='http'
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         proto='https'
-        ssl_opts="--key /etc/contrail/ssl/private/server-privkey.pem"
-        ssl_opts+=" --cert /etc/contrail/ssl/certs/server.pem"
-        ssl_opts+=" --cacert /etc/contrail/ssl/certs/ca-cert.pem"
+        ssl_opts="-k"
     fi
     echo "INFO: Collecting contrail logs: save_introspect_info"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"

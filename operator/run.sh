@@ -2,6 +2,7 @@
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
+
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 source "$my_dir/../common/stages.sh"
@@ -22,6 +23,7 @@ declare -A STAGES=( \
 
 # constants
 export DEPLOYER='operator'
+export SSL_ENABLE="true"
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
