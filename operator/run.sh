@@ -46,6 +46,7 @@ function k8s() {
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
     export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
+    export K8S_CLUSTER_NAME=k8s
     $my_dir/../common/deploy_kubespray.sh
 }
 

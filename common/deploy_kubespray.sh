@@ -23,6 +23,7 @@ K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 K8S_VERSION=${K8S_VERSION:-"v1.18.10"}
+K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
@@ -146,7 +147,9 @@ echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-clu
 
 # Set explicetely k8s cluster name (some orchestrators like operator use name from kubernetes
 # and tf-test use hardcoded 'k8s' cluster name)
-echo "cluster_name: \"k8s\"" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+if [[ -n "${K8S_CLUSTER_NAME}" ]]; then
+  echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+fi
 
 # enable docker live restore option
 #
