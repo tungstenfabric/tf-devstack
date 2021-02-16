@@ -32,6 +32,7 @@ collect_contrail_status
 collect_system_stats
 collect_docker_logs
 collect_contrail_logs
+collect_core_dumps
 if [[ "$ORCHESTRATOR" == "openstack" ]]; then
     collect_kolla_logs
 else

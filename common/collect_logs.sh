@@ -321,6 +321,41 @@ function collect_kubernetes_objects_info() {
     done
 }
 
+function collect_core_dumps() {
+    echo "INFO: Collecting core dumps"
+
+    if ! command -v gdb &> /dev/null; then
+        local distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+        if [[ "$distro" == "centos" || "$distro" == "rhel" ]]; then
+            sudo yum install -y gdb
+        elif [ "$distro" == "ubuntu" ]; then
+            export DEBIAN_FRONTEND=noninteractive
+            sudo -E apt-get install -y gdb
+        else
+            echo "Unsupported OS version"
+            return 1
+        fi
+    fi
+
+    local DUMPS_DIR=$TF_LOG_DIR/core_dumps
+    mkdir -p $DUMPS_DIR
+
+    # gather core dumps
+    cat <<COMMAND > /tmp/commands.txt
+set height 0
+t a a bt
+quit
+COMMAND
+    local dump_path='/var/crashes'
+    echo "INFO: cores: $(ls -l $dump_path/)"
+    local core
+    for core in $(ls -1 $dump_path/) ; do
+        local x=$(basename "${core}")
+        local y=$(echo $x | cut -d '.' -f 2)
+        timeout -s 9 30 sudo gdb --command=/tmp/commands.txt -c $core $y > $DUMPS_DIR/$x-bt.log
+    done
+}
+
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
    $1
 fi
