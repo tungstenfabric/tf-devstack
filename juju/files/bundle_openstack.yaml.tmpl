@@ -27,7 +27,7 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance"
+    charm: "cs:{{ UBUNTU_SERIES }}/glance-301"
     num_units: 1
     options:
       debug: "true"
@@ -36,7 +36,7 @@ services:
     to:
       - lxd:0
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone-319"
     num_units: 1
     options:
       admin-password: "{{ AUTH_PASSWORD }}"
@@ -53,7 +53,7 @@ services:
   # https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
   # let's use percona-cluster in bionic container for now
   mysql:
-    charm: "cs:bionic/percona-cluster"
+    charm: "cs:bionic/percona-cluster-293"
     series: "bionic"
     num_units: 1
     options:
@@ -79,12 +79,12 @@ services:
 {%- endif %#}
 
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-106"
     num_units: 1
     to:
       - lxd:0
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-290"
     num_units: 1
     options:
       debug: "true"
@@ -95,7 +95,7 @@ services:
     to:
       - lxd:0
   heat:
-    charm: "cs:heat"
+    charm: "cs:{{ UBUNTU_SERIES }}/heat-279"
     num_units: 1
     options:
       debug: "true"
@@ -105,7 +105,7 @@ services:
       - lxd:0
 
   swift-proxy:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy-95"
     num_units: 1
     options:
       zone-assignment: manual
@@ -116,7 +116,7 @@ services:
     to:
       - lxd:0
   swift-storage:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage-272"
     num_units: 1
     options:
       block-device: '/etc/swift/storagedev1.img|15G'
@@ -127,7 +127,7 @@ services:
 
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
   placement:
-    charm: "cs:{{ UBUNTU_SERIES }}/placement"
+    charm: "cs:{{ UBUNTU_SERIES }}/placement-15"
     num_units: 1
     options:
       openstack-origin: {{ OPENSTACK_ORIGIN }}
@@ -136,7 +136,7 @@ services:
     - lxd:0
 {%- endif %}
   nova-cloud-controller:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller-350"
     num_units: 1
     options:
       network-manager: "Neutron"
@@ -147,7 +147,7 @@ services:
     to:
       - lxd:0
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-323"
     series: "{{ UBUNTU_SERIES }}"
     num_units: {{ agent_nodes | count }}
     options:
@@ -159,7 +159,7 @@ services:
       migration-auth-type: "ssh"
     to: {{ agent_nodes }}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-309"
     num_units: 1
     options:
       debug: "true"
