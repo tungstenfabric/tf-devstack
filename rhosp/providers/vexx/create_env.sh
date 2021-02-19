@@ -31,18 +31,22 @@ disk_size_gb=100
 ssh_key_name=${ssh_key_name:-'worker'}
 ssh_private_key=${ssh_private_key:-~/.ssh/workers}
 
-# lookup free name
-while true ; do
+if [[ -n "$RHOSP_ID" ]]; then
+  rhosp_id=$RHOSP_ID
+else
+  # lookup free name
   while true ; do
-    rhosp_id=${RANDOM}
-    if (( rhosp_id > 1000 )) ; then break ; fi
+    while true ; do
+      rhosp_id=${RANDOM}
+      if (( rhosp_id > 1000 )) ; then break ; fi
+    done
+    undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
+    if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
+      echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
+      break
+    fi
   done
-  undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
-  if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
-    echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
-    break
-  fi
-done
+fi
 
 # Enable IPA instance if tls enabled
 ipa_instance=''
