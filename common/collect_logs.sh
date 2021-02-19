@@ -284,6 +284,7 @@ function collect_kubernetes_logs() {
         local pod=''
         local pods=`kubectl get pods -n ${namespace} -o name | awk -F '/' '{ print $2 }'`
         for pod in $pods ; do
+            local container
             local init_containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.initContainers[*].name}')
             local containers=$(kubectl get pod $pod -n ${namespace} -o json -o jsonpath='{.spec.containers[*].name}')
             for container in $init_containers $containers; do
@@ -291,6 +292,27 @@ function collect_kubernetes_logs() {
                 kubectl logs ${pod} -n ${namespace} -c ${container} > "$KUBE_LOG_DIR/pod-logs/${namespace}/${pod}/${container}.txt"
             done
         done
+    done
+}
+
+function _collect_kubernetes_object_info() {
+    local log_dir=$1
+    local resource=$2
+    local namespace=$3
+    local namespace_param=''
+    if [[ -n "$namespace" ]]; then
+        namespace_param="-n $namespace"
+    fi
+    echo "INFO: collect info for $resource"
+    local object=''
+    local objects_list=$(kubectl get ${namespace_param} ${resource} -o name)
+    for object in $objects_list ; do
+        echo "INFO: processing $object"
+        mkdir -p "${log_dir}/${resource}"
+        local name=${object#*/}
+        local path_prefix="${log_dir}/${resource}/${namespace:+${namespace}_}${name}"
+        kubectl get ${namespace_param} ${resource} ${name} -o yaml 1> "${path_prefix}_get.txt" 2> /dev/null
+        kubectl describe ${namespace_param} ${resource} ${name} 1> "${path_prefix}_desc.txt" 2> /dev/null
     done
 }
 
@@ -307,18 +329,26 @@ function collect_kubernetes_objects_info() {
     kubectl get namespaces > $TF_LOG_DIR/kubernetes_namespaces
     kubectl get nodes -o wide > $TF_LOG_DIR/kubernetes_nodes
     kubectl get all --all-namespaces > $TF_LOG_DIR/kubernetes_all
+    kubectl api-resources > $TF_LOG_DIR/kubernetes_api-resources
 
+    local resource
+    local resources="pod daemonset.apps deployment.apps replicaset.apps statefulset.apps configmaps endpoints"
+    resources+=" persistentvolumeclaims secrets serviceaccounts services jobs"
     local namespace=''
     local namespaces=$(kubectl get namespaces -o name | awk -F '/' '{ print $2 }')
     for namespace in $namespaces ; do
-        local object=''
-        local objects_list=$(kubectl get -n ${namespace} pods -o name)
-        for object in $objects_list ; do
-            local name=${object#*/}
-            kubectl get -n ${namespace} pods ${name} -o yaml 1> ${KUBE_OBJ_DIR}/pod_${name}.txt 2> /dev/null
-            kubectl describe -n ${namespace} pods ${name} 1> "${KUBE_OBJ_DIR}/desc_${name}.txt" 2> /dev/null
+        echo "INFO: Processing namespace $namespace"
+        for resource in $resources ; do
+            _collect_kubernetes_object_info $KUBE_OBJ_DIR $resource $namespace
         done
     done
+
+    resources="persistentvolumes customresourcedefinitions storageclasses"
+    for resource in $resources ; do
+        _collect_kubernetes_object_info $KUBE_OBJ_DIR $resource
+    done
+
+    echo "INFO: info collected"
 }
 
 function collect_core_dumps() {
@@ -357,5 +387,6 @@ COMMAND
 }
 
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
-   $1
+    TF_LOG_DIR=$(pwd)
+    $1
 fi
