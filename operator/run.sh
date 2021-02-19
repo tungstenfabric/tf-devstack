@@ -56,6 +56,16 @@ function build() {
     "$my_dir/../common/dev_env.sh"
 }
 
+function _process_manifest() {
+    local folder=$1
+    local templates_to_render=`ls $folder/*.j2`
+    local template
+    for template in $templates_to_render ; do
+        local rendered_yaml=$(echo "${template%.*}")
+        "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
+    done
+}
+
 function manifest() {
     # get tf-operator
     if [[ ! -d $OPERATOR_REPO ]] ; then
@@ -63,17 +73,8 @@ function manifest() {
             || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
     fi
 
-    # prepare kustomize for operator
-    local operator_template="$OPERATOR_REPO/deploy/kustomize/operator/templates/kustomization.yaml"
-    "$my_dir/../common/jinja2_render.py" < ${operator_template}.j2 > $operator_template
-
-    # prepare kustomize for contrail
-    local templates_to_render=`ls $OPERATOR_REPO/deploy/kustomize/contrail/templates/*.j2`
-    local template
-    for template in $templates_to_render ; do
-        local rendered_yaml=$(echo "${template%.*}")
-        "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
-    done
+    _process_manifest $OPERATOR_REPO/deploy/kustomize/operator/templates
+    _process_manifest $OPERATOR_REPO/deploy/kustomize/contrail/templates
 }
 
 function tf() {
