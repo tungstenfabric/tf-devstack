@@ -139,6 +139,7 @@ function check_pods_active() {
   fi
 
   #check if all pods are running
+  local pod
   for pod in "${pods[@]}" ; do
     local status="$(echo $pod | awk '{print $4}')"
     if [[ "$status" == 'Completed' ]]; then
@@ -146,11 +147,34 @@ function check_pods_active() {
     elif [[ "$status" != "Running" ]] ; then
       return 1
     else
-      local containers_running=$(echo $pod  | awk '{print $3}' | cut  -f1 -d/ )
-      local containers_total=$(echo $pod  | awk '{print $3}' | cut  -f2 -d/ )
+      local containers_running=$(echo $pod | awk '{print $3}' | cut -f 1 -d '/')
+      local containers_total=$(echo $pod | awk '{print $3}' | cut -f 2 -d '/')
       if [ "$containers_running" != "$containers_total" ] ; then
         return 1
       fi
+    fi
+  done
+  return 0
+}
+
+function check_kubernetes_resources_active() {
+  # possible values: statefulset.apps deployment.apps
+  # zero output of kubectl is treated as fail! 
+  local resource=$1
+  declare -a items
+  readarray -t items < <(kubectl get $resource --all-namespaces --no-headers)
+
+  if [[ ${#items[@]} == '0' ]]; then
+    return 1
+  fi
+
+  #check if all pods are running
+  local item
+  for item in "${items[@]}" ; do
+    local running=$(echo $item | awk '{print $3}' | cut -f 1 -d '/')
+    local total=$(echo $item | awk '{print $3}' | cut -f 2 -d '/')
+    if [ "$running" != "$total" ] ; then
+      return 1
     fi
   done
   return 0
