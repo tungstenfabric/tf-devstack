@@ -36,6 +36,7 @@ services:
 {%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
 {%- endif %}
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -60,6 +61,7 @@ services:
 {%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
 {%- endif %}
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -76,6 +78,7 @@ services:
     num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -97,6 +100,7 @@ services:
       dpdk-coremask: '3'
       dpdk-driver: 'vfio-pci'
       log-level: "SYS_DEBUG"
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -118,6 +122,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     options:
       log-level: "SYS_DEBUG"
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -134,6 +139,7 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
     options:
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -144,6 +150,7 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
     options:
       log-level: 'SYS_DEBUG'
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
@@ -155,6 +162,7 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
     options:
       log-level: 'SYS_DEBUG'
+      docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
