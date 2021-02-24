@@ -11,7 +11,7 @@ function chrony_sync() {
     [ -e "$cfg_file" ] || cfg_file='/etc/chrony/chrony.conf'
     local server
     for server in $(grep "^server " $cfg_file | awk '{print $2}') ; do
-      timeout 120 sudo chronyd -q server $server iburst
+      timeout -k 120 120 sudo chronyd -q server $server iburst
     done
     sudo systemctl start chronyd.service
     return 1
@@ -19,21 +19,21 @@ function chrony_sync() {
 }
 
 function ntp_query_state() {
-  timeout 60 /usr/sbin/ntpq -n -c pe
+  timeout -k 60 60 /usr/sbin/ntpq -n -c pe
 }
 
 function ntp_sync() {
   if ! ntp_query_state | grep -q "^\*" ; then
     echo "INFO: $(date): time is not synced, force it"
-    timeout 60 sudo systemctl stop ntpd.service
-    timeout 60 sudo ntpd -gq
-    timeout 60 sudo systemctl start ntpd.service
+    timeout -k 60 60 sudo systemctl stop ntpd.service
+    timeout -k 60 60 sudo ntpd -gq
+    timeout -k 60 60 sudo systemctl start ntpd.service
     ntp_query_state | grep -q "^\*"
   fi
 }
 
 function chrony_show_time() {
-  echo -e "INFO: $(date):\n$(timeout 120 chronyc -n sources)"
+  echo -e "INFO: $(date):\n$(timeout -k 120 120 chronyc -n sources)"
 }
 
 function ntp_show_time() {
@@ -46,7 +46,7 @@ if ps ax | grep -v grep | grep -q "bin/chronyd" ; then
   show_time=chrony_show_time
 elif ps ax | grep -v grep | grep -q "bin/ntpd" ; then
   echo "INFO: $(date): ensure time is synced (ntpd)"
-  timeout 60 sudo systemctl restart ntpd
+  timeout -k 60 60 sudo systemctl restart ntpd
   sleep 2
   time_sync_func=ntp_sync
   show_time=ntp_show_time
