@@ -12,5 +12,5 @@ parameter_defaults:
       neutron_driver: null
       rhel_containers: false
       tag: '${OPENSTACK_CONTAINER_TAG}'
-    tag_from_label: '{version}'
+    tag_from_label: '{version-release}'
   ${rhsm_image_registry_credentials}

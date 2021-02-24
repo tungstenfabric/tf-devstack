@@ -8,7 +8,7 @@ if [[ -n "$overcloud_ceph_instance" ]] ; then
 fi
 
 openstack overcloud container image prepare \
-  --namespace ${OPENSTACK_CONTAINER_REGISTRY}/rhosp13  --prefix=openstack- --tag-from-label {version} \
+  --namespace ${OPENSTACK_CONTAINER_REGISTRY}/rhosp13  --prefix=openstack- --tag-from-label {version-release} \
   $ceph_image_env \
   --push-destination ${prov_ip}:8787 \
   --output-env-file ./docker_registry.yaml \
