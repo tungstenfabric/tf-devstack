@@ -144,7 +144,20 @@ function collect_contrail_logs() {
     local proto='http'
     if [[ "${SSL_ENABLE,,}" == 'true' ]] ; then
         proto='https'
-        ssl_opts="-k"
+        if  [[ -e /etc/contrail/ssl/private/server-privkey.pem ]] && \
+            [[ -e /etc/contrail/ssl/certs/server.pem ]] && \
+            [[ -e /etc/contrail/ssl/certs/ca-cert.pem || -e /etc/ipa/ca.crt ]] ; then
+
+            ssl_opts="--key /etc/contrail/ssl/private/server-privkey.pem"
+            ssl_opts+=" --cert /etc/contrail/ssl/certs/server.pem"
+            if [[ -e /etc/contrail/ssl/certs/ca-cert.pem ]] ; then
+                ssl_opts+=" --cacert /etc/contrail/ssl/certs/ca-cert.pem"
+            else
+                ssl_opts+=" --cacert /etc/ipa/ca.crt"
+            fi
+        else
+            ssl_opts="-k"
+        fi
     fi
     echo "INFO: Collecting contrail logs: save_introspect_info"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"
