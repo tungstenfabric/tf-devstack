@@ -16,7 +16,7 @@ init_output_logging
 # stages declaration
 
 declare -A STAGES=( \
-    ["all"]="build machines k8s tf wait logs" \
+    ["all"]="build machines k8s manifest tf wait logs" \
     ["default"]="machines k8s manifest tf wait" \
     ["platform"]="machines k8s" \
 )
