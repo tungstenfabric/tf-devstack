@@ -27,7 +27,7 @@ export SSL_ENABLE="true"
 export PROVIDER=${PROVIDER:-"kvm"}
 
 export KUBERNETES_CLUSTER_NAME=${KUBERNETES_CLUSTER_NAME:-"test1"}
-export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"cluster.local"}
+export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"example.com"}
 
 export KEEP_SOURCES=${KEEP_SOURCES:-false}
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
@@ -134,13 +134,18 @@ function tf() {
     # TODO: move it to wait stage
     echo "INFO: wait for install complete  $(date)"
     ./openshift-install --dir=${INSTALL_DIR} wait-for install-complete
+
+    export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
+    echo "INFO: controller_nodes: $CONTROLLER_NODES"
+    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
+    echo "INFO: agent_nodes: $AGENT_NODES"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_kubernetes_resources_active statefulset.apps && \
-    check_kubernetes_resources_active deployment.apps && \
-    check_pods_active && \
+    check_kubernetes_resources_active statefulset.apps ./oc && \
+    check_kubernetes_resources_active deployment.apps ./oc && \
+    check_pods_active ./oc && \
     check_tf_active
 }
 
@@ -149,9 +154,9 @@ function collect_deployment_env() {
         return 0
     fi
 
-    export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ','`"
+    export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
-    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ','`"
+    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
     # always ssl enabled

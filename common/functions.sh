@@ -131,8 +131,9 @@ function label_nodes_by_ip() {
 }
 
 function check_pods_active() {
+  local tool=${1:-kubectl}
   declare -a pods
-  readarray -t pods < <(kubectl get pods --all-namespaces --no-headers)
+  readarray -t pods < <($tool get pods --all-namespaces --no-headers)
 
   if [[ ${#pods[@]} == '0' ]]; then
     return 1
@@ -161,8 +162,9 @@ function check_kubernetes_resources_active() {
   # possible values: statefulset.apps deployment.apps
   # zero output of kubectl is treated as fail! 
   local resource=$1
+  local tool=${2:-kubectl}
   declare -a items
-  readarray -t items < <(kubectl get $resource --all-namespaces --no-headers)
+  readarray -t items < <($tool get $resource --all-namespaces --no-headers)
 
   if [[ ${#items[@]} == '0' ]]; then
     return 1
