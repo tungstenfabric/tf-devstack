@@ -143,7 +143,7 @@ function is_active() {
     check_kubernetes_resources_active statefulset.apps ./oc && \
     check_kubernetes_resources_active deployment.apps ./oc && \
     check_pods_active ./oc && \
-    check_tf_active
+    check_tf_active core
 }
 
 function collect_deployment_env() {
