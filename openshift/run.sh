@@ -16,11 +16,6 @@ declare -A STAGES=( \
     ["platform"]="machines" \
 )
 
-function err() {
-    echo "ERROR: ${1}"
-    exit 1
-}
-
 # constants
 export DEPLOYER='openshift'
 export SSL_ENABLE="true"
@@ -40,6 +35,8 @@ export OPENSHIFT_PUB_KEY="${HOME}/.ssh/id_rsa.pub"
 export OPENSHIFT_SSH_KEY="${HOME}/.ssh/id_rsa"
 export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 
+# deployment related environment set by any stage and put to tf_stack_profile at the end
+declare -A DEPLOYMENT_ENV
 
 function machines() {
     ${my_dir}/providers/${PROVIDER}/destroy_cluster.sh
