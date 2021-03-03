@@ -55,9 +55,6 @@ function machines() {
     ${my_dir}/providers/${PROVIDER}/destroy_cluster.sh
 
     set_ssh_keys
-
-    ${my_dir}/providers/${PROVIDER}/install_openshift.sh
-    wait_cmd_success "./oc get pods" 15 480
 }
 
 # copy-paste from operator deployer
@@ -73,9 +70,10 @@ function manifest() {
             || git clone https://github.com/tungstenfabric/tf-operator.git $OPERATOR_REPO
     fi
 
-    # TODO: create and use tf-openshift image
+    # get tf-openshift
     if [[ ! -d $OPENSHIFT_REPO ]]; then
-        git clone https://github.com/tungstenfabric/tf-openshift.git $OPENSHIFT_REPO
+        fetch_deployer_no_docker tf-openshift-src $OPENSHIFT_REPO \
+            || git clone https://github.com/tungstenfabric/tf-openshift.git $OPENSHIFT_REPO
     fi
 
     # prepare kustomize for operator
@@ -84,8 +82,12 @@ function manifest() {
 }
 
 function tf() {
+    # TODO: somehow move machine creation to machines
+    ${my_dir}/providers/${PROVIDER}/install_openshift.sh
+    wait_cmd_success "./oc get pods" 15 480
+
     echo "INFO: apply CRD-s  $(date)"
-    ./oc apply -f ${OPERATOR_REPO}/deploy/crds/
+    wait_cmd_success "./oc apply -f ${OPERATOR_REPO}/deploy/crds/" 5 60
 
     echo "INFO: wait for CRD-s  $(date)"
     ./oc wait crds --for=condition=Established --timeout=2m managers.contrail.juniper.net
