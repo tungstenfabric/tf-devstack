@@ -39,6 +39,19 @@ export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o 
 declare -A DEPLOYMENT_ENV
 
 function machines() {
+    echo "$DISTRO detected"
+    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
+        sudo yum -y install epel-release
+        sudo yum install -y python3 python3-setuptools iproute jq bind-utils git
+    elif [ "$DISTRO" == "ubuntu" ]; then
+        export DEBIAN_FRONTEND=noninteractive
+        sudo -E apt-get update
+        sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils
+    else
+        echo "Unsupported OS version"
+        exit 1
+    fi
+
     ${my_dir}/providers/${PROVIDER}/destroy_cluster.sh
 
     set_ssh_keys
