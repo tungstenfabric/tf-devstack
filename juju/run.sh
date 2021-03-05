@@ -228,7 +228,12 @@ function tf() {
         juju_node_ip=`$(which juju) ssh $machine "hostname -i" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         juju_node_hostname=`$(which juju) ssh $machine "hostname -f" 2>/dev/null | tr -d '\r' | cut -f 1 -d ' '`
         command juju ssh $machine "sudo bash -c 'echo $juju_node_ip $juju_node_hostname >> /etc/hosts'" 2>/dev/null
-        command juju ssh $machine "sudo bash -c 'echo 524288 > /proc/sys/vm/min_free_kbytes'" 2>/dev/null
+        if [[ $CONTRAIL_CONTAINER_TAG =~ "1912" ]]; then
+            # R1912 release doesn't support hugepages for vrouter and thus vrouter-agent requires some big blocks of free memory
+            # TODO: apply this only on agents
+            echo "INFO: apply memory setting for vrouter-agent"
+            command juju ssh $machine "sudo bash -c 'echo 6291456 > /proc/sys/vm/min_free_kbytes'" 2>/dev/null
+        fi
     done
 
     # show results
