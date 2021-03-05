@@ -80,6 +80,8 @@ else
     yum update -y
     yum module install -y idm:DL1/{dns,client}
     yum install -y rng-tools git python3-novajoin
+    #Fix for SSL VERSION ISSUE https://access.redhat.com/solutions/5527751
+    dnf downgrade -y java-1.8.0-openjdk java-1.8.0-openjdk-headless
 fi
 
 # Set iptables rules
