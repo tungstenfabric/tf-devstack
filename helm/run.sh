@@ -30,7 +30,6 @@ DEPLOYER_DIR="root"
 
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
 CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
-export ORCHESTRATOR=${ORCHESTRATOR:-"kubernetes"}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
 # password is hardcoded in keystone/values.yaml (can be overriden) and in setup-clients.sh (can be hacked)
 export AUTH_PASSWORD="password"
@@ -75,7 +74,7 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_pods_active && check_tf_active
+    check_pods_active && check_tf_active && check_tf_services
 }
 
 function collect_deployment_env() {

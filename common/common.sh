@@ -47,3 +47,22 @@ export TF_LOG_DIR=${TF_LOG_DIR:-${TF_CONFIG_DIR}/logs}
 export SSL_ENABLE=${SSL_ENABLE:-false}
 export LEGACY_ANALYTICS_ENABLE=${LEGACY_ANALYTICS_ENABLE:-true}
 export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ServerAliveInterval=60"}
+
+# possible values: kubernetes, openstack, hybrid. Each deployer supports only some types of orchestrators.
+export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
+
+declare -A CONTROLLER_SERVICES=(['analytics']="api collector nodemgr " ['config']="nodemgr schema api device-manager svc-monitor " ['config-database']="nodemgr zookeeper rabbitmq cassandra " ['control']="nodemgr control dns named " ['webui']="web job " ['_']="redis ")
+declare -A AGENT_SERVICES=(['vrouter']="nodemgr agent ")
+
+# if analyticsdb enabled
+if [[ "${LEGACY_ANALYTICS_ENABLE,,}" == 'true' ]]; then
+    CONTROLLER_SERVICES['analytics-alarm']="alarm-gen kafka nodemgr "
+    CONTROLLER_SERVICES['analytics-snmp']="snmp-collector topology nodemgr "
+    CONTROLLER_SERVICES['database']="query-engine cassandra nodemgr "
+fi
+
+ # kubernetes on controller
+if [[ $ORCHESTRATOR == "kubernetes" ]]; then
+    CONTROLLER_SERVICES['kubernetes']="kube-manager "
+fi
+

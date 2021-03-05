@@ -40,6 +40,10 @@ export OPENSHIFT_PUB_KEY="${HOME}/.ssh/id_rsa.pub"
 export OPENSHIFT_SSH_KEY="${HOME}/.ssh/id_rsa"
 export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 
+unset CONTROLLER_SERVICES['config-database']
+CONTROLLER_SERVICES['config']+="dnsmasq "
+CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
+
 # deployment related environment set by any stage and put to tf_stack_profile at the end
 declare -A DEPLOYMENT_ENV
 
@@ -168,7 +172,8 @@ function is_active() {
     check_kubernetes_resources_active statefulset.apps oc && \
     check_kubernetes_resources_active deployment.apps oc && \
     check_pods_active oc && \
-    check_tf_active core
+    check_tf_active core && \
+    check_tf_services core
 }
 
 function collect_deployment_env() {

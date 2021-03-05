@@ -31,6 +31,10 @@ export WAIT_TIMEOUT=1200
 export CONFIGDB_MIN_HEAP_SIZE=${CONFIGDB_MIN_HEAP_SIZE:-"1g"}
 export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
 
+unset CONTROLLER_SERVICES['config-database']
+CONTROLLER_SERVICES['config']+="dnsmasq "
+CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
+
 # default env variables
 
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
@@ -91,7 +95,8 @@ function is_active() {
     check_kubernetes_resources_active statefulset.apps && \
     check_kubernetes_resources_active deployment.apps && \
     check_pods_active && \
-    check_tf_active
+    check_tf_active && \
+    check_tf_services
 }
 
 function collect_deployment_env() {

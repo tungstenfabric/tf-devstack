@@ -97,10 +97,10 @@ function platform() {
         git checkout release-$OPENSHIFT_VERSION-contrail
     fi
     # make backup of resolv.conf because openshift changes it
-    [ ! -f /etc/resolv.conf.org ] && { 
+    [ ! -f /etc/resolv.conf.org ] && {
         sudo cp /etc/resolv.conf /etc/resolv.conf.org
     }
-    [ ! -f /etc/resolv.conf.org.bkp ] && { 
+    [ ! -f /etc/resolv.conf.org.bkp ] && {
         sudo cp /etc/resolv.conf /etc/resolv.conf.org.bkp
     }
     make_tf_openshift_settings_file "$settings_file"

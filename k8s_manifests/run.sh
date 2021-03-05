@@ -57,7 +57,7 @@ function manifest() {
     HOST_IP=$NODE_IP \
     JVM_EXTRA_OPTS="-Xms1g -Xmx2g" \
     LINUX_DISTR=$DISTRO \
-    CLOUD_ORCHESTRATOR=kubernetes \
+    CLOUD_ORCHESTRATOR=$ORCHESTRATOR \
     KUBERNETES_PUBLIC_FIP_POOL="{'project' : 'k8s-default', 'domain': 'default-domain', 'name': '__fip_pool_public__' , 'network' : '__public__'}" \
     KUBERNETES_IP_FABRIC_SNAT='true' \
     KUBERNETES_IP_FABRIC_FORWARDING='false' \
@@ -88,7 +88,7 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_pods_active && check_tf_active
+    check_pods_active && check_tf_active && check_tf_services
 }
 
 function collect_deployment_env() {

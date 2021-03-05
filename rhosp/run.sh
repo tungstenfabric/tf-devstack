@@ -16,6 +16,10 @@ source "$my_dir/providers/${PROVIDER}/stages.sh"
 
 init_output_logging
 
+unset CONTROLLER_SERVICES['_']
+unset CONTROLLER_SERVICES['kubernetes']
+CONTROLLER_SERVICES['analytics']+="redis "
+
 # stages declaration
 declare -A STAGES=( \
     ["all"]="build machines tf wait logs" \
