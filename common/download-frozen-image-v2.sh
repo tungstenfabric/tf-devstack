@@ -80,7 +80,11 @@ if [[ $ishost == false ]] ; then
   authService='registry.docker.io'
 # Passed the other registry than registry.docker.io
 else
-  registryBase="http://${registry_url}"
+  if curl -s https://${registry_url}
+    registryBase="https://${registry_url}"
+  else
+    registryBase="http://${registry_url}"
+  fi
 fi
 
 
