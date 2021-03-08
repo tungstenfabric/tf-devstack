@@ -24,6 +24,9 @@ export PROVIDER=${PROVIDER:-"kvm"}
 export KUBERNETES_CLUSTER_NAME=${KUBERNETES_CLUSTER_NAME:-"test1"}
 export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"example.com"}
 
+export CONFIGDB_MIN_HEAP_SIZE=${CONFIGDB_MIN_HEAP_SIZE:-"1g"}
+export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
+
 export KEEP_SOURCES=${KEEP_SOURCES:-false}
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 export OPENSHIFT_REPO=${OPENSHIFT_REPO:-$WORKSPACE/tf-openshift}
@@ -144,7 +147,7 @@ function tf() {
         }'
 
     # TODO: move it to wait stage
-    echo "INFO: wait for install complete  $(date)"
+    echo "INFO: wait for install complete $(date)"
     ./openshift-install --dir=${INSTALL_DIR} wait-for install-complete
 
     export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"

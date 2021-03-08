@@ -79,7 +79,7 @@ sudo virt-customize -a "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2" \
     --copy-in $WORKSPACE/haproxy.cfg:/etc/haproxy/ \
     --run-command "systemctl daemon-reload" --run-command "systemctl enable tmpws.service"
 
-start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU}
+start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2,cache=writeback,bus=virtio" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU}
 
 ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-lb) )
 LBIP=${ip_mac[0]}
