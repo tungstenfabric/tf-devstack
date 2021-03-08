@@ -42,7 +42,7 @@ function start_openshift_vm() {
   fi
 
   sudo virt-install --name $name \
-    --disk "${LIBVIRT_DIR}/$name.qcow2,size=60" \
+    --disk "${LIBVIRT_DIR}/$name.qcow2,size=60,cache=writeback,bus=virtio" \
     --memory $mem \
     --cpu host \
     --vcpus $cpu \

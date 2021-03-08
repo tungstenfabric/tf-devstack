@@ -28,6 +28,9 @@ export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
+export CONFIGDB_MIN_HEAP_SIZE=${CONFIGDB_MIN_HEAP_SIZE:-"1g"}
+export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
+
 # default env variables
 
 CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
