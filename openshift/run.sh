@@ -84,6 +84,28 @@ function manifest() {
     process_manifest $OPERATOR_REPO/deploy/kustomize/contrail/templates
 }
 
+function _patch_ingress_controller() {
+    local controller_count=$1
+    ./oc patch ingresscontroller default -n openshift-ingress-operator \
+        --type merge \
+        --patch '{
+            "spec":{
+                "replicas": '${controller_count}',
+                    "nodePlacement":{
+                        "nodeSelector":{
+                            "matchLabels":{
+                                "node-role.kubernetes.io/master":""
+                            }
+                        },
+                    "tolerations":[{
+                        "effect": "NoSchedule",
+                        "operator": "Exists"
+                    }]
+                }
+            }
+        }'
+}
+
 function tf() {
     # TODO: somehow move machine creation to machines
     ${my_dir}/providers/${PROVIDER}/install_openshift.sh
@@ -127,24 +149,7 @@ function tf() {
     wait_cmd_success "./oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
 
     echo "INFO: patch ingress controller  $(date)"
-    ./oc patch ingresscontroller default -n openshift-ingress-operator \
-        --type merge \
-        --patch '{
-            "spec":{
-                "replicas": '${controller_count}',
-                    "nodePlacement":{
-                        "nodeSelector":{
-                            "matchLabels":{
-                                "node-role.kubernetes.io/master":""
-                            }
-                        },
-                    "tolerations":[{
-                        "effect": "NoSchedule",
-                        "operator": "Exists"
-                    }]
-                }
-            }
-        }'
+    wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
 
     # TODO: move it to wait stage
     echo "INFO: wait for install complete $(date)"
