@@ -82,6 +82,11 @@ function get_ip_mac() {
 function create_haproxy_cfg() {
   local cfgfile=$1
 
+# Use large timeouts to show here explicetly that 
+# they cannot be short (aka 1m) - short ones lead to 
+# the often reconnect of all Kube Monitors in kube-manager to kube-api
+# that re-read all objects from scratch and queue is growing
+# and all events are handled with the very large delay
   cat <<EOF >$cfgfile
 global
   log 127.0.0.1 local2
@@ -99,12 +104,12 @@ defaults
   option dontlognull
   option redispatch
   retries 3
-  timeout queue 1m
   timeout connect 10s
-  timeout client 1m
-  timeout server 1m
+  timeout queue 3600s
+  timeout client 3600s
+  timeout server 3600s
   timeout check 10s
-  maxconn 3000
+  maxconn 1000
 # 6443 points to control plan
 frontend ${KUBERNETES_CLUSTER_NAME}-api *:6443
   default_backend master-api
