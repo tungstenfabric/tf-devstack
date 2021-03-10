@@ -14,6 +14,7 @@ function collect_logs_from_machines() {
 
     collect_kubernetes_objects_info oc
     collect_kubernetes_logs oc
+    collect_kubernetes_service_statuses oc
 
     cat <<EOF >/tmp/logs.sh
 #!/bin/bash

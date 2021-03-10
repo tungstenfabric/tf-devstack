@@ -24,6 +24,7 @@ collect_contrail_status
 collect_docker_logs
 collect_kubernetes_objects_info
 collect_kubernetes_logs
+collect_kubernetes_service_statuses
 collect_contrail_logs
 sudo chmod -R a+r logs
 pushd logs
