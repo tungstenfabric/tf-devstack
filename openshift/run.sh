@@ -9,6 +9,8 @@ source "$my_dir/../common/collect_logs.sh"
 
 source "$my_dir/functions.sh"
 
+export PATH="$HOME:$PATH"
+
 # stages declaration
 declare -A STAGES=( \
     ["all"]="machines manifest tf wait logs" \
@@ -86,7 +88,7 @@ function manifest() {
 
 function _patch_ingress_controller() {
     local controller_count=$1
-    ./oc patch ingresscontroller default -n openshift-ingress-operator \
+    oc patch ingresscontroller default -n openshift-ingress-operator \
         --type merge \
         --patch '{
             "spec":{
@@ -109,19 +111,19 @@ function _patch_ingress_controller() {
 function tf() {
     # TODO: somehow move machine creation to machines
     ${my_dir}/providers/${PROVIDER}/install_openshift.sh
-    wait_cmd_success "./oc get pods" 15 480
+    wait_cmd_success "oc get pods" 15 480
 
     echo "INFO: apply CRD-s  $(date)"
-    wait_cmd_success "./oc apply -f ${OPERATOR_REPO}/deploy/crds/" 5 60
+    wait_cmd_success "oc apply -f ${OPERATOR_REPO}/deploy/crds/" 5 60
 
     echo "INFO: wait for CRD-s  $(date)"
-    ./oc wait crds --for=condition=Established --timeout=2m managers.contrail.juniper.net
+    oc wait crds --for=condition=Established --timeout=2m managers.contrail.juniper.net
 
     echo "INFO: apply operator and TF templates  $(date)"
     # apply operator
-    wait_cmd_success "./oc apply -k ${OPERATOR_REPO}/deploy/kustomize/operator/templates/" 5 60
+    wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/operator/templates/" 5 60
     # apply TF cluster
-    wait_cmd_success "./oc apply -k ${OPERATOR_REPO}/deploy/kustomize/contrail/templates/" 5 60
+    wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/contrail/templates/" 5 60
 
     echo "INFO: wait for bootstrap complete  $(date)"
     ./openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete
@@ -136,9 +138,9 @@ function tf() {
     agent_count=$(echo $AGENT_NODES | wc -w)
     nodes_total=$(( $controller_count + $agent_count ))
     while true; do
-        nodes_ready=$(./oc get nodes | grep 'Ready' | wc -l)
-        for csr in $(./oc get csr 2> /dev/null | grep -w 'Pending' | awk '{print $1}'); do
-            ./oc adm certificate approve "$csr" 2> /dev/null || true
+        nodes_ready=$(oc get nodes | grep 'Ready' | wc -l)
+        for csr in $(oc get csr 2> /dev/null | grep -w 'Pending' | awk '{print $1}'); do
+            oc adm certificate approve "$csr" 2> /dev/null || true
             output_delay=0
         done
         [[ "$nodes_ready" -ge "$nodes_total" ]] && break
@@ -146,7 +148,7 @@ function tf() {
     done
 
     echo "INFO: wait for ingress controller  $(date)"
-    wait_cmd_success "./oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
+    wait_cmd_success "oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
 
     echo "INFO: patch ingress controller  $(date)"
     wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
@@ -155,17 +157,17 @@ function tf() {
     echo "INFO: wait for install complete $(date)"
     ./openshift-install --dir=${INSTALL_DIR} wait-for install-complete
 
-    export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
+    export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
-    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
+    export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    check_kubernetes_resources_active statefulset.apps ./oc && \
-    check_kubernetes_resources_active deployment.apps ./oc && \
-    check_pods_active ./oc && \
+    check_kubernetes_resources_active statefulset.apps oc && \
+    check_kubernetes_resources_active deployment.apps oc && \
+    check_pods_active oc && \
     check_tf_active core
 }
 
@@ -174,20 +176,20 @@ function collect_deployment_env() {
         return 0
     fi
 
-    export CONTROLLER_NODES="`./oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
+    export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
-    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
+    export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
     # always ssl enabled
     DEPLOYMENT_ENV['SSL_ENABLE']='true'
     # use first pod cert
-    local sts="$(kubectl get pod  -n contrail -o json config1-config-statefulset-0)"
+    local sts="$(oc get pod  -n contrail -o json config1-config-statefulset-0)"
     local podIP=$(echo "$sts" | jq -c -r ".status.podIP")
-    local podSercret=$(kubectl get secret -n contrail -o json config1-secret-certificates)
+    local podSercret=$(oc get secret -n contrail -o json config1-secret-certificates)
     DEPLOYMENT_ENV['SSL_KEY']=$(echo "$podSercret" | jq -c -r ".data.\"server-key-${podIP}.pem\"")
     DEPLOYMENT_ENV['SSL_CERT']=$(echo "$podSercret" | jq -c -r ".data.\"server-${podIP}.crt\"")
-    DEPLOYMENT_ENV['SSL_CACERT']=$(kubectl get secrets -n contrail contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"")
+    DEPLOYMENT_ENV['SSL_CACERT']=$(oc get secrets -n contrail contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"")
 }
 
 function collect_logs() {

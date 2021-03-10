@@ -12,8 +12,8 @@ function process_manifest() {
 
 function collect_logs_from_machines() {
 
-    collect_kubernetes_objects_info ./oc
-    collect_kubernetes_logs ./oc
+    collect_kubernetes_objects_info oc
+    collect_kubernetes_logs oc
 
     cat <<EOF >/tmp/logs.sh
 #!/bin/bash
@@ -38,10 +38,10 @@ EOF
 
     export CONTROLLER_NODES="` | tr '\n' ','`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
-    export AGENT_NODES="`./oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ','`"
+    export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ','`"
 
     local machine
-    for machine in $(./oc get nodes -o wide --no-headers | awk '{print $6}' | sort -u) ; do
+    for machine in $(oc get nodes -o wide --no-headers | awk '{print $6}' | sort -u) ; do
         local ssh_dest="core@$machine"
         local tgz_name="logs-$machine.tgz"
         mkdir -p $TF_LOG_DIR/$machine
