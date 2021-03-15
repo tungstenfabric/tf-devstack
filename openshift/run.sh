@@ -19,6 +19,14 @@ declare -A STAGES=( \
 )
 
 # constants
+
+# supported version 4.5, 4.6, master
+# master is a laltest supported numerical version
+export OPENSHIFT_VERSION=${OPENSHIFT_VERSION:-'master'}
+if [[ "$OPENSHIFT_VERSION" == 'master' ]]; then
+    export OPENSHIFT_VERSION='4.6'
+fi
+
 export DEPLOYER='openshift'
 export SSL_ENABLE="true"
 export PROVIDER=${PROVIDER:-"kvm"}

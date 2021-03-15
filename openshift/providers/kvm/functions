@@ -33,7 +33,8 @@ function start_openshift_vm() {
   local cpu=$3
   local ignition_file_name=$4
 
-  local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda coreos.inst.image_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
+  local versioned_rootfs_url=${versioned_rootfs_urls[$OPENSHIFT_VERSION]}
+  local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda $versioned_rootfs_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
 
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
     local hugepages_opt=" --memorybacking hugepages=on "
