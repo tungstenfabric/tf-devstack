@@ -22,6 +22,7 @@ declare -A STAGES=( \
 )
 
 # constants
+export KEEP_SOURCES=${KEEP_SOURCES:-false}
 export DEPLOYER='operator'
 export SSL_ENABLE="true"
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
@@ -60,14 +61,14 @@ function build() {
 }
 
 function manifest() {
-    # get tf-operator
+    if [[ ${KEEP_SOURCES,,} != 'true' ]]; then
+        rm -rf $OPERATOR_REPO
+    fi
     if [[ ! -d $OPERATOR_REPO ]] ; then
         fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO \
             || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
     fi
-
-    _process_manifest $OPERATOR_REPO/deploy/kustomize/operator/templates
-    _process_manifest $OPERATOR_REPO/deploy/kustomize/contrail/templates
+    $OPERATOR_REPO/contrib/render_manifests.sh
 }
 
 function tf() {
@@ -77,7 +78,7 @@ function tf() {
     # apply crds
     kubectl apply -f $OPERATOR_REPO/deploy/crds/
 
-    wait_cmd_success 'kubectl wait crds --for=condition=Established --timeout=2m managers.contrail.juniper.net'
+    wait_cmd_success 'kubectl wait crds --for=condition=Established --timeout=2m managers.tf.tungsten.io'
 
     # apply operator
     kubectl apply -k $OPERATOR_REPO/deploy/kustomize/operator/templates/
