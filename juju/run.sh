@@ -172,8 +172,12 @@ function tf() {
     export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
 
     # get contrail-charms
-    [ -d $JUJU_REPO ] || fetch_deployer_no_docker $tf_charms_image $JUJU_REPO \
-                      || git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
+    if [[ ! -d $JUJU_REPO ]] ; then
+        if ! fetch_deployer_no_docker $tf_charms_image $JUJU_REPO ; then
+            echo "WARNING: failed to fetch $tf_charms_image, use github"
+            git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
+        fi
+    fi
     cd $JUJU_REPO
 
     # do not retry hooks during tf deployment

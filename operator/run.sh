@@ -65,8 +65,10 @@ function manifest() {
         rm -rf $OPERATOR_REPO
     fi
     if [[ ! -d $OPERATOR_REPO ]] ; then
-        fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO \
-            || git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
+        if ! fetch_deployer_no_docker $tf_operator_image $OPERATOR_REPO ; then
+            echo "WARNING: failed to fetch $tf_operator_image, use github"
+            git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
+        fi
     fi
     $OPERATOR_REPO/contrib/render_manifests.sh
 }

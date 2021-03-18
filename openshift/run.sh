@@ -71,14 +71,18 @@ function manifest() {
 
     # get tf-operator
     if [[ ! -d $OPERATOR_REPO ]] ; then
-        fetch_deployer_no_docker tf-operator-src $OPERATOR_REPO \
-            || git clone https://github.com/tungstenfabric/tf-operator.git $OPERATOR_REPO
+        if ! fetch_deployer_no_docker tf-operator-src $OPERATOR_REPO ; then
+            echo "WARNING: failed to fetch tf-operator-src, use github"
+            git clone https://github.com/tungstenfabric/tf-operator.git $OPERATOR_REPO
+        fi
     fi
 
     # get tf-openshift
     if [[ ! -d $OPENSHIFT_REPO ]]; then
-        fetch_deployer_no_docker tf-openshift-src $OPENSHIFT_REPO \
-            || git clone https://github.com/tungstenfabric/tf-openshift.git $OPENSHIFT_REPO
+        if ! fetch_deployer_no_docker tf-openshift-src $OPENSHIFT_REPO ; then
+            echo "WARNING: failed to fetch tf-openshift-src, use github"
+            git clone https://github.com/tungstenfabric/tf-openshift.git $OPENSHIFT_REPO
+        fi
     fi
 
     # prepare kustomize for operator

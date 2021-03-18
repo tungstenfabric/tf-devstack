@@ -90,6 +90,7 @@ function platform() {
         openshift-ansible
 
     if ! fetch_deployer_no_docker $deployer_image $deployer_dir ; then
+        echo "WARNING: failed to fetch $deployer_image, use github"
         git clone https://github.com/tungstenfabric/tf-openshift-ansible $deployer_dir
     fi
     cd $deployer_dir

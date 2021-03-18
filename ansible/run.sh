@@ -89,6 +89,7 @@ function machines() {
     set_ssh_keys
 
     if ! fetch_deployer_no_docker $tf_deployer_image $tf_deployer_dir ; then
+        echo "WARNING: failed to fetch $tf_deployer_image, try old_ansible_fetch_deployer"
         "$my_dir/../common/install_docker.sh"
         old_ansible_fetch_deployer
     elif [[ "$ORCHESTRATOR" == "openstack" ]] ; then

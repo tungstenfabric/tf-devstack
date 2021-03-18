@@ -39,8 +39,10 @@ export SSH_PUBLIC_KEY=`while read l ; do echo "      $l" ; done < .ssh/id_rsa.pu
 cd
 rm -rf tripleo-heat-templates contrail-tripleo-heat-templates
 cp -r /usr/share/openstack-tripleo-heat-templates/ tripleo-heat-templates
-fetch_deployer_no_docker "tf-tripleo-heat-templates-src" contrail-tripleo-heat-templates \
-|| git clone https://github.com/tungstenfabric/tf-tripleo-heat-templates contrail-tripleo-heat-templates
+if ! fetch_deployer_no_docker "tf-tripleo-heat-templates-src" contrail-tripleo-heat-templates ; then
+   echo "WARNING: failed to fetch tf-tripleo-heat-templates-src, use github"
+   git clone https://github.com/tungstenfabric/tf-tripleo-heat-templates contrail-tripleo-heat-templates
+fi
 
 if [[ ! -d contrail-tripleo-heat-templates ]] ; then
    echo "ERROR: The directory with src contrail-tripleo-heat-templates is not found. Exit with error"
