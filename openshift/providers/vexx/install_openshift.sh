@@ -18,12 +18,12 @@ pushd tmpopenshift
 if ! command -v openshift-install; then
   curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OPENSHIFT_VERSION}/openshift-install-linux-${OPENSHIFT_VERSION}.tar.gz
   tar xzf openshift-install-linux-${OPENSHIFT_VERSION}.tar.gz
-  sudo mv ./openshift-install /usr/local/bin
+  sudo mv openshift-install /usr/local/bin
 fi
 if ! command -v oc || ! command -v kubectl; then
   curl -LO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/${OPENSHIFT_VERSION}/openshift-client-linux-${OPENSHIFT_VERSION}.tar.gz
   tar xzf openshift-client-linux-${OPENSHIFT_VERSION}.tar.gz
-  sudo mv ./oc ./kubectl /usr/local/bin
+  sudo mv oc kubectl /usr/local/bin
 fi
 popd
 rm -rf tmpopenshift
