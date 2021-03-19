@@ -109,12 +109,12 @@ function _patch_ingress_controller() {
         --patch '{
             "spec":{
                 "replicas": '${controller_count}',
-                    "nodePlacement":{
-                        "nodeSelector":{
-                            "matchLabels":{
-                                "node-role.kubernetes.io/master":""
-                            }
-                        },
+                "nodePlacement":{
+                    "nodeSelector":{
+                        "matchLabels":{
+                            "node-role.kubernetes.io/master":""
+                        }
+                    },
                     "tolerations":[{
                         "effect": "NoSchedule",
                         "operator": "Exists"
@@ -122,6 +122,17 @@ function _patch_ingress_controller() {
                 }
             }
         }'
+}
+
+function _monitor_csr() {
+    local csr
+    while true; do
+        for csr in $(oc get csr 2> /dev/null | grep -w 'Pending' | awk '{print $1}'); do
+            echo "INFO: csr monitor: approve $csr"
+            oc adm certificate approve "$csr" 2> /dev/null || true
+        done
+        sleep 5
+    done
 }
 
 function tf() {
@@ -147,21 +158,9 @@ function tf() {
     echo "INFO: destroy bootstrap  $(date)"
     ${my_dir}/providers/${PROVIDER}/destroy_bootstrap.sh
 
-    echo "INFO: approve certs  $(date)"
-    # TODO: rework to use 'wait_cmd_success'
-    nodes_ready=0
-    controller_count=$(echo $CONTROLLER_NODES | wc -w)
-    agent_count=$(echo $AGENT_NODES | wc -w)
-    nodes_total=$(( $controller_count + $agent_count ))
-    while true; do
-        nodes_ready=$(oc get nodes | grep 'Ready' | wc -l)
-        for csr in $(oc get csr 2> /dev/null | grep -w 'Pending' | awk '{print $1}'); do
-            oc adm certificate approve "$csr" 2> /dev/null || true
-            output_delay=0
-        done
-        [[ "$nodes_ready" -ge "$nodes_total" ]] && break
-        sleep 15
-    done
+    echo "INFO: start approve certs thread $(date)"
+    _monitor_csr &
+    mpid=$!
 
     echo "INFO: wait for ingress controller  $(date)"
     wait_cmd_success "oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
@@ -172,6 +171,11 @@ function tf() {
     # TODO: move it to wait stage
     echo "INFO: wait for install complete $(date)"
     ./openshift-install --dir=${INSTALL_DIR} wait-for install-complete
+
+    echo "INFO: stop csr approving monitor: pid=$mpid"
+    kill $mpid
+    wait $mpid
+    echo "INFO: csr approving monitor stopped"
 
     export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
