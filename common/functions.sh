@@ -64,7 +64,7 @@ function wait_cmd_success() {
 
   local state="$(set +o)"
   [[ "$-" =~ e ]] && state+="; set -e"
- 
+
   set +o xtrace
   set -o pipefail
   local i=0
@@ -160,7 +160,7 @@ function check_pods_active() {
 
 function check_kubernetes_resources_active() {
   # possible values: statefulset.apps deployment.apps
-  # zero output of kubectl is treated as fail! 
+  # zero output of kubectl is treated as fail!
   local resource=$1
   local tool=${2:-kubectl}
   declare -a items
@@ -179,6 +179,65 @@ function check_kubernetes_resources_active() {
       return 1
     fi
   done
+  return 0
+}
+
+function check_pod_services() {
+  local pod
+  eval "declare -A array="${1#*=}
+  for pod in "${!array[@]}"; do
+    local pod_name=$pod
+    if [[ "$pod" == '_' ]]; then
+      pod_name=''
+    fi
+    local service
+    for service in ${array[$pod]} ; do
+      if ! grep -q "$pod_name[ \t]*$service[ \t]*" /tmp/_tmp_contrail_status; then
+        echo "ERROR: pod '$pod_name's service '$service' is missing in contrail-status of $2"
+        return 1
+      fi
+    done
+  done
+
+  return 0
+}
+
+function check_tf_services() {
+  local user=${1:-$SSH_USER}
+  local controller_nodes=${2:-$CONTROLLER_NODES}
+  local agent_nodes=${3:-$AGENT_NODES}
+  local nodes="$controller_nodes $agent_nodes"
+  local machine
+
+  for machine in $(echo "$nodes" | tr " " "\n" | sort -u) ; do
+    local addr="$machine"
+    [ -z "$user" ] || addr="$user@$addr"
+    if ! ssh $SSH_OPTIONS $addr "command -v contrail-status" 2>/dev/null ; then
+      return 1
+    fi
+
+    # get contrail-status from $machine node
+    local contrail_status=$(ssh $SSH_OPTIONS $addr "sudo contrail-status" 2>/dev/null)
+    # keep first part of contrail-status with rows and columns
+    # of pods and services in /tmp/_tmp_contrail_status file
+    # TODO: either use random name or store this info in variable
+    echo "$contrail_status" | sed -n '/^$/q;p' | sed '1d' > /tmp/_tmp_contrail_status
+
+    if [[ "$controller_nodes" =~ $machine ]]; then
+      if ! check_pod_services "$(declare -p CONTROLLER_SERVICES)" $addr ; then
+        rm /tmp/_tmp_contrail_status
+        return 1
+      fi
+    fi
+
+    if [[ "$agent_nodes" =~ $machine ]]; then
+      if ! check_pod_services "$(declare -p AGENT_SERVICES)" $addr ; then
+        rm /tmp/_tmp_contrail_status
+        return 1
+      fi
+    fi
+  done
+  rm /tmp/_tmp_contrail_status
   return 0
 }
 

@@ -26,6 +26,9 @@ export DEPLOYER='ansible'
 # 300 is small sometimes - NTP sync can be an issue
 export WAIT_TIMEOUT=600
 
+AGENT_SERVICES['_']+="rsyslogd "
+CONTROLLER_SERVICES['config']+="dnsmasq "
+
 tf_deployer_dir=${WORKSPACE}/tf-ansible-deployer
 openstack_deployer_dir=${WORKSPACE}/contrail-kolla-ansible
 tf_deployer_image=${TF_ANSIBLE_DEPLOYER:-"tf-ansible-deployer-src"}
@@ -33,7 +36,6 @@ openstack_deployer_image=${OPENSTACK_DEPLOYER:-"tf-kolla-ansible-src"}
 
 export ANSIBLE_CONFIG=$tf_deployer_dir/ansible.cfg
 
-ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
 export AUTH_PASSWORD='contrail123'
 export VIRT_TYPE=qemu
@@ -184,7 +186,7 @@ function is_active() {
         check_pods_active
     fi
 
-    check_tf_active
+    check_tf_active && check_tf_services
 }
 
 function collect_deployment_env() {
