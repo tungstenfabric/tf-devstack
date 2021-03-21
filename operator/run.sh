@@ -110,12 +110,12 @@ function collect_deployment_env() {
     # always ssl enabled
     DEPLOYMENT_ENV['SSL_ENABLE']='true'
     # use first pod cert
-    local sts="$(kubectl get pod  -n contrail -o json config1-config-statefulset-0)"
+    local sts="$(kubectl get pod  -n tf -o json config1-config-statefulset-0)"
     local podIP=$(echo "$sts" | jq -c -r ".status.podIP")
-    local podSercret=$(kubectl get secret -n contrail -o json config1-secret-certificates)
+    local podSercret=$(kubectl get secret -n tf -o json config1-secret-certificates)
     DEPLOYMENT_ENV['SSL_KEY']=$(echo "$podSercret" | jq -c -r ".data.\"server-key-${podIP}.pem\"")
     DEPLOYMENT_ENV['SSL_CERT']=$(echo "$podSercret" | jq -c -r ".data.\"server-${podIP}.crt\"")
-    DEPLOYMENT_ENV['SSL_CACERT']=$(kubectl get secrets -n contrail contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"")
+    DEPLOYMENT_ENV['SSL_CACERT']=$(kubectl get secrets -n tf contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"")
 }
 
 function collect_logs() {
