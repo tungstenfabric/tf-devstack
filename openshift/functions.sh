@@ -1,15 +1,5 @@
 #!/bin/bash
 
-function process_manifest() {
-    local folder=$1
-    local templates_to_render=`ls $folder/*.j2`
-    local template
-    for template in $templates_to_render ; do
-        local rendered_yaml=$(echo "${template%.*}")
-        "$my_dir/../common/jinja2_render.py" < $template > $rendered_yaml
-    done
-}
-
 function collect_logs_from_machines() {
 
     collect_kubernetes_objects_info oc

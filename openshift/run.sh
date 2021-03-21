@@ -98,8 +98,7 @@ function manifest() {
     fi
 
     # prepare kustomize for operator
-    process_manifest $OPERATOR_REPO/deploy/kustomize/operator/templates
-    process_manifest $OPERATOR_REPO/deploy/kustomize/contrail/templates
+    $OPERATOR_REPO/contrib/render_manifests.sh
 }
 
 function _patch_ingress_controller() {
