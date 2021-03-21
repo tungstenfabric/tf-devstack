@@ -3,6 +3,11 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+export OPENSHIFT_VERSION=${OPENSHIFT_VERSION:-'master'}
+if [[ "$OPENSHIFT_VERSION" == 'master' ]]; then
+    export OPENSHIFT_VERSION='4.6'
+fi
+
 source $my_dir/definitions
 
 for i in $(seq 1 5); do
