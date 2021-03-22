@@ -18,7 +18,6 @@ fi
 
 # TODO: Not checked
 if [[ -z $target || $target == "openstack" ]]; then
-  echo "Deleting contrail.yaml tf"
   [ $(rm ~/.tf/.stages/openstack) ] || true
   for NS in openstack nfs libvirt; do
     [ $(helm ls --namespace $NS --short | xargs -r -L1 -P2 helm delete --purge) ] || true

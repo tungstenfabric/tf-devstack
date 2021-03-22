@@ -28,8 +28,8 @@ export WAIT_TIMEOUT=1200
 DEPLOYER_IMAGE="contrail-helm-deployer"
 DEPLOYER_DIR="root"
 
-CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
-CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+TF_POD_SUBNET=${TF_POD_SUBNET:-"10.32.0.0/12"}
+TF_SERVICE_SUBNET=${TF_SERVICE_SUBNET:-"10.96.0.0/12"}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
 # password is hardcoded in keystone/values.yaml (can be overriden) and in setup-clients.sh (can be hacked)
 export AUTH_PASSWORD="password"
@@ -54,8 +54,8 @@ function build() {
 function k8s() {
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
-    export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
-    export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
+    export K8S_POD_SUBNET=$TF_POD_SUBNET
+    export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
 }
 

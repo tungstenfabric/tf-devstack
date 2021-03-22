@@ -37,7 +37,7 @@ Individual stages:
 
 - build - tf-dev-env container is fetched, TF is built and stored in local registry
 - k8s - kubernetes is deployed by means of kubespray
-- manifest - manifest contrail.yaml is created from template
+- manifest - manifest tf.yaml is created from template
 - tf - TF is deployed
 - wait - wait until contrail-status verifies that all components are active
 
@@ -49,8 +49,8 @@ Environment variable list:
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - KUBE_MANIFEST - use particular k8s manifest template or ready manifest
-- CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
-- CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
+- TF_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
+- TF_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 
 ## Known Issues
 

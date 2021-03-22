@@ -168,9 +168,9 @@ function tf() {
     if [ $CLOUD == 'maas' ] ; then
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
     fi
-    export BUNDLE="$my_dir/files/bundle_contrail.yaml.tmpl"
+    export BUNDLE="$my_dir/files/bundle_tf.yaml.tmpl"
 
-    # get contrail-charms
+    # get tf-charms
     if [[ ! -d $JUJU_REPO ]] ; then
         if ! fetch_deployer_no_docker $tf_charms_image $JUJU_REPO ; then
             echo "WARNING: failed to fetch $tf_charms_image, use github"
@@ -184,39 +184,39 @@ function tf() {
 
     $my_dir/../common/deploy_juju_bundle.sh
 
-    # add relations between orchestrator and Contrail
+    # add relations between orchestrator and TF
     if [[ $ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'hybrid' ]] ; then
-        command juju add-relation contrail-keystone-auth keystone
-        command juju add-relation contrail-openstack neutron-api
-        command juju add-relation contrail-openstack heat
+        command juju add-relation tf-keystone-auth keystone
+        command juju add-relation tf-openstack neutron-api
+        command juju add-relation tf-openstack heat
         if [[ ${ENABLE_DPDK_SRIOV,,} == 'true' ]] ; then
-            command juju add-relation contrail-openstack nova-compute-dpdk
-            command juju add-relation contrail-agent-dpdk:juju-info nova-compute-dpdk:juju-info
-            command juju add-relation contrail-openstack nova-compute-sriov
-            command juju add-relation contrail-agent-sriov:juju-info nova-compute-sriov:juju-info
+            command juju add-relation tf-openstack nova-compute-dpdk
+            command juju add-relation tf-agent-dpdk:juju-info nova-compute-dpdk:juju-info
+            command juju add-relation tf-openstack nova-compute-sriov
+            command juju add-relation tf-agent-sriov:juju-info nova-compute-sriov:juju-info
         else
-            command juju add-relation contrail-openstack nova-compute
-            command juju add-relation contrail-agent:juju-info nova-compute:juju-info
+            command juju add-relation tf-openstack nova-compute
+            command juju add-relation tf-agent:juju-info nova-compute:juju-info
         fi
         if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
-            # add nrpe relation to superior of contrail-agent
+            # add nrpe relation to superior of tf-agent
             command juju add-relation nova-compute nrpe
         fi
     fi
     if [[ $ORCHESTRATOR == 'kubernetes' || $ORCHESTRATOR == 'hybrid' ]] ; then
-        command juju add-relation contrail-kubernetes-node:cni kubernetes-master:cni
-        command juju add-relation contrail-kubernetes-node:cni kubernetes-worker:cni
-        command juju add-relation contrail-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
-        command juju add-relation contrail-agent:juju-info kubernetes-worker:juju-info
+        command juju add-relation tf-kubernetes-node:cni kubernetes-master:cni
+        command juju add-relation tf-kubernetes-node:cni kubernetes-worker:cni
+        command juju add-relation tf-kubernetes-master:kube-api-endpoint kubernetes-master:kube-api-endpoint
+        command juju add-relation tf-agent:juju-info kubernetes-worker:juju-info
         if [[ ${ENABLE_NAGIOS,,} == 'true' ]] ; then
-            # add nrpe relation to superior of contrail-agent and contail-kubernetes-master
+            # add nrpe relation to superior of tf-agent and contail-kubernetes-master
             command juju add-relation kubernetes-master nrpe
             command juju add-relation kubernetes-worker nrpe
         fi
     fi
     if [[ $ORCHESTRATOR == 'hybrid' ]] ; then
         command juju add-relation kubernetes-master keystone
-        command juju add-relation kubernetes-master contrail-agent
+        command juju add-relation kubernetes-master tf-agent
         setup_keystone_auth
     fi
 
@@ -293,15 +293,15 @@ function collect_deployment_env() {
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
     fi
 
-    export CONTROLLER_NODES="`get_juju_unit_ips contrail-controller`"
+    export CONTROLLER_NODES="`get_juju_unit_ips tf-controller`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
 
-    export AGENT_NODES="`get_juju_unit_ips contrail-agent`"
+    export AGENT_NODES="`get_juju_unit_ips tf-agent`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
-    DEPLOYMENT_ENV['CONTROL_NODES']="$(command juju run --unit contrail-controller/leader 'cat /etc/contrail/common_config.env' | grep CONTROL_NODES | cut -d '=' -f 2)"
-    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_juju_unit_ips contrail-agent-dpdk)
-    sriov_agent_nodes=$(get_juju_unit_ips contrail-agent-sriov)
+    DEPLOYMENT_ENV['CONTROL_NODES']="$(command juju run --unit tf-controller/leader 'cat /etc/contrail/common_config.env' | grep CONTROL_NODES | cut -d '=' -f 2)"
+    DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_juju_unit_ips tf-agent-dpdk)
+    sriov_agent_nodes=$(get_juju_unit_ips tf-agent-sriov)
     for node in $sriov_agent_nodes; do
         [ -z "${DEPLOYMENT_ENV['SRIOV_CONFIGURATION']}" ] || DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+=';'
         DEPLOYMENT_ENV['SRIOV_CONFIGURATION']+="$node:$SRIOV_PHYSICAL_NETWORK:$SRIOV_PHYSICAL_INTERFACE:$SRIOV_VF";

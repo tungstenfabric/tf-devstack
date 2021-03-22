@@ -63,12 +63,12 @@ Environment variable list:
 - CONTRAIL_CONTAINER_TAG - by default "master-latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 - ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default) and "openstack" are supported
-- CONTRAIL_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
-- CONTRAIL_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
+- TF_POD_SUBNET - subnet for kubernetes pod network, 10.32.0.0/12 by default
+- TF_SERVICE_SUBNET - subnet for kubernetes service network, 10.96.0.0/12 by default
 - OPENSTACK_VERSION - version of Openstack, rocky by default
 - CNI - CNI for kubernetes, calico by default for Openstack and TF for kubernetes
 
 ## Known Issues
 
 - For CentOS Linux only. If the vrouter agent does not start after installation, this is probably due to an outdated version of the Linux kernel. Update your system kernel to the latest version (yum update -y) and reboot your machine
-- Helm Openstack deploys Contrail plugins (tf-neutron-init and tf-compute-init) taking them from the dockerhub at the moment and deployment of TF does not upgrade them to the freshly built containers which complicates development of these two particular pieces.
+- Helm Openstack deploys TF plugins (tf-neutron-init and tf-compute-init) taking them from the dockerhub at the moment and deployment of TF does not upgrade them to the freshly built containers which complicates development of these two particular pieces.

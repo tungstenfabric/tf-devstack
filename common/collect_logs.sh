@@ -61,7 +61,7 @@ function collect_docker_logs() {
     sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR/docker
 }
 
-function collect_contrail_status() {
+function collect_tf_status() {
     echo "INFO: Collecting contrail-status"
     mkdir -p $TF_LOG_DIR
     sudo contrail-status &> $TF_LOG_DIR/contrail-status
@@ -120,29 +120,29 @@ function collect_openstack_logs() {
     sudo find $log_dir -type d -exec chmod a+rx {} \;
 }
 
-function collect_contrail_logs() {
-    echo "INFO: Collecting contrail logs"
+function collect_tf_logs() {
+    echo "INFO: Collecting TF logs"
 
-    local log_dir="$TF_LOG_DIR/contrail"
+    local log_dir="$TF_LOG_DIR/tf"
     mkdir -p $log_dir
 
     if sudo ls /etc/contrail >/dev/null 2>&1 ; then
-        echo "INFO: Collecting contrail logs: /etc/contrail"
+        echo "INFO: Collecting tf logs: /etc/contrail"
         sudo cp -R /etc/contrail $log_dir/etc_contrail
     fi
     if sudo ls /etc/cni >/dev/null 2>&1 ; then
-        echo "INFO: Collecting contrail logs: /etc/cni"
+        echo "INFO: Collecting tf logs: /etc/cni"
         sudo cp -R /etc/cni $log_dir/etc_cni
     fi
 
     local cl_path
     for cl_path in '/var/log/contrail' '/var/log/containers/contrail' ; do
         if sudo ls $cl_path >/dev/null 2>&1 ; then
-            mkdir -p $log_dir/contrail_logs
+            mkdir -p $log_dir/tf_logs
             local ii
             for ii in `sudo ls $cl_path/`; do
-                echo "INFO: Collecting contrail logs: $cl_path/$ii"
-                sudo cp -R "$cl_path/$ii" $log_dir/contrail_logs/
+                echo "INFO: Collecting tf logs: $cl_path/$ii"
+                sudo cp -R "$cl_path/$ii" $log_dir/tf_logs/
             done
         fi
     done
@@ -168,7 +168,7 @@ function collect_contrail_logs() {
             ssl_opts="-k"
         fi
     fi
-    echo "INFO: Collecting contrail logs: save_introspect_info"
+    echo "INFO: Collecting tf logs: save_introspect_info"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortConfigNodemgr 8100 "$ssl_opts"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortControlNodemgr 8101 "$ssl_opts"
     save_introspect_info $log_dir/introspect ${proto}://$url HttpPortVRouterNodemgr 8102 "$ssl_opts"
@@ -201,7 +201,7 @@ function collect_contrail_logs() {
 function save_introspect_info() {
     local hex_port=$(printf "%04X" "$4")
     if grep ":$hex_port" /proc/net/tcp* &>/dev/null; then
-        echo "INFO: Collecting contrail logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
+        echo "INFO: Collecting tf logs: introspection request: curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus"
         sudo timeout -s 9 30 curl -s $5 $2:$4/Snh_SandeshUVECacheReq?x=NodeStatus >$1/$3.xml.log || true
     fi
 }

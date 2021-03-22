@@ -22,9 +22,9 @@ function are_all_apps_removed() {
     [[ -z "$(get_app_names)" ]] && return 0 || return 1
 }
 
-echo "INFO: Remove contrail-agent application"
-juju remove-application "contrail-agent"
-wait_cmd_success "is_app_removed contrail-agent" 1 60
+echo "INFO: Remove tf-agent application"
+juju remove-application tf-agent
+wait_cmd_success "is_app_removed tf-agent" 1 60
 
 echo "INFO: Remove all other juju applications"
 get_app_names | xargs -n 1 juju remove-application

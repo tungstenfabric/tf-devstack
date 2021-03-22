@@ -28,10 +28,10 @@ export TF_LOG_DIR=/tmp/ansible-logs/logs
 export SSL_ENABLE=$SSL_ENABLE
 cd /tmp/ansible-logs
 source ./collect_logs.sh
-collect_contrail_status
+collect_tf_status
 collect_system_stats
 collect_docker_logs
-collect_contrail_logs
+collect_tf_logs
 collect_core_dumps
 if [[ "$ORCHESTRATOR" == "openstack" ]]; then
     collect_kolla_logs

@@ -137,7 +137,6 @@ function collect_deployment_env() {
 }
 
 function collect_logs() {
-    cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
     collect_logs_from_machines
 }
 

@@ -30,8 +30,8 @@ AGENT_LABEL="node-role.opencontrail.org/agent="
 # default env variables
 
 KUBE_MANIFEST=${KUBE_MANIFEST:-$deployer_dir/kubernetes/manifests/contrail-standalone-kubernetes.yaml}
-CONTRAIL_POD_SUBNET=${CONTRAIL_POD_SUBNET:-"10.32.0.0/12"}
-CONTRAIL_SERVICE_SUBNET=${CONTRAIL_SERVICE_SUBNET:-"10.96.0.0/12"}
+TF_POD_SUBNET=${TF_POD_SUBNET:-"10.32.0.0/12"}
+TF_SERVICE_SUBNET=${TF_SERVICE_SUBNET:-"10.96.0.0/12"}
 
 # stages
 
@@ -45,8 +45,8 @@ function build() {
 function k8s() {
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
-    export K8S_POD_SUBNET=$CONTRAIL_POD_SUBNET
-    export K8S_SERVICE_SUBNET=$CONTRAIL_SERVICE_SUBNET
+    export K8S_POD_SUBNET=$TF_POD_SUBNET
+    export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
     $my_dir/../common/deploy_kubespray.sh
 }
 
@@ -63,7 +63,7 @@ function manifest() {
     KUBERNETES_IP_FABRIC_FORWARDING='false' \
     CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
     AGENT_NODES=${AGENT_NODES// /,} \
-    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/contrail.yaml
+    $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/tf.yaml
 }
 
 function tf() {
@@ -71,7 +71,7 @@ function tf() {
     ensure_kube_api_ready
 
     # label nodes
-    labels=( $(grep "key: \"node-role." $WORKSPACE/contrail.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
+    labels=( $(grep "key: \"node-role." $WORKSPACE/tf.yaml | tr -s [:space:] | sort -u | cut -d: -f2 | tr -d \") )
     label_nodes_by_ip $AGENT_LABEL $AGENT_NODES
     for label in ${labels[@]}
     do
@@ -79,10 +79,10 @@ function tf() {
     done
 
     # apply manifests
-    kubectl apply -f $WORKSPACE/contrail.yaml
+    kubectl apply -f $WORKSPACE/tf.yaml
 
     # show results
-    echo "Contrail Web UI will be available at https://$NODE_IP:8143"
+    echo "TF Web UI will be available at https://$NODE_IP:8143"
     echo "Use admin/contrail123 to log in"
 }
 
@@ -97,7 +97,7 @@ function collect_deployment_env() {
 }
 
 function collect_logs() {
-    cp $WORKSPACE/contrail.yaml ${TF_LOG_DIR}/
+    cp $WORKSPACE/tf.yaml ${TF_LOG_DIR}/
     collect_logs_from_machines
 }
 

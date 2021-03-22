@@ -24,7 +24,7 @@ export NODE_CIDR=`ip r | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+ dev $PHY
 export SSH_USER=${SSH_USER:-${IMAGE_SSH_USER:-$(whoami)}}
 # defaults
 
-# run build contrail
+# run build tf
 DEV_ENV=${DEV_ENV:-false}
 
 # defaults for stack deployment

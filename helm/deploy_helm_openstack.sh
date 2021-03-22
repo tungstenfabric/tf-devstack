@@ -48,8 +48,8 @@ pod:
             failureThreshold: 30
             timeoutSeconds: 30
 # NB. the next block bumps keystone workers count because default 1 is not enough
-# in case of a contrail setup, wsgi throttles token requests processing which
-# results in unresponsive openstack + contrail setup. supposedly it is 
+# in case of a tf setup, wsgi throttles token requests processing which
+# results in unresponsive openstack + tf setup. supposedly it is 
 # collectors from the application which generate massive keystone token requests
 # traffic and the wsgi single worker is not capable to handle it quickly.
 conf:

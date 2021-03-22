@@ -10,9 +10,9 @@ deployer_image=tf-helm-deployer-src
 deployer_dir=${WORKSPACE}/tf-helm-deployer
 
 if [ "$ORCHESTRATOR" == "kubernetes" ]; then
-  CONTRAIL_CHART="contrail-k8s"
+  TF_CHART="contrail-k8s"
 else
-  CONTRAIL_CHART="contrail"
+  TF_CHART="contrail"
 fi
 
 fetch_deployer $deployer_image $deployer_dir || git clone "$TF_HELM_URL" $deployer_dir
@@ -114,7 +114,7 @@ else
 fi
 
 kubectl create ns tungsten-fabric || :
-helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$CONTRAIL_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
+helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$TF_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
 if [[ $ORCHESTRATOR == "openstack" ]] ; then
   for machine in $AGENT_NODES ; do
     wait_vhost0_up $machine
@@ -139,4 +139,4 @@ label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 trap - ERR
 kill_helm_serve
 
-echo "Contrail Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"
+echo "TF Web UI will be available at any IP(or name) from '$CONTROLLER_NODES': https://IP:8143"

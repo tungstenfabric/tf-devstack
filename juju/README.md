@@ -247,13 +247,13 @@ export UBUNTU_SERIES=xenial
 Environment variable list:
 
 - UBUNTU_SERIES - version of ubuntu, by default it's equal to current host
-- CONTAINER_REGISTRY - by default "opencontrailnightly"
-- CONTRAIL_CONTAINER_TAG - by default "master-latest"
+- CONTAINER_REGISTRY - by default "tungstenfabric"
+- CONTRAIL_CONTAINER_TAG - by default "latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
-- JUJU_REPO - path to contrail-charms, "$PWD/contrail-charms" by default
+- JUJU_REPO - path to tf-charms, "$PWD/tf-charms" by default
 - ORCHESTRATOR - orchestrator for deployment, "kubernetes" (default), "openstack" and "hybrid" are supported
 - CLOUD - cloud for juju deployment, "aws", "maas" and "manual" are supported, "manual" by default
-- CONTROL_NETWORK - The CIDR of the control network (e.g. 192.168.0.0/24). This network will be used for Contrail endpoints. If not specified, default network will be used. Optional.
+- CONTROL_NETWORK - The CIDR of the control network (e.g. 192.168.0.0/24). This network will be used for TF endpoints. If not specified, default network will be used. Optional.
 - DATA_NETWORK - network for data traffic of workload and for control traffic between compute nodes and control services. May be set as cidr or physical interface. Optional.
 - LEGACY_ANALYTICS_ENABLE - enable analyticsdb service. By default is true. Optional.
 

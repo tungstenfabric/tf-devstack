@@ -138,9 +138,9 @@ cd /tmp/juju-logs
 source ./collect_logs.sh
 collect_docker_logs
 collect_juju_logs
-collect_contrail_status
+collect_tf_status
 collect_system_stats
-collect_contrail_logs
+collect_tf_logs
 collect_core_dumps
 collect_openstack_logs
 collect_kubernetes_logs

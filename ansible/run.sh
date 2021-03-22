@@ -174,7 +174,7 @@ function tf() {
         return 1
     fi
     sync_time
-    echo "Contrail Web UI must be available at https://$NODE_IP:8143"
+    echo "TF Web UI must be available at https://$NODE_IP:8143"
     [ "$ORCHESTRATOR" == "openstack" ] && echo "OpenStack UI must be avaiable at http://$NODE_IP"
     echo "Use admin/$AUTH_PASSWORD to log in"
 }

@@ -15,9 +15,9 @@ export SSL_ENABLE=$SSL_ENABLE
 cd /tmp/openshift-logs
 source ./collect_logs.sh
 collect_system_stats
-collect_contrail_status
+collect_tf_status
 collect_docker_logs crictl
-collect_contrail_logs
+collect_tf_logs
 sudo chmod -R a+r logs
 pushd logs
 tar -czf \$tgz_name *

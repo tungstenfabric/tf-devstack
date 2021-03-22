@@ -94,7 +94,7 @@ Individual stages:
 ## Details
 
 To deploy Tungsten Fabric from published containers
-[contrail-container-deployer playbooks](https://github.com/tungstenfabric/tf-ansible-deployer) is used. For building step
+[tf-container-deployer playbooks](https://github.com/tungstenfabric/tf-ansible-deployer) is used. For building step
 [tf-dev-env environment](https://github.com/tungstenfabric/tf-dev-env) is used.
 
 Preparation script allows root user to connect to host via ssh, install and configure docker,
@@ -103,10 +103,10 @@ build tf-dev-control container.
 Environment variable list:
 
 - ORCHESTRATOR kubernetes by default or openstack
-- OPENSTACK_VERSION queens (default), ocata or rocky, variable used when ORCHESTRATOR=openstack
+- OPENSTACK_VERSION rocky (default), ocata/rocky/train/stein/ussuri, variable is used when ORCHESTRATOR=openstack
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES
-- CONTAINER_REGISTRY - by default "opencontrailnightly"
-- CONTRAIL_CONTAINER_TAG - by default "ocata-master-latest"
+- CONTAINER_REGISTRY - by default "tungstenfabric"
+- CONTRAIL_CONTAINER_TAG - by default "latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
 
 ## Access WebUI in AWS or other environments

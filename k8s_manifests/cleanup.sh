@@ -11,10 +11,9 @@ my_dir="$(dirname $my_file)"
 source "$my_dir/../common/common.sh"
 
 if [[ -z $target || $target == "tf" ]]; then
-  echo "Deleting contrail.yaml tf"
   [ $(rm ~/.tf/.stages/tf) ] || true
   [ $(rm ~/.tf/.stages/manifest) ] || true
-  [[ $(kubectl delete -f contrail.yaml) ]] || true
+  [[ $(kubectl delete -f tf.yaml) ]] || true
 
   echo "Waiting for contrail pods to get removed"
   while [[ $(kubectl get pods --all-namespaces | grep contrail) ]]; do printf . ; sleep 1; done
