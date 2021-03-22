@@ -288,11 +288,11 @@ function setup_timeserver() {
 
 function retry() {
   local i
-  for ((i=0; i<5; ++i)) ; do
+  for ((i=0; i<10; ++i)) ; do
     if $@ ; then
       break
     fi
-    sleep 5
+    sleep 6
   done
   if [[ $i == 5 ]]; then
     return 1
