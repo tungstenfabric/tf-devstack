@@ -66,10 +66,12 @@ if [[ $ORCHESTRATOR == "kubernetes" ]]; then
     CONTROLLER_SERVICES['kubernetes']="kube-manager "
 fi
 
-trap 'trap_exit' SIGTERM SIGINT SIGHUP SIGQUIT
+trap 'trap_exit' EXIT
 function trap_exit() {
     local childs=$(jobs -p)
     echo "DEBUG: kill running child jobs: $childs"
-    kill $childs
-    wait $childs
+    if [ -n "$childs" ] ; then
+      kill $childs
+      wait $childs
+    fi
 }
