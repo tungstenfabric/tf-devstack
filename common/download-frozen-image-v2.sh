@@ -80,13 +80,12 @@ if [[ $ishost == false ]] ; then
   authService='registry.docker.io'
 # Passed the other registry than registry.docker.io
 else
-  if curl -s https://${registry_url} ; then
+  if curl -s https://${registry_url} &> /dev/null; then
     registryBase="https://${registry_url}"
   else
     registryBase="http://${registry_url}"
   fi
 fi
-
 
 # https://github.com/moby/moby/issues/33700
 fetch_blob() {
