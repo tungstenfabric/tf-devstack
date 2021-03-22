@@ -71,7 +71,7 @@ function trap_exit() {
     local childs=$(jobs -p)
     echo "DEBUG: kill running child jobs: $childs"
     if [ -n "$childs" ] ; then
-      kill $childs
-      wait $childs
+      kill $childs || true
+      wait $childs || true
     fi
 }
