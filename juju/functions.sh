@@ -72,18 +72,19 @@ function setup_iptables_persistent() {
   command juju ssh $1 <<'EOF'
 echo iptables-persistent iptables-persistent/autosave_v4 boolean true | sudo debconf-set-selections
 echo iptables-persistent iptables-persistent/autosave_v6 boolean true | sudo debconf-set-selections
-sudo apt-get update
 DEBIAN_FRONTEND=noninteractive sudo apt-get install -y iptables-persistent
 EOF
 }
 
 function setup_keystone_auth() {
+  echo "INFO: setup keystone auth for hybrid mode"
   command juju config kubernetes-master \
       authorization-mode="Node,RBAC" \
       enable-keystone-authorization=true \
       keystone-policy="$(cat $my_dir/files/k8s_policy.yaml)"
 
   if [[ $CLOUD == 'maas' ]] ; then
+    echo "INFO: skip keystone auth for MAAS cloud (TODO)"
     return
   fi
 
@@ -92,20 +93,26 @@ function setup_keystone_auth() {
     echo "ERROR: Cannot detect the keystone address. It is needed for reachabilty to keystone from keystone-auth-pods."
     exit 1
   fi
+  echo "INFO: keystone address is $keystone_address"
 
   # detect host address
   keystone_machine=$(get_service_machine keystone)
-  host_address=$(command juju ssh $keystone_machine 'hostname -i')
+  host_address=$(command juju ssh $keystone_machine 'ip route get 1' | awk '/ src /{print $7}')
+  if [[ -z $host_address ]] ; then
+    host_address=$(command juju ssh $keystone_machine 'hostname -i' | cut -f 1 -d ' ')
+  fi
   if [[ -z $host_address ]] ; then
     echo "ERROR: Cannot detect the host address for machine with keystone. It is needed for reachabilty to keystone from keystone-auth-pods."
     exit 1
   fi
+  echo "INFO: host address of keystone is $host_address"
 
   # the keystone should listen on vhost0 network
   # we need the reachability between keystone and keystone auth pod via vhost0 interface
-  retry command juju ssh $keystone_machine "sudo apt-get update"
+  echo "INFO: setup iptables persistent"
   retry setup_iptables_persistent $keystone_machine
 
+  echo "INFO: set iptables rules"
   command juju ssh $keystone_machine << EOF
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
@@ -116,8 +123,8 @@ sudo iptables --wait -A FORWARD -p tcp --dport 35357 -j ACCEPT
 sudo netfilter-persistent save
 EOF
 
-  command juju config keystone os-public-hostname=$host_address
-  command juju config keystone os-admin-hostname=$host_address
+  echo "INFO: redefine keystone endpoints"
+  command juju config keystone os-public-hostname=$host_address os-admin-hostname=$host_address
 }
 
 function collect_logs_from_machines() {
