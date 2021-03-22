@@ -105,9 +105,6 @@ function machines() {
         # to prevent it we starts lxd before
         command juju deploy ubuntu --to lxd:0
     fi
-
-    retry sudo apt-get update -u
-    retry sudo apt-get install -y jq dnsutils
 }
 
 function openstack() {
