@@ -81,6 +81,8 @@ services:
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-106"
     num_units: 1
+    options:
+      min-cluster-size: 1
     to:
       - lxd:0
   neutron-api:
