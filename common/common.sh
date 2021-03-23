@@ -56,9 +56,9 @@ declare -A AGENT_SERVICES=(['vrouter']="nodemgr agent ")
 
 # if analyticsdb enabled
 if [[ "${LEGACY_ANALYTICS_ENABLE,,}" == 'true' ]]; then
-    CONTROLLER_SERVICES['analytics-alarm']="alarm-gen kafka nodemgr "
-    CONTROLLER_SERVICES['analytics-snmp']="snmp-collector topology nodemgr "
-    CONTROLLER_SERVICES['database']="query-engine cassandra nodemgr "
+  CONTROLLER_SERVICES['analytics-alarm']="alarm-gen kafka nodemgr "
+  CONTROLLER_SERVICES['analytics-snmp']="snmp-collector topology nodemgr "
+  CONTROLLER_SERVICES['database']="query-engine cassandra nodemgr "
 fi
 
  # kubernetes on controller
@@ -68,10 +68,15 @@ fi
 
 trap 'trap_exit' EXIT
 function trap_exit() {
-    local childs=$(jobs -p)
-    echo "DEBUG: kill running child jobs: $childs"
-    if [ -n "$childs" ] ; then
-      kill $childs || true
-      wait $childs || true
-    fi
+  if [[ "$DEPLOYER" == 'helm' ]]; then
+    # TODO: check what happens in helm and why it's failed in case of killing
+    echo "INFO: skippimg kill&wait for children processes for helm"
+    return
+  fi
+  local childs=$(jobs -p)
+  echo "DEBUG: kill running child jobs: $childs"
+  if [ -n "$childs" ] ; then
+    kill $childs || true
+    wait $childs || true
+  fi
 }
