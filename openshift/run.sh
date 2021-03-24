@@ -168,7 +168,8 @@ function tf() {
     wait_cmd_success "oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
 
     # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
-    if [ -n "$AGENT_NODES" ] ; then
+    # (agent nodes is set to node_ip if not set externally)
+    if [[ "$AGENT_NODES" != "$NODE_IP" ]] ; then
         echo "INFO: patch ingress controller  $(date)"
         wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
     fi

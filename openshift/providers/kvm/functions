@@ -250,31 +250,34 @@ function bootstrap_finished() {
   sudo virsh start $name
 }
 
-function firstboot_finished() {
+# workaround the node bootstrap problem:
+#   occasionally rhcos failes on boot time with mount new ostree and 
+#    machine-config-daemon-firstboot.service service fails with the error
+#     "machine-config-daemon-firstboot.service: Failed at step EXEC spawning /run/bin/machine-config-daemon: Permission denied"
+#    reboot node to try again
+# (on success reboot service has 'Condition: start condition failed')
+function firstboot_wa() {
   local name=$1
-  if bootstrap_finished $name ; then
-    return
-  fi
-  # workaround the bootstrup problem:
-  #   occasionally rhcos failes on boot time with mount new ostree and 
-  #    machine-config-daemon-firstboot.service service fails with the error
-  #     "machine-config-daemon-firstboot.service: Failed at step EXEC spawning /run/bin/machine-config-daemon: Permission denied"
-  #    reboot node to try again
-  # (on success reboot service has 'Condition: start condition failed')
   local i
   for i in {1..5} ; do
     echo "INFO: WA: check machine-config-daemon-firstboot.service status: try: $i"
-    local addr="core@${name}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}"
-    wait_cmd_success "ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS $addr true" 5 20
-    cat <<EOF | ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS $addr && break
-if ! status=\$(sudo systemctl status machine-config-daemon-firstboot.service 2>&1) ; then
+    wait_cmd_success "ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS core@${name} true" 5 20
+    cat <<EOF | ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS core@${name} && break
+while ! status=\$(sudo systemctl status machine-config-daemon-firstboot.service 2>&1) ; do
+  date
   echo "\$status"
+  if ! echo "\$status" | grep -q 'Condition:\|Active: failed' ; then
+    sleep 5
+    continue
+  fi
   if ! echo "\$status" | grep -q 'Condition: start condition failed' ; then
+    echo "WARNING: WA: try to reboot node $name.."
     sudo reboot
     exit 1
   fi
-fi
+  break
+done
 EOF
-  sleep 10
+    sleep 10
   done
 }

@@ -192,9 +192,13 @@ echo "INFO: wait for SSH to bootstrap vm"
 wait_cmd_success "ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS core@bootstrap.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN} true" 10 20
 
 for i in $(seq 1 ${controller_count}); do
-  firstboot_finished ${KUBERNETES_CLUSTER_NAME}-master-${i}
+  bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-master-${i}
+  # supposed that https://gerrit.tungsten.io/r/c/tungstenfabric/tf-openshift/+/64366 should fix
+  # firstboot_wa master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}
 done
 
 for i in $(seq 1 ${agent_count}); do
   firstboot_finished ${KUBERNETES_CLUSTER_NAME}-worker-${i}
+  # supposed that https://gerrit.tungsten.io/r/c/tungstenfabric/tf-openshift/+/64366 should fix
+  # firstboot_wa worker-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}
 done
