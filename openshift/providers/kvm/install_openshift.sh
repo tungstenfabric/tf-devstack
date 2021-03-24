@@ -54,7 +54,7 @@ $OPENSHIFT_REPO/scripts/apply_install_manifests.sh ${INSTALL_DIR}
 ./openshift-install --dir $INSTALL_DIR create manifests
 
 # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
-if [ -n "$AGENT_NODES" ] ; then
+if (( agent_count != 0 )) ; then
   masters_schedulable='false'
 else
   masters_schedulable='true'
