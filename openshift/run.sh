@@ -102,6 +102,9 @@ function manifest() {
 }
 
 function _patch_ingress_controller() {
+    # By default ingress is scheduled in workers which requires rules in haproxy
+    # that makes more difficult to CI to manage it.
+    # So, patch ingress to re-schedule it on masters
     local controller_count=$1
     oc patch ingresscontroller default -n openshift-ingress-operator \
         --type merge \
@@ -164,12 +167,15 @@ function tf() {
     echo "INFO: wait for ingress controller  $(date)"
     wait_cmd_success "oc get ingresscontroller default -n openshift-ingress-operator -o name" 15 60
 
-    echo "INFO: patch ingress controller  $(date)"
-    wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
+    # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
+    if [ -n "$AGENT_NODES" ] ; then
+        echo "INFO: patch ingress controller  $(date)"
+        wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
+    fi
 
     # TODO: move it to wait stage
     echo "INFO: wait for install complete $(date)"
-    ./openshift-install --dir=${INSTALL_DIR} wait-for install-complete
+    openshift-install --dir=${INSTALL_DIR} wait-for install-complete
 
     echo "INFO: stop csr approving monitor: pid=$mpid"
     kill $mpid

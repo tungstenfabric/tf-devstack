@@ -77,6 +77,8 @@ function trap_exit() {
   echo "DEBUG: kill running child jobs: $childs"
   if [ -n "$childs" ] ; then
     kill $childs || true
+    echo "DEBUG: wait child jobs: $childs"
     wait $childs || true
+    echo "DEBUG: wait child jobs done: $childs"
   fi
 }

@@ -234,11 +234,47 @@ EOF
   cat $INSTALL_DIR/install-config.yaml
 }
 
+function _domain_stopped() {
+  sudo virsh list | grep -q $1 && return 1 || return 0
+}
+
 function bootstrap_finished() {
   local name=$1
-
-  if sudo virsh list | grep -q $name ; then
+  local interval=${2:-5}
+  local retries=${3:-60}
+  echo "INFO: wait bootstrap for vm: $name"
+  if ! wait_cmd_success "_domain_stopped $name" $interval $retries ; then
     return 1
   fi
-  return 0
+  echo "INFO: restart vm $name"
+  sudo virsh start $name
+}
+
+function firstboot_finished() {
+  local name=$1
+  if bootstrap_finished $name ; then
+    return
+  fi
+  # workaround the bootstrup problem:
+  #   occasionally rhcos failes on boot time with mount new ostree and 
+  #    machine-config-daemon-firstboot.service service fails with the error
+  #     "machine-config-daemon-firstboot.service: Failed at step EXEC spawning /run/bin/machine-config-daemon: Permission denied"
+  #    reboot node to try again
+  # (on success reboot service has 'Condition: start condition failed')
+  local i
+  for i in {1..5} ; do
+    echo "INFO: WA: check machine-config-daemon-firstboot.service status: try: $i"
+    local addr="core@${name}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}"
+    wait_cmd_success "ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS $addr true" 5 20
+    cat <<EOF | ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS $addr && break
+if ! status=\$(sudo systemctl status machine-config-daemon-firstboot.service 2>&1) ; then
+  echo "\$status"
+  if ! echo "\$status" | grep -q 'Condition: start condition failed' ; then
+    sudo reboot
+    exit 1
+  fi
+fi
+EOF
+  sleep 10
+  done
 }

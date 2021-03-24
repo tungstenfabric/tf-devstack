@@ -29,7 +29,11 @@ INSTALLER_URL="${OCP_MIRROR}/${OCP_VERSION}/${INSTALLER}"
 RHCOS_URL="${RHCOS_MIRROR}/${RHCOS_VERSION}/${RHCOS_IMAGE}"
 
 controller_count=$(echo $CONTROLLER_NODES | wc -w)
-agent_count=$(echo $AGENT_NODES | wc -w)
+agent_count=0
+if [[ "$AGENT_NODES" != "$NODE_IP" ]] ; then
+  # if AGENT_NODES is not set common.sh sets it into NODE_IP
+  agent_count=$(echo $AGENT_NODES | wc -w)
+fi
 
 # main part
 
@@ -49,7 +53,13 @@ $OPENSHIFT_REPO/scripts/apply_install_manifests.sh ${INSTALL_DIR}
 
 ./openshift-install --dir $INSTALL_DIR create manifests
 
-sed -i -E "s/mastersSchedulable: true/mastersSchedulable: false/" ${INSTALL_DIR}/manifests/cluster-scheduler-02-config.yml
+# if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
+if [ -n "$AGENT_NODES" ] ; then
+  masters_schedulable='false'
+else
+  masters_schedulable='true'
+fi
+sed -i -E "s/mastersSchedulable: .*/mastersSchedulable: $masters_schedulable/" ${INSTALL_DIR}/manifests/cluster-scheduler-02-config.yml
 
 ./openshift-install create ignition-configs --dir=${INSTALL_DIR}
 
@@ -175,25 +185,16 @@ ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NA
 ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" "systemctl -q is-active haproxy" || \
     err "haproxy not working as expected"
 
-echo "INFO: wait for bootstrap vm"
-wait_cmd_success "bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-bootstrap" 10 180
-echo "INFO: restart bootstrap vm"
-sudo virsh start ${KUBERNETES_CLUSTER_NAME}-bootstrap || err "virsh start ${KUBERNETES_CLUSTER_NAME}-bootstrap failed"
-
-for i in $(seq 1 ${controller_count}); do
-  echo "INFO: wait for master-$i vm"
-  wait_cmd_success "bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-master-${i}" 10 180
-  echo "INFO: restart master-$i vm"
-  sudo virsh start ${KUBERNETES_CLUSTER_NAME}-master-${i} || err "virsh start ${KUBERNETES_CLUSTER_NAME}-master-${i} failed"
-done
-
-for i in $(seq 1 ${agent_count}); do
-  echo "INFO: wait for worker-$i vm"
-  wait_cmd_success "bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-worker-${i}" 10 180
-  echo "INFO: restart master-$i vm"
-  sudo virsh start ${KUBERNETES_CLUSTER_NAME}-worker-${i} || err "virsh start ${KUBERNETES_CLUSTER_NAME}-worker-${i} failed"
-done
+bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-bootstrap
 
 # Waiting for SSH access on Boostrap VM
 echo "INFO: wait for SSH to bootstrap vm"
 wait_cmd_success "ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS core@bootstrap.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN} true" 10 20
+
+for i in $(seq 1 ${controller_count}); do
+  firstboot_finished ${KUBERNETES_CLUSTER_NAME}-master-${i}
+done
+
+for i in $(seq 1 ${agent_count}); do
+  firstboot_finished ${KUBERNETES_CLUSTER_NAME}-worker-${i}
+done
