@@ -198,7 +198,7 @@ for i in $(seq 1 ${controller_count}); do
 done
 
 for i in $(seq 1 ${agent_count}); do
-  firstboot_finished ${KUBERNETES_CLUSTER_NAME}-worker-${i}
+  bootstrap_finished ${KUBERNETES_CLUSTER_NAME}-worker-${i}
   # supposed that https://gerrit.tungsten.io/r/c/tungstenfabric/tf-openshift/+/64366 should fix
   # firstboot_wa worker-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}
 done
