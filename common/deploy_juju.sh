@@ -20,7 +20,7 @@ APT_MIRROR=${APT_MIRROR:-''}
 # install JuJu and tools
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
-sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq -y
+sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq dnsutils -y
 sudo snap install --classic juju
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
