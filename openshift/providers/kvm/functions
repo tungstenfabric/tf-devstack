@@ -83,6 +83,11 @@ function get_ip_mac() {
 function create_haproxy_cfg() {
   local cfgfile=$1
 
+  if [ -z "$controller_count" ] ; then
+    echo "ERROR: internal error controller_count must be set"
+    exit 1
+  fi
+
 # Use large timeouts to show here explicetly that 
 # they cannot be short (aka 1m) - short ones lead to 
 # the often reconnect of all Kube Monitors in kube-manager to kube-api
@@ -205,6 +210,11 @@ EOF
 }
 
 function prepare_install_config() {
+  if [ -z "$controller_count" ] ; then
+    echo "ERROR: internal error controller_count must be set"
+    exit 1
+  fi
+
   cat <<EOF > ${INSTALL_DIR}/install-config.yaml
 apiVersion: v1
 baseDomain: ${KUBERNETES_CLUSTER_DOMAIN}

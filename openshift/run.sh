@@ -155,7 +155,7 @@ function tf() {
     wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/contrail/templates/" 5 60
 
     echo "INFO: wait for bootstrap complete  $(date)"
-    ./openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete
+    openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete
 
     echo "INFO: destroy bootstrap  $(date)"
     ${my_dir}/providers/${PROVIDER}/destroy_bootstrap.sh
@@ -170,7 +170,8 @@ function tf() {
     # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
     # (agent nodes is set to node_ip if not set externally)
     if [[ "$AGENT_NODES" != "$NODE_IP" ]] ; then
-        echo "INFO: patch ingress controller  $(date)"
+        local controller_count=$(echo $CONTROLLER_NODES | wc -w)
+        echo "INFO: patch ingress controller count=$controller_count $(date)"
         wait_cmd_success "_patch_ingress_controller ${controller_count}" 3 10
     fi
 

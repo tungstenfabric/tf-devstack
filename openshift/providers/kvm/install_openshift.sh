@@ -51,7 +51,7 @@ mkdir -p ${INSTALL_DIR}/openshift
 mkdir -p ${INSTALL_DIR}/manifests
 $OPENSHIFT_REPO/scripts/apply_install_manifests.sh ${INSTALL_DIR}
 
-./openshift-install --dir $INSTALL_DIR create manifests
+openshift-install --dir $INSTALL_DIR create manifests
 
 # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
 if (( agent_count != 0 )) ; then
@@ -61,7 +61,7 @@ else
 fi
 sed -i -E "s/mastersSchedulable: .*/mastersSchedulable: $masters_schedulable/" ${INSTALL_DIR}/manifests/cluster-scheduler-02-config.yml
 
-./openshift-install create ignition-configs --dir=${INSTALL_DIR}
+openshift-install create ignition-configs --dir=${INSTALL_DIR}
 
 sudo virsh net-define  ${my_dir}/openshift.xml
 sudo virsh net-start ${VIRTUAL_NET}
