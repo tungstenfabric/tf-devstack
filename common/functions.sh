@@ -223,14 +223,14 @@ function check_tf_services() {
     # TODO: either use random name or store this info in variable
     echo "$contrail_status" | sed -n '/^$/q;p' | sed '1d' > /tmp/_tmp_contrail_status
 
-    if [[ "$controller_nodes" =~ $machine ]]; then
+    if [[ " $controller_nodes " =~ " $machine " ]]; then
       if ! check_pod_services "$(declare -p CONTROLLER_SERVICES)" $addr ; then
         rm /tmp/_tmp_contrail_status
         return 1
       fi
     fi
 
-    if [[ "$agent_nodes" =~ $machine ]]; then
+    if [[ " $agent_nodes " =~ " $machine " ]]; then
       if ! check_pod_services "$(declare -p AGENT_SERVICES)" $addr ; then
         rm /tmp/_tmp_contrail_status
         return 1
