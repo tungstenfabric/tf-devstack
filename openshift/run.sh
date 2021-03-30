@@ -184,19 +184,28 @@ function tf() {
     wait $mpid
     echo "INFO: csr approving monitor stopped"
 
-    export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
-    echo "INFO: controller_nodes: $CONTROLLER_NODES"
-    export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
-    echo "INFO: agent_nodes: $AGENT_NODES"
+    echo "INFO: oc get nodes"
+    oc get nodes -o wide
+
+    echo "INFO: oc get co"
+    oc get co
+
+    echo "INFO: problem pods"
+    oc get pods -A | grep -v 'Runn\|Compl'
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    local controllers="`oc get nodes -o wide | awk '/ master | master,worker /{print $6}' | tr '\n' ' '`"
+    echo "INFO: is_active: controller_nodes: $controllers"
+    export agents="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
+    echo "INFO: is_active: agent_nodes: $agents"
+
     check_kubernetes_resources_active statefulset.apps oc && \
     check_kubernetes_resources_active deployment.apps oc && \
     check_pods_active oc && \
-    check_tf_active core && \
-    check_tf_services core
+    check_tf_active core "$controllers $agents" && \
+    check_tf_services core "$controllers" "$agents"
 }
 
 function collect_deployment_env() {

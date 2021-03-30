@@ -217,7 +217,10 @@ function check_tf_services() {
     fi
 
     # get contrail-status from $machine node
-    local contrail_status=$(ssh $SSH_OPTIONS $addr "sudo contrail-status" 2>/dev/null)
+    # TODO: set timeout 15 sec (-t 15) - there is bug in agent - it does internally
+    #       2 dns queries with 5 sec timeout that always fails in 10 sec,
+    #       so tool always fails with default 10 sec timeout. 
+    local contrail_status=$(ssh $SSH_OPTIONS $addr "sudo contrail-status -t 15" 2>/dev/null)
     # keep first part of contrail-status with rows and columns
     # of pods and services in /tmp/_tmp_contrail_status file
     # TODO: either use random name or store this info in variable
@@ -253,7 +256,10 @@ function check_tf_active() {
     if ! ssh $SSH_OPTIONS $addr "command -v contrail-status" 2>/dev/null ; then
       return 1
     fi
-    for line in $(ssh $SSH_OPTIONS $addr "sudo contrail-status" 2>/dev/null | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
+    # TODO: set timeout 15 sec (-t 15) - there is bug in agent - it does internally
+    #       2 dns queries with 5 sec timeout that always fails in 10 sec,
+    #       so tool always fails with default 10 sec timeout. 
+    for line in $(ssh $SSH_OPTIONS $addr "sudo contrail-status -t 15" 2>/dev/null | egrep ": " | grep -v "WARNING" | awk '{print $2}'); do
       if [ "$line" != "active" ] && [ "$line" != "backup" ] ; then
         return 1
       fi
