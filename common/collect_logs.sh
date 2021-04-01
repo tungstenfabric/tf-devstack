@@ -246,6 +246,10 @@ function collect_system_stats() {
     if [ -e /var/log/syslog ] ; then
         yes | sudo cp /var/log/syslog* $syslogs/
     fi
+    if [ -d /var/log/audit ] ; then
+        mkdir -p $syslogs/audit
+        sudo bash -c "cp -r /var/log/audit/* $syslogs/audit/ 2>/dev/null"
+    fi
     if which vif &>/dev/null ; then
         sudo vif --list &>$syslogs/vif.log
     fi
