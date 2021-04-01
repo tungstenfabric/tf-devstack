@@ -29,7 +29,7 @@ fi
 
 export DEPLOYER='openshift'
 export SSL_ENABLE="true"
-export PROVIDER=${PROVIDER:-"kvm"}
+export PROVIDER=${PROVIDER:-"kvm"} # kvm | vexx | aws
 
 export KUBERNETES_CLUSTER_NAME=${KUBERNETES_CLUSTER_NAME:-"test1"}
 export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"example.com"}
@@ -59,17 +59,28 @@ function machines() {
     echo "$DISTRO detected"
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
         sudo yum -y install epel-release
-        sudo yum install -y python3 python3-setuptools iproute jq bind-utils git
+        sudo yum install -y wget python3 python3-setuptools python3-pip iproute jq bind-utils git
+        if [[ "$PROVIDER" == "aws" ]]; then
+            sudo yum install -y awscli
+        fi
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
-        sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils
+        sudo -E apt-get install -y wget python-setuptools python3-distutils python3-pip iproute2 python-crypto jq dnsutils
+        if [[ "$PROVIDER" == "aws" ]]; then
+            sudo -E apt-get install -y awscli
+        fi
     else
         echo "Unsupported OS version"
         exit 1
     fi
 
-    ${my_dir}/providers/${PROVIDER}/destroy_cluster.sh
+    # Jinja2 is used for creating configs in the `tf-openstack` scripts
+    sudo python3 -m pip install jinja2
+
+    if [[ "$PROVIDER" != "aws" ]]; then
+        ${my_dir}/providers/${PROVIDER}/destroy_cluster.sh
+    fi
 
     set_ssh_keys
 }
@@ -140,6 +151,13 @@ function _monitor_csr() {
 function tf() {
     # TODO: somehow move machine creation to machines
     ${my_dir}/providers/${PROVIDER}/install_openshift.sh
+
+    if [[ "$PROVIDER" == "aws" ]]; then
+        # When deploy on AWS, we apply crds and manifests before openshift installing
+        # in aws/install_openshift.sh
+        return
+    fi
+
     wait_cmd_success "oc get pods" 15 480
 
     echo "INFO: apply CRD-s  $(date)"

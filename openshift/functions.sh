@@ -47,3 +47,33 @@ EOF
         popd
     done
 }
+
+function download_artefacts() {
+  [[ ! -d ${DOWNLOADS_DIR} ]] && mkdir -p ${DOWNLOADS_DIR}
+
+  if [[ ! -f ${DOWNLOADS_DIR}/${CLIENT} ]]; then
+    wget -nv "$CLIENT_URL" -O "${DOWNLOADS_DIR}/$CLIENT"
+    tar -xf "${DOWNLOADS_DIR}/${CLIENT}"
+    rm -f README.md
+  fi
+  if [[ ! -f ${DOWNLOADS_DIR}/${INSTALLER} ]]; then
+    wget -nv "$INSTALLER_URL" -O "${DOWNLOADS_DIR}/$INSTALLER"
+    tar -xf "${DOWNLOADS_DIR}/${INSTALLER}"
+    rm -f README.md
+  fi
+
+  if [[ "$PROVIDER" == "kvm" ]]; then
+    if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_IMAGE} ]]; then
+        wget -nv "$RHCOS_URL" -O "${DOWNLOADS_DIR}/${RHCOS_IMAGE}"
+    fi
+    if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_KERNEL} ]]; then
+        wget -nv "${RHCOS_MIRROR}/${RHCOS_VERSION}/$RHCOS_KERNEL" -O "${DOWNLOADS_DIR}/$RHCOS_KERNEL"
+    fi
+    if [[ ! -f ${DOWNLOADS_DIR}/${RHCOS_INITRAMFS} ]]; then
+        wget -nv "${RHCOS_MIRROR}/${RHCOS_VERSION}/$RHCOS_INITRAMFS" -O "${DOWNLOADS_DIR}/$RHCOS_INITRAMFS"
+    fi
+    if [[ ! -f ${DOWNLOADS_DIR}/${LB_IMAGE} ]]; then
+        wget -nv "$LB_IMG_URL" -O "${DOWNLOADS_DIR}/$LB_IMAGE"
+    fi
+  fi
+}

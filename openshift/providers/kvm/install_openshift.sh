@@ -2,10 +2,12 @@
 
 my_file=$(realpath "$0")
 my_dir="$(dirname $my_file)"
-source "$my_dir/../../../common/functions.sh"
 
-source $my_dir/definitions
-source $my_dir/functions
+source "$my_dir/../../../common/functions.sh"
+source "$my_dir/../../definitions.sh"
+source "$my_dir/../../functions.sh"
+source "$my_dir/definitions"
+source "$my_dir/functions"
 
 start_ts=$(date +%s)
 
@@ -16,15 +18,6 @@ function err() {
 
 [[ -n "${OPENSHIFT_PULL_SECRET}" ]] || err "set OPENSHIFT_PULL_SECRET env variable"
 [[ -n "${OPENSHIFT_PUB_KEY}" ]] || err "set OPENSHIFT_PUB_KEY env variable"
-
-INSTALL_DIR=${INSTALL_DIR:-"${WORKSPACE}/install-${KUBERNETES_CLUSTER_NAME}"}
-DOWNLOADS_DIR=${DOWNLOADS_DIR:-"${WORKSPACE}/downloads-${KUBERNETES_CLUSTER_NAME}"}
-
-CLIENT="openshift-client-linux-${OCP_VERSION}.tar.gz"
-CLIENT_URL="${OCP_MIRROR}/${OCP_VERSION}/${CLIENT}"
-
-INSTALLER="openshift-install-linux-${OCP_VERSION}.tar.gz"
-INSTALLER_URL="${OCP_MIRROR}/${OCP_VERSION}/${INSTALLER}"
 
 RHCOS_URL="${RHCOS_MIRROR}/${RHCOS_VERSION}/${RHCOS_IMAGE}"
 

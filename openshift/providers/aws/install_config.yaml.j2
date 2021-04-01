@@ -1,0 +1,33 @@
+{%- set controllers = CONTROLLER_NODES.split() | unique | list -%}
+{%- set agents = AGENT_NODES.split() | unique | list -%}
+apiVersion: v1
+baseDomain: {{ KUBERNETES_CLUSTER_DOMAIN }}
+compute:
+- archtecture: amd64
+  hyperthreading: Enabled
+  name: worker
+  platform: {}
+  replicas: {{ (agents | length) - (controllers | length) }}
+controlPlane:
+  archtecture: amd64
+  hyperthreading: Enabled
+  name: master
+  platform: {}
+  replicas: {{ controllers | length }}
+metadata:
+  creationTimestamp: null
+  name: {{ KUBERNETES_CLUSTER_NAME }}
+networking:
+  clusterNetwork:
+  - cidr: 10.128.0.0/14
+    hostPrefix: 23
+  machineNetwork:
+  - cidr: 10.0.0.0/16
+  networkType: Contrail
+  serviceNetwork:
+  - 172.30.0.0/16
+platform:
+  aws:
+    region: {{ AWS_REGION }}
+publish: External
+pullSecret: '{{ OPENSHIFT_PULL_SECRET }}'
