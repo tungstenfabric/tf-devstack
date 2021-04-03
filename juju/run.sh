@@ -78,6 +78,7 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
     ['AUTH_PORT']="35357"
     ['AUTH_DOMAIN']="admin_domain"
+    ["KUBERNETES_CLUSTER_DOMAIN"]="admin_domain"
     ['AUTH_PASSWORD']="$AUTH_PASSWORD"
     ['SSH_USER']="ubuntu"
 )
