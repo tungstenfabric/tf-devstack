@@ -145,7 +145,7 @@ services:
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
       cluster_name: "k8s"
-      public_fip_pool: "{'domain':'{{ KUBERNETES_CLUSTER_DOMAIN | default('admin_domain') }}','project':'{{ KUBERNETES_CLUSTER_PROJECT |  default('k8s-default') }}','name':'__fip_pool_public__','network':'__public__'}"
+      public_fip_pool: "{'domain':'{{ KUBERNETES_CLUSTER_DOMAIN | default('default-domain') }}','project':'{{ KUBERNETES_CLUSTER_PROJECT |  default('k8s-default') }}','name':'__fip_pool_public__','network':'__public__'}"
       ip_fabric_snat: true
   tf-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"

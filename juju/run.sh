@@ -78,7 +78,6 @@ declare -A DEPLOYMENT_ENV=(\
     ['AUTH_URL']=""
     ['AUTH_PORT']="35357"
     ['AUTH_DOMAIN']="admin_domain"
-    ["KUBERNETES_CLUSTER_DOMAIN"]="admin_domain"
     ['AUTH_PASSWORD']="$AUTH_PASSWORD"
     ['SSH_USER']="ubuntu"
 )
@@ -167,6 +166,9 @@ function tf() {
         TF_UI_IP=$(command juju show-machine 0 --format tabular | grep '^0\s' | awk '{print $3}')
     fi
     export BUNDLE="$my_dir/files/bundle_tf.yaml.tmpl"
+    if [[ $ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'hybrid' ]] ; then
+        export KUBERNETES_CLUSTER_DOMAIN="admin_domain"
+    fi
 
     # get tf-charms
     if [[ ! -d $JUJU_REPO ]] ; then
@@ -289,6 +291,7 @@ function collect_deployment_env() {
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]] ; then
         DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
+        DEPLOYMENT_ENV['KUBERNETES_CLUSTER_DOMAIN']="admin_domain"
     fi
 
     export CONTROLLER_NODES="`get_juju_unit_ips tf-controller`"
