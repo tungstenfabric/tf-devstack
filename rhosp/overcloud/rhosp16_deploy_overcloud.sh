@@ -60,6 +60,21 @@ fi
   -r $role_file \
   -p tripleo-heat-templates/
 
+echo "INFO: DEPLOY OVERCLOUD COMMAND:"
+echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
+  --stack overcloud --libvirt-type kvm \
+  --roles-file $role_file \
+  -e overcloud_containers.yaml \
+  $rhel_reg_env_files \
+  $pre_deploy_nodes_env_files \
+  -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+  $network_env_files \
+  -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
+  $tls_env_files \
+  -e misc_opts.yaml \
+  -e contrail-parameters.yaml \
+  -e containers-prepare-parameter.yaml"
+
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --stack overcloud --libvirt-type kvm \
   --roles-file $role_file \
@@ -73,3 +88,4 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
   -e containers-prepare-parameter.yaml
+

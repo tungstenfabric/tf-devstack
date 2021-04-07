@@ -69,6 +69,20 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   job=$!
 fi
 
+echo "INFO: DEPLOY OVERCLOUD COMMAND:"
+echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
+  --roles-file $role_file \
+  -e docker_registry.yaml \
+  $rhel_reg_env_files \
+  $pre_deploy_nodes_env_files \
+  -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
+  $network_env_files \
+  $storage_env_files \
+  -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
+  $tls_env_files \
+  -e misc_opts.yaml \
+  -e contrail-parameters.yaml"
+
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --roles-file $role_file \
   -e docker_registry.yaml \
