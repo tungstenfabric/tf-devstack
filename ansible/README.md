@@ -108,6 +108,7 @@ Environment variable list:
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "latest"
 - CONTRAIL_DEPLOYER_CONTAINER_TAG - by default equal to CONTRAIL_CONTAINER_TAG
+- K8S_YUM_REPO_URL - https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 by default
 
 ## Access WebUI in AWS or other environments
 
