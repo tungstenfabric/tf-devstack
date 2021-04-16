@@ -47,8 +47,18 @@ TF_SERVICE_SUBNET=${TF_SERVICE_SUBNET:-"10.96.0.0/12"}
 declare -A DEPLOYMENT_ENV
 
 function machines() {
-    sudo yum -y install epel-release
-    sudo yum install -y jq bind-utils git
+    echo "$DISTRO detected"
+    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
+        sudo yum -y install epel-release
+        sudo yum install -y jq bind-utils git
+    elif [ "$DISTRO" == "ubuntu" ]; then
+        export DEBIAN_FRONTEND=noninteractive
+        sudo -E apt-get update
+        sudo -E apt-get install -y jq dnsutils
+    else
+        echo "Unsupported OS version"
+        exit 1
+    fi
 }
 
 function k8s() {
