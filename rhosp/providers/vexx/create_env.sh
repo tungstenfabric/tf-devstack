@@ -25,7 +25,7 @@ fi
 domain=${domain:-'vexxhost.local'}
 undercloud_flavor=${undercloud_flavor:-'v2-standard-4'}
 ipa_flavor=${ipa_flavor:-'v2-highcpu-4'}
-disk_size_gb=100
+disk_size_gb=60
 
 #ssh options
 ssh_key_name=${ssh_key_name:-'worker'}
