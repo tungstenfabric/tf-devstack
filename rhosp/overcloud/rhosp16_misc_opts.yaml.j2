@@ -136,7 +136,14 @@ parameter_defaults:
       vm.max_map_count:
         value: 128960
 
-  ContrailSriovHugepages1GB: 8
+  ContrailSriovParameters:
+    KernelArgs: "intel_iommu=on iommu=pt default_hugepagesz=1GB hugepagesz=1G hugepages=10 hugepagesz=2M hugepages=1024"
+    ExtraSysctlSettings:
+      # must be equal to value from 1G kernel args: hugepages=4
+      vm.nr_hugepages:
+        value: 10
+      vm.max_map_count:
+        value: 128960
 
   ContrailVrouterHugepages1GB: '{{ hp1gb }}'
   ContrailVrouterHugepages2MB: '{{ hp2mb }}'

@@ -25,6 +25,12 @@ else
     network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
 fi
 
+storage_env_files=''
+if [[ -n "$overcloud_ceph_instance" ]] ; then
+    storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
+    storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-mds.yaml'
+fi
+
 if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
   role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
 else
@@ -69,6 +75,7 @@ echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
   $network_env_files \
+  $storage_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
   $tls_env_files \
   -e misc_opts.yaml \
@@ -83,6 +90,7 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $pre_deploy_nodes_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-services.yaml \
   $network_env_files \
+  $storage_env_files \
   -e tripleo-heat-templates/environments/contrail/contrail-plugins.yaml \
   $tls_env_files \
   -e misc_opts.yaml \
