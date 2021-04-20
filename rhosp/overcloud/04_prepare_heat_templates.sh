@@ -63,9 +63,9 @@ contrailsriovnumvfs="${sriov_physical_interface}:${sriov_vf_number}"
 sed -i "s/ContrailSriovNumVFs:.*/ContrailSriovNumVFs: [\"$contrailsriovnumvfs\"]/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 
-$my_dir/../../common/jinja2_render.py < $my_dir/misc_opts.yaml.j2 >misc_opts.yaml
-
 #Creating rhosp specific contrail-parameters.yaml
+$my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
+
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
 

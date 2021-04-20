@@ -5,7 +5,7 @@ pkgs="python3-tripleoclient rhosp-director-images rhosp-director-images-ipa"
 sudo dnf install -y $pkgs
 
 #RHEL8 undercloud install
-if [[ -n "$RHEL_USER" ]]; then
+if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]]; then
   export rhsm_image_registry_credentials="
   ContainerImageRegistryCredentials:
     ${OPENSTACK_CONTAINER_REGISTRY}:

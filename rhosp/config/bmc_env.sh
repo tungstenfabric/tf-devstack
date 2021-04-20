@@ -7,10 +7,15 @@ export prov_inspection_iprange="192.168.24.51,192.168.24.91"
 export prov_dhcp_start="192.168.24.100"
 export prov_dhcp_end="192.168.24.200"
 export prov_ip="192.168.24.1"
+export prov_subnet="192.168.24"
 export prov_subnet_len="24"
 export prov_cidr="192.168.24.0/${prov_subnet_len}"
 export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
 export fixed_vip="192.168.24.250"
+
+#RHOSP16 additional parameters for undercloud.conf
+export undercloud_admin_host="${prov_subnet}.3"
+export undercloud_public_host="${prov_subnet}.4"
 
 # Interfaces for providing tests run (need only if network isolation enabled)
 export internal_vlan="vlan710"
