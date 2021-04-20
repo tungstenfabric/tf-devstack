@@ -179,6 +179,12 @@ function tf() {
     echo "INFO: wait for install complete $(date)"
     openshift-install --dir=${INSTALL_DIR} wait-for install-complete
 
+    local ntp=${my_dir}/providers/${PROVIDER}/sync_ntp.sh
+    if [ -e $ntp ]; then
+        echo "INFO: sync time  $(date)"
+        bash -x $ntp
+    fi
+
     echo "INFO: stop csr approving monitor: pid=$mpid"
     kill $mpid
     wait $mpid
