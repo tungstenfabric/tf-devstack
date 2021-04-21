@@ -31,6 +31,7 @@ function wait() {
 
 function logs() {
     _run logs
+    scp $ssh_opts stack@${instance_ip}:logs.tgz logs.tgz
 }
 
 function collect_deployment_env() {

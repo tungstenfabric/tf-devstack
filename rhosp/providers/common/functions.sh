@@ -3,7 +3,7 @@
 function is_registry_insecure() {
     echo "DEBUG: is_registry_insecure: $@"
     local registry=`echo $1 | sed 's|^.*://||' | cut -d '/' -f 1`
-    if  curl -s -I --connect-timeout 60 http://$registry/v2/ ; then
+    if ! curl -sI --connect-timeout 60 https://$registry/ ; then
         echo "DEBUG: is_registry_insecure: $registry is insecure"
         return 0
     fi
@@ -355,10 +355,6 @@ export RHOSP_VERSION="$RHOSP_VERSION"
 export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
 export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
 export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
-export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
-export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
-export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
-export DEPLOYER_CONTAINER_REGISTRY="$DEPLOYER_CONTAINER_REGISTRY"
 export OPENSTACK_CONTAINER_REGISTRY="$OPENSTACK_CONTAINER_REGISTRY"
 export ENABLE_TLS=$ENABLE_TLS
 
