@@ -9,7 +9,7 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
 if [[ "${USE_PREDEPLOYED_NODES,,}" == true ]]; then
-  echo "ERROR: unsupported configuration for kvm: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
+  echo "ERROR: unsupported configuration for bmc: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
   exit -1
 fi
 
