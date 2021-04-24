@@ -83,8 +83,12 @@ if [ -n "$OPENSTACK_CONTROLLER_NODES" ] ; then
   # separate openstack nodes
   overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
   add_flavor $overcloud_cont_instance $OPENSTACK_CONTROLLER_NODES
-  overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
-  add_flavor $overcloud_ctrlcont_instance $CONTROLLER_NODES
+  if [ -n "$CONTROLLER_NODES" ] ; then
+    overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
+    add_flavor $overcloud_ctrlcont_instance $CONTROLLER_NODES
+  else
+    overcloud_ctrlcont_instance=''
+  fi
 else
   # aio
   overcloud_cont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-cont")
