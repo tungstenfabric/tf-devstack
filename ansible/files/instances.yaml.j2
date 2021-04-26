@@ -108,6 +108,7 @@ contrail_configuration:
 {%- if ORCHESTRATOR in ['openstack', 'hybrid'] %}
   OPENSTACK_VERSION: "{{ OPENSTACK_VERSION }}"
   AUTH_MODE: keystone
+  AAA_MODE: rbac
   KEYSTONE_AUTH_URL_VERSION: /v3
 kolla_config:
   kolla_globals:
