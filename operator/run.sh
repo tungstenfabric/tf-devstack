@@ -29,9 +29,6 @@ export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
-export CONFIGDB_MIN_HEAP_SIZE=${CONFIGDB_MIN_HEAP_SIZE:-"1g"}
-export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
-
 unset CONTROLLER_SERVICES['config-database']
 CONTROLLER_SERVICES['config']+="dnsmasq "
 CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
@@ -84,6 +81,10 @@ function manifest() {
             git clone https://github.com/tungstenfabric/tf-operator $OPERATOR_REPO
         fi
     fi
+    export CONFIGDB_MIN_HEAP_SIZE=${CONFIGDB_MIN_HEAP_SIZE:-"1g"}
+    export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
+    export ANALYTICSDB_MIN_HEAP_SIZE=${ANALYTICSDB_MIN_HEAP_SIZE:-"1g"}
+    export ANALYTICSDB_MAX_HEAP_SIZE=${ANALYTICSDB_MAX_HEAP_SIZE:-"4g"}
     $OPERATOR_REPO/contrib/render_manifests.sh
 }
 
