@@ -40,8 +40,8 @@ for machine in $(timeout -s 9 30 juju machines --format tabular | tail -n +2 | g
     # Switching to local stable LXD images
     if [[ -n "$lxd_url" ]]; then
         echo "INFO: download cached lxd image on machine $machine"
-        ssh $SSH_USER@$machine "wget -nv $lxd_url/$UBUNTU_SERIES-server-cloudimg-amd64-lxd.tar.xz $lxd_url/UBUNTU_SERIES-server-cloudimg-amd64-root.tar.xz"
-        ssh $SSH_USER@$machine "lxc image import $UBUNTU_SERIES-server-cloudimg-amd64-lxd.tar.xz UBUNTU_SERIES-server-cloudimg-amd64-root.tar.xz --alias juju/UBUNTU_SERIES/amd64 > /dev/null"
+        ssh $SSH_USER@$machine "wget -nv $lxd_url/$UBUNTU_SERIES-server-cloudimg-amd64-lxd.tar.xz $lxd_url/$UBUNTU_SERIES-server-cloudimg-amd64-root.tar.xz"
+        ssh $SSH_USER@$machine "lxc image import $UBUNTU_SERIES-server-cloudimg-amd64-lxd.tar.xz $UBUNTU_SERIES-server-cloudimg-amd64-root.tar.xz --alias juju/$UBUNTU_SERIES/amd64 > /dev/null"
         if [[ "$UBUNTU_SERIES" != 'bionic' ]]; then
             # some components are always binoic so we have to apply it too
             ssh $SSH_USER@$machine "wget -nv $lxd_url/bionic-server-cloudimg-amd64-lxd.tar.xz $lxd_url/bionic-server-cloudimg-amd64-root.tar.xz"
