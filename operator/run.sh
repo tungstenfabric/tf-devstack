@@ -29,6 +29,10 @@ export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
+unset CONTROLLER_SERVICES['config-database']
+CONTROLLER_SERVICES['config']+="dnsmasq "
+CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
+
 # default env variables
 
 TF_POD_SUBNET=${TF_POD_SUBNET:-"10.32.0.0/12"}
@@ -102,11 +106,6 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
-    # Services to check in wait stage
-    CONTROLLER_SERVICES['config-database']=""
-    CONTROLLER_SERVICES['config']+="dnsmasq "
-    CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
-
     check_kubernetes_resources_active statefulset.apps && \
     check_kubernetes_resources_active deployment.apps && \
     check_pods_active && \

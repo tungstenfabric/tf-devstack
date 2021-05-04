@@ -165,11 +165,6 @@ function logs() {
 }
 
 function is_active() {
-    # Services to check in wait stage
-    CONTROLLER_SERVICES['_']=""
-    CONTROLLER_SERVICES['kubernetes']=""
-    CONTROLLER_SERVICES['analytics']+="redis "
-
     local controller_nodes="$(get_ctlplane_ips contrailcontroller)"
     local agent_nodes=
     if [ -z "$controller_nodes" ] ; then
