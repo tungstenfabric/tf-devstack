@@ -173,8 +173,9 @@ services:
   keepalived:
     charm: cs:~containers/keepalived
     options:
-      #TODO vip for not maas
       virtual_ip: *tf-controller-vip
+      # do checks for haproxy monitoring_port
+      port: 10000
   haproxy:
     charm: cs:haproxy
     num_units: 3
@@ -183,6 +184,7 @@ services:
     options:
       peering_mode: active-active
       ssl_cert: SELFSIGNED
+      enable_monitoring: True
 {%- endif %}
 
 relations:
