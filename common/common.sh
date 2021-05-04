@@ -51,7 +51,13 @@ export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHosts
 # possible values: kubernetes, openstack, hybrid. Each deployer supports only some types of orchestrators.
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
 
-declare -A CONTROLLER_SERVICES=(['analytics']="api collector nodemgr " ['config']="nodemgr schema api device-manager svc-monitor " ['config-database']="nodemgr zookeeper rabbitmq cassandra " ['control']="nodemgr control dns named " ['webui']="web job " ['_']="redis ")
+# Services to check in wait stage
+declare -A CONTROLLER_SERVICES=(['analytics']="api collector nodemgr " \ 
+    ['config']="nodemgr schema api device-manager svc-monitor " \ 
+    ['config-database']="nodemgr zookeeper rabbitmq cassandra " \ 
+    ['control']="nodemgr control dns named " \ 
+    ['webui']="web job " \ 
+    ['_']="redis ")
 declare -A AGENT_SERVICES=(['vrouter']="nodemgr agent ")
 
 # if analyticsdb enabled
