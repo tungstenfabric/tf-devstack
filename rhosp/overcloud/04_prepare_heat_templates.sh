@@ -65,6 +65,21 @@ sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-te
 
 #Creating rhosp specific contrail-parameters.yaml
 $my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
+if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
+   cat <<EOF >>misc_opts.yaml
+  ExternalContrailConfigIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
+  ExternalContrailControlIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
+  ExternalContrailAnalyticsIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
+EOF
+fi
+
+if [[ "$ENABLE_TLS" == 'local' ]] ; then
+   if [[ -z "$SSL_CACERT" || -z "$SSL_CAKEY" ]] ; then
+      echo "ERROR: for ENABLE_TLS=$ENABLE_TLS SSL_CACERT and SSL_CAKEY must be provided"
+      exit 1
+   fi
+   $my_dir/../../common/jinja2_render.py < $my_dir/contrail-tls-local.yaml.j2 >contrail-tls-local.yaml
+fi
 
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
 cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
