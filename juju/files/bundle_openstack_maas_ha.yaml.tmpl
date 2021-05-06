@@ -32,19 +32,19 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   hacluster-mysql:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-keystone:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-nova:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-heat:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-neutron:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-glance:
-    charm: cs:hacluster
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance"
+    charm: "cs:{{ UBUNTU_SERIES }}/glance-303"
     num_units: 3
     bindings:
       "": *default-space
@@ -58,7 +58,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   ceph-mon:
-    charm: cs:ceph-mon
+    charm: cs:{{ UBUNTU_SERIES }}/ceph-mon-53
     num_units: 3
     bindings:
       "": *default-space
@@ -69,7 +69,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   ceph-osd:
-    charm: cs:ceph-osd
+    charm: cs:{{ UBUNTU_SERIES }}/ceph-osd-308
     num_units: 3
     options:
       osd-devices: /dev/sdb
@@ -78,7 +78,7 @@ services:
       - "1"
       - "2"
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone-321"
     num_units: 3
     bindings:
       "": *default-space
@@ -95,7 +95,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   mysql:
-    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
+    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster-295"
     num_units: 3
     bindings:
       "": *default-space
@@ -109,7 +109,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-108"
     num_units: 3
     bindings:
       "": *default-space
@@ -120,7 +120,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-292"
     num_units: 3
     bindings:
       "": *default-space
@@ -136,7 +136,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   heat:
-    charm: "cs:heat"
+    charm: "cs:{{ UBUNTU_SERIES }}/heat-281"
     num_units: 3
     bindings:
       "": *default-space
@@ -150,7 +150,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   nova-cloud-controller:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller-350"
     num_units: 3
     bindings:
       "": *default-space
@@ -166,7 +166,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   memcached:
-    charm: "cs:{{ UBUNTU_SERIES }}/memcached"
+    charm: "cs:{{ UBUNTU_SERIES }}/memcached-32"
     num_units: 3
     bindings:
       "": *default-space
@@ -178,7 +178,7 @@ services:
       - "lxd:2"
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
   nova-compute-sriov:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
     bindings:
@@ -194,7 +194,7 @@ services:
     to:
       - "3"
   nova-compute-dpdk:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
     bindings:
@@ -210,7 +210,7 @@ services:
       - "4"
 {%- else %}
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
     series: {{ UBUNTU_SERIES }}
     num_units: 2
     bindings:
@@ -227,7 +227,7 @@ services:
       - "4"
 {%- endif %}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-311"
     num_units: 1
     bindings:
       "": *default-space
