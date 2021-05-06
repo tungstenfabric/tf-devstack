@@ -26,9 +26,6 @@ export DEPLOYER='ansible'
 # 300 is small sometimes - NTP sync can be an issue
 export WAIT_TIMEOUT=600
 
-AGENT_SERVICES['_']+="rsyslogd "
-CONTROLLER_SERVICES['config']+="dnsmasq "
-
 tf_deployer_dir=${WORKSPACE}/tf-ansible-deployer
 openstack_deployer_dir=${WORKSPACE}/contrail-kolla-ansible
 tf_deployer_image=${TF_ANSIBLE_DEPLOYER:-"tf-ansible-deployer-src"}
@@ -182,6 +179,10 @@ function tf() {
 # This is_active function is called in wait stage defined in common/stages.sh
 
 function is_active() {
+    # Services to check in wait stage
+    AGENT_SERVICES['_']+="rsyslogd "
+    CONTROLLER_SERVICES['config']+="dnsmasq "
+
     if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
         check_pods_active
     fi
