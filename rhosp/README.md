@@ -21,13 +21,13 @@ There are 2 providers for deployment:
 
 ## VEXX installation
 
-1. Install openstack CLI and setup authorization for VEXX cloud.
+1. Install openstack CLI and setup authorization for OpenStack cloud.
 1. git clone <https://github.com/tungstenfabric/tf-devstack.git>
 1. cd tf-devstack/rhosp
-1. ./providers/vexx/create_env.sh it will create VMs and environment file rhosp-environment.sh
+1. ./providers/openstack/create_env.sh it will create VMs and environment file rhosp-environment.sh
 1. Copy directory tf-devstack and file rhosp-environment.sh to undercloud node
 1. Login into undercloud (all other steps must be run there)
-1. export PROVIDER=vexx
+1. export PROVIDER=openstack
 1. export RHEL_USER=...
 1. export RHEL_PASSWORD=...
 1. ./create_env.sh

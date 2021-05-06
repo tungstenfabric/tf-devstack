@@ -2,9 +2,13 @@
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=3600
 
-#PROVIDER = [ kvm | vexx | aws | bmc ]
+#PROVIDER = [ kvm | openstack | aws | bmc ]
 export PROVIDER=${PROVIDER:-}
 [ -n "$PROVIDER" ] || { echo "ERROR: PROVIDER is not set"; exit -1; }
+if [[ "$PROVIDER" == 'vexx' ]]; then
+    # backward compatibility
+    PROVIDER='openstack'
+fi
 
 export DEPLOYER='rhosp'
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
@@ -28,13 +32,13 @@ if [[ "$AGENT_NODES" == "$NODE_IP" ]] ; then
     AGENT_NODES=""
 fi
 
-declare -A _default_predeployed_mode=( ['vexx']='true' ['kvm']='false' ['bmc']='false' )
+declare -A _default_predeployed_mode=( ['openstack']='true' ['kvm']='false' ['bmc']='false' )
 export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-${_default_predeployed_mode[$PROVIDER]}}
 
-declare -A _default_rhel_registration=( ['vexx']='false' ['kvm']='true' ['bmc']='false' )
+declare -A _default_rhel_registration=( ['openstack']='false' ['kvm']='true' ['bmc']='false' )
 export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-${_default_rhel_registration[$PROVIDER]}}
 
-declare -A _default_net_isolation=( ['vexx']='false' ['kvm']='false' ['bmc']='true' )
+declare -A _default_net_isolation=( ['openstack']='false' ['kvm']='false' ['bmc']='true' )
 export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-${_default_net_isolation[$PROVIDER]}}
 
 declare -A _default_rhosp_version=( ['queens']='rhosp13' ['train']='rhosp16' )
@@ -55,10 +59,10 @@ export ADMIN_PASSWORD=${ADMIN_PASSWORD:-'qwe123QWE'}
 
 export undercloud_local_interface=${undercloud_local_interface:-'eth1'}
 
-declare -A _default_ssh_user=( ['vexx']='cloud-user' ['kvm']='stack' ['bmc']="stack" )
+declare -A _default_ssh_user=( ['openstack']='cloud-user' ['kvm']='stack' ['bmc']="stack" )
 export SSH_USER=${SSH_USER:-${_default_ssh_user[$PROVIDER]}}
 
-declare -A _default_ssh_user_overcloud=( ['vexx']='cloud-user' ['kvm']='heat-admin' ['bmc']="heat-admin" )
+declare -A _default_ssh_user_overcloud=( ['openstack']='cloud-user' ['kvm']='heat-admin' ['bmc']="heat-admin" )
 export SSH_USER_OVERCLOUD=${SSH_USER_OVERCLOUD:-${_default_ssh_user_overcloud[$PROVIDER]}}
 
 export SSH_EXTRA_OPTIONS=${SSH_EXTRA_OPTIONS:-}

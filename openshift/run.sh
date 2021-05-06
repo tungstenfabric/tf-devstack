@@ -29,7 +29,7 @@ fi
 
 export DEPLOYER='openshift'
 export SSL_ENABLE="true"
-export PROVIDER=${PROVIDER:-"kvm"} # kvm | vexx | aws
+export PROVIDER=${PROVIDER:-"kvm"} # kvm | openstack | aws
 
 export KUBERNETES_CLUSTER_NAME=${KUBERNETES_CLUSTER_NAME:-"test1"}
 export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"example.com"}

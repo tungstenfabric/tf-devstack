@@ -198,7 +198,7 @@ if [[ "openstack" == "${ORCHESTRATOR}" && "${CNI}" == "calico" ]]
 then
   # NB. calico requires custom mtu settings when network is over vxlan
   # because of an extra packet header otherwise packet loss is observed.
-  # this is what we have in vexx.
+  # this is what we have in some openstack providers.
   k=/usr/local/bin/kubectl
   echo "Wait for calico-node daemonset"
   wait_cmd_success "$k -n kube-system get daemonset/calico-node" 5 36
