@@ -145,6 +145,7 @@ services:
       console-access-protocol: "novnc"
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+      cache-known-hosts: "false"
     expose: true
     to:
       - lxd:0
