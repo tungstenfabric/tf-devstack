@@ -15,11 +15,11 @@ Only RHOSP13 over Red Hat Enterprise Linux 7.7
 
 There are 2 providers for deployment:
 
-1) VEXX cloud (default) - for CICD deployments (VEXX cloud does node provisioning)
+1) OpenStack cloud (default) - for CICD deployments (VEXX cloud does node provisioning)
 2) KVM - deployment over KVM hypervisor (classic tripleO case, undercloud ironic does node provisioning)
 3) AWS (todo)
 
-## VEXX installation
+## OpenStack installation
 
 1. Install openstack CLI and setup authorization for OpenStack cloud.
 1. git clone <https://github.com/tungstenfabric/tf-devstack.git>
