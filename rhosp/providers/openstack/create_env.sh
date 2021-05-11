@@ -17,12 +17,12 @@ if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; t
 fi
 
 if [[ "${USE_PREDEPLOYED_NODES,,}" != true ]]; then
-  echo "ERROR: unsupported configuration for vexx: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
+  echo "ERROR: unsupported configuration for openstack: USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES"
   exit -1
 fi
 
 # instances params
-domain=${domain:-'vexxhost.local'}
+domain=${domain:-'openstack.local'}
 undercloud_flavor=${undercloud_flavor:-'v2-standard-4'}
 ipa_flavor=${ipa_flavor:-'v2-highcpu-4'}
 disk_size_gb=60
@@ -132,7 +132,7 @@ instance_tags=""
 echo "INFO: update vexxrc file $vexxrc"
 cat <<EOF >> $vexxrc
 # updated by tf-devstack
-export PROVIDER="vexx"
+export PROVIDER="openstack"
 export overcloud_virt_type="qemu"
 export domain="${domain}"
 export undercloud_instance="${undercloud_instance}"
