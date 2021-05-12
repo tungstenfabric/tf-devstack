@@ -288,7 +288,7 @@ function wait_overcloud_node() {
   local node=$1
   # use less timeout as undercloud is already waited and up
   local interval=3
-  local max=10
+  local max=30
   local silent_cmd=0
   wait_cmd_success "ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip ssh $ssh_opts $SSH_USER_OVERCLOUD@$node uname -n" $interval $max $silent_cmd
 }
