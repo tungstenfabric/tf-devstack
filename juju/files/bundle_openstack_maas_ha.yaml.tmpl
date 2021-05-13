@@ -50,6 +50,8 @@ services:
     charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-glance:
     charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+  hacluster-placement:
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   glance:
     charm: "cs:{{ UBUNTU_SERIES }}/glance-303"
     num_units: 3
@@ -210,6 +212,7 @@ services:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       virt-type: "kvm"
+      libvirt-image-backend: "rbd"
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
@@ -226,6 +229,7 @@ services:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       virt-type: "kvm"
+      libvirt-image-backend: "rbd"
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
@@ -242,6 +246,7 @@ services:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       virt-type: "kvm"
+      libvirt-image-backend: "rbd"
       enable-resize: "true"
       enable-live-migration: "true"
       migration-auth-type: "ssh"
@@ -283,20 +288,24 @@ relations:
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
 - [ nova-compute-dpdk:amqp, rabbitmq-server:amqp ]
 - [ nova-compute-dpdk:image-service, glance:image-service ]
+- [ nova-compute-dpdk, ceph-mon ]
 - [ nova-cloud-controller:cloud-compute, nova-compute-dpdk:cloud-compute ]
 - [ nova-compute-sriov:amqp, rabbitmq-server:amqp ]
 - [ nova-compute-sriov:image-service, glance:image-service ]
+- [ nova-compute-sriov, ceph-mon ]
 - [ nova-cloud-controller:cloud-compute, nova-compute-sriov:cloud-compute ]
 {%- else %}
 - [ nova-compute:amqp, rabbitmq-server:amqp ]
 - [ nova-compute:image-service, glance:image-service ]
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
+- [ nova-compute, ceph-mon ]
 {%- endif %}
 
 {%- if placement %}
 - [ placement, keystone:identity-service ]
 - [ placement, nova-cloud-controller ]
 - [ placement, mysql:shared-db ]
+- [ placement, hacluster-placement ]
 {%- endif %}
 
 - [ keystone:shared-db, mysql:shared-db ]
