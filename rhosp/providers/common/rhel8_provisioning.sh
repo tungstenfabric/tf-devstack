@@ -4,7 +4,12 @@ sudo dnf remove -y docker-ce-cli || true
 # fix module otherwise upstream usage leads to packages conflicts
 sudo dnf module disable -y container-tools idm
 sudo dnf module enable -y container-tools:2.0 idm:DL1
-sudo dnf distro-sync -y 
+
+#Fix for ceph-storage issue https://access.redhat.com/solutions/5912141
+sudo dnf module disable -y virt:rhel
+sudo dnf module enable -y virt:8.2
+
+sudo dnf distro-sync -y
 
 sudo dnf update -y
 
