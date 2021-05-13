@@ -1,7 +1,7 @@
 {%- if CLOUD == 'maas' %}
   {%- set VIRTUAL_IPS = VIRTUAL_IPS.split() %}
 variables:
-  tf-controller-vip:         &tf-controller-vip        "{{ VIRTUAL_IPS[6] }}"
+  tf-controller-vip:         &tf-controller-vip        "{{ VIRTUAL_IPS[0] }}"
 {%- endif %}
 
 {%- set controllers_count = CONTROLLER_NODES.split()|length %}
