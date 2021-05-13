@@ -130,14 +130,14 @@ function openstack() {
             exit 1
         fi
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
-        if [[ "$IPS_COUNT" != 7 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
-            echo "ERROR: We support deploy with 7 virtual ip addresses only now."
+        if [[ "$IPS_COUNT" != 8 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
+            echo "ERROR: We support deploy with 8 virtual ip addresses only now."
             echo "You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
             exit 1
         fi
         if [[ "$IPS_COUNT" = 1 ]] ; then
             export VIRTUAL_IPS=$(prips $(netmask ${VIRTUAL_IPS} | tr -d "[:space:]") | \
-                grep -P "^${VIRTUAL_IPS%/*}$"  -A6 | tr '\n' ' ')
+                grep -P "^${VIRTUAL_IPS%/*}$"  -A7 | tr '\n' ' ')
         fi
         export BUNDLE="$my_dir/files/bundle_openstack_maas_ha.yaml.tmpl"
     fi

@@ -1,13 +1,20 @@
 {% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
 
+{%- set placement = false %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- set placement = true %}
+{%- endif %}
+
 series: {{ UBUNTU_SERIES }}
 variables:
-  heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[0] }}"
-  glance-vip:          &glance-vip          "{{ VIRTUAL_IPS[1] }}"
-  keystone-vip:        &keystone-vip        "{{ VIRTUAL_IPS[2] }}"
-  mysql-vip:           &mysql-vip           "{{ VIRTUAL_IPS[3] }}"
-  neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[4] }}"
-  nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[5] }}"
+# VIRTUAL_IPS[0] - for config-api
+  heat-vip:            &heat-vip            "{{ VIRTUAL_IPS[1] }}"
+  glance-vip:          &glance-vip          "{{ VIRTUAL_IPS[2] }}"
+  keystone-vip:        &keystone-vip        "{{ VIRTUAL_IPS[3] }}"
+  mysql-vip:           &mysql-vip           "{{ VIRTUAL_IPS[4] }}"
+  neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[5] }}"
+  nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[6] }}"
+  placement-vip:       &placement-vip       "{{ VIRTUAL_IPS[7] }}"
 
   default-space:       &default-space       default
   data-space:          &data-space          data
@@ -149,6 +156,21 @@ services:
       - "lxd:0"
       - "lxd:1"
       - "lxd:2"
+{%- if placement %}
+  placement:
+    charm: "cs:{{ UBUNTU_SERIES }}/placement-15"
+    num_units: 3
+    bindings:
+      "": *default-space
+    options:
+      vip: *placement-vip
+      debug: "true"
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
+    to:
+      - "lxd:0"
+      - "lxd:1"
+      - "lxd:2"
+{%- endif %}
   nova-cloud-controller:
     charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller-350"
     num_units: 3
@@ -270,6 +292,13 @@ relations:
 - [ nova-compute:image-service, glance:image-service ]
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 {%- endif %}
+
+{%- placement %}
+- [ placement, keystone:identity-service ]
+- [ placement, nova-cloud-controller ]
+- [ placement, mysql:shared-db ]
+{%- endif %}
+
 - [ keystone:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:identity-service, keystone:identity-service ]
 - [ glance:identity-service, keystone:identity-service ]
