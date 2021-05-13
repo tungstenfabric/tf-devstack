@@ -293,7 +293,7 @@ relations:
 - [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 {%- endif %}
 
-{%- placement %}
+{%- if placement %}
 - [ placement, keystone:identity-service ]
 - [ placement, nova-cloud-controller ]
 - [ placement, mysql:shared-db ]
