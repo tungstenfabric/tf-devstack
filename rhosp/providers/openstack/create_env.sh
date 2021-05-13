@@ -268,17 +268,24 @@ fixed_vip="${prov_subnet}.$(( prov_inspection_iprange_end + 14 ))"
 prov_subnet_len=$(echo ${prov_cidr} | cut -d '/' -f 2)
 prov_ip_cidr=${prov_ip}/$prov_subnet_len
 
-# wait undercloud node is ready
+echo "INFO: waiting for undercloud node is ready"
 wait_ssh ${undercloud_mgmt_ip} ${ssh_private_key}
 prepare_rhosp_env_file $WORKSPACE/rhosp-environment.sh
 tf_dir=$(readlink -e $my_dir/../../..)
-retry rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$undercloud_mgmt_ip:
-retry rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
-retry ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
+echo "INFO: running rsync -a -e \"ssh -i $ssh_private_key $ssh_opts\" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$undercloud_mgmt_ip:"
+rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$undercloud_mgmt_ip:
+echo "INFO: running rsync -v -a -e \"ssh -i $ssh_private_key $ssh_opts\" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa"
+rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$undercloud_mgmt_ip:.ssh/id_rsa
+echo "INFO: running ssh $ssh_opts -i $ssh_private_key $SSH_USER\@$undercloud_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'"
+ssh $ssh_opts -i $ssh_private_key $SSH_USER@$undercloud_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 
 if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+  echo "INFO: waiting for ipa node is ready"
+  wait_ssh ${ipa_mgmt_ip} ${ssh_private_key}
   # prepare ipa node
+  echo "INFO: running rsync -a -e \"ssh -i $ssh_private_key $ssh_opts\" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$ipa_mgmt_ip:"
   rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $WORKSPACE/rhosp-environment.sh $tf_dir $SSH_USER@$ipa_mgmt_ip:
+  echo "INFO : running rsync -a -e \"ssh -i $ssh_private_key $ssh_opts\" $ssh_private_key $SSH_USER@$ipa_mgmt_ip:.ssh/id_rsa"
   rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ssh_private_key $SSH_USER@$ipa_mgmt_ip:.ssh/id_rsa
   ssh $ssh_opts -i $ssh_private_key $SSH_USER@$ipa_mgmt_ip 'ssh-keygen -y -f .ssh/id_rsa >.ssh/id_rsa.pub ; chmod 600 .ssh/id_rsa*'
 fi
