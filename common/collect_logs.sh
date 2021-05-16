@@ -258,6 +258,10 @@ function collect_system_stats() {
         sudo cp -r /etc/sysconfig/* $syslogs/sysconfig/ 2>/dev/null
     fi
     sudo dmesg &> $syslogs/dmesg.log
+    if which systemd-resolve &>/dev/null ; then
+        sudo systemd-resolve --status >> $syslogs/systemd-resolve
+    fi
+
     sudo chown -R $SUDO_UID:$SUDO_GID $syslogs
     sudo find $syslogs -type f -exec chmod a+r {} \;
     sudo find $syslogs -type d -exec chmod a+rx {} \;
@@ -451,6 +455,12 @@ function collect_kubernetes_service_statuses() {
 function collect_core_dumps() {
     echo "INFO: Collecting core dumps"
 
+    echo "INFO: content of /var/crash"
+    ls -laR /var/crash
+    echo "INFO: content of /var/crashes"
+    ls -laR /var/crashes
+    echo "INFO: "
+
     if ! command -v gdb &> /dev/null; then
         local distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
         if [[ "$distro" == "centos" || "$distro" == "rhel" ]]; then
@@ -459,7 +469,7 @@ function collect_core_dumps() {
             export DEBIAN_FRONTEND=noninteractive
             sudo -E apt-get install -y gdb
         else
-            echo "Unsupported OS version"
+            echo "ERROR: Unsupported OS version"
             return 1
         fi
     fi
