@@ -1,0 +1,29 @@
+
+resource_registry:
+  OS::TripleO::Services::ContrailCertmongerUser: OS::Heat::None
+
+parameter_defaults:
+  ContrailSslEnabled: true
+  ContrailServiceCertFile: '/etc/contrail/ssl/certs/server.pem'
+  ContrailServiceKeyFile: '/etc/contrail/ssl/private/server-privkey.pem'
+
+  ContrailCA: 'local'
+  ContrailCaCertFile: '/etc/contrail/ssl/certs/ca-cert.pem'
+  ContrailCaKeyFile: '/etc/contrail/ssl/private/ca-key.pem'
+
+{%- if CONTROL_PLANE_ORCHESTRATOR | default('') == 'operator' %}
+  # For operator case it is needed to force enable api ssl for neutron plugin
+  # as operator is always with ssl
+  ControllerExtraConfig:
+    contrail_internal_api_ssl: True
+{%- endif %}
+
+  ContrailCaCert: |
+{%- for line in SSL_CACERT.split('\n') %}
+    {{ line }}
+{%- endfor %}
+
+  ContrailCaKey: |
+{%- for line in SSL_CAKEY.split('\n') %}
+    {{ line }}
+{%- endfor %}

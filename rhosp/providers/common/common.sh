@@ -14,7 +14,7 @@ export DEPLOYER='rhosp'
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"docker.io/tungstenfabric"}
-
+export CONTROL_PLANE_ORCHESTRATOR=${CONTROL_PLANE_ORCHESTRATOR:-''}
 export OPENSTACK_CONTROLLER_NODES=${OPENSTACK_CONTROLLER_NODES:-}
 export CONTROLLER_NODES=${CONTROLLER_NODES:-'v2-standard-8:1'}
 export AGENT_NODES=${AGENT_NODES:-}
@@ -93,7 +93,7 @@ export RHOSP_VIP_NETWORKS
 # empty - disabled
 # ipa   - use FreeIPA
 export ENABLE_TLS=${ENABLE_TLS:-}
-if [[ -n "$ENABLE_TLS" && "$ENABLE_TLS" != 'ipa' ]] ; then
+if [[ -n "$ENABLE_TLS" && "$ENABLE_TLS" != 'ipa' && "$ENABLE_TLS" != 'local' ]] ; then
   echo "ERROR: Unsupported TLS configuration $ENABLE_TLS"
   exit 1
 fi

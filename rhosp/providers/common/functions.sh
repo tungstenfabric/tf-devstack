@@ -199,7 +199,7 @@ function collect_overcloud_env() {
         DEPLOYMENT_ENV['AUTH_REGION']="${OS_REGION_NAME}"
     fi
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
-    if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+    if [[ -n "$ENABLE_TLS" ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
         if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
             local cafile='/etc/ipa/ca.crt'
@@ -356,9 +356,21 @@ export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
 export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
 export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
 export OPENSTACK_CONTAINER_REGISTRY="$OPENSTACK_CONTAINER_REGISTRY"
+export OPENSTACK_CONTAINER_TAG="$OPENSTACK_CONTAINER_TAG"
 export ENABLE_TLS=$ENABLE_TLS
-
+export EXTERNAL_CONTROLLER_NODES=$EXTERNAL_CONTROLLER_NODES
+export CONTROL_PLANE_ORCHESTRATOR=$CONTROL_PLANE_ORCHESTRATOR
 EOF
+    if [[ "$ENABLE_TLS" != 'ipa' ]] ; then
+        if [ -z "$SSL_CAKEY" ] || [ -z "$SSL_CACERT" ] ; then
+            echo "ERROR: For ENABLE_TLS=$ENABLE_TLS SSL_CAKEY and SSL_CACERT must be provided"
+            exit -1
+        fi
+        cat <<EOF >> $env_file
+export SSL_CAKEY="$SSL_CAKEY"
+export SSL_CACERT="$SSL_CACERT"
+EOF
+    fi
 
     #Removing duplicate lines
     awk '!a[$0]++' $env_file > $target_env_file

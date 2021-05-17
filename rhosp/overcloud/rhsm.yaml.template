@@ -5,3 +5,4 @@ parameter_defaults:
     rhsm_password: "${RHEL_PASSWORD}"
     rhsm_org_id: "${RHEL_ORG_ID}"
     rhsm_pool_ids: "${RHEL_POOL_ID}"
+    rhsm_release: '8.2'

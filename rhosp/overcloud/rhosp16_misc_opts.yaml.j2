@@ -14,7 +14,13 @@
 {%- set overcloud_cont_instance = (overcloud_cont_instance.split(',') | length) if overcloud_cont_instance != '' else 0 %}
 
 {%- set overcloud_ctrlcont_instance = overcloud_ctrlcont_instance | default('') %}
-{%- set overcloud_ctrlcont_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
+{%- if CONTROL_PLANE_ORCHESTRATOR | default('') != 'operator' %}
+  {%- set overcloud_ctrlcont_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
+  {%- set overcloud_operator_instance = 0 %}
+{% else %}
+  {%- set overcloud_operator_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
+  {%- set overcloud_ctrlcont_instance = 0 %}
+{%- endif %}
 
 {%- set overcloud_compute_instance = overcloud_compute_instance | default('') %}
 {%- set overcloud_compute_instance = (overcloud_compute_instance.split(',') | length) if overcloud_compute_instance != '' else 0 %}
@@ -68,6 +74,7 @@ parameter_defaults:
     public_key: |
 {{ SSH_PUBLIC_KEY }}
 
+  ConfigDebug: true
   CloudDomain: '{{ domain }}'
   CloudName: 'overcloud.{{ domain }}'
   CloudNameCtlplane: 'overcloud.ctlplane.{{ domain }}'
@@ -104,6 +111,8 @@ parameter_defaults:
     'capabilities:node': 'overcloud-controller-%index%'
   ContrailControllerSchedulerHints:
     'capabilities:node': 'overcloud-contrailcontroller-%index%'
+  ContrailOperatorSchedulerHints:
+    'capabilities:node': 'overcloud-contrailcontroller-%index%'
   CephStorageSchedulerHints:
     'capabilities:node': 'overcloud-ceph-%index%'
   OvercloudComputeFlavor: baremetal
@@ -111,6 +120,7 @@ parameter_defaults:
   OvercloudContrailSriovFlavor: baremetal
   OvercloudControllerFlavor: baremetal
   OvercloudContrailControllerFlavor: baremetal
+  OvercloudContrailOperatorFlavor: baremetal
   OvercloudCephStorageFlavor: baremetal
 
   ContrailRegistryInsecure: true
@@ -157,6 +167,7 @@ parameter_defaults:
 
   ControllerCount: {{ overcloud_cont_instance }}
   ContrailControllerCount: {{ overcloud_ctrlcont_instance }}
+  ContrailOperatorCount: {{ overcloud_operator_instance }}
   ComputeCount: {{ overcloud_compute_instance }}
   ContrailDpdkCount: {{ overcloud_dpdk_instance }}
   ContrailSriovCount: {{ overcloud_sriov_instance }}
