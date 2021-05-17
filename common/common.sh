@@ -18,6 +18,7 @@ TF_STAGES_DIR="${TF_CONFIG_DIR}/.stages"
 
 # determined variables
 export DISTRO=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+export DISTRO_VERSION_ID=$(cat /etc/*release | egrep '^VERSION_ID=' | awk -F= '{print $2}' | tr -d \")
 export PHYS_INT=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
 export NODE_IP=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
 export NODE_CIDR=`ip r | grep -E "[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+ dev $PHYS_INT " | awk '{print $1}'`

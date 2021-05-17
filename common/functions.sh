@@ -272,9 +272,14 @@ function check_tf_active() {
 function setup_timeserver() {
   # install timeserver
   if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-    sudo yum install -y ntp
-    sudo systemctl enable ntpd
-    sudo systemctl start ntpd
+    if [[ ! "$DISTRO_VERSION_ID" =~ ^8\. ]] ; then
+      sudo yum install -y ntp
+      sudo systemctl enable ntpd
+      sudo systemctl start ntpd
+    else
+      #rhel8.x
+      sudo yum install -y chrony
+    fi
   elif [ "$DISTRO" == "ubuntu" ]; then
     DEBIAN_FRONTEND=noninteractive
     # Check for Ubuntu 18

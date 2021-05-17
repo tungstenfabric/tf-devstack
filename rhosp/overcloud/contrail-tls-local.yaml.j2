@@ -11,9 +11,12 @@ parameter_defaults:
   ContrailCaCertFile: '/etc/contrail/ssl/certs/ca-cert.pem'
   ContrailCaKeyFile: '/etc/contrail/ssl/private/ca-key.pem'
 
-{%- if CONTROL_PLANE_ORCHESTRATOR | default('') == 'operator' %}
-  # For operator case it is needed to force enable api ssl for neutron plugin
+
+{%- if EXTERNAL_CONTROLLER_NODES | default('') != '' %}
+  # For external nodes operator case it is needed to force enable api ssl for neutron plugin
   # as operator is always with ssl
+  # for case with own opeartor role neutron plugins works via vip that is w/o ssl 
+  # in case if no IPA (local cert)
   ControllerExtraConfig:
     contrail_internal_api_ssl: True
 {%- endif %}

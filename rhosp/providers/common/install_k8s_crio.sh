@@ -43,23 +43,32 @@ gpgkey=$K8S_REPO_GPG
 EOF
 fi
 
-K8S_VERSION=${K8S_VERSION:-'1.18.10'}
-CRIO_VERSION=${CRIO_VERSION:-'1.18'}
-OS='CentOS_8'
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo \
-  https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/devel:kubic:libcontainers:stable.repo
-sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo \
-  https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo
-
 sudo yum module -y install container-tools
+
+K8S_VERSION=${K8S_VERSION:-'1.18.10'}
 sudo yum install -y kubeadm-$K8S_VERSION kubelet-$K8S_VERSION kubectl-$K8S_VERSION cri-o
 
+if ! sudo yum install -y cri-o ; then
+  CRIO_VERSION=${CRIO_VERSION:-'1.18'}
+  OS='CentOS_8'
+  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable.repo \
+    https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/devel:kubic:libcontainers:stable.repo
+  sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo \
+    https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo
+fi
+
+if [ ! -e /usr/libexec/crio/conmon ] ; then
+  # WA for: https://github.com/cri-o/cri-o/issues/3818
+  sudo mkdir -p /usr/libexec/crio
+  sudo ln -s $(which conmon) /usr/libexec/crio/conmon
+fi
 
 sudo mkdir -p /etc/crio/crio.conf.d
 cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cgroup-manager.conf
 [crio.runtime]
 conmon_cgroup = "pod"
 cgroup_manager = "cgroupfs"
+pids_limit = 8192
 EOF
 
 # to avoid bridged cni from crio which is installed by default

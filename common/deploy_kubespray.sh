@@ -24,6 +24,7 @@ K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 K8S_VERSION=${K8S_VERSION:-"v1.18.10"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
+K8S_CONTAINER_ENGINE=${K8S_CONTAINER_ENGINE:-''}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
@@ -149,6 +150,17 @@ echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-clu
 # and tf-test use hardcoded 'k8s' cluster name)
 if [[ -n "${K8S_CLUSTER_NAME}" ]]; then
   echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+fi
+
+if [ -n "$K8S_CONTAINER_ENGINE" ] ; then
+  if grep -q '^container_manager:.*' inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml ; then
+    sed -i "s/container_manager:.*/container_manager: $K8S_CONTAINER_ENGINE/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+  else
+    echo "container_manager: $K8S_CONTAINER_ENGINE" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+  fi
+  if [[ "$K8S_CONTAINER_ENGINE" == 'crio' ]] ; then
+    echo "crio_pids_limit: 8192" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+  fi
 fi
 
 # enable docker live restore option
