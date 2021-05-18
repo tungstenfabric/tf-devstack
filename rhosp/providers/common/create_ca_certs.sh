@@ -1,8 +1,8 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 CN=${CN:-"$(hostname)"}
 
-FQDNS=${FQDNS:-"$(hostname -f)"}
+FQDNS=${FQDNS:-"$(hostname -f | hostname)"}
 _default_ips="$(ip a | awk '/inet /{print($2)}' | cut -d '/' -f1 | grep -v '^127.0.0.' | sort -u | xargs)"
 IPS=${IPS:-$__default_ips}
 
@@ -12,8 +12,10 @@ OS_IPS=${OS_IPS:-}
 
 BITS=${BITS:-2048}
 
-CA_ROOT_CERT=${CA_ROOT_CERT:-}
-CA_ROOT_KEY=${CA_ROOT_KEY:-}
+WORKSPACE=${WORKSPACE:-$(pwd)}
+
+CA_ROOT_CERT=${CA_ROOT_CERT-"$WORKSPACE/ca.crt.pem"}
+CA_ROOT_KEY=${CA_ROOT_KEY-"$WORKSPACE/ca.key.pem"}
 
 VALIDITY_DAYS=${VALIDITY_DAYS:-365}
 
