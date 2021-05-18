@@ -220,10 +220,14 @@ function collect_system_stats() {
     echo "free_hugepages" &>> $syslogs/hugepages.log
     cat /sys/devices/system/node/node*/hugepages/hugepages-*/free_hugepages &>> $syslogs/hugepages.log
     ps ax -H &> $syslogs/ps.log
-    sudo netstat -lpn &> $syslogs/netstat.log
+    if which netstat &>/dev/null ; then
+        sudo netstat -lpn &> $syslogs/netstat.log
+    fi
     free -h &> $syslogs/mem.log
     df -h &> $syslogs/df.log
-    ifconfig &>$syslogs/if.log
+    if which ifconfig &>/dev/null ; then
+        ifconfig &>$syslogs/if.log
+    fi
     ip addr &>$syslogs/ip_addr.log
     ip link &>$syslogs/ip_link.log
     ip route &>$syslogs/ip_route.log
