@@ -45,10 +45,6 @@ export OPENSHIFT_PUB_KEY="${HOME}/.ssh/id_rsa.pub"
 export OPENSHIFT_SSH_KEY="${HOME}/.ssh/id_rsa"
 export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 
-unset CONTROLLER_SERVICES['config-database']
-CONTROLLER_SERVICES['config']+="dnsmasq "
-CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
-
 # deployment related environment set by any stage and put to tf_stack_profile at the end
 declare -A DEPLOYMENT_ENV
 
@@ -221,6 +217,11 @@ function tf() {
 
 # This is_active function is called in wait stage defined in common/stages.sh
 function is_active() {
+    # Services to check in wait stage
+    CONTROLLER_SERVICES['config-database']=""
+    CONTROLLER_SERVICES['config']+="dnsmasq "
+    CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
+
     local controllers="`oc get nodes -o wide | awk '/ master | master,worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: is_active: controller_nodes: $controllers"
     export agents="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
