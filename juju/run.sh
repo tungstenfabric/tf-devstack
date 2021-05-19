@@ -29,8 +29,8 @@ export PATH=$PATH:/snap/bin
 
 # default env variables
 export DEPLOYER='juju'
-# max wait in seconds after TF deployment (openstack AIO ~ 1300, k8s AIO ~ 2100, maas HA ~ 2400???3600???4800)
-export WAIT_TIMEOUT=${WAIT_TIMEOUT:-4800}
+# max wait in seconds after TF deployment (openstack AIO ~ 1300, k8s AIO ~ 2100, maas HA ~ 2400???3600???4800??6000)
+export WAIT_TIMEOUT=${WAIT_TIMEOUT:-6000}
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 # cloud local is deprecated, please use CLOUD=manual and unset CONTROLLER_NODES and AGENT_NODES
