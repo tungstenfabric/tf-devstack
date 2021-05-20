@@ -309,6 +309,10 @@ function collect_kubernetes_logs() {
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
+    if ! $tool get nodes >/dev/null ; then
+        echo "INFO: $tool is not configured here"
+        return 0
+    fi
 
     local KUBE_LOG_DIR=$TF_LOG_DIR/kubernetes_logs
     mkdir -p $KUBE_LOG_DIR
@@ -359,6 +363,10 @@ function collect_kubernetes_objects_info() {
         echo "INFO: There is no any kubernetes installed"
         return 0
     fi
+    if ! $tool get nodes >/dev/null ; then
+        echo "INFO: $tool is not configured here"
+        return 0
+    fi
 
     local KUBE_OBJ_DIR=$TF_LOG_DIR/kubernetes_obj_info
     mkdir -p $KUBE_OBJ_DIR
@@ -389,13 +397,14 @@ function collect_kubernetes_objects_info() {
 }
 
 function run_command_on_pod() {
-    local command=$1
+    local command="$1"
     local pod=$2
-    local container=${3:-""}
-    local namespace=${4:-"contrail"}
-    local tool=${5:-"kubectl"}
+    local namespace=${3:-"contrail"}
+    local tool=${4:-"kubectl"}
 
-    $tool -n "$namespace" exec -c "$container" "$pod" -- bash -c "$command" 2>/dev/null
+    # will be run on first container in manifest
+    echo "INFO: cmd: $command"
+    $tool -n "$namespace" exec "$pod" -- bash -c "$command" 2>/dev/null
 }
 
 function get_service_pod_namespaced_names() {
@@ -410,14 +419,13 @@ function get_service_pod_namespaced_names() {
 function collect_cmd_from_service_pods() {
     local service=$1
     local log_file=$2
-    local command=$3
-    local container=${4:-""}
-    local tool=${5:-"kubectl"}
+    local command="$3"
+    local tool=${4:-"kubectl"}
 
+    local ds='$' nnamespace pod
     get_service_pod_namespaced_names "$service" "$tool" | while read -r namespace pod; do
-        printf "%s at %s:\n\n" "$pod" "$(date)" >> $log_file
-        run_command_on_pod "$command" "$pod" "$container" "$namespace" "$tool" >> $log_file
-        printf "\n\n" >> $log_file
+        local pod_ip=$($tool get pod "$pod" -n "$namespace" --template={{.status.podIP}})
+        run_command_on_pod "$(eval echo \"$command\")" "$pod" "$namespace" "$tool" >> $log_file.$pod
     done
 }
 
@@ -430,30 +438,32 @@ function collect_kubernetes_service_statuses() {
         echo "INFO: There is no any $tool installed"
         return 0
     fi
+    if ! $tool get nodes >/dev/null ; then
+        echo "INFO: $tool is not configured here"
+        return 0
+    fi
+
+    local log_dir="$TF_LOG_DIR/externals"
+    mkdir -p $log_dir
 
     # Cassandra
-    local command="echo \"Port 7200:\"; nodetool -p 7200 status; echo \"Port 7201:\"; nodetool -p 7201 status"
-    collect_cmd_from_service_pods "cassandra\|configdb" "$TF_LOG_DIR/cassandra_status.log" "$command" "" "$tool"
+    local command=" \
+        echo \"Port 7200:\"; nodetool -p 7200 status; nodetool -p 7200 describecluster; \
+        echo \"Port 7201:\"; nodetool -p 7201 status; nodetool -p 7201 describecluster"
+    collect_cmd_from_service_pods "cassandra\|configdb" "$log_dir/cassandra_status.log" "$command" "$tool"
 
     # Zookeeper
-    local log_file="$TF_LOG_DIR/zookeeper_status.log"
-    get_service_pod_namespaced_names "zookeeper" "$tool" | while read -r namespace pod; do
-        local pod_ip=$($tool get pod "$pod" -n "$namespace" --template={{.status.podIP}})
-        command="zkCli.sh -server $pod_ip config; echo $pod_ip"
-
-        printf "%s at %s:\n\n" "$pod" "$(date)" >> $log_file
-        run_command_on_pod "$command" "$pod" "" "$namespace" "$tool" >> $log_file
-        printf "\n\n" >> $log_file
-    done
+    local command="zkCli.sh -server \${pod_ip} config; echo \${pod_ip}"
+    collect_cmd_from_service_pods "zookeeper" "$log_dir/zookeeper_status.log" "$command" "$tool"
 
     #Rabbitmq
-    command="source /etc/rabbitmq/rabbitmq-common.env; rabbitmqctl cluster_status"
-    collect_cmd_from_service_pods "rabbitmq" "$TF_LOG_DIR/rabbitmq_status.log" "$command" "" "$tool"
+    local command="source /etc/rabbitmq/rabbitmq-common.env; rabbitmqctl cluster_status"
+    collect_cmd_from_service_pods "rabbitmq" "$log_dir/rabbitmq_status.log" "$command" "$tool"
 
-    command="source /etc/rabbitmq/rabbitmq-common.env;
-             vhosts=\$(rabbitmqctl list_vhosts | tail -n +3);
-             rabbitmqctl list_policies -p \$vhosts"
-    collect_cmd_from_service_pods "rabbitmq" "$TF_LOG_DIR/rabbitmq_policies.log" "$command" "" "$tool"
+    local command="source /etc/rabbitmq/rabbitmq-common.env;
+                   vhosts=\${ds}(rabbitmqctl list_vhosts | tail -n +3); 
+                   rabbitmqctl list_policies -p \${ds}vhosts"
+    collect_cmd_from_service_pods "rabbitmq" "$log_dir/rabbitmq_policies.log" "$command" "$tool"
 }
 
 function collect_core_dumps() {
