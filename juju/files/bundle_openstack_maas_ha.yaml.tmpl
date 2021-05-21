@@ -113,6 +113,9 @@ services:
       min-cluster-size: 3
       root-password: "password"
       max-connections: 1500
+      tuning-level: fast
+      performance-schema: true
+      source: "{{ OPENSTACK_ORIGIN }}"
     to:
       - "lxd:0"
       - "lxd:1"
