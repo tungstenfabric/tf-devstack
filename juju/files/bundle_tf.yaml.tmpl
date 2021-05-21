@@ -83,6 +83,9 @@ services:
       control-network: "{{ CONTROL_NETWORK }}"
 {%- endif %}
       min-cluster-size: {{ controller_nodes | count }}
+{%- if CLOUD == 'maas' %}
+      vip: *tf-controller-vip
+{%- endif %}
     expose: true
     to: {{ controller_nodes }}
 {%- if ENABLE_DPDK_SRIOV.lower() == 'true' %}
