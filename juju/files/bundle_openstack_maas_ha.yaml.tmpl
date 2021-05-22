@@ -5,6 +5,12 @@
 {%- set placement = true %}
 {%- endif %}
 
+# ubuntu 20.04 has only mysql-innodb-cluster charm for mysql db. but it's still ugly and buggy...
+{%- set mysql_innodb = false %}
+{%- if UBUNTU_SERIES == 'focal' %}
+{%- set mysql_innodb = true %}
+{%- endif %}
+
 series: {{ UBUNTU_SERIES }}
 variables:
 # VIRTUAL_IPS[0] - for config-api
@@ -38,8 +44,6 @@ machines:
 
 series: "{{ UBUNTU_SERIES }}"
 services:
-  hacluster-mysql:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-keystone:
     charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   hacluster-nova:
@@ -103,8 +107,10 @@ services:
       - "lxd:0"
       - "lxd:1"
       - "lxd:2"
-{%- if UBUNTU_SERIES != 'focal' %}
-  # ubuntu 20.04 has only mysql-innodb-cluster charm for mysql db. but it's still ugly and buggy...
+
+{%- if not mysql_innodb %}
+  hacluster-mysql:
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
   mysql:
     charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster-295"
     num_units: 3
@@ -371,8 +377,9 @@ relations:
 - [ heat, keystone ]
 - [ ubuntu, ntp ]
 
-{%- if UBUNTU_SERIES != 'focal' %}
+{%- if not mysql_innodb %}
 
+- [ mysql, hacluster-mysql ]
 - [ keystone:shared-db, mysql:shared-db ]
 - [ glance:shared-db, mysql:shared-db ]
 - [ nova-cloud-controller:shared-db, mysql:shared-db ]
@@ -404,7 +411,6 @@ relations:
 
 {%- endif %}
 
-- [ mysql, hacluster-mysql ]
 - [ keystone, hacluster-keystone ]
 - [ heat, hacluster-heat ]
 - [ glance, hacluster-glance ]

@@ -4,6 +4,15 @@
 {%- set placement = true %}
 {%- endif %}
 
+# ubuntu 20.04 has only mysql-innodb-cluster charm for mysql db. but it's still ugly and buggy...
+{%- set mysql_innodb = false %}
+{%- if UBUNTU_SERIES == 'focal' %}
+# https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
+# for non MAAS deployments mysql/bionic is still preffered
+# let's use percona-cluster in bionic container for now
+{%- set mysql_innodb = false %}
+{%- endif %}
+
 machines:
 {%- set controllers_count = CONTROLLER_NODES.split()|length %}
 {%- if AGENT_NODES|string == NODE_IP|string %}
@@ -54,10 +63,7 @@ services:
     to:
       - lxd:0
 
-{#%- if UBUNTU_SERIES != 'focal' %#}
-  # ubuntu 20.04 has only mysql-innodb-cluster charm for mysql db. but it's still ugly and buggy -
-  # https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
-  # let's use percona-cluster in bionic container for now
+{%- if not mysql_innodb %}
   mysql:
     charm: "cs:bionic/percona-cluster-295"
     series: "bionic"
@@ -72,7 +78,7 @@ services:
     to:
       - lxd:0
 
-{#%- else %}
+{%- else %}
 
   keystone-mysql-router:
     charm: cs:mysql-router
@@ -126,7 +132,7 @@ services:
     - lxd:0
     - lxd:0
     - lxd:0
-{%- endif %#}
+{%- endif %}
 
   rabbitmq-server:
     charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-108"
@@ -302,7 +308,7 @@ relations:
 
 - [ ubuntu, ntp ]
 
-{#%- if UBUNTU_SERIES != 'focal' %#}
+{%- if not mysql_innodb %}
 
 - [ keystone:shared-db, mysql:shared-db ]
 - [ glance:shared-db, mysql:shared-db ]
@@ -318,7 +324,7 @@ relations:
 - [ ironic-conductor:shared-db, mysql:shared-db ]
 {%- endif %}
 
-{#%- else %}
+{%- else %}
 
 - [ keystone:shared-db, keystone-mysql-router:shared-db ]
 - [ keystone-mysql-router:db-router, mysql-innodb-cluster:db-router ]
@@ -343,7 +349,7 @@ relations:
 - [ ironic-conductor-mysql-router:db-router, mysql-innodb-cluster:db-router ]
 {%- endif %}
 
-{%- endif %#}
+{%- endif %}
 
 {%- if ENABLE_IRONIC.lower() == 'true' %}
 - [ ironic-api:identity-service, keystone:identity-service ]
