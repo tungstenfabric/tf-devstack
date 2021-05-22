@@ -1,3 +1,9 @@
+
+{%- set placement = false %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- set placement = true %}
+{%- endif %}
+
 machines:
 {%- set controllers_count = CONTROLLER_NODES.split()|length %}
 {%- if AGENT_NODES|string == NODE_IP|string %}
@@ -27,7 +33,7 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance-301"
+    charm: "cs:{{ UBUNTU_SERIES }}/glance-303"
     num_units: 1
     options:
       debug: "true"
@@ -36,7 +42,7 @@ services:
     to:
       - lxd:0
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone-319"
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone-321"
     num_units: 1
     options:
       admin-password: "{{ AUTH_PASSWORD }}"
@@ -53,25 +59,69 @@ services:
   # https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
   # let's use percona-cluster in bionic container for now
   mysql:
-    charm: "cs:bionic/percona-cluster-293"
+    charm: "cs:bionic/percona-cluster-295"
     series: "bionic"
     num_units: 1
     options:
       innodb-buffer-pool-size: 256M
+      root-password: "password"
       max-connections: 1500
+      tuning-level: fast
       performance-schema: true
-      root-password: password
+      source: "{{ OPENSTACK_ORIGIN }}"
     to:
       - lxd:0
+
 {#%- else %}
+
+  keystone-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  glance-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  nova-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  neutron-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  dashboard-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  heat-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+  placement-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+{%- endif %}
+{%- if ENABLE_IRONIC.lower() == 'true' %}
+  ironic-api-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+  ironic-conductor-mysql-router:
+    charm: cs:mysql-router
+    options:
+      source: "{{ OPENSTACK_ORIGIN }}"
+{%- endif %}
+
   mysql-innodb-cluster:
-    charm: cs:mysql-innodb-cluster
+    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster-8
     num_units: 3
     options:
       innodb-buffer-pool-size: 256M
       max-connections: 1500
-      # performance-schema: true
-      # root-password: password
+      source: "{{ OPENSTACK_ORIGIN }}"
     to:
     - lxd:0
     - lxd:0
@@ -79,14 +129,14 @@ services:
 {%- endif %#}
 
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-106"
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-108"
     num_units: 1
     options:
       min-cluster-size: 1
     to:
       - lxd:0
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-290"
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-292"
     num_units: 1
     options:
       debug: "true"
@@ -97,7 +147,7 @@ services:
     to:
       - lxd:0
   heat:
-    charm: "cs:{{ UBUNTU_SERIES }}/heat-279"
+    charm: "cs:{{ UBUNTU_SERIES }}/heat-281"
     num_units: 1
     options:
       debug: "true"
@@ -127,13 +177,13 @@ services:
     to:
       - 0
 
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if placement %}
   placement:
     charm: "cs:{{ UBUNTU_SERIES }}/placement-15"
     num_units: 1
     options:
-      openstack-origin: {{ OPENSTACK_ORIGIN }}
       debug: "true"
+      openstack-origin: {{ OPENSTACK_ORIGIN }}
     to:
     - lxd:0
 {%- endif %}
@@ -149,8 +199,11 @@ services:
     expose: true
     to:
       - lxd:0
+
+  # memcached is not required cause we run openstack in non-HA
+
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-323"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
     series: "{{ UBUNTU_SERIES }}"
     num_units: {{ agent_nodes | count }}
     options:
@@ -162,7 +215,7 @@ services:
       migration-auth-type: "ssh"
     to: {{ agent_nodes }}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-309"
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-311"
     num_units: 1
     options:
       debug: "true"
@@ -206,31 +259,6 @@ services:
     charm: cs:nrpe-69
 {%- endif %}
 
-{#%- if UBUNTU_SERIES == 'focal' %}
-  keystone-mysql-router:
-    charm: cs:mysql-router
-  glance-mysql-router:
-    charm: cs:mysql-router
-  nova-mysql-router:
-    charm: cs:mysql-router
-  neutron-mysql-router:
-    charm: cs:mysql-router
-  dashboard-mysql-router:
-    charm: cs:mysql-router
-  heat-mysql-router:
-    charm: cs:mysql-router
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
-  placement-mysql-router:
-    charm: cs:mysql-router
-{%- endif %}
-{%- if ENABLE_IRONIC.lower() == 'true' %}
-  ironic-api-mysql-router:
-    charm: cs:mysql-router
-  ironic-conductor-mysql-router:
-    charm: cs:mysql-router
-{%- endif %}
-{%- endif %#}
-
   # misc
 
   ubuntu:
@@ -248,14 +276,20 @@ services:
 relations:
 
 - [ nova-compute:amqp, rabbitmq-server:amqp ]
+- [ nova-compute:image-service, glance:image-service ]
+- [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
+
+{%- if placement %}
+- [ placement, keystone:identity-service ]
+- [ placement, nova-cloud-controller ]
+{%- endif %}
+
 - [ nova-cloud-controller:identity-service, keystone:identity-service ]
 - [ glance:identity-service, keystone:identity-service ]
 - [ neutron-api:identity-service, keystone:identity-service ]
 - [ neutron-api:amqp, rabbitmq-server:amqp ]
 - [ glance:amqp, rabbitmq-server:amqp ]
 - [ nova-cloud-controller:image-service, glance:image-service ]
-- [ nova-compute:image-service, glance:image-service ]
-- [ nova-cloud-controller:cloud-compute, nova-compute:cloud-compute ]
 - [ nova-cloud-controller:amqp, rabbitmq-server:amqp ]
 - [ openstack-dashboard:identity-service, keystone:identity-service ]
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
@@ -265,10 +299,6 @@ relations:
 - [ swift-proxy, keystone ]
 - [ swift-proxy, swift-storage ]
 - [ swift-proxy:object-store, glance:object-store ]
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
-- [ placement, keystone:identity-service ]
-- [ placement, nova-cloud-controller ]
-{%- endif %}
 
 - [ ubuntu, ntp ]
 
@@ -280,7 +310,7 @@ relations:
 - [ neutron-api:shared-db, mysql:shared-db ]
 - [ openstack-dashboard:shared-db, mysql:shared-db ]
 - [ heat:shared-db, mysql:shared-db ]
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if placement %}
 - [ placement, mysql:shared-db ]
 {%- endif %}
 {%- if ENABLE_IRONIC.lower() == 'true' %}
@@ -302,7 +332,7 @@ relations:
 - [ dashboard-mysql-router:db-router, mysql-innodb-cluster:db-router ]
 - [ heat:shared-db, heat-mysql-router:shared-db ]
 - [ heat-mysql-router:db-router, mysql-innodb-cluster:db-router ]
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if placement %}
 - [ placement:shared-db, placement-mysql-router:shared-db ]
 - [ placement-mysql-router:db-router, mysql-innodb-cluster:db-router ]
 {%- endif %}
