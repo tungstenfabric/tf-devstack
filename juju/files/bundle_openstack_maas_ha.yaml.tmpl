@@ -165,6 +165,8 @@ services:
   mysql-innodb-cluster:
     charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster-8
     num_units: 3
+    bindings:
+      "": *default-space
     options:
       max-connections: 1500
       source: "{{ OPENSTACK_ORIGIN }}"
