@@ -26,6 +26,7 @@ export KEEP_SOURCES=${KEEP_SOURCES:-false}
 export DEPLOYER='operator'
 export SSL_ENABLE="true"
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
+export DATA_NETWORK=${DATA_NETWORK}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
@@ -81,6 +82,11 @@ function manifest() {
     export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
     export ANALYTICSDB_MIN_HEAP_SIZE=${ANALYTICSDB_MIN_HEAP_SIZE:-"1g"}
     export ANALYTICSDB_MAX_HEAP_SIZE=${ANALYTICSDB_MAX_HEAP_SIZE:-"4g"}
+    export VROUTER_GATEWAY=${VROUTER_GATEWAY:-$(get_vrouter_gateway)}
+    if [[ -n $DATA_NETWORK ]] && [[ -z $VROUTER_GATEWAY ]] ; then
+        echo "ERROR: for multi-NIC setup VROTER_GATEWAY should be set"
+        exit 1
+    fi
     $OPERATOR_REPO/contrib/render_manifests.sh
 }
 
