@@ -112,6 +112,9 @@ function is_active() {
     CONTROLLER_SERVICES['config-database']=""
     CONTROLLER_SERVICES['config']+="dnsmasq "
     CONTROLLER_SERVICES['_']+="rabbitmq stunnel zookeeper "
+    if [[ "${CNI}" == "calico" ]]; then
+         AGENT_SERVICES['vrouter']=""
+    fi
 
     check_kubernetes_resources_active statefulset.apps && \
     check_kubernetes_resources_active deployment.apps && \
