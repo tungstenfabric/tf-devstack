@@ -163,6 +163,16 @@ if [ -n "$K8S_CONTAINER_ENGINE" ] ; then
   fi
 fi
 
+# Set local docker registries if defined
+if [[ -n "${DOCKER_CACHE_REGISTRY}" ]]; then
+   cat << EOF >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+quay_image_repo: "${DOCKER_CACHE_REGISTRY}"
+kube_image_repo: "${DOCKER_CACHE_REGISTRY}"
+gcr_image_repo: "${DOCKER_CACHE_REGISTRY}"
+docker_image_repo: "${DOCKER_CACHE_REGISTRY}"
+EOF
+fi
+
 # enable docker live restore option
 #
 # set live-restore via config file to avoid conflicts between command line and 
