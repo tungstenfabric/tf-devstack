@@ -42,7 +42,7 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance-303"
+    charm: "cs:{{ UBUNTU_SERIES }}/glance"
     num_units: 1
     options:
       debug: "true"
@@ -51,7 +51,7 @@ services:
     to:
       - lxd:0
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone-321"
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 1
     options:
       admin-password: "{{ AUTH_PASSWORD }}"
@@ -65,7 +65,7 @@ services:
 
 {%- if not mysql_innodb %}
   mysql:
-    charm: "cs:bionic/percona-cluster-295"
+    charm: "cs:bionic/percona-cluster"
     series: "bionic"
     num_units: 1
     options:
@@ -122,7 +122,7 @@ services:
 {%- endif %}
 
   mysql-innodb-cluster:
-    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster-8
+    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster
     num_units: 3
     options:
       innodb-buffer-pool-size: 256M
@@ -135,14 +135,14 @@ services:
 {%- endif %}
 
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-108"
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
     num_units: 1
     options:
       min-cluster-size: 1
     to:
       - lxd:0
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-292"
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 1
     options:
       debug: "true"
@@ -153,7 +153,7 @@ services:
     to:
       - lxd:0
   heat:
-    charm: "cs:{{ UBUNTU_SERIES }}/heat-281"
+    charm: "cs:{{ UBUNTU_SERIES }}/heat"
     num_units: 1
     options:
       debug: "true"
@@ -163,7 +163,7 @@ services:
       - lxd:0
 
   swift-proxy:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy-95"
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
     num_units: 1
     options:
       zone-assignment: manual
@@ -174,7 +174,7 @@ services:
     to:
       - lxd:0
   swift-storage:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage-272"
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
     num_units: 1
     options:
       block-device: '/etc/swift/storagedev1.img|15G'
@@ -185,7 +185,7 @@ services:
 
 {%- if placement %}
   placement:
-    charm: "cs:{{ UBUNTU_SERIES }}/placement-15"
+    charm: "cs:{{ UBUNTU_SERIES }}/placement"
     num_units: 1
     options:
       debug: "true"
@@ -194,7 +194,7 @@ services:
     - lxd:0
 {%- endif %}
   nova-cloud-controller:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller-350"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 1
     options:
       network-manager: "Neutron"
@@ -209,7 +209,7 @@ services:
   # memcached is not required cause we run openstack in non-HA
 
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: "{{ UBUNTU_SERIES }}"
     num_units: {{ agent_nodes | count }}
     options:
@@ -221,7 +221,7 @@ services:
       migration-auth-type: "ssh"
     to: {{ agent_nodes }}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-311"
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
     options:
       debug: "true"
@@ -256,13 +256,13 @@ services:
 {%- endif %}
 {%- if ENABLE_NAGIOS.lower() == 'true' %}
   nagios:
-    charm: cs:nagios-40
+    charm: cs:nagios
     num_units: 1
     to:
     - "0"
     expose: true
   nrpe:
-    charm: cs:nrpe-69
+    charm: cs:nrpe
 {%- endif %}
 
   # misc
