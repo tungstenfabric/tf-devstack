@@ -343,9 +343,9 @@ function prepare_rhosp_env_file() {
     source $my_dir/../../config/common.sh
     cat $my_dir/../../config/common.sh | expand >> $env_file || true
     source $my_dir/../../config/${RHEL_VERSION}_env.sh
-    cat $my_dir/../../config/${RHEL_VERSION}_env.sh | grep '^export' | expand >> $env_file || true
+    cat $my_dir/../../config/${RHEL_VERSION}_env.sh | grep '^export' | expand | envsubst >> $env_file || true
     source $my_dir/../../config/${PROVIDER}_env.sh
-    cat $my_dir/../../config/${PROVIDER}_env.sh | grep '^export' | expand >> $env_file || true
+    cat $my_dir/../../config/${PROVIDER}_env.sh | grep '^export' | expand | envsubst >> $env_file || true
     cat <<EOF >> $env_file
 
 export DEBUG=$DEBUG

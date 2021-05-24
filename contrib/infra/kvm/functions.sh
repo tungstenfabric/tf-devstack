@@ -23,7 +23,7 @@ function build_network_xml_dhcp() {
   <bridge name="$brname"/>
 EOF
   if  [[ "$forward" != "no_forward" ]] ; then
-  cat <<EOF >> $fname
+    cat <<EOF >> $fname
   <forward mode="$forward"/>
 EOF
   fi

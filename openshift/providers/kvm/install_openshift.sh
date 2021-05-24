@@ -56,7 +56,8 @@ sed -i -E "s/mastersSchedulable: .*/mastersSchedulable: $masters_schedulable/" $
 
 openshift-install create ignition-configs --dir=${INSTALL_DIR}
 
-sudo virsh net-define  ${my_dir}/openshift.xml
+sudo virsh net-define ${my_dir}/openshift.xml
+sudo virsh net-autostart ${VIRTUAL_NET}
 sudo virsh net-start ${VIRTUAL_NET}
 
 WS_PORT="1234"
@@ -105,10 +106,11 @@ rev_dig=$(ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_
 
 echo "srv-host=xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN},yyyayyy.${KUBERNETES_CLUSTER_DOMAIN},2380,0,10" | sudo tee ${DNS_DIR}/xxxtestxxx.conf
 sudo systemctl restart dnsmasq || err "systemctl restart dnsmasq failed"
+sleep 5
 srv_dig=$(ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" "dig srv +short 'xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN}' 2> /dev/null" | grep -q -s "yyyayyy.${KUBERNETES_CLUSTER_DOMAIN}") || \
     err "ERROR: Testing SRV record failed"
 sudo sed -i_bak -e "/xxxtestxxx/d" /etc/hosts
-sudo rm -f ${DNS_DIR}/xxxtestxxx.conf 
+sudo rm -f ${DNS_DIR}/xxxtestxxx.conf
 
 # Create machines
 echo "INFO: start bootstrap vm"

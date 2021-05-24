@@ -9,7 +9,12 @@ source "$my_dir/providers/common/functions.sh"
 
 if [[ "$ENABLE_TLS" == 'local' ]] ; then
   if [[ -z "$SSL_CAKEY" || -z "$SSL_CACERT" ]] ; then
-    CA_ROOT_CERT=$WORKSPACE/ca.crt.pem CA_ROOT_KEY=$WORKSPACE/ca.key.pem $my_dir/providers/common/create_ca_certs.sh
+    if [[ ! -e $WORKSPACE/ca.key.pem || ! -e $WORKSPACE/ca.crt.pem ]] ; then
+      echo "INFO: generate contrail CA certs"
+      CA_ROOT_CERT=$WORKSPACE/ca.crt.pem CA_ROOT_KEY=$WORKSPACE/ca.key.pem $my_dir/providers/common/create_ca_certs.sh
+    else
+      echo "INFO: use existing contrail CA certs"
+    fi
     export SSL_CAKEY="$(cat $WORKSPACE/ca.key.pem)"
     export SSL_CACERT="$(cat $WORKSPACE/ca.crt.pem)"
   else

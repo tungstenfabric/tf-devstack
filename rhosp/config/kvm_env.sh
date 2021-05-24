@@ -49,7 +49,10 @@ export ipa_prov_ip="${prov_subnet}.5"
 export overcloud_virt_type="kvm"
 export overcloud_cont_instance="$RHOSP_VERSION-overcloud-cont-${DEPLOY_POSTFIX}"
 export overcloud_compute_instance="$RHOSP_VERSION-overcloud-compute-${DEPLOY_POSTFIX}"
-export overcloud_ctrlcont_instance="$RHOSP_VERSION-overcloud-ctrlcont-${DEPLOY_POSTFIX}"
+if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
+  overcloud_ctrlcont_instance=${overcloud_ctrlcont_instance:-"$RHOSP_VERSION-overcloud-ctrlcont-${DEPLOY_POSTFIX}"}
+fi
+export overcloud_ctrlcont_instance=$overcloud_ctrlcont_instance
 
 # to allow vrouter to use 1gb pages
 export vrouter_huge_pages_1g='2'
