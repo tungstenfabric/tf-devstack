@@ -9,7 +9,7 @@ docker.io/amazon/aws-ebs-csi-driver:v0.5.0
 k8s.gcr.io/pause:3.2
 quay.io/coreos/etcd:v3.4.3
 k8s.gcr.io/ingress-nginx/controller:v0.35.0
-docker.io/lachlanevenson/k8s-helm:v3.2.4
+docker.io/lachlanevenson/k8s-helm:v2.16.11
 docker.io/amazon/aws-alb-ingress-controller:v1.1.8
 quay.io/datawire/ambassador-operator:v1.2.8
 docker.io/contiv/auth_proxy:1.2.1
@@ -35,6 +35,7 @@ docker.io/weaveworks/weave-kube:2.7.0
 docker.io/library/nginx:1.19
 docker.io/library/registry:2.7.1
 quay.io/calico/kube-controllers:v3.15.2
+gcr.io/kubernetes-helm/tiller:v2.16.11
 docker.io/xueshanf/install-socat:latest
 k8s.gcr.io/addon-resizer:1.8.11
 k8s.gcr.io/metrics-server/metrics-server:v0.3.7
@@ -52,4 +53,8 @@ quay.io/l23network/k8s-netchecker-agent:v1.0
 quay.io/calico/cni:v3.15.2
 quay.io/cilium/cilium:v1.8.3
 quay.io/k8scsi/csi-snapshotter:v2.1.1
+k8s.gcr.io/kube-proxy:v1.18.10
+k8s.gcr.io/kube-scheduler:v1.18.10
+k8s.gcr.io/kube-controller-manager:v1.18.10
+k8s.gcr.io/kube-apiserver:v1.18.10
 quay.io/airshipit/kubernetes-entrypoint:v1.0.0
