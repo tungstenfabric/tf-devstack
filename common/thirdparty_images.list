@@ -35,7 +35,6 @@ docker.io/weaveworks/weave-kube:2.7.0
 docker.io/library/nginx:1.19
 docker.io/library/registry:2.7.1
 quay.io/calico/kube-controllers:v3.15.2
-gcr.io/kubernetes-helm/tiller:v3.2.4
 docker.io/xueshanf/install-socat:latest
 k8s.gcr.io/addon-resizer:1.8.11
 k8s.gcr.io/metrics-server/metrics-server:v0.3.7
@@ -54,4 +53,3 @@ quay.io/calico/cni:v3.15.2
 quay.io/cilium/cilium:v1.8.3
 quay.io/k8scsi/csi-snapshotter:v2.1.1
 quay.io/airshipit/kubernetes-entrypoint:v1.0.0
-
