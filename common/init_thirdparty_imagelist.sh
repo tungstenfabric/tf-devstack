@@ -22,6 +22,14 @@ function get_images_from_kubespray() {
 - name: gather facts
   gather_facts:
 
+- name: set kubeadm image list
+  set_fact:
+    kubeadm_images:
+      - "k8s.gcr.io/kube-apiserver:{{ kube_version }}"
+      - "k8s.gcr.io/kube-controller-manager:{{ kube_version }}"
+      - "k8s.gcr.io/kube-scheduler:{{ kube_version }}"
+      - "k8s.gcr.io/kube-proxy:{{ kube_version }}"
+
 - name: download | put image repo to list
   lineinfile:
     path: "{{ downloads_file }}"
