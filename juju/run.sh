@@ -130,8 +130,8 @@ function openstack() {
             exit 1
         fi
         IPS_COUNT=`echo $VIRTUAL_IPS | wc -w`
-        if [[ "$IPS_COUNT" != 8 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
-            echo "ERROR: We support deploy with 8 virtual ip addresses only now."
+        if [[ "$IPS_COUNT" != 9 ]] && [[ "$IPS_COUNT" != 1 ]] ; then
+            echo "ERROR: We support deploy with 9 virtual ip addresses only now."
             echo "You must specify the first address in the range or all seven IP in VIRTUAL_IPS variable."
             exit 1
         fi
