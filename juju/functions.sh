@@ -4,7 +4,7 @@
 function get_juju_unit_ips(){
   local unit=$1
 
-  local unit_list="`command juju status | grep "$unit" | grep "/" | tr -d "*" | awk '{print $1}'`"
+  local unit_list="`command juju status | grep "$unit/" | tr -d "*" | awk '{print $1}'`"
   local ips
   for unit in $unit_list ; do
     unit_machine="`command juju show-unit --format json $unit | jq -r .[].machine`"

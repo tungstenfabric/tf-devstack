@@ -21,6 +21,7 @@ variables:
   neutron-api-vip:     &neutron-api-vip     "{{ VIRTUAL_IPS[5] }}"
   nova-cc-vip:         &nova-cc-vip         "{{ VIRTUAL_IPS[6] }}"
   placement-vip:       &placement-vip       "{{ VIRTUAL_IPS[7] }}"
+  swift-proxy-vip:     &swift-proxy-vip     "{{ VIRTUAL_IPS[8] }}"
 
   default-space:       &default-space       default
   data-space:          &data-space          data
@@ -55,6 +56,8 @@ services:
   hacluster-glance:
     charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-placement:
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
+  hacluster-swift-proxy:
     charm: cs:{{ UBUNTU_SERIES }}/hacluster
   glance:
     charm: "cs:{{ UBUNTU_SERIES }}/glance"
@@ -217,6 +220,57 @@ services:
       - "lxd:0"
       - "lxd:1"
       - "lxd:2"
+
+  swift-proxy:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
+    num_units: 3
+    bindings:
+      "": *default-space
+    options:
+      vip: *swift-proxy-vip
+      zone-assignment: manual
+      replicas: 3
+      debug: "true"
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    expose: true
+    to:
+      - lxd:0
+      - lxd:1
+      - lxd:2
+  swift-storage1:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    num_units: 1
+    bindings:
+      "": *default-space
+    options:
+      block-device: '/etc/swift/storagedev1.img|15G'
+      zone: 1
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    to:
+      - 0
+  swift-storage2:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    num_units: 1
+    bindings:
+      "": *default-space
+    options:
+      block-device: '/etc/swift/storagedev1.img|15G'
+      zone: 2
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    to:
+      - 1
+  swift-storage3:
+    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    num_units: 1
+    bindings:
+      "": *default-space
+    options:
+      block-device: '/etc/swift/storagedev1.img|15G'
+      zone: 3
+      openstack-origin: "{{ OPENSTACK_ORIGIN }}"
+    to:
+      - 2
+
 {%- if placement %}
   placement:
     charm: "cs:{{ UBUNTU_SERIES }}/placement"
@@ -377,6 +431,12 @@ relations:
 - [ nova-cloud-controller:neutron-api, neutron-api:neutron-api ]
 - [ heat:amqp, rabbitmq-server:amqp ]
 - [ heat, keystone ]
+- [ swift-proxy, rabbitmq-server ]
+- [ swift-proxy, keystone ]
+- [ swift-proxy, swift-storage1 ]
+- [ swift-proxy, swift-storage2 ]
+- [ swift-proxy, swift-storage3 ]
+
 - [ ubuntu, ntp ]
 
 {%- if not mysql_innodb %}
@@ -418,6 +478,7 @@ relations:
 - [ glance, hacluster-glance ]
 - [ neutron-api, hacluster-neutron ]
 - [ nova-cloud-controller, hacluster-nova ]
+- [ swift-proxy, hacluster-swift-proxy ]
 - [ glance, ceph-mon ]
 - [ ceph-osd, ceph-mon ]
 - [ nova-cloud-controller, memcached ]
