@@ -29,6 +29,7 @@ function get_images_from_kubespray() {
   with_dict: "{{ downloads | combine(kubeadm_images) }}"
   when:
     - item.value.container is defined and item.value.container
+    - item.key != 'tiller' or helm_version is version('v3.0.0', '<')
 
 - name: break ansible running here
   fail:
@@ -74,6 +75,8 @@ function get_images_for_helm() {
     touch $listfile
     echo "quay.io/airshipit/kubernetes-entrypoint:v1.0.0" >> $listfile
 }
+
+rm -f $listfile
 
 get_images_from_kubespray
 get_images_for_helm
