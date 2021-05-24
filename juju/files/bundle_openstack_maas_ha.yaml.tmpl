@@ -45,19 +45,19 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   hacluster-keystone:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-nova:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-heat:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-neutron:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-glance:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   hacluster-placement:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance-303"
+    charm: "cs:{{ UBUNTU_SERIES }}/glance"
     num_units: 3
     bindings:
       "": *default-space
@@ -71,7 +71,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   ceph-mon:
-    charm: cs:{{ UBUNTU_SERIES }}/ceph-mon-53
+    charm: cs:{{ UBUNTU_SERIES }}/ceph-mon
     num_units: 3
     bindings:
       "": *default-space
@@ -82,7 +82,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   ceph-osd:
-    charm: cs:{{ UBUNTU_SERIES }}/ceph-osd-308
+    charm: cs:{{ UBUNTU_SERIES }}/ceph-osd
     num_units: 3
     options:
       osd-devices: /dev/sdb
@@ -91,7 +91,7 @@ services:
       - "1"
       - "2"
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone-321"
+    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
     num_units: 3
     bindings:
       "": *default-space
@@ -110,9 +110,9 @@ services:
 
 {%- if not mysql_innodb %}
   hacluster-mysql:
-    charm: cs:{{ UBUNTU_SERIES }}/hacluster-74
+    charm: cs:{{ UBUNTU_SERIES }}/hacluster
   mysql:
-    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster-295"
+    charm: "cs:{{ UBUNTU_SERIES }}/percona-cluster"
     num_units: 3
     bindings:
       "": *default-space
@@ -163,7 +163,7 @@ services:
 {%- endif %}
 
   mysql-innodb-cluster:
-    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster-8
+    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster
     num_units: 3
     bindings:
       "": *default-space
@@ -177,7 +177,7 @@ services:
 {%- endif %}
 
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server-108"
+    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
     num_units: 3
     bindings:
       "": *default-space
@@ -188,7 +188,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api-292"
+    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
     num_units: 3
     bindings:
       "": *default-space
@@ -204,7 +204,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   heat:
-    charm: "cs:{{ UBUNTU_SERIES }}/heat-281"
+    charm: "cs:{{ UBUNTU_SERIES }}/heat"
     num_units: 3
     bindings:
       "": *default-space
@@ -219,7 +219,7 @@ services:
       - "lxd:2"
 {%- if placement %}
   placement:
-    charm: "cs:{{ UBUNTU_SERIES }}/placement-15"
+    charm: "cs:{{ UBUNTU_SERIES }}/placement"
     num_units: 3
     bindings:
       "": *default-space
@@ -233,7 +233,7 @@ services:
       - "lxd:2"
 {%- endif %}
   nova-cloud-controller:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller-350"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
     num_units: 3
     bindings:
       "": *default-space
@@ -250,7 +250,7 @@ services:
       - "lxd:1"
       - "lxd:2"
   memcached:
-    charm: "cs:{{ UBUNTU_SERIES }}/memcached-32"
+    charm: "cs:{{ UBUNTU_SERIES }}/memcached"
     num_units: 3
     bindings:
       "": *default-space
@@ -262,7 +262,7 @@ services:
       - "lxd:2"
 {%- if ENABLE_DPDK_SRIOV == 'true' %}
   nova-compute-sriov:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
     bindings:
@@ -279,7 +279,7 @@ services:
     to:
       - "3"
   nova-compute-dpdk:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 1
     bindings:
@@ -296,7 +296,7 @@ services:
       - "4"
 {%- else %}
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute-325"
+    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
     series: {{ UBUNTU_SERIES }}
     num_units: 2
     bindings:
@@ -314,7 +314,7 @@ services:
       - "4"
 {%- endif %}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard-311"
+    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
     num_units: 1
     bindings:
       "": *default-space
