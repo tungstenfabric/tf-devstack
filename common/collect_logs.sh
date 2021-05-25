@@ -473,7 +473,31 @@ function collect_core_dumps() {
     ls -laR /var/crash
     echo "INFO: content of /var/crashes"
     ls -laR /var/crashes
-    echo "INFO: "
+    echo ""
+
+    # collect /var/crash
+    set -x
+    local DUMPS_DIR=$TF_LOG_DIR/kernel_dumps
+    if find /var/crash | grep -qP "linux-image|dmesg" ; then
+        mkdir -p $DUMPS_DIR
+        local file
+        for file in $(find /var/crash | grep -P "linux-image|dmesg") ; do
+            sudo cp $file $DUMPS_DIR/
+        done
+        for file in $(find /var/crash | grep "dump.") ; do
+            sudo tar -czvf $DUMPS_DIR/$(basenname $file).tgz $file
+        done
+        local current_kver=`uname -r`
+        sudo cp /lib/modules/$current_kver/updates/dkms/vrouter.ko $DUMPS_DIR/
+        ls -laR $DUMPS_DIR
+    fi
+    set +x
+
+    # collect /var/crashes
+    local dump_path='/var/crashes'
+    if [[ $(ls -1 $dump_path | wc -l) == '0' ]] ; then
+        return
+    fi
 
     if ! command -v gdb &> /dev/null; then
         local distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
@@ -490,14 +514,12 @@ function collect_core_dumps() {
 
     local DUMPS_DIR=$TF_LOG_DIR/core_dumps
     mkdir -p $DUMPS_DIR
-
     # gather core dumps
     cat <<COMMAND > /tmp/commands.txt
 set height 0
 t a a bt
 quit
 COMMAND
-    local dump_path='/var/crashes'
     echo "INFO: cores: $(ls -l $dump_path/)"
     local core
     for core in $(ls -1 $dump_path/) ; do
