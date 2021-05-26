@@ -6,6 +6,8 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+export WORKSPACE=${WORKSPACE:-$HOME}
+
 source $my_dir/functions.sh
 
 cat <<EOF | sudo tee /etc/modules-load.d/containerd.conf
@@ -45,7 +47,7 @@ fi
 
 sudo yum module -y install container-tools
 
-K8S_VERSION=${K8S_VERSION:-'1.18.10'}
+export K8S_VERSION=${K8S_VERSION:-'1.18.10'}
 sudo yum install -y kubeadm-$K8S_VERSION kubelet-$K8S_VERSION kubectl-$K8S_VERSION cri-o
 
 if ! sudo yum install -y cri-o ; then
@@ -67,7 +69,7 @@ sudo mkdir -p /etc/crio/crio.conf.d
 cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cgroup-manager.conf
 [crio.runtime]
 conmon_cgroup = "pod"
-cgroup_manager = "cgroupfs"
+cgroup_manager = "systemd"
 pids_limit = 8192
 EOF
 
@@ -114,7 +116,7 @@ function rand() {
   tr -dc a-z0-9 </dev/urandom | head -c $1
 }
 
-K8S_API_ADDRESS=${K8S_API_ADDRESS:-}
+export K8S_API_ADDRESS=${K8S_API_ADDRESS:-}
 
 opts=''
 if [ -z "$K8S_JOIN_TOKEN" ] ; then
@@ -130,14 +132,22 @@ if [ -z "$K8S_JOIN_TOKEN" ] ; then
       echo "ERROR: no IP configured in network $K8S_API_NETWORK"
       exit 1
     fi
-    opts+=" --apiserver-advertise-address ${api_addr//\/.*/}"
+  else
+    default_nic=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
+    api_addr=`ip addr show dev $default_nic | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
   fi
+  export K8S_API_ADDRESS=$api_addr
+  if [ -z "$K8S_API_ADDRESS" ] ; then
+      echo "ERROR: K8S_API_ADDRESS must be set or be resolved via default route"
+      exit 1
+  fi
+
   token=${K8S_INIT_TOKEN:-}
   if [ -z "$token" ] ; then
     token="$(rand 6).$(rand 16)"
     echo "INFO: token to create cluster $token"
   fi
-  opts+=" --token $token"
+  export K8S_INIT_TOKEN=$token
 
 else
   # join existing cluter
@@ -145,10 +155,7 @@ else
       echo "ERROR: K8S_API_ADDRESS must be set for join command"
       exit 1
   fi
-  opts+="join $K8S_API_ADDRESS --token $K8S_JOIN_TOKEN"
-  if [ -n "$K8S_DISCOVERY_TOKEN_CA_CERT_HASH" ] ; then
-    opts+=" --discovery-token-ca-cert-hash $K8S_DISCOVERY_TOKEN_CA_CERT_HASH"
-  fi
+  opts+="join"
 fi
 
 domain=${K8S_DOMAIN-'auto'}
@@ -156,10 +163,16 @@ if [ -n "$domain" ] ; then
   if [[ "$domain" == 'auto' ]] ; then
     domain=$(hostname -d)
   fi
-  opts+=" --service-dns-domain $domain"
+  export K8S_DOMAIN=$domain
+fi
+if [ -z "$K8S_DOMAIN" ] ; then
+    echo "ERROR: K8S_DOMAIN must be set or be resolved via hostname -d"
+    exit 1
 fi
 
-sudo kubeadm $opts
+$my_dir/../../../common/jinja2_render.py < $my_dir/install_k8s_crio_init.yaml.j2 >$WORKSPACE/install_k8s_crio_init.yaml
+
+sudo kubeadm $opts --config $WORKSPACE/install_k8s_crio_init.yaml
 
 mkdir -p $HOME/.kube
 sudo cp /etc/kubernetes/admin.conf $HOME/.kube/config
