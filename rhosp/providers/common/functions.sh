@@ -360,18 +360,15 @@ export OPENSTACK_CONTAINER_TAG="$OPENSTACK_CONTAINER_TAG"
 export ENABLE_TLS=$ENABLE_TLS
 export EXTERNAL_CONTROLLER_NODES=$EXTERNAL_CONTROLLER_NODES
 export CONTROL_PLANE_ORCHESTRATOR=$CONTROL_PLANE_ORCHESTRATOR
+export SSL_CAKEY="$SSL_CAKEY"
+export SSL_CACERT="$SSL_CACERT"
 EOF
     if [[ "$ENABLE_TLS" == 'local' ]] ; then
         if [ -z "$SSL_CAKEY" ] || [ -z "$SSL_CACERT" ] ; then
             echo "ERROR: For ENABLE_TLS=$ENABLE_TLS SSL_CAKEY and SSL_CACERT must be provided"
             exit -1
         fi
-        cat <<EOF >> $env_file
-export SSL_CAKEY="$SSL_CAKEY"
-export SSL_CACERT="$SSL_CACERT"
-EOF
     fi
-
     #Removing duplicate lines
     awk '!a[$0]++' $env_file > $target_env_file
 }

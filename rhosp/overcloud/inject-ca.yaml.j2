@@ -1,0 +1,9 @@
+
+resource_registry:
+  OS::TripleO::NodeTLSCAData: tripleo-heat-templates/puppet/extraconfig/tls/ca-inject.yaml
+
+parameter_defaults:
+  SSLRootCertificate: |
+{%- for line in SSL_CACERT.split('\n') %}
+    {{ line }}
+{%- endfor %}

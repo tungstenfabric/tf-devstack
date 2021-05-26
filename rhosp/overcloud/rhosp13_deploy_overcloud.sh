@@ -11,6 +11,9 @@ else
   # use names even w/o tls case
   tls_env_files+=' -e tripleo-heat-templates/environments/contrail/endpoints-public-dns.yaml'
 fi
+if [ -n "$SSL_CACERT" ] ; then
+   tls_env_files+=' -e inject-ca.yaml'
+fi
 
 rhel_reg_env_files=''
 if [[ "$ENABLE_RHEL_REGISTRATION" == 'true' && "$USE_PREDEPLOYED_NODES" != 'true' ]] ; then

@@ -48,7 +48,7 @@ fi
 sudo yum module -y install container-tools
 
 export K8S_VERSION=${K8S_VERSION:-'1.18.10'}
-sudo yum install -y kubeadm-$K8S_VERSION kubelet-$K8S_VERSION kubectl-$K8S_VERSION cri-o
+sudo yum install -y kubeadm-$K8S_VERSION kubelet-$K8S_VERSION kubectl-$K8S_VERSION
 
 if ! sudo yum install -y cri-o ; then
   CRIO_VERSION=${CRIO_VERSION:-'1.18'}
@@ -57,6 +57,7 @@ if ! sudo yum install -y cri-o ; then
     https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/devel:kubic:libcontainers:stable.repo
   sudo curl -L -o /etc/yum.repos.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo \
     https://download.opensuse.org/repositories/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION/$OS/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.repo
+  sudo yum install -y cri-o
 fi
 
 if [ ! -e /usr/libexec/crio/conmon ] ; then

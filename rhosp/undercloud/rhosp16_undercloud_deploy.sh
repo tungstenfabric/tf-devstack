@@ -2,7 +2,10 @@
 
 pkgs="python3-tripleoclient rhosp-director-images rhosp-director-images-ipa"
 [[ -z "$overcloud_ceph_instance" ]] || pkgs+=" ceph-ansible"
-sudo dnf install -y $pkgs
+
+# dont use on undercloud rhocp if any enabled (it might be enabled in case of operator nodes
+# are prepared by rhosp)
+sudo dnf install -y --disablerepo="rhocp-*" $pkgs
 
 #RHEL8 undercloud install
 if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]]; then

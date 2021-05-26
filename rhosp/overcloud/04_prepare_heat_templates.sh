@@ -73,12 +73,24 @@ if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
 EOF
 fi
 
+if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
+  # For  operator case it is needed to force enable api ssl for neutron plugin
+  # as operator is always with ssl
+   cat <<EOF >>misc_opts.yaml
+  ControllerExtraConfig:
+    contrail_internal_api_ssl: True
+EOF
+fi
+
 if [[ "$ENABLE_TLS" == 'local' ]] ; then
    if [[ -z "$SSL_CACERT" || -z "$SSL_CAKEY" ]] ; then
       echo "ERROR: for ENABLE_TLS=$ENABLE_TLS SSL_CACERT and SSL_CAKEY must be provided"
       exit 1
    fi
    $my_dir/../../common/jinja2_render.py < $my_dir/contrail-tls-local.yaml.j2 >contrail-tls-local.yaml
+fi
+if [ -n "$SSL_CACERT" ] ; then
+   $my_dir/../../common/jinja2_render.py < $my_dir/inject-ca.yaml.j2 >inject-ca.yaml
 fi
 
 source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
