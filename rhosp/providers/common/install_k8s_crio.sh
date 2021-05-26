@@ -68,7 +68,10 @@ fi
 sudo mkdir -p /etc/crio/crio.conf.d
 cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cgroup-manager.conf
 [crio.runtime]
-conmon_cgroup = "pod"
+#for cgroupfs manager
+#conmon_cgroup = "pod"
+#cgroup_manager = "cgroupfs"
+conmon_cgroup = "system.slice"
 cgroup_manager = "systemd"
 pids_limit = 8192
 EOF
@@ -79,6 +82,8 @@ cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cni.conf
 cni_default_network = "10-tf-cni"
 network_dir = "/etc/cni/net.d/"
 EOF
+# cleanup default podman & crio cnis
+sudo rm -rf /etc/cni/net.d/*
 
 if [ -n "$CONTAINER_REGISTRY" ] || [ -n "$DEPLOYER_CONTAINER_REGISTRY" ] ; then
   echo "[crio.image]" | sudo tee /etc/crio/crio.conf.d/02-insecure-registries.conf
