@@ -476,7 +476,6 @@ function collect_core_dumps() {
     echo ""
 
     # collect /var/crash
-    set -x
     local DUMPS_DIR=$TF_LOG_DIR/kernel_dumps
     if find /var/crash | grep -qP "linux-image|dmesg" ; then
         mkdir -p $DUMPS_DIR
@@ -484,14 +483,10 @@ function collect_core_dumps() {
         for file in $(find /var/crash | grep -P "linux-image|dmesg") ; do
             sudo cp $file $DUMPS_DIR/
         done
-        for file in $(find /var/crash | grep "dump.") ; do
-            sudo tar -czvf $DUMPS_DIR/$(basenname $file).tgz $file
-        done
         local current_kver=`uname -r`
         sudo cp /lib/modules/$current_kver/updates/dkms/vrouter.ko $DUMPS_DIR/
         ls -laR $DUMPS_DIR
     fi
-    set +x
 
     # collect /var/crashes
     local dump_path='/var/crashes'
