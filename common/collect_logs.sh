@@ -109,6 +109,7 @@ function collect_openstack_logs() {
                 '/etc/heat' '/var/log/heat' '/var/lib/config-data/puppet-generated/heat' '/var/log/containers/heat' \
                 '/etc/glance' '/var/log/glance' '/var/lib/config-data/puppet-generated/glance' '/var/log/containers/glance' \
                 '/etc/octavia' '/var/log/octavia' '/var/lib/config-data/puppet-generated/octavia' '/var/log/containers/octavia' \
+                '/var/log/mysql' '/var/log/mysqld.log' \
                 ; do
         if sudo ls "$ldir" >/dev/null 2>&1 ; then
             sudo cp -R -P $ldir $log_dir/
