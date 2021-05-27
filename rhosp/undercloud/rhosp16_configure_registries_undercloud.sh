@@ -3,10 +3,13 @@ current_registries="$(sed -n '/registries.insecure/{n; s/registries = //p}' "$re
 echo "INFO: old registries are $current_registries"
 changed_registries=""
 [ -n "$current_registries" ] && changed_registries+="$current_registries"
-if [[ -n "$CONTAINER_REGISTRY"  ]] && is_registry_insecure "$CONTAINER_REGISTRY" ; then
-    changed_registries+="'$CONTAINER_REGISTRY'"
+
+if [[ -n "$CONTAINER_REGISTRY"  ]] && [[ ${changed_registries} != *"$CONTAINER_REGISTRY"* ]] && is_registry_insecure "$CONTAINER_REGISTRY" ; then
+       echo "INFO: adding new insecure registry $CONTAINER_REGISTRY"
+       changed_registries+="'$CONTAINER_REGISTRY'"
 fi
-if [[ -n "$OPENSTACK_CONTAINER_REGISTRY" ]]  && is_registry_insecure "$OPENSTACK_CONTAINER_REGISTRY" ; then
+if [[ -n "$OPENSTACK_CONTAINER_REGISTRY" ]] && [[ ${changed_registries} != *"$OPENSTACK_CONTAINER_REGISTRY"* ]] && is_registry_insecure "$OPENSTACK_CONTAINER_REGISTRY" ; then
+    echo "INFO: adding new insecure registry $OPENSTACK_CONTAINER_REGISTRY"
     changed_registries+="'$OPENSTACK_CONTAINER_REGISTRY'"
 fi
 
