@@ -301,7 +301,7 @@ function collect_deployment_env() {
     export CONTROLLER_NODES="`get_juju_unit_ips tf-controller`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
 
-    export AGENT_NODES="`get_juju_unit_ips tf-agent`"
+    export AGENT_NODES="`get_juju_unit_ips tf-agent.*`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
     DEPLOYMENT_ENV['CONTROL_NODES']="$(command juju run --unit tf-controller/leader 'cat /etc/contrail/common_config.env' | grep CONTROL_NODES | cut -d '=' -f 2)"
