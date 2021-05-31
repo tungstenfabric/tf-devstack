@@ -140,7 +140,18 @@ function collect_deployment_env() {
     local podSercret=$(kubectl get secret -n tf -o json config1-secret-certificates)
     DEPLOYMENT_ENV['SSL_KEY']=$(echo "$podSercret" | jq -c -r ".data.\"server-key-${podIP}.pem\"")
     DEPLOYMENT_ENV['SSL_CERT']=$(echo "$podSercret" | jq -c -r ".data.\"server-${podIP}.crt\"")
-    DEPLOYMENT_ENV['SSL_CACERT']=$(kubectl get secrets -n tf contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"")
+    local ca_cert="$SSL_CACERT"
+    if [ -z "$ca_cert" ] ; then
+        ca_cert=$(kubectl get secrets -n tf contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"") || true
+        if [ -z "$ca_cert" ] ; then
+            ca_cert=$(kubectl get configmaps -n kube-public cluster-info -o json | jq -r -c ".data.kubeconfig" | awk  '/certificate-authority-data:/ {print($2)}')
+        fi
+    fi
+    if [ -z "$ca_cert" ] ; then
+        echo "ERROR: CA is empty: there is no CA in both contrail-ca-certificate secret and configmaps kube-public/cluster-info"
+        exit 1
+    fi
+    DEPLOYMENT_ENV['SSL_CACERT']="$ca_cert"
 }
 
 function collect_logs() {
