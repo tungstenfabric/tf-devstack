@@ -80,6 +80,11 @@ if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
   ControllerExtraConfig:
     contrail_internal_api_ssl: True
 EOF
+   if [[ "$ENABLE_TLS" == 'ipa' && -n "$SSL_CACERT" ]] ; then
+      # For operator with selfCA and RHOSP w/ IPA use selfsigned ca file
+      # distributed through inject-ca.yaml
+      echo "  ContrailCaCertFile: '/etc/pki/tls/certs/ca-bundle.crt'" >>misc_opts.yaml
+   fi
 fi
 
 if [[ "$ENABLE_TLS" == 'local' ]] ; then
