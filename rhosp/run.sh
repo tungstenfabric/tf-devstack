@@ -16,6 +16,22 @@ source "$my_dir/providers/${PROVIDER}/stages.sh"
 
 init_output_logging
 
+#Checking if mandatory variables are defined
+ensureVariable ENVIRONMENT_OS
+ensureVariable PROVIDER
+ensureVariable USE_PREDEPLOYED_NODES
+ensureVariable ENABLE_RHEL_REGISTRATION
+ensureVariable OPENSTACK_CONTAINER_REGISTRY
+ensureVariable OPENSTACK_CONTAINER_TAG
+ensureVariable CONTAINER_REGISTRY
+ensureVariable CONTRAIL_CONTAINER_TAG
+ensureVariable RHOSP_VERSION
+ensureVariable RHOSP_MAJOR_VERSION
+ensureVariable RHEL_VERSION
+ensureVariable RHEL_MAJOR_VERSION
+ensureVariable OPENSTACK_VERSION
+ensureVariable SSH_USER
+
 # stages declaration
 declare -A STAGES=( \
     ["all"]="build machines tf wait logs" \

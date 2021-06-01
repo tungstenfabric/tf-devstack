@@ -9,6 +9,7 @@ source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
 vexxrc=${vexxrc:-"${WORKSPACE}/vexxrc"}
+rhosp_version=$(echo $RHOSP_VERSION | tr '.' '-')
 
 if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; then
   echo "Please export variables from VEXX openrc file first";
@@ -33,7 +34,7 @@ ssh_private_key=${ssh_private_key:-~/.ssh/workers}
 
 if [[ -n "$RHOSP_ID" ]]; then
   rhosp_id=$RHOSP_ID
-  undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
+  undercloud_instance="${rhosp_version}-undercloud-${rhosp_id}"
 else
   # lookup free name
   while true ; do
@@ -41,9 +42,9 @@ else
       rhosp_id=${RANDOM}
       if (( rhosp_id > 1000 )) ; then break ; fi
     done
-    undercloud_instance="${RHOSP_VERSION}-undercloud-${rhosp_id}"
+    undercloud_instance="${rhosp_version}-undercloud-${rhosp_id}"
     if ! openstack server show $undercloud_instance >/dev/null 2>&1  ; then
-      echo "INFO: free undercloud name undercloud_instance=${RHOSP_VERSION}-undercloud-${rhosp_id}"
+      echo "INFO: free undercloud name undercloud_instance=${rhosp_version}-undercloud-${rhosp_id}"
       break
     fi
   done
@@ -51,7 +52,7 @@ fi
 
 # Enable IPA instance if tls enabled
 ipa_instance=''
-[[ "$ENABLE_TLS" != 'ipa' ]] || ipa_instance="${RHOSP_VERSION}-ipa-${rhosp_id}"
+[[ "$ENABLE_TLS" != 'ipa' ]] || ipa_instance="${rhosp_version}-ipa-${rhosp_id}"
 
 declare -A INSTANCE_FLAVORS
 
@@ -65,7 +66,7 @@ function make_instances_names() {
   fi
   while (( $i <= $nodes_count )); do
     [ -z "$res" ] || res+=","
-    res+="${RHOSP_VERSION}-${type}-${rhosp_id}-$i"
+    res+="${rhosp_version}-${type}-${rhosp_id}-$i"
     i=$(( i + 1 ))
   done
   echo $res
@@ -115,7 +116,8 @@ if [[ -z "$prov_cidr" ]] ; then
 fi
 
 #Get latest rhel image
-image_name=$(openstack image list --status active -c Name -f value | grep "prepared-${RHEL_VERSION}-" | sort -nr | head -n 1)
+rhel_image_name=$(echo "prepared-${RHEL_VERSION}-" | sed "s/\\.//g" )
+image_name=$(openstack image list --status active -c Name -f value | grep "$rhel_image_name" | sort -nr | head -n 1)
 image_id=$(openstack image show -c id -f value "$image_name")
 
 # tags

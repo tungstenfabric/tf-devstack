@@ -12,7 +12,8 @@ source $my_dir/../providers/common/functions.sh
 source $my_dir/../providers/common/common.sh
 
 #Specific part of deployment
-source $my_dir/${RHOSP_VERSION}_deploy_overcloud.sh
+echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_deploy_overcloud.sh"
+source $my_dir/${RHOSP_MAJOR_VERSION}_deploy_overcloud.sh
 
 status=$(openstack stack show -f json overcloud | jq ".stack_status")
 if [[ ! "$status" =~ 'COMPLETE' || -z "$status" ]] ; then

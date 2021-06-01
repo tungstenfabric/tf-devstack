@@ -9,4 +9,5 @@ source rhosp-environment.sh
 source $my_dir/../../common/common.sh
 
 #Specific part
-source $my_dir/${RHOSP_VERSION}_prepare_containers.sh
+echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_prepare_containers.sh"
+source $my_dir/${RHOSP_MAJOR_VERSION}_prepare_containers.sh

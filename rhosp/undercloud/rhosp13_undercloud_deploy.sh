@@ -8,7 +8,7 @@ pkgs="python-tripleoclient python-rdomanager-oscplugin iproute rhosp-director-im
 [[ -z "$overcloud_ceph_instance" ]] || pkgs+=" ceph-ansible"
 sudo yum -y install $pkgs
 
-cat $my_dir/${RHOSP_VERSION}_undercloud.conf.template | envsubst >~/undercloud.conf
+cat $my_dir/${RHOSP_MAJOR_VERSION}_undercloud.conf.template | envsubst >~/undercloud.conf
 echo "INFO: undercloud.conf"
 cat ~/undercloud.conf
 

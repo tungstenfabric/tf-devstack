@@ -333,3 +333,12 @@ function sync_time() {
     ssh $SSH_OPTIONS ${addr} DEBUG=$DEBUG /tmp/sync_time.sh
   done
 }
+
+function ensureVariable() {
+  local env_var=$(declare -p "$1")
+  if !  [[ -v $1 && $env_var =~ ^declare\ -x ]]; then
+    echo "Error: Define $1 environment variable"
+    exit 1
+  fi
+}
+

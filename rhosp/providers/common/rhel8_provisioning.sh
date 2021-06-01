@@ -7,6 +7,8 @@ sudo dnf module enable -y container-tools:2.0 idm:DL1
 
 #Fix for ceph-storage issue https://access.redhat.com/solutions/5912141
 sudo dnf module disable -y virt:rhel
+#rhel_ver=$(echo $RHEL_VERSION | sed "s/rhel//" )
+#sudo dnf module enable -y virt:${rhel_ver}
 sudo dnf module enable -y virt:8.2
 
 sudo dnf distro-sync -y

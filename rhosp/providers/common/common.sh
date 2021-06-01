@@ -10,9 +10,10 @@ if [[ "$PROVIDER" == 'vexx' ]]; then
     PROVIDER='openstack'
 fi
 
+export ENVIRONMENT_OS=${ENVIRONMENT_OS:-'rhel7'}
 export DEPLOYER='rhosp'
 export ORCHESTRATOR=${ORCHESTRATOR:-'openstack'}
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
+
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"docker.io/tungstenfabric"}
 export CONTROL_PLANE_ORCHESTRATOR=${CONTROL_PLANE_ORCHESTRATOR:-''}
 export OPENSTACK_CONTROLLER_NODES=${OPENSTACK_CONTROLLER_NODES:-}
@@ -32,6 +33,14 @@ if [[ "$AGENT_NODES" == "$NODE_IP" ]] ; then
     AGENT_NODES=""
 fi
 
+declare -A _default_rhel_version=( ['rhel7']='rhel7' ['rhel82']='rhel8.2' ['rhel84']='rhel8.4' )
+export RHEL_VERSION=${_default_rhel_version[$ENVIRONMENT_OS]}
+export RHEL_MAJOR_VERSION=$(echo $RHEL_VERSION | cut -d '.' -f1)
+
+declare -A _default_rhosp_version=( ['rhel7']='rhosp13' ['rhel82']='rhosp16.1' ['rhel84']='rhosp16.2' )
+export RHOSP_VERSION=${_default_rhosp_version[$ENVIRONMENT_OS]}
+export RHOSP_MAJOR_VERSION=$(echo $RHOSP_VERSION | cut -d '.' -f1)
+
 declare -A _default_predeployed_mode=( ['openstack']='true' ['kvm']='false' ['bmc']='false' )
 export USE_PREDEPLOYED_NODES=${USE_PREDEPLOYED_NODES:-${_default_predeployed_mode[$PROVIDER]}}
 
@@ -41,16 +50,13 @@ export ENABLE_RHEL_REGISTRATION=${ENABLE_RHEL_REGISTRATION:-${_default_rhel_regi
 declare -A _default_net_isolation=( ['openstack']='false' ['kvm']='false' ['bmc']='true' )
 export ENABLE_NETWORK_ISOLATION=${ENABLE_NETWORK_ISOLATION:-${_default_net_isolation[$PROVIDER]}}
 
-declare -A _default_rhosp_version=( ['queens']='rhosp13' ['train']='rhosp16' )
-export RHOSP_VERSION=${RHOSP_VERSION:-${_default_rhosp_version[$OPENSTACK_VERSION]}}
-
-declare -A _default_rhel_version=( ['queens']='rhel7' ['train']='rhel8' )
-export RHEL_VERSION=${RHEL_VERSION:-${_default_rhel_version[$OPENSTACK_VERSION]}}
+declare -A _default_openstack_version=( ['rhosp13']='queens' ['rhosp16']='train' )
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-${_default_openstack_version[$RHOSP_MAJOR_VERSION]}}
 
 declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
 export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
 
-declare -A _osc_tag_default=( ['rhosp13']='13.0' ['rhosp16']='16.1' )
+declare -A _osc_tag_default=( ['rhosp13']='13.0' ['rhosp16']='16.1' ['rhosp16.1']='16.1' ['rhosp16.2']='16.2_20210630.1' )
 export OPENSTACK_CONTAINER_TAG=${OPENSTACK_CONTAINER_TAG:-${_osc_tag_default[${RHOSP_VERSION}]}}
 
 export IPMI_USER=${IPMI_USER:-'ADMIN'}

@@ -56,6 +56,7 @@ if [[ $? != 0 ]] ; then
    exit 1
 fi
 popd
+
 cp -r contrail-tripleo-heat-templates/* tripleo-heat-templates
 
 #SRIOV parameters tuning
@@ -64,7 +65,7 @@ sed -i "s/ContrailSriovNumVFs:.*/ContrailSriovNumVFs: [\"$contrailsriovnumvfs\"]
 sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
 
 #Creating rhosp specific contrail-parameters.yaml
-$my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
+$my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_MAJOR_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
 if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
    cat <<EOF >>misc_opts.yaml
   ExternalContrailConfigIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
@@ -98,8 +99,10 @@ if [ -n "$SSL_CACERT" ] ; then
    $my_dir/../../common/jinja2_render.py < $my_dir/inject-ca.yaml.j2 >inject-ca.yaml
 fi
 
-source $my_dir/${RHOSP_VERSION}_prepare_heat_templates.sh
-cat $my_dir/${RHOSP_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
+echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_prepare_heat_templates.sh"
+source $my_dir/${RHOSP_MAJOR_VERSION}_prepare_heat_templates.sh
+echo "INFO: using template $my_dir/${RHOSP_MAJOR_VERSION}_contrail-parameters.yaml.template"
+cat $my_dir/${RHOSP_MAJOR_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
 if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then

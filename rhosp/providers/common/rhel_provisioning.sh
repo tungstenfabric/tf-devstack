@@ -51,12 +51,7 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]] ; then
   wait_cmd_success "sudo subscription-manager repos $enable_repo_list" 2 5
 
   # Set proper version of release to prevent upgrade to next one
-  release=''
-  if [[ "$RHEL_VERSION" == 'rhel82' ]]; then
-    release='8.2'
-  elif [[ "$RHEL_VERSION" == 'rhel84' ]] ; then
-    release='8.4'
-  fi
+  release=$(echo $RHEL_VERSION | sed "s/rhel//" )
   if [[ -n "$release" ]]; then
     sudo subscription-manager release --set=$release
   else
@@ -67,6 +62,7 @@ else
   sudo subscription-manager config --rhsm.manage_repos=0
 fi
 
-source $my_dir/${RHEL_VERSION}_provisioning.sh
+echo "INFO: source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh"
+source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh
 
 [[ "$ENABLE_TLS" != 'ipa' ]] || sudo update-ca-trust extract
