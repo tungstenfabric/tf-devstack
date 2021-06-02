@@ -31,7 +31,7 @@ function create_stackrc() {
     auth_ip=$(command juju status $service --format tabular | grep "keystone/" | head -1 | awk '{print $5}')
   fi
   local proto="http"
-  # TODO: add detection is SSL for openstack enabled 
+  # TODO: add detection is SSL for openstack enabled
   local kver=`command juju config keystone preferred-api-version`
   echo "# created by CI" > $WORKSPACE/stackrc
   if [[ "$kver" == '3' ]] ; then
@@ -145,6 +145,7 @@ collect_core_dumps
 collect_openstack_logs
 collect_kubernetes_logs
 collect_kubernetes_objects_info
+collect_docker_service_statuses
 sudo chmod -R a+r logs
 pushd logs
 tar -czf \$tgz_name *

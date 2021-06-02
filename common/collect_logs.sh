@@ -4,6 +4,8 @@
 
 # centos doesn't have this folder in PATH for ssh connections
 export PATH=$PATH:/usr/sbin
+export PHYS_INT=`ip route get 1 | grep -o 'dev.*' | awk '{print($2)}'`
+export NODE_IP=`ip addr show dev $PHYS_INT | grep 'inet ' | awk '{print $2}' | head -n 1 | cut -d '/' -f 1`
 
 function init_output_logging {
   if [[ -n "$TF_LOG_DIR" ]]; then
@@ -462,9 +464,43 @@ function collect_kubernetes_service_statuses() {
     collect_cmd_from_service_pods "rabbitmq" "$log_dir/rabbitmq_status.log" "$command" "$tool"
 
     local command="source /etc/rabbitmq/rabbitmq-common.env;
-                   vhosts=\${ds}(rabbitmqctl list_vhosts | tail -n +3); 
+                   vhosts=\${ds}(rabbitmqctl list_vhosts | tail -n +3);
                    rabbitmqctl list_policies -p \${ds}vhosts"
     collect_cmd_from_service_pods "rabbitmq" "$log_dir/rabbitmq_policies.log" "$command" "$tool"
+}
+
+function collect_docker_service_statuses() {
+    local tool=${1:-"docker"}
+
+    echo "INFO: Collecting statuses from cassandra, zookeeper and rabbitmq services"
+
+    if ! which $tool &>/dev/null ; then
+        echo "INFO: There is no any $tool installed"
+        return 0
+    fi
+    local log_dir="$TF_LOG_DIR/externals"
+    mkdir -p $log_dir
+
+    # Cassandra
+    local command=" \
+        echo \"Port 7200:\"; nodetool -p 7200 status; nodetool -p 7200 describecluster; \
+        echo \"Port 7201:\"; nodetool -p 7201 status; nodetool -p 7201 describecluster"
+    local cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'cassandra' | cut -d ' ' -f 1)
+    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/cassandra_status.log"
+
+    # Zookeeper
+    local command="zkCli.sh -server ${NODE_IP} config; echo ${NODE_IP}"
+    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'zookeeper' | cut -d ' ' -f 1)
+    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/zookeeper_status.log"
+
+    #Rabbitmq
+    local command="rabbitmqctl cluster_status"
+    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'rabbitmq' | cut -d ' ' -f 1)
+    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/rabbitmq_status.log"
+
+    local command="rabbitmqctl list_policies"
+    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'rabbitmq' | cut -d ' ' -f 1)
+    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/rabbitmq_policies.log"
 }
 
 function collect_core_dumps() {

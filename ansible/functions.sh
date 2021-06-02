@@ -33,6 +33,7 @@ collect_system_stats
 collect_docker_logs
 collect_tf_logs
 collect_core_dumps
+collect_docker_service_statuses
 if [[ "$ORCHESTRATOR" == "openstack" ]]; then
     collect_kolla_logs
 else
