@@ -473,34 +473,40 @@ function collect_docker_service_statuses() {
     local tool=${1:-"docker"}
 
     echo "INFO: Collecting statuses from cassandra, zookeeper and rabbitmq services"
-
     if ! which $tool &>/dev/null ; then
         echo "INFO: There is no any $tool installed"
         return 0
     fi
+
+    local cntr_id_cassandra=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'cassandra' | cut -d ' ' -f 1)
+    local cntr_id_zookeeper=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'zookeeper' | cut -d ' ' -f 1)
+    local cntr_id_rabbitmq=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'rabbitmq' | cut -d ' ' -f 1)
+    if [[ -z "$cntr_id_cassandra" && -z "$cntr_id_zookeeper" && -z "$cntr_id_rabbitmq" ]]; then
+        echo "INFO: There are no required containers"
+        return 0
+    fi
+
     local log_dir="$TF_LOG_DIR/externals"
     mkdir -p $log_dir
 
     # Cassandra
     local command=" \
-        echo \"Port 7200:\"; nodetool -p 7200 status; nodetool -p 7200 describecluster; \
-        echo \"Port 7201:\"; nodetool -p 7201 status; nodetool -p 7201 describecluster"
-    local cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'cassandra' | cut -d ' ' -f 1)
-    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/cassandra_status.log"
+        echo 'Port 7200:'; nodetool -p 7200 status; nodetool -p 7200 describecluster; \
+        echo 'Port 7201:'; nodetool -p 7201 status; nodetool -p 7201 describecluster"
+    sudo docker exec $cntr_id_cassandra /bin/bash -c "$command" > "$log_dir/cassandra_status.log"
 
     # Zookeeper
     local command="zkCli.sh -server ${NODE_IP} config; echo ${NODE_IP}"
-    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'zookeeper' | cut -d ' ' -f 1)
-    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/zookeeper_status.log"
+    sudo docker exec $cntr_id_zookeeper /bin/bash -c "$command" > "$log_dir/zookeeper_status.log"
 
     #Rabbitmq
-    local command="rabbitmqctl cluster_status"
-    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'rabbitmq' | cut -d ' ' -f 1)
-    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/rabbitmq_status.log"
-
-    local command="rabbitmqctl list_policies"
-    cntr_id=$(sudo docker ps --format '{{.ID}} {{.Names}}' | grep 'config' | grep  'rabbitmq' | cut -d ' ' -f 1)
-    sudo docker exec $cntr_id /bin/bash -c "$command" > "$log_dir/rabbitmq_policies.log"
+    local command="echo 'CLUSTER_STATUS:'; rabbitmqctl cluster_status ; \
+                   echo 'VHOSTS_LIST:'; rabbitmqctl list_vhosts ; \
+                   echo 'POLICIES_LIST:'; \
+                   vhosts=\$(rabbitmqctl list_vhosts | tail -n +3); \
+                   echo 'collected vhosts: '\$vhosts ; \
+                   rabbitmqctl list_policies -p \$vhosts"
+    sudo docker exec $cntr_id_rabbitmq /bin/bash -c "$command" > "$log_dir/rabbitmq_status.log"
 }
 
 function collect_core_dumps() {
