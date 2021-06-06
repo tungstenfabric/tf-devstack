@@ -35,6 +35,9 @@ Red Hat account is needed for setting RHEL subscription.
     fi
     export SSL_CAKEY=$(cat ca.key.pem)
     export SSL_CACERT=$(cat ca.crt.pem)
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
+    # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt)
     ```
 
 2. Quick start RHOSP16 non-HA setup
