@@ -117,6 +117,9 @@ exit
     # Run inside K8S VM
     export SSL_CAKEY=$(cat ca.key.pem)
     export SSL_CACERT=$(cat ca.crt.pem)
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
+    # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt)
     export AUTH_MODE='keystone'
     export IPFABRIC_SERVICE_HOST='192.168.21.200'
     export KEYSTONE_AUTH_HOST='192.168.21.200'
