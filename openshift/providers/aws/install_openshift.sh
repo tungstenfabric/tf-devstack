@@ -29,7 +29,7 @@ download_artefacts
 jinja="$my_dir/../../../common/jinja2_render.py"
 $jinja < $my_dir/aws_credentials.j2 > $HOME/.aws/credentials
 $jinja < $my_dir/install_config.yaml.j2 > $INSTALL_DIR/install-config.yaml
-./openshift-install create manifests --dir=$INSTALL_DIR
+openshift-install create manifests --dir=$INSTALL_DIR
 
 # Copy manifests from `tf-openshift` and `tf-operator` to the install directory
 $OPENSHIFT_REPO/scripts/apply_install_manifests.sh "$INSTALL_DIR"
@@ -42,9 +42,9 @@ for file in namespace service-account role cluster-role role-binding cluster-rol
    cp $OPERATOR_REPO/deploy/kustomize/base/operator/$file.yaml $INSTALL_DIR/manifests/02-tf-operator-$file.yaml
 done
 
-./oc kustomize $OPERATOR_REPO/deploy/kustomize/operator/templates/ | sed -n 'H; /---/h; ${g;p;}' > $INSTALL_DIR/manifests/02-tf-operator.yaml
-./oc kustomize $OPERATOR_REPO/deploy/kustomize/contrail/templates/ > $INSTALL_DIR/manifests/03-tf.yaml
+oc kustomize $OPERATOR_REPO/deploy/kustomize/operator/templates/ | sed -n 'H; /---/h; ${g;p;}' > $INSTALL_DIR/manifests/02-tf-operator.yaml
+oc kustomize $OPERATOR_REPO/deploy/kustomize/contrail/templates/ > $INSTALL_DIR/manifests/03-tf.yaml
 
 # Create cluster
 $my_dir/parallel.sh &
-./openshift-install create cluster --dir=$INSTALL_DIR
+openshift-install create cluster --dir=$INSTALL_DIR

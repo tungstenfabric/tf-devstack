@@ -23,8 +23,8 @@ success=false
 
 for i in {1..60}; do
     sleep 60
-    if ./oc -n openshift-ingress get service router-default 1>/dev/null 2>/dev/null; then
-        ./oc -n openshift-ingress patch service router-default --patch '{"spec": {"externalTrafficPolicy": "Cluster"}}'
+    if oc -n openshift-ingress get service router-default 1>/dev/null 2>/dev/null; then
+        oc -n openshift-ingress patch service router-default --patch '{"spec": {"externalTrafficPolicy": "Cluster"}}'
         success=true
         break
     fi
