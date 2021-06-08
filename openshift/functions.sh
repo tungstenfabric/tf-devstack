@@ -77,3 +77,9 @@ function download_artefacts() {
     fi
   fi
 }
+
+function kubeconfig_copy() {
+  mkdir -p ~/.kube
+  cp ${OPENSHIFT_INSTALL_DIR}/auth/kubeconfig ~/.kube/config
+  chmod go-rwx ~/.kube/config
+}

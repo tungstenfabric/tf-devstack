@@ -152,6 +152,7 @@ function _monitor_csr() {
 function tf() {
     # TODO: somehow move machine creation to machines
     ${my_dir}/providers/${PROVIDER}/install_openshift.sh
+    kubeconfig_copy
 
     if [[ "$PROVIDER" == "aws" ]]; then
         # When deploy on AWS, we apply crds and manifests before openshift installing
