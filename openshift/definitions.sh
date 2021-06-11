@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-declare -A ocp_versions=( ["4.5"]="4.5.36" ["4.6"]="4.6.21" )
+declare -A ocp_versions=( ["4.5"]="4.5.36" ["4.6"]="4.6.23" )
 OCP_VERSION=${OCP_VERSION:-"${ocp_versions[$OPENSHIFT_VERSION]}"}
 
 OCP_MIRROR="https://mirror.openshift.com/pub/openshift-v4/clients/ocp"
