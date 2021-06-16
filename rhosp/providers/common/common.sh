@@ -16,14 +16,14 @@ export OPENSTACK_VERSION=${OPENSTACK_VERSION:-'queens'}
 export CONTAINER_REGISTRY=${CONTAINER_REGISTRY:-"docker.io/tungstenfabric"}
 export CONTROL_PLANE_ORCHESTRATOR=${CONTROL_PLANE_ORCHESTRATOR:-''}
 export OPENSTACK_CONTROLLER_NODES=${OPENSTACK_CONTROLLER_NODES:-}
-export CONTROLLER_NODES=${CONTROLLER_NODES:-'v2-standard-8:1'}
+export CONTROLLER_NODES=${CONTROLLER_NODES:-'v3-standard-8:1'}
 export AGENT_NODES=${AGENT_NODES:-}
 export DPDK_AGENT_NODES=${DPDK_AGENT_NODES:-}
 if [[ "$CONTROLLER_NODES" == "$NODE_IP" ]] ; then
     # Default case.
     # but in rhosp NODE_IP is either jumphost (kvm)
     # or an undercloud. So, set to default to count 1 AIO node.
-    CONTROLLER_NODES="v2-standard-8:1"
+    CONTROLLER_NODES="v3-standard-8:1"
 fi
 if [[ "$AGENT_NODES" == "$NODE_IP" ]] ; then
     # Default case - AIO.
