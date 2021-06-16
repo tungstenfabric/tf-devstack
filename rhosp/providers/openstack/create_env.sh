@@ -8,7 +8,7 @@ source "$my_dir/../../../common/functions.sh"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
-vexxrc=${vexxrc:-"${workspace}/vexxrc"}
+vexxrc=${vexxrc:-"${WORKSPACE}/vexxrc"}
 
 if [[ -z ${OS_USERNAME+x}  && -z ${OS_PASSWORD+x} && -z ${OS_PROJECT_ID+x} ]]; then
   echo "Please export variables from VEXX openrc file first";

@@ -22,6 +22,7 @@ There are 2 providers for deployment:
 ## OpenStack installation
 
 1. Install openstack CLI and setup authorization for OpenStack cloud.
+1. Check that you have jq installed.
 1. git clone <https://github.com/tungstenfabric/tf-devstack.git>
 1. cd tf-devstack/rhosp
 1. ./providers/openstack/create_env.sh it will create VMs and environment file rhosp-environment.sh
