@@ -80,6 +80,8 @@ Red Hat account is needed for setting RHEL subscription.
     sudo yum install -y git
     git clone http://github.com/tungstenfabric/tf-devstack
     export CONTAINER_REGISTRY=192.168.21.2:8787
+    # Disable Contrail CNI for K8S if it is not supposed to be used there
+    export CNI=default
     ./tf-devstack/rhosp/providers/common/install_k8s_crio.sh
     ```
 
@@ -93,9 +95,22 @@ Red Hat account is needed for setting RHEL subscription.
     export KEYSTONE_AUTH_ADMIN_PASSWORD=qwe123QWE
     export KEYSTONE_AUTH_REGION_NAME=regionOne
     export IPFABRIC_SERVICE_HOST=overcloud.internalapi.dev.localdomain
+
+    # Disable Contrail CNI for K8S if it is not supposed to be used there
+    export CNI=default
+
+    # Container registry (usually points to udnercloud)
     export CONTAINER_REGISTRY=192.168.21.2:8787/tungstenfabric
+    
     export TF_ROOT_CA_CERT_BASE64=$(cat ca.key.pem | base64 -w 0)
     export TF_ROOT_CA_KEY_BASE64=$(cat ca.crt.pem | base64 -w 0)
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
+    # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt | base64 -w 0)
+    
+    # In case of data isolation provide Tenant network as below 
+    # export DATA_NETWORK=10.0.0.0/24 -->
+    
     ./tf-operator/contrib/render_manifests.sh
     kubectl apply -f ./tf-operator/deploy/crds/
     kubectl wait crds --for=condition=Established --timeout=2m managers.tf.tungsten.io
