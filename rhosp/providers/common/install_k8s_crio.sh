@@ -77,14 +77,17 @@ cgroup_manager = "systemd"
 pids_limit = 8192
 EOF
 
-# to avoid bridged cni from crio which is installed by default
-cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cni.conf
+echo "CNI set to $CNI"
+if [[ -z "$CNI" || "$CNI" == "tf" || "$CNI" == 'cni' ]] ; then
+  # to avoid bridged cni from crio which is installed by default
+  cat <<EOF | sudo tee /etc/crio/crio.conf.d/02-cni.conf
 [crio.network]
 cni_default_network = "10-tf-cni"
 network_dir = "/etc/cni/net.d/"
 EOF
-# cleanup default podman & crio cnis
-sudo rm -rf /etc/cni/net.d/*
+  # cleanup default podman & crio cnis
+  sudo rm -rf /etc/cni/net.d/*
+fi
 
 if [ -n "$CONTAINER_REGISTRY" ] || [ -n "$DEPLOYER_CONTAINER_REGISTRY" ] ; then
   echo "[crio.image]" | sudo tee /etc/crio/crio.conf.d/02-insecure-registries.conf
