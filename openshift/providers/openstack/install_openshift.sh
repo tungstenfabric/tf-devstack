@@ -236,8 +236,8 @@ all:
 
       # User-provided values
       os_subnet_range: '10.100.0.0/24'
-      os_flavor_master: 'v2-standard-16'
-      os_flavor_worker: 'v2-highcpu-16'
+      os_flavor_master: 'v3-standard-8'
+      os_flavor_worker: 'v3-starter-8'
       os_image_rhcos: 'rhcos'
       os_external_network: 'public'
       # OpenShift API floating IP address

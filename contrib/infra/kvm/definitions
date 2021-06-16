@@ -14,10 +14,10 @@ export ADDITIONAL_DISK_SIZE=${DISK_DOCKER_SIZE:-'120'}
 export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o PasswordAuthentication=no"
 
 #                CPU     Memory     AWS (Canada)   vm_type
-# v2-standard-1   1       4 GB      t2.small       xsmall
-# v2-standard-2   2       8 GB      t2.large       small
-# v2-standard-4   4       16 GB     t2.xlarge      medium
-# v2-standard-8   8       32 GB     m4.2xlarge     large
+# v3-standard-1   1       4 GB      t2.small       xsmall
+# v3-standard-2   2       8 GB      t2.large       small
+# v3-standard-4   4       16 GB     t2.xlarge      medium
+# v3-standard-8   8       32 GB     m4.2xlarge     large
 
 # type to 'vcpus mem'
 declare -A VM_TYPES=( ['large']='8 32768' \
