@@ -195,6 +195,12 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
     fi
 
+    if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+        mkdir -p ~/.kube
+        sudo cp /root/.kube/config ~/.kube/config
+        sudo chown -R $(id -u):$(id -g) ~/.kube
+    fi
+
     cp $tf_deployer_dir/instances.yaml $TF_CONFIG_DIR/
 }
 
