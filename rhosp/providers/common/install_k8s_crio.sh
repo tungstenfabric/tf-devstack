@@ -98,9 +98,9 @@ if [ -n "$CONTAINER_REGISTRY" ] || [ -n "$DEPLOYER_CONTAINER_REGISTRY" ] ; then
     insecure_registries+=" '$registry' "
     add_comma=","
   fi
-  insecure_registries+=$add_comma
   registry=$(echo $DEPLOYER_CONTAINER_REGISTRY | cut -d '/' -f 1)
   if [ -n "$registry" ] && is_registry_insecure $registry ; then
+    insecure_registries+=$add_comma
     insecure_registries+=" '$registry' "
   fi
   insecure_registries+="]"

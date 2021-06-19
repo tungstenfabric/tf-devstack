@@ -6,11 +6,15 @@ function start_lb_vm() {
   local mem=$3
   local cpu=$4
 
+  local hugepages_opt=""
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
-    local hugepages_opt=" --memorybacking hugepages=on "
-  else
-    local hugepages_opt=""
+    hugepages_opt=" --memorybacking hugepages=on "
   fi
+
+  local net_opts=""
+  for i in ${VIRTUAL_NET//,/ } ; do
+      net_opts+=" --network network=$i,model=virtio"
+  done
 
   sudo virt-install --name $name \
     --disk "$disk" \
@@ -19,7 +23,7 @@ function start_lb_vm() {
     --vcpus $cpu \
     --os-type linux \
     --os-variant rhel7 \
-    --network network=${VIRTUAL_NET},model=virtio \
+    $net_opts \
     --noreboot \
     --noautoconsole \
     ${hugepages_opt} \
@@ -35,11 +39,16 @@ function start_openshift_vm() {
 
   local versioned_rootfs_url=${versioned_rootfs_urls[$OPENSHIFT_VERSION]}
   local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda $versioned_rootfs_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
+  [ -z ${kernel_boot_args[${name}]} ] || extra_args+=" ${kernel_boot_args[${name}]}"
 
+  local net_opts=""
+  for i in ${VIRTUAL_NET//,/ } ; do
+      net_opts+=" --network network=$i,model=virtio"
+  done
+  
+  local hugepages_opt=""
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
-    local hugepages_opt=" --memorybacking hugepages=on "
-  else
-    local hugepages_opt=""
+    hugepages_opt=" --memorybacking hugepages=on "
   fi
 
   sudo virt-install --name $name \
@@ -49,7 +58,7 @@ function start_openshift_vm() {
     --vcpus $cpu \
     --os-type linux \
     --os-variant rhel7 \
-    --network network=${VIRTUAL_NET},model=virtio \
+    $net_opts \
     --noreboot \
     --noautoconsole \
     ${hugepages_opt} \

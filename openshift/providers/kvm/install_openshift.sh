@@ -56,9 +56,12 @@ sed -i -E "s/mastersSchedulable: .*/mastersSchedulable: $masters_schedulable/" $
 
 openshift-install create ignition-configs --dir=${INSTALL_DIR}
 
-sudo virsh net-define ${my_dir}/openshift.xml
-sudo virsh net-autostart ${VIRTUAL_NET}
-sudo virsh net-start ${VIRTUAL_NET}
+mgmt_net=$(echo $VIRTUAL_NET | cut -d ',' -f 1)
+for i in ${VIRTUAL_NET//,/ } ; do
+  sudo virsh net-define ${my_dir}/$i.xml
+  sudo virsh net-autostart $i
+  sudo virsh net-start $i
+done
 
 WS_PORT="1234"
 cat <<EOF > tmpws.service
@@ -88,7 +91,7 @@ start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_N
 ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-lb) )
 LBIP=${ip_mac[0]}
 # DHCP Reservation
-sudo virsh net-update ${VIRTUAL_NET} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='$LBIP'/>" --live --config
+sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='$LBIP'/>" --live --config
 
 # Adding /etc/hosts entry for LB IP
 echo "$LBIP lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN} " \
@@ -131,7 +134,7 @@ echo "local=/${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}/" | sudo te
 ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-bootstrap) )
 echo "INFO: net-update for bootstrap vm: ${ip_mac[@]}"
 # Adding DHCP reservation
-sudo virsh net-update ${VIRTUAL_NET} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
+sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
     err "Adding DHCP reservation for bootstrap failed"
 
 # Adding /etc/hosts entry
@@ -141,7 +144,7 @@ for i in $(seq 1 ${controller_count}); do
   ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-master-${i}) )
   echo "INFO: net-update for master-$i vm: ${ip_mac[@]}"
   # Adding DHCP reservation
-  sudo virsh net-update ${VIRTUAL_NET} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
+  sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
     err "Adding DHCP reservation for master ${i} failed"
 
   # Adding /etc/hosts entry
@@ -156,7 +159,7 @@ for i in $(seq 1 ${agent_count}); do
   ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-worker-${i}) )
   echo "INFO: net-update for worker-$i vm: ${ip_mac[@]}"
   # Adding DHCP reservation
-  sudo virsh net-update ${VIRTUAL_NET} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
+  sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
     err "Adding DHCP reservation for worker ${i} failed"
   echo "${ip_mac[0]} worker-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts 
 done

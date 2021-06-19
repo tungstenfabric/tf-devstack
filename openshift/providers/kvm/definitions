@@ -1,6 +1,16 @@
 #!/bin/bash
 
 VIRTUAL_NET=${VIRTUAL_NET:-"openshift"}
+
+# kernel boot args map (node1#args1 node1#args2 node2#args)
+KERNEL_BOOT_ARGS_MAP=${KERNEL_BOOT_ARGS_MAP:-}
+declare -A kernel_boot_args
+for i in $KERNEL_BOOT_ARGS_MAP ; do
+  nh=$(echo $i | cut -d '#' -f 1)
+  opts=$(echo $i | cut -d '#' -f 2)
+  kernel_boot_args[${nh}]="${kernel_boot_args[${nh}]} ${opts}"
+done
+
 DNS_DIR="/etc/dnsmasq.d"
 
 declare -A rhcos_versions=( ["4.5"]="4.5/4.5.6" ["4.6"]="4.6/4.6.8" )
