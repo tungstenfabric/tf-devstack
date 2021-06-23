@@ -27,6 +27,7 @@ cd /tmp/k8s_manifests-logs
 source ./collect_logs.sh
 collect_system_stats
 collect_tf_status
+collect_core_dumps
 collect_docker_logs
 collect_kubernetes_objects_info
 collect_kubernetes_logs
