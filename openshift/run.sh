@@ -13,8 +13,8 @@ export PATH="$HOME:$PATH"
 
 # stages declaration
 declare -A STAGES=( \
-    ["all"]="machines manifest tf wait logs" \
-    ["default"]="machines manifest tf wait" \
+    ["all"]="machines manifest openshift tf wait logs" \
+    ["default"]="machines manifest openshift tf wait" \
     ["platform"]="machines" \
 )
 
@@ -149,14 +149,18 @@ function _monitor_csr() {
     done
 }
 
-function tf() {
+function openshift() {
     # TODO: somehow move machine creation to machines
     ${my_dir}/providers/${PROVIDER}/install_openshift.sh
     kubeconfig_copy
+}
+
+function tf() {
 
     if [[ "$PROVIDER" == "aws" ]]; then
         # When deploy on AWS, we apply crds and manifests before openshift installing
         # in aws/install_openshift.sh
+        echo "INFO: in AWS tf step does nothing, all is done in openshift step"
         return
     fi
 
