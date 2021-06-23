@@ -195,7 +195,7 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
     fi
 
-    if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+    if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]]; then
         mkdir -p ~/.kube
         sudo cp /root/.kube/config ~/.kube/config
         sudo chown -R $(id -u):$(id -g) ~/.kube
