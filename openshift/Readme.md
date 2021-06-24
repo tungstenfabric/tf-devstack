@@ -26,7 +26,7 @@ export AGENT_NODES="A1 A2 A3 B1 B2"
 2. Clone this repository and run the startup script
 ``` bash
 git clone http://github.com/tungstenfabric/tf-devstack
-tf-devstack/openstack/run.sh
+tf-devstack/openshift/run.sh
 ```
 
 3.  Wait about 40-120 minutes to complete the deployment.
