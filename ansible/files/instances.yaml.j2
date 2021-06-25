@@ -110,7 +110,9 @@ contrail_configuration:
   AUTH_MODE: keystone
   AAA_MODE: rbac
   KEYSTONE_AUTH_URL_VERSION: /v3
-  HUGE_PAGES_2MB: 1024
+{%- if HUGE_PAGES_2MB %}
+  HUGE_PAGES_2MB: "{{ HUGE_PAGES_2MB }}"
+{%- endif %}
 kolla_config:
   kolla_globals:
     nova_compute_virt_type: "{{ VIRT_TYPE }}"

@@ -63,6 +63,7 @@ function manifest() {
     KUBERNETES_IP_FABRIC_FORWARDING='false' \
     CONTROLLER_NODES=${CONTROLLER_NODES// /,} \
     AGENT_NODES=${AGENT_NODES// /,} \
+    HUGE_PAGES_2MB=${HUGE_PAGES_2MB} \
     $deployer_dir/kubernetes/manifests/resolve-manifest.sh $KUBE_MANIFEST > $WORKSPACE/tf.yaml
 }
 

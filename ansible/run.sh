@@ -195,7 +195,8 @@ function collect_deployment_env() {
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
     fi
 
-    if [[ "$ORCHESTRATOR" == "kubernetes" ]]; then
+    if [[ "$ORCHESTRATOR" == "kubernetes" || "$ORCHESTRATOR" == "hybrid" ]]; then
+        #TODO: find master node for HA and copy config from it
         mkdir -p ~/.kube
         sudo cp /root/.kube/config ~/.kube/config
         sudo chown -R $(id -u):$(id -g) ~/.kube

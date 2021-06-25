@@ -121,7 +121,11 @@ services:
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
+{%- if HUGE_PAGES_1G %}
       kernel-hugepages-1g: "{{ HUGE_PAGES_1G }}"
+{%- elif HUGE_PAGES_2MB %}
+      kernel-hugepages-2m: "{{ HUGE_PAGES_2MB }}"
+{%- endif %}
 {%- endif %}
 {%- if ORCHESTRATOR == 'openstack' or ORCHESTRATOR == 'hybrid' %}
   tf-keystone-auth:
