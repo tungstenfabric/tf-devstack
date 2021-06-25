@@ -35,7 +35,7 @@ workaround_kubespray_docker_cli
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
-[ "$(whoami)" == "root" ] && echo Please run script as non-root user && exit 1
+[ "$(whoami)" == "root" ] && echo "ERROR: Please run script as non-root user" && exit 1
 
 # install required packages
 
@@ -44,8 +44,8 @@ if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
 elif [ "$DISTRO" == "ubuntu" ]; then
     # Ensure updates repo is available
     if [[ "$IGNORE_APT_UPDATES_REPO" != "false" ]] && ! apt-cache policy | grep http | awk '{print $2 $3}' | sort -u | grep -q updates; then
-        echo "Ubuntu updates repo could not be found! Please check your apt sources" 1>&2
-        echo "If you believe this to be a mistake and want to proceed, set IGNORE_APT_UPDATES_REPO=true and run again." 1>&2
+        echo "ERROR: Ubuntu updates repo could not be found! Please check your apt sources" 1>&2
+        echo "ERROR: If you believe this to be a mistake and want to proceed, set IGNORE_APT_UPDATES_REPO=true and run again." 1>&2
         exit 1
     fi
     export DEBIAN_FRONTEND=noninteractive
@@ -61,7 +61,7 @@ elif [ "$DISTRO" == "ubuntu" ]; then
         pip3 install pyOpenSSL
     fi
 else
-    echo "Unsupported OS version" && exit 1
+    echo "ERROR: Unsupported OS version" && exit 1
 fi
 sudo python3 -m pip install --upgrade pip
 
@@ -92,30 +92,34 @@ ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 devstack_dir="$(basename $(dirname $my_dir))"
 for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
   if ! ip a | grep -q "$machine"; then
-    echo "Copy devstack from master to $machine"
+    echo "INFO: Copy devstack from master to $machine"
     scp -r $ssh_opts $(dirname $my_dir) $machine:/tmp/
+  fi
+  if [[ -n "$HUGE_PAGES_2MB" ]]; then
+    ssh $ssh_opts $ip "echo 'vm.nr_hugepages = $HUGE_PAGES_2MB' | sudo tee /etc/sysctl.d/tf-hugepages.conf"
+    ssh $ssh_opts $ip "sudo sysctl --system"
   fi
 done
 
-echo Deploying to IPs ${IPS[@]} with masters ${masters[@]}
+echo "INFO: Deploying to IPs ${IPS[@]} with masters ${masters[@]}"
 export KUBE_MASTERS_MASTERS=${#masters[@]}
 if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
-    node_count=0
-    for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
-        declare -A IPS_WITH_HOSTNAMES
-        hostname=$(ssh $ssh_opts $ip hostname -s)
-        IPS_WITH_HOSTNAMES[$hostname]=$ip
-       ((node_count+=1))
-    done
-    # Test if all hostnames were unique
-    if [[ "${#IPS_WITH_HOSTNAMES[@]}" != "$node_count" ]]; then
-        echo "ERROR: Not all hosts have unique hostnames." 1>&2
-        echo "To use automatic host naming, set LOOKUP_NODE_HOSTNAMES=false" 1>&2
-        exit 1
-    fi
-    CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $(for host in "${!IPS_WITH_HOSTNAMES[@]}"; do echo -n "$host,${IPS_WITH_HOSTNAMES[$host]} ";done)
+  node_count=0
+  for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
+    declare -A IPS_WITH_HOSTNAMES
+    hostname=$(ssh $ssh_opts $ip hostname -s)
+    IPS_WITH_HOSTNAMES[$hostname]=$ip
+    ((node_count+=1))
+  done
+  # Test if all hostnames were unique
+  if [[ "${#IPS_WITH_HOSTNAMES[@]}" != "$node_count" ]]; then
+    echo "ERROR: Not all hosts have unique hostnames." 1>&2
+    echo "To use automatic host naming, set LOOKUP_NODE_HOSTNAMES=false" 1>&2
+    exit 1
+  fi
+  CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $(for host in "${!IPS_WITH_HOSTNAMES[@]}"; do echo -n "$host,${IPS_WITH_HOSTNAMES[$host]} ";done)
 else
-    CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
+  CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 fi
 
 sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
@@ -137,7 +141,7 @@ else
   resolvfile=/etc/resolv.conf
 fi
 if [ -z "$nameserver" ]; then
-  echo "FATAL: No existing nameservers detected. Please set one in $resolvfile before deploying again."
+  echo "ERROR: No existing nameservers detected. Please set one in $resolvfile before deploying again."
   exit 1
 fi
 # Set upstream DNS server used by host and coredns for recursive lookups
@@ -180,7 +184,7 @@ fi
 # tf-dev-env and deployment methods (not using kubespray) use config file approach.
 #    the way via kubespray:
 #    echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo "Create /etc/docker/daemon.json on all nodes"
+echo "INFO: Create /etc/docker/daemon.json on all nodes"
 # Master-node
 sudo -E $my_dir/create_docker_config.sh
 # All another nodes
@@ -206,39 +210,36 @@ sudo chown -R $(id -u):$(id -g) ~/.kube
 # for a moment and then disappears. the port test is not enough
 # let's wait for k8s_POD_kube-apiserver cts first to catch the
 # kube-apiserver POD restart.
-if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12
-then
-  echo "Kubernetes API POD is not available"
+if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12 ; then
+  echo "ERROR: Kubernetes API POD is not available"
   exit 1
 fi
-if ! wait_cmd_success "is_kubeapi_accessible ${masters[0]}" 5 12
-then
-  echo "Kubernetes API is not accessible"
+if ! wait_cmd_success "is_kubeapi_accessible ${masters[0]}" 5 12 ; then
+  echo "ERROR: Kubernetes API is not accessible"
   exit 1
 fi
-if [[ "openstack" == "${ORCHESTRATOR}" && "${CNI}" == "calico" ]]
-then
+if [[ "openstack" == "${ORCHESTRATOR}" && "${CNI}" == "calico" ]]; then
   # NB. calico requires custom mtu settings when network is over vxlan
   # because of an extra packet header otherwise packet loss is observed.
   # this is what we have in some openstack providers.
   k=/usr/local/bin/kubectl
-  echo "Wait for calico-node daemonset"
+  echo "INFO: Wait for calico-node daemonset"
   wait_cmd_success "$k -n kube-system get daemonset/calico-node" 5 36
 
-  echo "Patch calico-node daemonset"
+  echo "INFO: Patch calico-node daemonset"
   $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/env/-", "value": {"name": "FELIX_IPINIPMTU", "value": "1400"}}]'
   $k -n kube-system patch daemonset/calico-node --type='json' -p='[{"op": "add", "path": "/spec/template/spec/initContainers/0/env/-", "value": {"name": "CNI_MTU", "value": "1400"}}]'
   $k rollout restart daemonset calico-node -n kube-system
 
   echo "Patch calico CNI template on all nodes"
   for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
-    echo "Patch calico CNI template at $machine"
+    echo "INFO: Patch calico CNI template at $machine"
     ssh $ssh_opts $machine <<'PATCH'
 sudo sed --in-place=.backup -re 's!^(\s*)("log_level":.*)$!\1\2\n\1"mtu": __CNI_MTU__,!'  /etc/cni/net.d/calico.conflist.template
 PATCH
   done
 
-  echo "Patch calico-node pods"
+  echo "INFO: Patch calico-node pods"
   $k -n kube-system delete pods --selector k8s-app=calico-node
 fi
 
