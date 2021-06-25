@@ -96,8 +96,8 @@ for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u);
     scp -r $ssh_opts $(dirname $my_dir) $machine:/tmp/
   fi
   if [[ -n "$HUGE_PAGES_2MB" ]]; then
-    ssh $ssh_opts $ip "echo 'vm.nr_hugepages = $HUGE_PAGES_2MB' | sudo tee /etc/sysctl.d/tf-hugepages.conf"
-    ssh $ssh_opts $ip "sudo sysctl --system"
+    ssh $ssh_opts $machine "echo 'vm.nr_hugepages = $HUGE_PAGES_2MB' | sudo tee /etc/sysctl.d/tf-hugepages.conf"
+    ssh $ssh_opts $machine "sudo sysctl --system"
   fi
 done
 
