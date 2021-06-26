@@ -5,7 +5,7 @@
   <bridge name='ocpdata' stp='on' delay='0'/>
   <ip address='192.168.124.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.124.2' end='192.168.124.254'/>
+      <range start='192.168.124.10' end='192.168.124.100'/>
     </dhcp>
   </ip>
 </network>
