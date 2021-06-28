@@ -191,18 +191,29 @@ function is_active() {
 }
 
 function collect_deployment_env() {
+    cp $tf_deployer_dir/instances.yaml $TF_CONFIG_DIR/
+
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]] ; then
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(echo $CONTROLLER_NODES | cut -d ' ' -f 1)"
     fi
 
-    if [[ "$ORCHESTRATOR" == "kubernetes" || "$ORCHESTRATOR" == "hybrid" ]]; then
-        #TODO: find master node for HA and copy config from it
-        mkdir -p ~/.kube
-        sudo cp /root/.kube/config ~/.kube/config
-        sudo chown -R $(id -u):$(id -g) ~/.kube
+    if ! is_after_stage 'wait' ; then
+        # kubeconfig is needed after wait stage only
+        return 0
     fi
 
-    cp $tf_deployer_dir/instances.yaml $TF_CONFIG_DIR/
+    if [[ "$ORCHESTRATOR" == "kubernetes" || "$ORCHESTRATOR" == "hybrid" ]]; then
+        # Copying kubeconfig from the master node
+        mkdir -p ~/.kube
+        local node
+        for node in $CONTROLLER_NODES ; do
+            if ssh $SSH_OPTIONS $node "sudo test -f /root/.kube/config && sudo cat /root/.kube/config" > ~/.kube/config ; then
+                sudo chown -R $(id -u):$(id -g) ~/.kube
+                return 0
+            fi
+        done
+        echo "No kube config was found on $CONTROLLER_NODES"
+    fi
 }
 
 function collect_logs() {
