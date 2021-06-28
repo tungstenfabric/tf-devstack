@@ -48,24 +48,33 @@ services:
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-master-827
+    # 987 for 1.20
+    charm: cs:~containers/kubernetes-master-987
+    # 1034 for 1.21
+    #charm: cs:~containers/kubernetes-master-1034
     num_units: {{ controller_nodes | count }}
     expose: true
     options:
       enable-metrics: false
       enable-dashboard-addons: false
-      channel: '1.18/stable'
+      channel: '1.20/stable'
       service-cidr: '10.96.0.0/12'
       snapd_refresh: 'max'
+{%- if ORCHESTRATOR == 'kubernetes' %}
+      authorization-mode: 'AlwaysAllow'
+{%- endif %}
     to: {{ controller_nodes }}
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-worker-665
+    # 752 for 1.20
+    charm: cs:~containers/kubernetes-worker-752
+    # 788 for 1.21
+    #charm: cs:~containers/kubernetes-worker-788
     num_units: {{ agent_nodes | count }}
     options:
       ingress: false
-      channel: '1.18/stable'
+      channel: '1.20/stable'
       snapd_refresh: 'max'
     to: {{ agent_nodes }}
 

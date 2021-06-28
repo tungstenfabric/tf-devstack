@@ -59,6 +59,7 @@ services:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
       preferred-api-version: "3"
+      service-port: {{ KEYSTONE_SERVICE_PORT }}
     expose: true
     to:
       - lxd:0

@@ -30,7 +30,7 @@ export PATH=$PATH:/snap/bin
 # default env variables
 export DEPLOYER='juju'
 export CLOUD=${CLOUD:-manual}  # aws | maas | manual
-default_timeout=1800
+default_timeout=3000
 if [[ "$CLOUD" == 'maas' ]]; then default_timeout=9000 ; fi
 export WAIT_TIMEOUT=${WAIT_TIMEOUT:-$default_timeout}
 
@@ -301,7 +301,7 @@ function collect_deployment_env() {
 
     echo "INFO: collect deployment env"
     if [[ $ORCHESTRATOR == 'openstack' || "$ORCHESTRATOR" == "hybrid" ]] ; then
-        DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):5000/v3"
+        DEPLOYMENT_ENV['AUTH_URL']="http://$(command juju status keystone --format tabular | grep 'keystone/' | head -1 | awk '{print $5}'):$KEYSTONE_SERVICE_PORT/v3"
         echo "INFO: auth_url=$DEPLOYMENT_ENV['AUTH_URL']"
         DEPLOYMENT_ENV['KUBERNETES_CLUSTER_DOMAIN']="admin_domain"
     fi

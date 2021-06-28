@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# in hybrid deploy keystone port is conflicting with auth-webhook port
+export KEYSTONE_SERVICE_PORT=5050
+
 # lp:1616098 Pick reachable address among all
 function get_juju_unit_ips(){
   local unit=$1
@@ -35,14 +38,14 @@ function create_stackrc() {
   local kver=`command juju config keystone preferred-api-version`
   echo "# created by CI" > $WORKSPACE/stackrc
   if [[ "$kver" == '3' ]] ; then
-    echo "export OS_AUTH_URL=$proto://$auth_ip:5000/v3" >> $WORKSPACE/stackrc
+    echo "export OS_AUTH_URL=$proto://$auth_ip:$KEYSTONE_SERVICE_PORT/v3" >> $WORKSPACE/stackrc
     echo "export OS_IDENTITY_API_VERSION=3" >> $WORKSPACE/stackrc
     echo "export OS_PROJECT_DOMAIN_NAME=admin_domain" >> $WORKSPACE/stackrc
     echo "export OS_USER_DOMAIN_NAME=admin_domain" >> $WORKSPACE/stackrc
     echo "export VGW_DOMAIN=admin_domain" >> $WORKSPACE/stackrc
     echo "export OS_DOMAIN_NAME=admin_domain" >> $WORKSPACE/stackrc
   else
-    echo "export OS_AUTH_URL=$proto://$auth_ip:5000/v2.0" >> $WORKSPACE/stackrc
+    echo "export OS_AUTH_URL=$proto://$auth_ip:$KEYSTONE_SERVICE_PORT/v2.0" >> $WORKSPACE/stackrc
     echo "export OS_IDENTITY_API_VERSION=2" >> $WORKSPACE/stackrc
     echo "export VGW_DOMAIN=default-domain" >> $WORKSPACE/stackrc
   fi
@@ -114,11 +117,11 @@ function setup_keystone_auth() {
 
   echo "INFO: set iptables rules"
   command juju ssh $keystone_machine << EOF
-sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
+sudo iptables --wait -A PREROUTING -t nat -p tcp --dport  $KEYSTONE_SERVICE_PORT -j DNAT --to $keystone_address:$KEYSTONE_SERVICE_PORT
 sudo iptables --wait -A PREROUTING -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
-sudo iptables --wait -A OUTPUT -t nat -p tcp --dport  5000 -j DNAT --to $keystone_address:5000
+sudo iptables --wait -A OUTPUT -t nat -p tcp --dport  $KEYSTONE_SERVICE_PORT -j DNAT --to $keystone_address:$KEYSTONE_SERVICE_PORT
 sudo iptables --wait -A OUTPUT -t nat -p tcp --dport 35357 -j DNAT --to $keystone_address:35357
-sudo iptables --wait -A FORWARD -p tcp --dport  5000 -j ACCEPT
+sudo iptables --wait -A FORWARD -p tcp --dport  $KEYSTONE_SERVICE_PORT -j ACCEPT
 sudo iptables --wait -A FORWARD -p tcp --dport 35357 -j ACCEPT
 sudo netfilter-persistent save
 EOF
