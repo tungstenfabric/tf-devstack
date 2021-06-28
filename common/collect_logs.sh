@@ -382,6 +382,10 @@ function collect_kubernetes_objects_info() {
     local resource
     local resources="pod daemonset.apps deployment.apps replicaset.apps statefulset.apps configmaps endpoints"
     resources+=" persistentvolumeclaims secrets serviceaccounts services jobs"
+    if [[ "$DEPLOYER" == "operator" || "$DEPLOYER" == "openshift" ]]; then
+        resources+=" manager analytics analyticsalarm analyticssnmp cassandra config control kubemanager queryengine"
+        resources+=" rabbitmq redis vrouter webui zookeeper"
+    fi
     local namespace=''
     local namespaces=$($tool get namespaces -o name | awk -F '/' '{ print $2 }')
     for namespace in $namespaces ; do

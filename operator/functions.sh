@@ -6,6 +6,7 @@ function collect_logs_from_machines() {
 tgz_name=\$1
 export WORKSPACE=/tmp/operator-logs
 export TF_LOG_DIR=/tmp/operator-logs/logs
+export DEPLOYER=$DEPLOYER
 export SSL_ENABLE=$SSL_ENABLE
 cd /tmp/operator-logs
 source ./collect_logs.sh

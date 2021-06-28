@@ -11,6 +11,7 @@ function collect_logs_from_machines() {
 tgz_name=\$1
 export WORKSPACE=/tmp/openshift-logs
 export TF_LOG_DIR=/tmp/openshift-logs/logs
+export DEPLOYER=$DEPLOYER
 export SSL_ENABLE=$SSL_ENABLE
 cd /tmp/openshift-logs
 source ./collect_logs.sh
