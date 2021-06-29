@@ -69,14 +69,9 @@ services:
       snapd_refresh: 'max'
     to: {{ agent_nodes }}
 
-  docker:
+  containerd:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/docker-59
-    options:
-      docker_runtime: 'custom'
-      docker_runtime_repo: 'deb [arch={ARCH}] https://download.docker.com/linux/ubuntu {CODE} stable'
-      docker_runtime_key_url: 'https://download.docker.com/linux/ubuntu/gpg'
-      docker_runtime_package: 'docker-ce'
+    charm: cs:~containers/containerd-80
 
 {%- if ENABLE_NAGIOS == 'true' %}
   nagios:
@@ -110,8 +105,8 @@ relations:
 - [ kubernetes-master:etcd, etcd:db ]
 - [ kubernetes-worker:certificates,  easyrsa:client ]
 - [ etcd:certificates, easyrsa:client ]
-- [ kubernetes-master:container-runtime, docker:docker]
-- [ kubernetes-worker:container-runtime, docker:docker]
+- [ kubernetes-master:container-runtime, containerd:containerd]
+- [ kubernetes-worker:container-runtime, containerd:containerd]
 
 {%- if ENABLE_NAGIOS == 'true' %}
 - [ nrpe:monitors, nagios:monitors ]
