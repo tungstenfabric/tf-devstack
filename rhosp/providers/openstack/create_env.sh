@@ -115,7 +115,7 @@ if [[ -z "$prov_cidr" ]] ; then
 fi
 
 #Get latest rhel image
-image_name=$(openstack image list --status active -c Name -f value | grep "prepared-${RHEL_VERSION}" | sort -nr | head -n 1)
+image_name=$(openstack image list --status active -c Name -f value | grep "prepared-${RHEL_VERSION}-" | sort -nr | head -n 1)
 image_id=$(openstack image show -c id -f value "$image_name")
 
 # tags

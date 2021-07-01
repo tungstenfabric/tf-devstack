@@ -28,34 +28,39 @@ declare -A VM_TYPES=( ['large']='8 32768' \
 declare -A OS_VARIANTS=( ['CENTOS7']='rhel7' \
                          ['CENTOS8']='rhel8' \
                          ['RHEL7']='rhel7' \
-                         ['RHEL8']='rhel8' \
+                         ['RHEL82']='rhel8' \
+                         ['RHEL84']='rhel8' \
                          ['UBUNTU16']='ubuntu16.04' \
                          ['UBUNTU18']='ubuntu18.04' )
 
 declare -A OS_IMAGES=( ['CENTOS7']='centos7' \
                        ['CENTOS8']='centos8' \
                        ['RHEL7']='rhel7' \
-                       ['RHEL8']='rhel8' \
+                       ['RHEL82']='rhel8' \
+                       ['RHEL84']='rhel8' \
                        ['UBUNTU16']='ubuntu16' \
                        ['UBUNTU18']='ubuntu18' )
 
 declare -A OS_IMAGE_USERS=( ['CENTOS7']='centos' \
                             ['CENTOS8']='centos' \
                             ['RHEL7']='cloud-user' \
-                            ['RHEL8']='cloud-user' \
+                            ['RHEL82']='cloud-user' \
+                            ['RHEL84']='cloud-user' \
                             ['UBUNTU16']='ubuntu' \
                             ['UBUNTU18']='ubuntu' )
 
 declare -A OS_IMAGES_UP=( ['CENTOS7']='centos' \
                           ['CENTOS8']='centos' \
                           ['RHEL7']='' \
-                          ['RHEL8']='' \
+                          ['RHEL82']='' \
+                          ['RHEL84']='' \
                           ['UBUNTU16']='ubuntu' \
                           ['UBUNTU18']='ubuntu' )
 
 declare -A OS_IMAGES_DOWN=( ['CENTOS7']='' \
                             ['CENTOS8']='' \
                             ['RHEL7']='' \
-                            ['RHEL8']='' \
+                            ['RHEL82']='' \
+                            ['RHEL84']='' \
                             ['UBUNTU16']='' \
                             ['UBUNTU18']='' )

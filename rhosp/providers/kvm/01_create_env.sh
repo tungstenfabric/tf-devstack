@@ -8,12 +8,18 @@ source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
 source $my_dir/../../../contrib/infra/kvm/functions.sh
 
-if [[ $RHEL_VERSION == 'rhel8' ]]; then
-   rhel_version_libvirt='rhl8.0'
-   _default_base_image='/var/lib/libvirt/images/rhel-8.2-x86_64-kvm.qcow2'
+if [[ $RHEL_VERSION == 'rhel82' ]]; then
+  rhel_version_libvirt='rhl8.0'
+  _default_base_image='/var/lib/libvirt/images/rhel-8.2-x86_64-kvm.qcow2'
+elif [[ $RHEL_VERSION == 'rhel84' ]]; then
+  rhel_version_libvirt='rhl8.0'
+  _default_base_image='/var/lib/libvirt/images/rhel-8.4-x86_64-kvm.qcow2'
+elif [[ $RHEL_VERSION == 'rhel7' ]]; then
+  rhel_version_libvirt=$RHEL_VERSION
+  _default_base_image='/var/lib/libvirt/images/rhel-server-7.9-x86_64-kvm.qcow2'
 else
-   rhel_version_libvirt=$RHEL_VERSION
-   _default_base_image='/var/lib/libvirt/images/rhel-server-7.9-x86_64-kvm.qcow2'
+  echo "ERROR: Unknown RHEL_VERSION=$RHEL_VERSION"
+  exit 1
 fi
 
 undercloud_vmname="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
