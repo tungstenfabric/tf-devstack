@@ -44,6 +44,6 @@ fi
 export local_mtu=`/sbin/ip link show $undercloud_local_interface | grep -o "mtu.*" | awk '{print $2}'`
 
 #configure_registries must be running twice because undercloud_deploy updates registries.conf
-source $my_dir/${RHOSP_VERSION}_configure_registries_undercloud.sh
-source $my_dir/${RHOSP_VERSION}_undercloud_deploy.sh
-source $my_dir/${RHOSP_VERSION}_configure_registries_undercloud.sh
+source $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_undercloud.sh
+source $my_dir/${RHOSP_MAJOR_VERSION}_undercloud_deploy.sh
+source $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_undercloud.sh

@@ -342,16 +342,20 @@ function prepare_rhosp_env_file() {
     local env_file=$(mktemp)
     source $my_dir/../../config/common.sh
     cat $my_dir/../../config/common.sh | expand >> $env_file || true
-    source $my_dir/../../config/${RHEL_VERSION}_env.sh
-    cat $my_dir/../../config/${RHEL_VERSION}_env.sh | grep '^export' | expand | envsubst >> $env_file || true
+    source $my_dir/../../config/${RHEL_MAJOR_VERSION}_env.sh
+    cat $my_dir/../../config/${RHEL_MAJOR_VERSION}_env.sh | grep '^export' | expand | envsubst >> $env_file || true
     source $my_dir/../../config/${PROVIDER}_env.sh
     cat $my_dir/../../config/${PROVIDER}_env.sh | grep '^export' | expand | envsubst >> $env_file || true
     cat <<EOF >> $env_file
 
 export DEBUG=$DEBUG
 export PROVIDER=$PROVIDER
+export ENVIRONMENT_OS=$ENVIRONMENT_OS
 export OPENSTACK_VERSION="$OPENSTACK_VERSION"
 export RHOSP_VERSION="$RHOSP_VERSION"
+export RHOSP_MAJOR_VERSION="$RHOSP_MAJOR_VERSION"
+export RHEL_VERSION="$RHEL_VERSION"
+export RHEL_MAJOR_VERSION="$RHEL_MAJOR_VERSION"
 export USE_PREDEPLOYED_NODES=$USE_PREDEPLOYED_NODES
 export ENABLE_RHEL_REGISTRATION=$ENABLE_RHEL_REGISTRATION
 export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION

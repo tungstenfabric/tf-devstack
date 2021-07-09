@@ -90,7 +90,7 @@ echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
   $plugin_env_file \
   $tls_env_files \
   -e misc_opts.yaml \
-  -e contrail-parameters.yaml"
+  -e contrail-parameters.yaml" | tee .deploy_overcloud_command
 
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --roles-file $role_file \

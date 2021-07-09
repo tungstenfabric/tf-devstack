@@ -34,7 +34,8 @@ fi
 
 $my_dir/../providers/common/rhel_provisioning.sh
 
-source $my_dir/${RHOSP_VERSION}_configure_registries_overcloud.sh
+echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh"
+source $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh
 
 # to avoid slow ssh connect if dns is not available
 sudo sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
