@@ -1,7 +1,7 @@
 <!-- kvm network creation script-->
 <network>
   <name>openshift-data</name>
-  <forward mode='bridge'/>
+  <forward mode='nat'/>
   <bridge name='ocpdata' stp='on' delay='0'/>
   <ip address='192.168.124.1' netmask='255.255.255.0'>
     <dhcp>
@@ -9,4 +9,3 @@
     </dhcp>
   </ip>
 </network>
-
