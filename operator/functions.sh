@@ -42,12 +42,3 @@ EOF
         popd
     done
 }
-
-function get_vrouter_gateway() {
-    cidr=${DATA_NETWORK}
-    net=$(ipcalc -n "$cidr" | cut -f2 -d=)
-    IFS=. read -r a b c d <<< "$net"
-    d=$(($d+1))
-    vrouter_gateway="$a.$b.$c.$d"
-    echo $vrouter_gateway
-}

@@ -106,6 +106,11 @@ function manifest() {
     export CONFIGDB_MAX_HEAP_SIZE=${CONFIGDB_MAX_HEAP_SIZE:-"4g"}
     export ANALYTICSDB_MIN_HEAP_SIZE=${ANALYTICSDB_MIN_HEAP_SIZE:-"1g"}
     export ANALYTICSDB_MAX_HEAP_SIZE=${ANALYTICSDB_MAX_HEAP_SIZE:-"4g"}
+    export VROUTER_GATEWAY=${VROUTER_GATEWAY:-$(get_vrouter_gateway)}
+    if [[ -n $DATA_NETWORK ]] && [[ -z $VROUTER_GATEWAY ]] ; then
+        echo "ERROR: for multi-NIC setup VROTER_GATEWAY should be set"
+        exit 1
+    fi
     if [[ -n "$SSL_CAKEY" && -n "$SSL_CACERT" ]] ; then
         export TF_ROOT_CA_KEY_BASE64=$(echo "$SSL_CAKEY" | base64 -w 0)
         export TF_ROOT_CA_CERT_BASE64=$(echo "$SSL_CACERT" | base64 -w 0)
