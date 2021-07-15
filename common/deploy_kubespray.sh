@@ -26,8 +26,8 @@ K8S_VERSION=${K8S_VERSION:-"v1.18.10"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
 K8S_CONTAINER_ENGINE=${K8S_CONTAINER_ENGINE:-''}
 CNI=${CNI:-cni}
-IGNORE_APT_UPDATES_REPO={$IGNORE_APT_UPDATES_REPO:-false}
-LOOKUP_NODE_HOSTNAMES={$LOOKUP_NODE_HOSTNAMES:-true}
+IGNORE_APT_UPDATES_REPO=${IGNORE_APT_UPDATES_REPO:-false}
+LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
 CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # Apply docker cli workaround
@@ -179,7 +179,7 @@ fi
 
 # enable docker live restore option
 #
-# set live-restore via config file to avoid conflicts between command line and 
+# set live-restore via config file to avoid conflicts between command line and
 # config file parametrs (docker fails to start if a parameter is in both places).
 # tf-dev-env and deployment methods (not using kubespray) use config file approach.
 #    the way via kubespray:
