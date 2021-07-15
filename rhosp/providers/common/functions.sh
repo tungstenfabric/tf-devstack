@@ -219,6 +219,7 @@ function collect_overcloud_env() {
 }
 
 function collect_deployment_log() {
+    set +e
     #Collecting undercloud logs
     local host_name=$(hostname -s)
     create_log_dir
@@ -236,6 +237,7 @@ function collect_deployment_log() {
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER_OVERCLOUD@$ip:
         cat <<EOF | ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip
 [[ "$DEBUG" == true ]] && set -x
+set +e
 export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
 cd /home/$SSH_USER_OVERCLOUD
 ./collect_logs.sh create_log_dir
@@ -258,6 +260,7 @@ EOF
         scp $ssh_opts $my_dir/../common/collect_logs.sh $SSH_USER@$ipa_mgmt_ip:
         cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
 [[ "$DEBUG" == true ]] && set -x
+set +e
 export TF_LOG_DIR="/home/$SSH_USER/logs"
 cd /home/$SSH_USER
 ./collect_logs.sh create_log_dir
