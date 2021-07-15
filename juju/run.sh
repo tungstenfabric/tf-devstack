@@ -180,7 +180,7 @@ function tf() {
             echo "WARNING: failed to fetch $tf_charms_image, use github"
             git clone https://github.com/tungstenfabric/tf-charms $JUJU_REPO
         fi
-        if [ -n $CONTRAIL_DEPLOYER_BRANCH ] ; then
+        if [[ -n "$CONTRAIL_DEPLOYER_BRANCH" ]] ; then
             pushd $JUJU_REPO
             git checkout $CONTRAIL_DEPLOYER_BRANCH
             popd
