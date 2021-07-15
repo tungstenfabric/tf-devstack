@@ -107,7 +107,7 @@ if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "tru
   node_count=0
   for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
     declare -A IPS_WITH_HOSTNAMES
-    hostname=$(ssh $ssh_opts $ip hostname -s)
+    hostname=$(ssh $ssh_opts $ip hostname -f)
     IPS_WITH_HOSTNAMES[$hostname]=$ip
     ((node_count+=1))
   done
