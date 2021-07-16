@@ -35,3 +35,6 @@ for i in $AGENT_NODES ; do
       /var/crashes/contrail \
       /etc/cni/net.d/10-tf-cni.conf || true
 done
+
+rm ~/.tf/.stages/* || /bin/true
+yes | ${my_dir}/../common/cleanup_kubespray.sh

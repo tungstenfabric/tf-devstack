@@ -104,23 +104,39 @@ done
 echo "INFO: Deploying to IPs ${IPS[@]} with masters ${masters[@]}"
 export KUBE_MASTERS_MASTERS=${#masters[@]}
 if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
+  echo "INFO: lookup node hostnames and ips"
   node_count=0
+  declare -a hnames
   for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
     declare -A IPS_WITH_HOSTNAMES
     hostname=$(ssh $ssh_opts $ip hostname -f)
-    IPS_WITH_HOSTNAMES[$hostname]=$ip
+    ip_=$ip
+    if [ -n "$DATA_NETWORK" ] ; then
+      ip_=$(ssh $ssh_opts $ip /sbin/ip route get $DATA_NETWORK | grep -o "src .*" | cut -d ' ' -f 2)
+    fi
+    if [ -z "$ip_" ] ; then
+      echo "ERROR: failed to detect ip by data network cidr $DATA_NETWORK"
+      exit 1
+    fi
+    IPS_WITH_HOSTNAMES[$hostname]=$ip_
+    hnames=( ${hnames[@]} $hostname )
     ((node_count+=1))
   done
+  inventory_data=$(for host in "${hnames[@]}"; do echo -n "$host,${IPS_WITH_HOSTNAMES[$host]} "; done)
   # Test if all hostnames were unique
   if [[ "${#IPS_WITH_HOSTNAMES[@]}" != "$node_count" ]]; then
     echo "ERROR: Not all hosts have unique hostnames." 1>&2
     echo "To use automatic host naming, set LOOKUP_NODE_HOSTNAMES=false" 1>&2
     exit 1
   fi
-  CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $(for host in "${!IPS_WITH_HOSTNAMES[@]}"; do echo -n "$host,${IPS_WITH_HOSTNAMES[$host]} ";done)
+  echo "INFO: inventory data: $inventory_data"
+  CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py $inventory_data
 else
+  echo "INFO: inventory data: ${IPS[@]}"
   CONFIG_FILE=inventory/mycluster/hosts.yml python3 contrib/inventory_builder/inventory.py ${IPS[@]}
 fi
+echo "INFO: inventory/mycluster/hosts.yml"
+cat inventory/mycluster/hosts.yml
 
 sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
 echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
