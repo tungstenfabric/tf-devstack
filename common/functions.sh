@@ -343,11 +343,8 @@ function ensureVariable() {
 }
 
 function get_vrouter_gateway() {
-    local cidr=${1:-${DATA_NETWORK:-${NODE_CIDR}}}
+    local cidr=${1:-${DATA_NETWORK}}
     [ -n "$cidr" ] || return
     local gw=$(ip route get "$cidr" | grep -o 'via .*' |  awk '{print($2)}' |head -n1)
-    if [ -z "$gw" ] ; then
-        gw=$(ip route get "$cidr" | grep -o 'src .*' |  awk '{print($2)}' |head -n1)
-    fi
     [ -z "$gw" ] || echo $gw
 }
