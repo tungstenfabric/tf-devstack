@@ -28,6 +28,7 @@ declare -A STAGES=( \
 export PATH=$PATH:/snap/bin
 
 # default env variables
+export HUGE_PAGES_2MB=512
 export DEPLOYER='juju'
 export CLOUD=${CLOUD:-manual}  # aws | maas | manual
 default_timeout=1800
