@@ -111,12 +111,12 @@ if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "tru
     declare -A IPS_WITH_HOSTNAMES
     hostname=$(ssh $ssh_opts $ip hostname -f)
     ip_=$ip
-    if [ -n "$DATA_NETWORK" ] ; then
-      ip_=$(ssh $ssh_opts $ip /sbin/ip route get $DATA_NETWORK | grep -o "src .*" | cut -d ' ' -f 2)
-    fi
-    if [ -z "$ip_" ] ; then
-      echo "ERROR: failed to detect ip by data network cidr $DATA_NETWORK"
-      exit 1
+    if [ -n "$MANAGEMENT_NETWORK" ] ; then
+      ip_=$(ssh $ssh_opts $ip /sbin/ip route get $MANAGEMENT_NETWORK | grep -o "src .*" | cut -d ' ' -f 2)
+      if [ -z "$ip_" ] ; then
+        echo "ERROR: failed to detect ip by management network cidr $MANAGEMENT_NETWORK"
+        exit 1
+      fi
     fi
     IPS_WITH_HOSTNAMES[$hostname]=$ip_
     hnames=( ${hnames[@]} $hostname )
