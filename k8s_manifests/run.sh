@@ -43,6 +43,19 @@ function build() {
 }
 
 function k8s() {
+    echo "$DISTRO detected"
+    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
+        sudo yum -y install epel-release
+        sudo yum install -y jq bind-utils git
+    elif [ "$DISTRO" == "ubuntu" ]; then
+        export DEBIAN_FRONTEND=noninteractive
+        sudo -E apt-get update
+        sudo -E apt-get install -y jq dnsutils
+    else
+        echo "Unsupported OS version"
+        exit 1
+    fi
+
     export K8S_NODES="$AGENT_NODES"
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$TF_POD_SUBNET
@@ -51,7 +64,7 @@ function k8s() {
 }
 
 function manifest() {
-    fetch_deployer $deployer_image $deployer_dir || old_k8s_fetch_deployer
+    fetch_deployer_no_docker $deployer_image $deployer_dir || old_k8s_fetch_deployer
     CONTRAIL_REGISTRY=$CONTAINER_REGISTRY \
     CONTRAIL_CONTAINER_TAG=$CONTRAIL_CONTAINER_TAG \
     HOST_IP=$NODE_IP \
