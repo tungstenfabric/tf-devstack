@@ -6,7 +6,7 @@ set -eo pipefail
 # check if essential commands are in our PATH
 for cmd in curl jq host ; do
     if ! command -v $cmd &> /dev/null; then
-        echo >&2 "error: '$cmd' not found!"
+        echo >&2 "ERROR: '$cmd' not found!"
         exit 1
     fi
 done

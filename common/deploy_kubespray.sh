@@ -17,13 +17,14 @@ function is_kubeapi_accessible() {
 
 # parameters
 
-KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.14"}
+KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.16"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES:-$NODE_IP}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
-K8S_VERSION=${K8S_VERSION:-"v1.18.10"}
+K8S_VERSION=${K8S_VERSION:-"v1.20.7"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
+# 'docker' is a default engine. 'containerd' is supported (with runc by default)
 K8S_CONTAINER_ENGINE=${K8S_CONTAINER_ENGINE:-''}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO=${IGNORE_APT_UPDATES_REPO:-false}
@@ -31,7 +32,10 @@ LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
 CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # Apply docker cli workaround
-workaround_kubespray_docker_cli
+k8s_major=$(echo $K8S_VERSION | cut -d '.' -f 2)
+if (( k8s_major <= 16 )); then
+  workaround_kubespray_docker_cli
+fi
 
 # kubespray parameters like CLOUD_PROVIDER can be set as well prior to calling this script
 
@@ -84,6 +88,11 @@ sudo pip3 install -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/con
 sudo pip3 install -r requirements.txt
 
 cp -rfp inventory/sample/ inventory/mycluster
+cluster_vars="inventory/mycluster/group_vars/k8s_cluster/k8s-cluster.yml"
+if [ ! -e $cluster_vars ]; then
+  # releases < 2.16 has different naming
+  cluster_vars="inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml"
+fi
 declare -a IPS=( $K8S_MASTERS $K8S_NODES )
 masters=( $K8S_MASTERS )
 
@@ -103,6 +112,7 @@ done
 
 echo "INFO: Deploying to IPs ${IPS[@]} with masters ${masters[@]}"
 export KUBE_MASTERS_MASTERS=${#masters[@]}
+export KUBE_CONTROL_HOSTS=${#masters[@]}
 if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "true" ]]; then
   echo "INFO: lookup node hostnames and ips"
   node_count=0
@@ -138,15 +148,18 @@ fi
 echo "INFO: inventory/mycluster/hosts.yml"
 cat inventory/mycluster/hosts.yml
 
-sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo "helm_enabled: true" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo 'helm_version: "v2.16.11"' >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo 'helm_stable_repo_url: "https://charts.helm.sh/stable"' >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" $cluster_vars
+if [[ "${ORCHESTRATOR}" == "helm" ]]; then
+  echo "helm_enabled: true" >> $cluster_vars
+  # TODO: use different version for kubespray release != 2.14
+  echo 'helm_version: "v2.16.11"' >> $cluster_vars
+  echo 'helm_stable_repo_url: "https://charts.helm.sh/stable"' >> $cluster_vars
+fi
 
 # DNS
 # Allow host and hostnet pods to resolve cluster domains
-echo "resolvconf_mode: host_resolvconf" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo "enable_nodelocaldns: false" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "resolvconf_mode: host_resolvconf" >> $cluster_vars
+echo "enable_nodelocaldns: false" >> $cluster_vars
 
 # Grab first nameserver from /etc/resolv.conf that is not coredns
 if sudo systemctl is-enabled systemd-resolved.service; then
@@ -161,31 +174,34 @@ if [ -z "$nameserver" ]; then
   exit 1
 fi
 # Set upstream DNS server used by host and coredns for recursive lookups
-echo "upstream_dns_servers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo "nameservers: ['$nameserver']" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "upstream_dns_servers: ['$nameserver']" >> $cluster_vars
+echo "nameservers: ['$nameserver']" >> $cluster_vars
 # Fix coredns deployment on single node
-echo "dns_min_replicas: 1" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+echo "dns_min_replicas: 1" >> $cluster_vars
 
 # Set explicetely k8s cluster name (some orchestrators like operator use name from kubernetes
 # and tf-test use hardcoded 'k8s' cluster name)
 if [[ -n "${K8S_CLUSTER_NAME}" ]]; then
-  echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+  echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> $cluster_vars
 fi
 
-if [ -n "$K8S_CONTAINER_ENGINE" ] ; then
-  if grep -q '^container_manager:.*' inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml ; then
-    sed -i "s/container_manager:.*/container_manager: $K8S_CONTAINER_ENGINE/g" inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+if [[ -n "$K8S_CONTAINER_ENGINE" ]] ; then
+  if grep -q '^container_manager:.*' $cluster_vars ; then
+    sed -i "s/container_manager:.*/container_manager: $K8S_CONTAINER_ENGINE/g" $cluster_vars
   else
-    echo "container_manager: $K8S_CONTAINER_ENGINE" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+    echo "container_manager: $K8S_CONTAINER_ENGINE" >> $cluster_vars
   fi
   if [[ "$K8S_CONTAINER_ENGINE" == 'crio' ]] ; then
-    echo "crio_pids_limit: 8192" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+    echo "crio_pids_limit: 8192" >> $cluster_vars
+  fi
+  if [[ "$K8S_CONTAINER_ENGINE" != 'docker' ]]; then
+    echo "etcd_deployment_type: host" >> $cluster_vars
   fi
 fi
 
 # Set local docker registries if defined
 if [[ -n "${DOCKER_CACHE_REGISTRY}" ]]; then
-   cat << EOF >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
+   cat << EOF >> $cluster_vars
 quay_image_repo: "${DOCKER_CACHE_REGISTRY}"
 kube_image_repo: "${DOCKER_CACHE_REGISTRY}"
 gcr_image_repo: "${DOCKER_CACHE_REGISTRY}"
@@ -193,23 +209,25 @@ docker_image_repo: "${DOCKER_CACHE_REGISTRY}"
 EOF
 fi
 
-# enable docker live restore option
-#
-# set live-restore via config file to avoid conflicts between command line and
-# config file parametrs (docker fails to start if a parameter is in both places).
-# tf-dev-env and deployment methods (not using kubespray) use config file approach.
-#    the way via kubespray:
-#    echo "docker_options: '--live-restore'" >> inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml
-echo "INFO: Create /etc/docker/daemon.json on all nodes"
-# Master-node
-sudo -E $my_dir/create_docker_config.sh
-# All another nodes
-for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
-  if ! ip a | grep -q "$machine"; then
-    ssh $ssh_opts $machine "sudo yum install -y python3 python3-pip"
-    ssh $ssh_opts $machine "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY ; export DEPLOYER_CONTAINER_REGISTRY=$DEPLOYER_CONTAINER_REGISTRY ; sudo -E /tmp/${devstack_dir}/common/create_docker_config.sh"
-  fi
-done
+if [[ -z "$K8S_CONTAINER_ENGINE" || "$K8S_CONTAINER_ENGINE" == 'docker' ]]; then
+  # enable docker live restore option
+  #
+  # set live-restore via config file to avoid conflicts between command line and
+  # config file parametrs (docker fails to start if a parameter is in both places).
+  # tf-dev-env and deployment methods (not using kubespray) use config file approach.
+  #    the way via kubespray:
+  #    echo "docker_options: '--live-restore'" >> $cluster_vars
+  echo "INFO: Create /etc/docker/daemon.json on all nodes"
+  # Master-node
+  sudo -E $my_dir/create_docker_config.sh
+  # All another nodes
+  for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+    if ! ip a | grep -q "$machine"; then
+      ssh $ssh_opts $machine "sudo yum install -y python3 python3-pip"
+      ssh $ssh_opts $machine "export CONTAINER_REGISTRY=$CONTAINER_REGISTRY ; export DEPLOYER_CONTAINER_REGISTRY=$DEPLOYER_CONTAINER_REGISTRY ; sudo -E /tmp/${devstack_dir}/common/create_docker_config.sh"
+    fi
+  done
+fi
 
 extra_vars=""
 [[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
@@ -226,10 +244,16 @@ sudo chown -R $(id -u):$(id -g) ~/.kube
 # for a moment and then disappears. the port test is not enough
 # let's wait for k8s_POD_kube-apiserver cts first to catch the
 # kube-apiserver POD restart.
-if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12 ; then
-  echo "ERROR: Kubernetes API POD is not available"
-  exit 1
+if [[ -z "$K8S_CONTAINER_ENGINE" || "$K8S_CONTAINER_ENGINE" == 'docker' ]] ; then
+  if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12 ; then
+    echo "ERROR: Kubernetes API POD is not available"
+    exit 1
+  fi
+else
+  # TODO: fix it for non-docker
+  sleep 20
 fi
+
 if ! wait_cmd_success "is_kubeapi_accessible ${masters[0]}" 5 12 ; then
   echo "ERROR: Kubernetes API is not accessible"
   exit 1

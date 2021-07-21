@@ -21,6 +21,10 @@ declare -A STAGES=( \
     ["platform"]="k8s openstack" \
 )
 
+# latest version of kubespray which supports helm 2
+export KUBESPRAY_TAG="release-2.14"
+export K8S_VERSION="v1.18.10"
+
 # default env variables
 export DEPLOYER='helm'
 # max wait in seconds after deployment (helm_os=600)
