@@ -359,6 +359,6 @@ relations:
 - [ ironic-conductor:amqp, rabbitmq-server:amqp ]
 {%- endif %}
 
-{%- if ENABLE_NAGIOS.lower() == 'true' %}
+{%- if ENABLE_NAGIOS.lower() == 'true' and '20.' not in DISTRO_VERSION_ID %}
 - [ nrpe:monitors, nagios:monitors ]
 {%- endif %}
