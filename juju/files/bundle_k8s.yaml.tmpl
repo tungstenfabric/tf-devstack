@@ -108,7 +108,7 @@ relations:
 - [ kubernetes-master:container-runtime, containerd:containerd]
 - [ kubernetes-worker:container-runtime, containerd:containerd]
 
-{%- if ENABLE_NAGIOS == 'true' %}
+{%- if ENABLE_NAGIOS == 'true' and '20.' not in DISTRO_VERSION_ID %}
 - [ nrpe:monitors, nagios:monitors ]
 {%- endif %}
 
