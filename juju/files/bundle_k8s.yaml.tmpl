@@ -73,7 +73,7 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     charm: cs:~containers/containerd-80
 
-{%- if ENABLE_NAGIOS == 'true' %}
+{%- if ENABLE_NAGIOS == 'true' and '20.' not in DISTRO_VERSION_ID %}
   nagios:
     charm: cs:nagios-40
     num_units: 1
