@@ -254,7 +254,7 @@ services:
     to:
       - lxd:0
 {%- endif %}
-{%- if ENABLE_NAGIOS.lower() == 'true' %}
+{%- if ENABLE_NAGIOS.lower() == 'true' and '20.' not in DISTRO_VERSION_ID %}
   nagios:
     charm: cs:nagios
     num_units: 1
