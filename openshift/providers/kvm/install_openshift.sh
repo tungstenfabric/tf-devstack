@@ -86,86 +86,24 @@ sudo virt-customize -a "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2" \
     --copy-in $WORKSPACE/haproxy.cfg:/etc/haproxy/ \
     --run-command "systemctl daemon-reload" --run-command "systemctl enable tmpws.service"
 
-start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2,cache=writeback,bus=virtio" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU}
+start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2,cache=writeback,bus=virtio" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU} "52:54:00:13:21:01"
 
 ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-lb) )
 LBIP=${ip_mac[0]}
-# DHCP Reservation
-sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='$LBIP'/>" --live --config
-
-# Adding /etc/hosts entry for LB IP
-echo "$LBIP lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN} " \
-     "api.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN} " \
-     "api-int.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts
-
-# DNS Check
-echo "1.2.3.4 xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts
-sudo systemctl restart libvirtd
-sleep 5
-fwd_dig=$(ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" "dig +short 'xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN}' 2> /dev/null")
-[[ "$?" == "0" && "$fwd_dig" = "1.2.3.4" ]] || err "Testing DNS forward record failed ($fwd_dig)"
-rev_dig=$(ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" "dig +short -x '1.2.3.4' 2> /dev/null")
-[[ "$?" -eq "0" &&  "$rev_dig" = "xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN}." ]] || err "Testing DNS reverse record failed ($rev_dig)"
-
-echo "srv-host=xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN},yyyayyy.${KUBERNETES_CLUSTER_DOMAIN},2380,0,10" | sudo tee ${DNS_DIR}/xxxtestxxx.conf
-sudo systemctl restart dnsmasq || err "systemctl restart dnsmasq failed"
-sleep 5
-srv_dig=$(ssh -i ${OPENSHIFT_SSH_KEY} $SSH_OPTS "${LB_SSH_USER}@lb.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" "dig srv +short 'xxxtestxxx.${KUBERNETES_CLUSTER_DOMAIN}' 2> /dev/null" | grep -q -s "yyyayyy.${KUBERNETES_CLUSTER_DOMAIN}") || \
-    err "ERROR: Testing SRV record failed"
-sudo sed -i_bak -e "/xxxtestxxx/d" /etc/hosts
-sudo rm -f ${DNS_DIR}/xxxtestxxx.conf
 
 # Create machines
 echo "INFO: start bootstrap vm"
-start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-bootstrap ${BOOTSTRAP_MEM} ${BOOTSTRAP_CPU} bootstrap
+start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-bootstrap ${BOOTSTRAP_MEM} ${BOOTSTRAP_CPU} bootstrap "52:54:00:13:21:02"
 
 for i in $(seq 1 ${controller_count}); do
   echo "INFO: start master-$i vm"
-  start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-master-${i} ${MASTER_MEM} ${MASTER_CPU} master
+  start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-master-${i} ${MASTER_MEM} ${MASTER_CPU} master "52:54:00:13:31:0${i}"
 done
 
 for i in $(seq 1 ${agent_count}); do
   echo "INFO: start worker-$i vm"
-  start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-worker-${i} ${WORKER_MEM} ${WORKER_CPU} worker
+  start_openshift_vm ${KUBERNETES_CLUSTER_NAME}-worker-${i} ${WORKER_MEM} ${WORKER_CPU} worker "52:54:00:13:41:0${i}"
 done
-
-echo "local=/${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}/" | sudo tee ${DNS_DIR}/${KUBERNETES_CLUSTER_NAME}.conf || err "failed"
-
-ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-bootstrap) )
-echo "INFO: net-update for bootstrap vm: ${ip_mac[@]}"
-# Adding DHCP reservation
-sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
-    err "Adding DHCP reservation for bootstrap failed"
-
-# Adding /etc/hosts entry
-echo "${ip_mac[0]} bootstrap.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts
-
-for i in $(seq 1 ${controller_count}); do
-  ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-master-${i}) )
-  echo "INFO: net-update for master-$i vm: ${ip_mac[@]}"
-  # Adding DHCP reservation
-  sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
-    err "Adding DHCP reservation for master ${i} failed"
-
-  # Adding /etc/hosts entry
-  echo "${ip_mac[0]} master-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" \
-                  "etcd-$((i-1)).${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts
-
-  # Adding SRV record in dnsmasq
-  echo "srv-host=_etcd-server-ssl._tcp.${KUBERNETES_CLUSTER_NAME}.${BASE_DOM},etcd-$((i-1)).${KUBERNETES_CLUSTER_NAME}.${BASE_DOM},2380,0,10" | sudo tee -a ${DNS_DIR}/${KUBERNETES_CLUSTER_NAME}.conf
-done
-
-for i in $(seq 1 ${agent_count}); do
-  ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-worker-${i}) )
-  echo "INFO: net-update for worker-$i vm: ${ip_mac[@]}"
-  # Adding DHCP reservation
-  sudo virsh net-update ${mgmt_net} add-last ip-dhcp-host --xml "<host mac='${ip_mac[1]}' ip='${ip_mac[0]}'/>" --live --config > /dev/null || \
-    err "Adding DHCP reservation for worker ${i} failed"
-  echo "${ip_mac[0]} worker-${i}.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}" | sudo tee -a /etc/hosts 
-done
-
-# Adding wild-card (*.apps) dns record in dnsmasq
-echo "address=/apps.${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}/${LBIP}" | sudo tee -a ${DNS_DIR}/${KUBERNETES_CLUSTER_NAME}.conf
 
 # Resstarting libvirt and dnsmasq
 sudo systemctl restart libvirtd

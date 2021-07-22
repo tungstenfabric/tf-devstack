@@ -5,6 +5,7 @@ function start_lb_vm() {
   local disk=$2
   local mem=$3
   local cpu=$4
+  local mac_addr=$5
 
   local hugepages_opt=""
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
@@ -12,8 +13,10 @@ function start_lb_vm() {
   fi
 
   local net_opts=""
+  local octet=1
   for i in ${VIRTUAL_NET//,/ } ; do
-      net_opts+=" --network network=$i,model=virtio"
+      net_opts+=" --network network=$i,model=virtio,mac=${mac_addr/52:54:00:13/52:54:00:1${octet}}"
+      octet=$((octet+1))
   done
 
   sudo virt-install --name $name \
@@ -36,16 +39,19 @@ function start_openshift_vm() {
   local mem=$2
   local cpu=$3
   local ignition_file_name=$4
+  local mac_addr=$5
 
   local versioned_rootfs_url=${versioned_rootfs_urls[$OPENSHIFT_VERSION]}
   local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda $versioned_rootfs_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
   [ -z ${kernel_boot_args[${name}]} ] || extra_args+=" ${kernel_boot_args[${name}]}"
 
   local net_opts=""
+  local octet=1
   for i in ${VIRTUAL_NET//,/ } ; do
-      net_opts+=" --network network=$i,model=virtio"
+      net_opts+=" --network network=$i,model=virtio,mac=${mac_addr/52:54:00:13/52:54:00:1${octet}}"
+      octet=$((octet+1))
   done
-  
+
   local hugepages_opt=""
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
     hugepages_opt=" --memorybacking hugepages=on "

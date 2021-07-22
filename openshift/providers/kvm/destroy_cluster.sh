@@ -24,11 +24,6 @@ sudo virsh undefine ${KUBERNETES_CLUSTER_NAME}-bootstrap --remove-all-storage ||
 sudo virsh destroy ${KUBERNETES_CLUSTER_NAME}-lb || /bin/true
 sudo virsh undefine ${KUBERNETES_CLUSTER_NAME}-lb --remove-all-storage || /bin/true
 
-sed_cmd=$(echo "/${KUBERNETES_CLUSTER_NAME}\.${KUBERNETES_CLUSTER_DOMAIN}/d")
-sudo sed -i_bak -e ${sed_cmd} /etc/hosts
-sudo sed -i_bak -e "/xxxtestxxx/d" /etc/hosts
-sudo rm -f ${DNS_DIR}/${KUBERNETES_CLUSTER_NAME}.conf
-
 for i in ${VIRTUAL_NET//,/ } ; do
     sudo virsh net-destroy $i || /bin/true
     sudo virsh net-undefine $i || /bin/true
