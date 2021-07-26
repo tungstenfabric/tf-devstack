@@ -65,20 +65,24 @@ function collect_docker_logs() {
 
 function collect_tf_status() {
     echo "INFO: Collecting contrail-status"
-    mkdir -p $TF_LOG_DIR
-    sudo contrail-status &> $TF_LOG_DIR/contrail-status
-    sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
+    if which contrail-status &>/dev/null ; then
+        mkdir -p $TF_LOG_DIR
+        sudo contrail-status &> $TF_LOG_DIR/contrail-status
+        sudo chown -R $SUDO_UID:$SUDO_GID $TF_LOG_DIR
+    fi
 }
 
 function collect_kolla_logs() {
     echo "INFO: Collecting kolla logs"
 
     local log_dir="$TF_LOG_DIR/openstack"
-    mkdir -p $log_dir
 
+    res=1
     if sudo ls /etc/kolla ; then
+        mkdir -p $log_dir
         sudo cp -R /etc/kolla $log_dir/
         sudo mv $log_dir/kolla $log_dir/kolla_etc
+        res=0
     fi
 
     local kl_path='/var/lib/docker/volumes/kolla_logs/_data'
@@ -87,11 +91,14 @@ function collect_kolla_logs() {
         for ii in `sudo ls $kl_path/`; do
             sudo cp -R "$kl_path/$ii" $log_dir/kolla_logs/
         done
+        res=0
     fi
 
-    sudo chown -R $SUDO_UID:$SUDO_GID $log_dir
-    sudo find $log_dir -type f -exec chmod a+r {} \;
-    sudo find $log_dir -type d -exec chmod a+rx {} \;
+    if [[ $res == 0 ]]; then
+        sudo chown -R $SUDO_UID:$SUDO_GID $log_dir
+        sudo find $log_dir -type f -exec chmod a+r {} \;
+        sudo find $log_dir -type d -exec chmod a+rx {} \;
+    fi
 }
 
 function collect_openstack_logs() {
