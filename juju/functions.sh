@@ -240,3 +240,23 @@ function check_kubernetes_master_cert() {
   fi
   return 1
 }
+
+function configure_mtu() {
+  # hack for ubuntu20.04 - we have MTU=1458 in CI. juju sets 1408 for ubuntu18.04 and all things work well.
+  # but in ubuntu20.04 it sets MTU=1450 and fan network doesn't work stable.
+  # thus set MTU manually for all fan devices (and for local machine also!)
+
+  local mtu=$(ip link show $PHYS_INT | grep -Eo "mtu [0-9]+" | cut -f 2 -d ' ')
+  echo "INFO: MTU=$mtu on parent interface $PHYS_INT"
+  mtu=$((mtu-50))
+
+  echo "INFO: set mtu for local machine"
+  sudo ip link set fan-252 mtu $mtu
+  ip link show fan-252
+
+  JUJU_MACHINES=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep -v \/lxd\/ | awk '{print $1}'`
+  for machine in $JUJU_MACHINES ; do
+    echo "INFO: set mtu for machine $machine"
+    command juju ssh $machine "sudo ip link set fan-252 mtu $mtu ; ip link show fan-252"
+  done
+}

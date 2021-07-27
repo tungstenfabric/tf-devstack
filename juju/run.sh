@@ -109,6 +109,8 @@ function machines() {
         # to prevent it we starts lxd before
         command juju deploy cs:$UBUNTU_SERIES/ubuntu --to lxd:0
     fi
+
+    configure_mtu
 }
 
 function openstack() {
