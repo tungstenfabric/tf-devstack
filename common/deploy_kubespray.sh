@@ -67,7 +67,7 @@ elif [ "$DISTRO" == "ubuntu" ]; then
 else
     echo "ERROR: Unsupported OS version" && exit 1
 fi
-sudo python3 -m pip install --upgrade pip
+sudo python3 -m pip install --upgrade pip==21.1.3
 
 # prepare ssh key authorization for all-in-one single node deployment
 
