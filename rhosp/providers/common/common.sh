@@ -56,7 +56,7 @@ export OPENSTACK_VERSION=${OPENSTACK_VERSION:-${_default_openstack_version[$RHOS
 declare -A _osc_registry_default=( ['rhosp13']='registry.access.redhat.com' ['rhosp16']='registry.redhat.io' )
 export OPENSTACK_CONTAINER_REGISTRY=${OPENSTACK_CONTAINER_REGISTRY:-${_osc_registry_default[${RHOSP_VERSION}]}}
 
-declare -A _osc_tag_default=( ['rhosp13']='13.0' ['rhosp16']='16.1' ['rhosp16.1']='16.1' ['rhosp16.2']='16.2_20210630.1' )
+declare -A _osc_tag_default=( ['rhosp13']='13.0' ['rhosp16']='16.1' ['rhosp16.1']='16.1' ['rhosp16.2']='16.2' )
 export OPENSTACK_CONTAINER_TAG=${OPENSTACK_CONTAINER_TAG:-${_osc_tag_default[${RHOSP_VERSION}]}}
 
 export IPMI_USER=${IPMI_USER:-'ADMIN'}
