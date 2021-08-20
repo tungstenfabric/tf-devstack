@@ -301,13 +301,12 @@ function retry() {
   local i
   for ((i=0; i<10; ++i)) ; do
     if $@ ; then
-      break
+      return 0
     fi
     sleep 6
   done
-  if [[ $i == 5 ]]; then
-    return 1
-  fi
+
+  return 1
 }
 
 function sync_time() {
