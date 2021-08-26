@@ -83,7 +83,7 @@ setup_timeserver
 cd kubespray/
 
 # If we now install the cryptography and cffi of the required version, then the newest versions will not be installed together with the ansible
-sudo pip3 install -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/${OPENSTACK_VERSION:-master}} cryptography cffi
+#sudo pip3 install -c${UPPER_CONSTRAINTS_FILE:=https://releases.openstack.org/constraints/upper/${OPENSTACK_VERSION:-master}} cryptography cffi
 
 sudo pip3 install -r requirements.txt
 
