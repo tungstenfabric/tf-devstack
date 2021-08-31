@@ -154,10 +154,14 @@ function tf_no_deploy() {
     $my_dir/overcloud/05_prepare_containers.sh
 }
 
-function tf() {
+function tf_deploy() {
     cd
-    tf_no_deploy
     $my_dir/overcloud/06_deploy_overcloud.sh
+}
+
+function tf() {
+    tf_no_deploy
+    tf_deploy
 }
 
 function logs() {
