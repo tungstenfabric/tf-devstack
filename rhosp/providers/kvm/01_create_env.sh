@@ -8,10 +8,10 @@ source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
 source $my_dir/../../../contrib/infra/kvm/functions.sh
 
-if [[ $RHEL_VERSION == 'rhel82' ]]; then
+if [[ $RHEL_VERSION == 'rhel8.2' ]]; then
   rhel_version_libvirt='rhl8.0'
   _default_base_image='/var/lib/libvirt/images/rhel-8.2-x86_64-kvm.qcow2'
-elif [[ $RHEL_VERSION == 'rhel84' ]]; then
+elif [[ $RHEL_VERSION == 'rhel8.4' ]]; then
   rhel_version_libvirt='rhl8.0'
   _default_base_image='/var/lib/libvirt/images/rhel-8.4-x86_64-kvm.qcow2'
 elif [[ $RHEL_VERSION == 'rhel7' ]]; then
