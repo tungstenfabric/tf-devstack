@@ -113,12 +113,17 @@ function _start_vm() {
   local prov_mac=$4
   local ram=${5}
 
+  local hugepages_opt=""
+  if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
+    hugepages_opt=" --memorybacking hugepages=on "
+  fi
+
   # define and start machine
   sudo virt-install --name=$name \
     --ram=$ram \
     --vcpus=4,cores=4 \
     --cpu host \
-    --memorybacking hugepages=on \
+    $hugepages_opt \
     --os-type=linux \
     --os-variant=$rhel_version_libvirt \
     --virt-type=kvm \
