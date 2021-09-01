@@ -222,9 +222,13 @@ function define_machine() {
     more_disks+=" --disk path=${path},device=disk,cache=writeback,bus=virtio,format=qcow2,size=${size}"
   done
   sudo rm -f /tmp/oc-$name.xml
+  local hugepages_opt=""
+  if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
+    hugepages_opt=" --memorybacking hugepages=on "
+  fi
   sudo virt-install --name $name \
     --ram $mem \
-    --memorybacking hugepages=on \
+    $hugepages_opt \
     --vcpus $vcpus \
     --cpu host \
     --os-variant $os \
