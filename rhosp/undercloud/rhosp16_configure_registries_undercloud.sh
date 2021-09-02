@@ -4,13 +4,16 @@ echo "INFO: old registries are $current_registries"
 changed_registries=""
 [ -n "$current_registries" ] && changed_registries+="$current_registries"
 
-if [[ -n "$CONTAINER_REGISTRY"  ]] && [[ ${changed_registries} != *"$CONTAINER_REGISTRY"* ]] && is_registry_insecure "$CONTAINER_REGISTRY" ; then
-       echo "INFO: adding new insecure registry $CONTAINER_REGISTRY"
-       changed_registries+="'$CONTAINER_REGISTRY'"
+container_registry=$(echo $CONTAINER_REGISTRY | cut -d '/' -f1)
+if [[ -n "$container_registry"  ]] && [[ ${changed_registries} != *"$container_registry"* ]] && is_registry_insecure "$container_registry" ; then
+       echo "INFO: adding new insecure registry $container_registry"
+       changed_registries+="'$container_registry'"
 fi
-if [[ -n "$OPENSTACK_CONTAINER_REGISTRY" ]] && [[ ${changed_registries} != *"$OPENSTACK_CONTAINER_REGISTRY"* ]] && is_registry_insecure "$OPENSTACK_CONTAINER_REGISTRY" ; then
-    echo "INFO: adding new insecure registry $OPENSTACK_CONTAINER_REGISTRY"
-    changed_registries+="'$OPENSTACK_CONTAINER_REGISTRY'"
+
+openstack_container_registry=$(echo $OPENSTACK_CONTAINER_REGISTRY | cut -d '/' -f1)
+if [[ -n "$openstack_container_registry" ]] && [[ ${changed_registries} != *"$openstack_container_registry"* ]] && is_registry_insecure "$openstack_container_registry" ; then
+    echo "INFO: adding new insecure registry $openstack_container_registry"
+    changed_registries+="'$openstack_container_registry'"
 fi
 
 if [ "$current_registries" != "$changed_registries" ]; then
