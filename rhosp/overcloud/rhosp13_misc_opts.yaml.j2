@@ -146,6 +146,14 @@ parameter_defaults:
       vm.max_map_count:
         value: 128960
 
+  ContrailAioParameters:
+    KernelArgs: '{{ kernel_args }}'
+    ExtraSysctlSettings:
+      vm.nr_hugepages:
+        value: {{ sysctl_hp }}
+      vm.max_map_count:
+        value: 128960
+
   ControllerCount: {{ overcloud_cont_instance }}
   ContrailControllerCount: {{ overcloud_ctrlcont_instance }}
   ContrailOperatorCount: {{ overcloud_operator_instance }}
