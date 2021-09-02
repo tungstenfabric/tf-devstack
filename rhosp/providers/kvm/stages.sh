@@ -21,6 +21,10 @@ function tf_no_deploy() {
     _run tf_no_deploy
 }
 
+function tf_deploy() {
+    _run tf_deploy
+}
+
 function tf() {
     _run tf
 }
