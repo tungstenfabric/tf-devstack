@@ -572,10 +572,49 @@ COMMAND
     echo "INFO: cores: $(ls -l $dump_path/)"
     local core
     for core in $(ls -1 $dump_path/) ; do
+        echo "INFO: collecting core $core"
         local x=$(basename "${core}")
         local y=$(echo $x | cut -d '.' -f 2)
-        timeout -s 9 30 sudo gdb --command=/tmp/commands.txt -c $core $y > $DUMPS_DIR/$x-bt.log
+        if which $y ; then
+            timeout -s 9 30 sudo gdb --command=/tmp/commands.txt -c $dump_path/$x $y &> $DUMPS_DIR/$x-bt.log
+        elif [[ "$y" == "contrail-vroute" ]] && which docker ; then
+            # special case for binary inside container
+            local vrouter_image_id=$(get_vrouter_image_id)
+            if [[ -z "$vrouter_image_id" ]]; then
+                echo "WARNING: core file can't be collected - can't detect vrouter's image. place a sign that it's present"
+                touch $DUMPS_DIR/$x
+            else
+                sudo docker rm -f vcrash || /bin/true
+                if ! sudo docker run -d --name vcrash -v /var/crashes:/var/crashes -v /tmp/commands.txt:/tmp/commands.txt --entrypoint /bin/tail $vrouter_image_id -f /dev/null ; then
+                    echo "WARNING: core file can't be collected - can't run vouter's image. place a sign that it's present"
+                    touch $DUMPS_DIR/$x
+                else
+                    timeout -s 9 30 sudo docker exec vcrash gdb --command=/tmp/commands.txt -c $dump_path/$x /usr/bin/contrail-vrouter-agent &> $DUMPS_DIR/$x-bt.log
+                fi
+                sudo docker rm -f vcrash || /bin/true
+            fi
+        else
+            echo "WARNING: core file can't be collected - unknown binary. place a sign that it's present"
+            touch $DUMPS_DIR/$x
+        fi
     done
+}
+
+function get_vrouter_image_id() {
+    local vrouter_image_id=$(sudo docker ps | awk '/vrouter-agent/{print $2}' | head -1)
+    if [[ -z "$vrouter_image_id" ]]; then
+        vrouter_image_id=$(sudo docker ps | awk '/vrouteragent/{print $2}' | head -1)
+    fi
+    if [[ -z "$vrouter_image_id" ]]; then
+        vrouter_image_id=$(sudo docker ps -a | awk '/vrouter-agent/{print $2}' | head -1)
+    fi
+    if [[ -z "$vrouter_image_id" ]]; then
+        vrouter_image_id=$(sudo docker ps -a | awk '/vrouteragent/{print $2}' | head -1)
+    fi
+    if [[ -z "$vrouter_image_id" ]]; then
+        sudo docker images | awk '/vrouter-agent/{print $3} | head -1'
+    fi
+    echo $vrouter_image_id
 }
 
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
