@@ -35,7 +35,7 @@ export fixed_vip="${prov_subnet}.200"
 export domain="dev.localdomain"
 
 # Undercloud
-export undercloud_instance="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
+export undercloud_instance="${RHOSP_VERSION//./-}-undercloud-${DEPLOY_POSTFIX}"
 # rhosp16 only
 export undercloud_admin_host="${prov_subnet}.3"
 export undercloud_public_host="${prov_subnet}.4"
