@@ -7,6 +7,13 @@ export WORKSPACE=${WORKSPACE:-$(pwd)}
 source "$my_dir/../common/functions.sh"
 source "$WORKSPACE/rhosp-environment.sh"
 
+source "$my_dir/../common/common.sh"
+source "$my_dir/../common/stages.sh"
+source "$my_dir/../common/collect_logs.sh"
+source "$my_dir/providers/common/common.sh"
+source "$my_dir/providers/common/functions.sh"
+source "$my_dir/providers/${PROVIDER}/stages.sh"
+
 #Checking if mandatory variables are defined
 ensureVariable ENVIRONMENT_OS
 ensureVariable PROVIDER
@@ -22,13 +29,6 @@ ensureVariable RHEL_VERSION
 ensureVariable RHEL_MAJOR_VERSION
 ensureVariable OPENSTACK_VERSION
 ensureVariable SSH_USER
-
-source "$my_dir/../common/common.sh"
-source "$my_dir/../common/stages.sh"
-source "$my_dir/../common/collect_logs.sh"
-source "$my_dir/providers/common/common.sh"
-source "$my_dir/providers/common/functions.sh"
-source "$my_dir/providers/${PROVIDER}/stages.sh"
 
 init_output_logging
 
