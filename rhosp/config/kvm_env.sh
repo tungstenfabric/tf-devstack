@@ -48,5 +48,10 @@ export ipa_prov_ip="${prov_subnet}.5"
 # Overcloud
 export overcloud_virt_type="kvm"
 
+# to add name into rhosp-environment.sh
+export overcloud_cont_instance="${overcloud_cont_instance}"
+export overcloud_compute_instance="${overcloud_compute_instance}"
+export overcloud_ctrlcont_instance="${overcloud_ctrlcont_instance}"
+
 # to allow vrouter to use 1gb pages
 export vrouter_huge_pages_1g='2'

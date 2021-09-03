@@ -5,6 +5,7 @@ my_dir="$(dirname $my_file)"
 
 source "$my_dir/../../../common/common.sh"
 source "$my_dir/../../../common/functions.sh"
+source "$my_dir/../../../contrib/infra/kvm/functions.sh"
 source "$my_dir/../common/common.sh"
 source "$my_dir/../common/functions.sh"
 
@@ -18,6 +19,14 @@ export ssh_private_key=${ssh_private_key:-~/.ssh/id_rsa}
 export ssh_public_key=${ssh_public_key:-~/.ssh/id_rsa.pub}
 
 cd $WORKSPACE
+
+export overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
+export overcloud_ctrlcont_instance=""
+if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
+  overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
+fi
+export overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
+
 prepare_rhosp_env_file rhosp-environment.sh
 sed 's/PROVIDER=.*/PROVIDER=bmc/g' rhosp-environment.sh > rhosp-environment-bmc.sh
 

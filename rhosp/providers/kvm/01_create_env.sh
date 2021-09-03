@@ -14,12 +14,11 @@ source $my_dir/../../config/kvm_env.sh
 ensureVariable RHOSP_VERSION
 ensureVariable RHEL_VERSION
 ensureVariable DEPLOY_POSTFIX
-ensureVariable ENABLE_RHEL_REGISTRATION
-ensureVariable SSH_USER
 ensureVariable ssh_public_key
-ensureVariable OPENSTACK_CONTROLLER_NODES
-ensureVariable CONTROLLER_NODES
-ensureVariable AGENT_NODES
+
+ensureVariable overcloud_cont_instance
+ensureVariable overcloud_ctrlcont_instance
+ensureVariable overcloud_ctrlcont_instance
 
 if [[ $RHEL_VERSION == 'rhel8.2' ]]; then
   rhel_version_libvirt='rhl8.0'
@@ -51,13 +50,6 @@ COMP_MEM=${COMP_MEM:-8192}
 
 vm_disk_size=${vm_disk_size:-60G}
 net_driver=${net_driver:-virtio}
-
-overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
-overcloud_ctrlcont_instance=""
-if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
-  overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
-fi
-overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
 
 # check if environment is present
 assert_env_exists $undercloud_vmname
