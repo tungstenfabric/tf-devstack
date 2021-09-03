@@ -35,7 +35,7 @@ else
   exit 1
 fi
 
-undercloud_vmname="$RHOSP_VERSION-undercloud-${DEPLOY_POSTFIX}"
+undercloud_vmname="${RHOSP_VERSION//./-}-undercloud-${DEPLOY_POSTFIX}"
 undercloud_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:02"
 undercloud_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:03"
 
