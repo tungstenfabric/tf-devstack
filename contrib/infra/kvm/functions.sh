@@ -46,6 +46,23 @@ EOF
   echo $fname
 }
 
+function make_instances_names() {
+  local nodes_count=$(echo $1 | cut -d ':' -f2)
+  local type=$2
+  local rhosp_version=$(echo $RHOSP_VERSION | tr '.' '-')
+  local res=''
+  local i=1
+  if [ -z $nodes_count ]; then
+    nodes_count=0
+  fi
+  while (( $i <= $nodes_count )); do
+    [ -z "$res" ] || res+=","
+    res+="${rhosp_version}-${type}-${DEPLOY_POSTFIX}-$i"
+    i=$(( i + 1 ))
+  done
+  echo $res
+}
+
 function delete_network_dhcp() {
   local network_name="$1"
   sudo virsh net-destroy $network_name 2> /dev/null || true

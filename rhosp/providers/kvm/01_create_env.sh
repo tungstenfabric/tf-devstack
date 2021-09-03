@@ -6,7 +6,20 @@ my_dir="$(dirname $my_file)"
 
 source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
+source $my_dir/../../../common/functions.sh
 source $my_dir/../../../contrib/infra/kvm/functions.sh
+source $my_dir/../common/common.sh
+source $my_dir/../../config/kvm_env.sh
+
+ensureVariable RHOSP_VERSION
+ensureVariable RHEL_VERSION
+ensureVariable DEPLOY_POSTFIX
+ensureVariable ENABLE_RHEL_REGISTRATION
+ensureVariable SSH_USER
+ensureVariable ssh_public_key
+ensureVariable OPENSTACK_CONTROLLER_NODES
+ensureVariable CONTROLLER_NODES
+ensureVariable AGENT_NODES
 
 if [[ $RHEL_VERSION == 'rhel8.2' ]]; then
   rhel_version_libvirt='rhl8.0'
@@ -30,7 +43,7 @@ ipa_mgmt_mac="00:16:00:00:${DEPLOY_POSTFIX}:04"
 ipa_prov_mac="00:16:00:00:${DEPLOY_POSTFIX}:05"
 
 BASE_IMAGE=${BASE_IMAGE:-${_default_base_image}}
-UNDERCLOUD_MEM=${UNDERCLOUD_MEM:-16384}
+UNDERCLOUD_MEM=${UNDERCLOUD_MEM:-24600}
 IPA_MEM=${IPA_MEM:-4096}
 OS_MEM=${OS_MEM:-8192}
 CTRL_MEM=${CTRL_MEM:-8192}
@@ -38,6 +51,13 @@ COMP_MEM=${COMP_MEM:-8192}
 
 vm_disk_size=${vm_disk_size:-60G}
 net_driver=${net_driver:-virtio}
+
+overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
+overcloud_ctrlcont_instance=""
+if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
+  overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
+fi
+overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
 
 # check if environment is present
 assert_env_exists $undercloud_vmname
@@ -134,6 +154,7 @@ function _start_vm() {
     --network network=$NET_NAME_PROV,model=$net_driver,mac=$prov_mac \
     --graphics vnc,listen=0.0.0.0
 }
+
 
 _start_vm "$undercloud_vmname" "$undercloud_vm_volume" \
   $undercloud_mgmt_mac $undercloud_prov_mac $UNDERCLOUD_MEM
