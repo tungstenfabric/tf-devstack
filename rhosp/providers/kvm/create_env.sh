@@ -20,6 +20,7 @@ export ssh_public_key=${ssh_public_key:-~/.ssh/id_rsa.pub}
 
 cd $WORKSPACE
 
+export DEPLOY_POSTFIX=${DEPLOY_POSTFIX:-20}
 export overcloud_cont_instance=$(make_instances_names "$OPENSTACK_CONTROLLER_NODES" "overcloud-cont")
 export overcloud_ctrlcont_instance=""
 if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
