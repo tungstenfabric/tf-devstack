@@ -2,6 +2,10 @@
 function _run()
 {
     cat <<EOF | ssh $ssh_opts stack@${instance_ip}
+export CONTAINER_REGISTRY="$CONTAINER_REGISTRY"
+export DEPLOYER_CONTAINER_REGISTRY="$DEPLOYER_CONTAINER_REGISTRY"
+export CONTRAIL_CONTAINER_TAG="$CONTRAIL_CONTAINER_TAG"
+export CONTRAIL_DEPLOYER_CONTAINER_TAG="$CONTRAIL_DEPLOYER_CONTAINER_TAG"
 source /etc/profile
 source rhosp-environment.sh
 ./tf-devstack/rhosp/run.sh $@

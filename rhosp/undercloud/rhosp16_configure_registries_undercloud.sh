@@ -6,13 +6,19 @@ changed_registries=""
 
 container_registry=$(echo $CONTAINER_REGISTRY | cut -d '/' -f1)
 if [[ -n "$container_registry"  ]] && [[ ${changed_registries} != *"$container_registry"* ]] && is_registry_insecure "$container_registry" ; then
-       echo "INFO: adding new insecure registry $container_registry"
+       echo "INFO: adding CONTAINER_REGISTRY into insecure registry $container_registry"
+       changed_registries+="'$container_registry'"
+fi
+
+container_registry=$(echo $DEPLOYER_CONTAINER_REGISTRY | cut -d '/' -f1)
+if [[ -n "$container_registry"  ]] && [[ ${changed_registries} != *"$container_registry"* ]] && is_registry_insecure "$container_registry" ; then
+       echo "INFO: adding DEPLOYER_CONTAINER_REGISTRY insecure registry $container_registry"
        changed_registries+="'$container_registry'"
 fi
 
 openstack_container_registry=$(echo $OPENSTACK_CONTAINER_REGISTRY | cut -d '/' -f1)
 if [[ -n "$openstack_container_registry" ]] && [[ ${changed_registries} != *"$openstack_container_registry"* ]] && is_registry_insecure "$openstack_container_registry" ; then
-    echo "INFO: adding new insecure registry $openstack_container_registry"
+    echo "INFO: adding OPENSTACK_CONTAINER_REGISTRY insecure registry $openstack_container_registry"
     changed_registries+="'$openstack_container_registry'"
 fi
 
