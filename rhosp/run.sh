@@ -29,6 +29,10 @@ ensureVariable RHEL_VERSION
 ensureVariable RHEL_MAJOR_VERSION
 ensureVariable OPENSTACK_VERSION
 ensureVariable SSH_USER
+if [[ -n "$L3MH_CIDR" ]] && [[ "$RHEL_VERSION" == 'rhosp13' || "$RHEL_VERSION" == 'rhosp16.1' ]] ; then
+    echo "ERROR: L3MH is unsupported for $RHOSP_VERSION"
+    exit 1
+fi
 
 init_output_logging
 

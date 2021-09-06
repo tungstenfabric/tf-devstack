@@ -25,23 +25,51 @@ fi
 
 network_env_files=''
 if [[ "$ENABLE_NETWORK_ISOLATION" == true ]] ; then
-    network_env_files+=' -e tripleo-heat-templates/environments/network-isolation.yaml'
-    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net.yaml'
+  network_env_files+=' -e tripleo-heat-templates/environments/network-isolation.yaml'
+  network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net.yaml'
 else
-    network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
+  network_env_files+=' -e tripleo-heat-templates/environments/contrail/contrail-net-single.yaml'
 fi
+
+network_data_file=''
+if [[ -n "$L3MH_CIDR" ]] ; then
+  network_data_file+=" -n $(pwd)/tripleo-heat-templates/network_data_l3mh.yaml"
+  network_env_files+=' -e tripleo-heat-templates/environments/contrail/ips-from-pool-l3mh.yaml'
+fi
+
+roles=''
 
 storage_env_files=''
 if [[ -n "$overcloud_ceph_instance" ]] ; then
-    storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
-    storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-mds.yaml'
+  storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-ansible.yaml'
+  storage_env_files+=' -e tripleo-heat-templates/environments/ceph-ansible/ceph-mds.yaml'
+  roles+=" CephStorage"
 fi
 
+role_file="$(pwd)/roles_data.yaml"
 if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
-  role_file="$(pwd)/tripleo-heat-templates/roles/ContrailAio.yaml"
+  if [[ -z "$L3MH_CIDR" ]] ; then
+    roles+=" ContrailAio"
+  else
+    roles+=" ContrailAioL3mh"
+  fi
 else
-  role_file="$(pwd)/tripleo-heat-templates/roles_data_contrail_aio.yaml"
+  roles+=" Controller"
+  if [[ "$CONTROL_PLANE_ORCHESTRATOR" != 'operator' ]] ; then
+    roles+=" ContrailController"
+  else
+    [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] || roles+=" ContrailOperator"
+  fi
+  if [[ -z "$L3MH_CIDR" ]] ; then
+    roles+=" Compute"
+  else
+    roles+=" ComputeL3mh"
+  fi
 fi
+[[ -z "$overcloud_dpdk_instance" ]] || roles+=" ContrailDpdk"
+[[ -z "$overcloud_sriov_instance" ]] || roles+=" ContrailSriov"
+
+openstack overcloud roles generate --roles-path tripleo-heat-templates/roles -o $role_file $roles
 
 plugin_file_suffix=''
 [[ -z "$CONTROL_PLANE_ORCHESTRATOR" ]] || plugin_file_suffix="-$CONTROL_PLANE_ORCHESTRATOR"
@@ -69,17 +97,17 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
 fi
 
 ./tripleo-heat-templates/tools/process-templates.py --clean \
-  -r $role_file \
+  -r $role_file $network_data_file \
   -p tripleo-heat-templates/
 
 ./tripleo-heat-templates/tools/process-templates.py \
-  -r $role_file \
+  -r $role_file $network_data_file \
   -p tripleo-heat-templates/
 
 echo "INFO: DEPLOY OVERCLOUD COMMAND:"
 echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
   --stack overcloud --libvirt-type kvm \
-  --roles-file $role_file \
+  --roles-file $role_file $network_data_file \
   -e overcloud_containers.yaml \
   $rhel_reg_env_files \
   $pre_deploy_nodes_env_files \
@@ -94,7 +122,7 @@ echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
 
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --stack overcloud --libvirt-type kvm \
-  --roles-file $role_file \
+  --roles-file $role_file $network_data_file \
   -e overcloud_containers.yaml \
   $rhel_reg_env_files \
   $pre_deploy_nodes_env_files \

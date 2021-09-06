@@ -70,8 +70,13 @@ function _define_machines_for_type() {
 }
 
 _define_machines_for_type "controller" "$overcloud_cont_instance"
-_define_machines_for_type "novacompute" "$overcloud_compute_instance"
+if [ -z "$L3MH_CIDR" ] ; then
+  _define_machines_for_type "novacompute" "$overcloud_compute_instance"
+else
+  _define_machines_for_type "computel3mh" "$overcloud_compute_instance"
+fi
 _define_machines_for_type "contrailcontroller" "$overcloud_ctrlcont_instance"
+
 
 # remove last comma
 head -n -1 instackenv.json > instackenv.json.tmp

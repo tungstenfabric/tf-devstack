@@ -96,7 +96,12 @@ else
   add_flavor $overcloud_cont_instance $CONTROLLER_NODES
   overcloud_ctrlcont_instance=''
 fi
-overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
+if [ -z "$L3MH_CIDR" ] ; then
+  overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
+else
+  overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-computel3mh")
+fi
+
 add_flavor $overcloud_compute_instance $AGENT_NODES
 
 management_network_name=${management_network_name:-"management"}

@@ -21,10 +21,17 @@ export undercloud_registry=${prov_ip}:8787
 export undercloud_registry_contrail=$undercloud_registry
 ns=$(echo ${CONTAINER_REGISTRY:-'docker.io/tungstenfabric'} | cut -s -d '/' -f2-)
 [ -n "$ns" ] && undercloud_registry_contrail+="/$ns"
-if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
-   #Explicitly set to prevent the use of a network interface gateway
-  export vrouter_gateway_parameter="VROUTER_GATEWAY: ${prov_ip}"
+
+
+export vrouter_gateway_parameter=""
+if [ -n "$VROUTER_GATEWAY" ] ; then
+   vrouter_gateway_parameter="VROUTER_GATEWAY: ${VROUTER_GATEWAY}"
 fi
+if [[ "$USE_PREDEPLOYED_NODES" == true && -z "$vrouter_gateway_parameter" ]]; then
+   #Explicitly set to prevent the use of a network interface gateway
+  vrouter_gateway_parameter="VROUTER_GATEWAY: ${prov_ip}"
+fi
+
 if [[ "$ENABLE_RHEL_REGISTRATION" == false ]]; then
    export RHEL_REG_METHOD="disable"
 else

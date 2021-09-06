@@ -66,6 +66,10 @@ if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
 else
   create_network_dhcp $NET_NAME_PROV $prov_subnet 'yes' 'no_forward'
 fi
+if [[ -n "$L3MH_CIDR" ]] ; then
+  create_network_dhcp $NET_NAME_L3MH_1 $l3mh_subnet1 'yes' 'no_forward'
+  create_network_dhcp $NET_NAME_L3MH_2 $l3mh_subnet2 'yes' 'no_forward'
+fi
 
 # create pool
 create_pool $poolname
@@ -80,25 +84,30 @@ function define_overcloud_vms() {
   local name=$1
   local mem=$2
   local vbmc_port=$3
-  local vcpu=${4:-2}
+  local vcpu=$4
+  local nets=$5
   local vol_name=$name
   local vm_name="$vol_name"
   create_root_volume $vol_name
-  define_machine $vm_name $vcpu $mem $rhel_version_libvirt $NET_NAME_PROV "${pool_path}/${vol_name}.qcow2"
+  define_machine $vm_name $vcpu $mem $rhel_version_libvirt $nets "${pool_path}/${vol_name}.qcow2"
   start_vbmc $vbmc_port $vm_name $mgmt_gateway $IPMI_USER $IPMI_PASSWORD
 }
 
 vbmc_port=$VBMC_PORT_BASE
 for i in $(echo $overcloud_cont_instance | sed 's/,/ /g') ; do
-  define_overcloud_vms $i $OS_MEM $vbmc_port 4
-  (( vbmc_port+=1 ))
-done
-for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
-  define_overcloud_vms $i $COMP_MEM $vbmc_port 4
+  define_overcloud_vms $i $OS_MEM $vbmc_port 4 $NET_NAME_PROV
   (( vbmc_port+=1 ))
 done
 for i in $(echo $overcloud_ctrlcont_instance | sed 's/,/ /g') ; do
-  define_overcloud_vms $i $CTRL_MEM $vbmc_port 4
+  define_overcloud_vms $i $CTRL_MEM $vbmc_port 4 $NET_NAME_PROV
+  (( vbmc_port+=1 ))
+done
+for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
+  nets=$NET_NAME_PROV
+  if [ -n "L3MH_CIDR" ] ; then
+    nets+=",${NET_NAME_L3MH_1},${NET_NAME_L3MH_2}"
+  fi
+  define_overcloud_vms $i $COMP_MEM $vbmc_port 4 $nets
   (( vbmc_port+=1 ))
 done
 

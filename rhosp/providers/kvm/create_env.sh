@@ -26,7 +26,11 @@ export overcloud_ctrlcont_instance=""
 if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
   overcloud_ctrlcont_instance=$(make_instances_names "$CONTROLLER_NODES" "overcloud-ctrlcont")
 fi
-export overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
+if [ -z "$L3MH_CIDR" ] ; then
+  export overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-compute")
+else
+  export overcloud_compute_instance=$(make_instances_names "$AGENT_NODES" "overcloud-computel3mh")
+fi
 
 prepare_rhosp_env_file rhosp-environment.sh
 sed 's/PROVIDER=.*/PROVIDER=bmc/g' rhosp-environment.sh > rhosp-environment-bmc.sh

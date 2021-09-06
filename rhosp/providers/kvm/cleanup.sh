@@ -24,8 +24,9 @@ for i in $(echo $overcloud_cont_instance $overcloud_compute_instance $overcloud_
     delete_node $i "$i.qcow2" 
 done
 
-delete_network_dhcp $NET_NAME_MGMT
-delete_network_dhcp $NET_NAME_PROV
+for n in $(echo $NET_NAME_MGMT $NET_NAME_PROV $NET_NAME_L3MH_1 $NET_NAME_L3MH_2 | sed 's/,/ /g') ; do
+    delete_network_dhcp $n
+done
 
 sudo virsh pool-destroy $poolname
 sudo virsh pool-undefine $poolname

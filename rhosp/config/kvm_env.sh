@@ -30,6 +30,13 @@ export prov_inspection_iprange="${prov_subnet}.150,${prov_subnet}.170"
 export prov_dhcp_start=${prov_subnet}.100
 export prov_dhcp_end=${prov_subnet}.149
 
+# L3MH
+export NET_NAME_L3MH_1="l3mh1-${DEPLOY_POSTFIX}"
+export NET_NAME_L3MH_2="l3mh2-${DEPLOY_POSTFIX}"
+export l3mh_subnet1="172.16.10.1"
+export l3mh_subnet2="172.16.20.1"
+
+# Other
 export fixed_vip="${prov_subnet}.200"
 
 export domain="dev.localdomain"

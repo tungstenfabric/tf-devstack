@@ -24,6 +24,11 @@
 
 {%- set overcloud_compute_instance = overcloud_compute_instance | default('') %}
 {%- set overcloud_compute_instance = (overcloud_compute_instance.split(',') | length) if overcloud_compute_instance != '' else 0 %}
+{%- set overcloud_computel3mh_instance = 0 %}
+{%- if L3MH_CIDR | default('') != '' %}
+  {%- set overcloud_computel3mh_instance = overcloud_compute_instance %}
+  {%- set overcloud_compute_instance = 0 %}
+{%- endif %}
 
 {%- set overcloud_dpdk_instance = overcloud_dpdk_instance | default('') %}
 {%- set overcloud_dpdk_instance = (overcloud_dpdk_instance.split(',') | length)  if overcloud_dpdk_instance != '' else 0 %}
@@ -107,6 +112,8 @@ parameter_defaults:
     'capabilities:node': 'overcloud-contraildpdk-%index%'
   ContrailSriovSchedulerHints:
     'capabilities:node': 'overcloud-contrailsriov-%index%'
+  ComputeL3mhSchedulerHints:
+    'capabilities:node': 'overcloud-computel3mh-%index%'
   ControllerSchedulerHints:
     'capabilities:node': 'overcloud-controller-%index%'
   ContrailControllerSchedulerHints:
@@ -165,6 +172,21 @@ parameter_defaults:
       vm.max_map_count:
         value: 128960
 
+  ComputeL3mhParameters:
+    KernelArgs: '{{ kernel_args }}'
+    ExtraSysctlSettings:
+      vm.nr_hugepages:
+        value: {{ sysctl_hp }}
+      vm.max_map_count:
+        value: 128960
+      net.ipv4.conf.all.rp_filter:
+        value: 0
+    ContrailSettings:
+      L3MH_CIDR: "10.10.10.0/24"
+      LOG_LEVEL: 'SYS_DEBUG'
+      DPDK_UIO_DRIVER: 'vfio-pci'
+      {{ vrouter_gateway_parameter }}
+
   ContrailAioParameters:
     KernelArgs: '{{ kernel_args }}'
     ExtraSysctlSettings:
@@ -177,6 +199,7 @@ parameter_defaults:
   ContrailControllerCount: {{ overcloud_ctrlcont_instance }}
   ContrailOperatorCount: {{ overcloud_operator_instance }}
   ComputeCount: {{ overcloud_compute_instance }}
+  ComputeL3mhCount: {{ overcloud_computel3mh_instance }}
   ContrailDpdkCount: {{ overcloud_dpdk_instance }}
   ContrailSriovCount: {{ overcloud_sriov_instance }}
   CephStorageCount: {{ overcloud_ceph_instance }}

@@ -21,6 +21,18 @@ function machines() {
     _run machines
 }
 
+function tf_flavors() {
+    _run tf_flavors
+}
+
+function tf_containers() {
+    _run tf_containers
+}
+
+function tf_templates() {
+    _run tf_templates
+}
+
 function tf_no_deploy() {
     _run tf_no_deploy
 }

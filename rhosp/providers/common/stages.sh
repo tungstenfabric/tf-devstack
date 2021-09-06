@@ -140,18 +140,32 @@ function machines() {
     _overcloud
 }
 
+function tf_flavors() {
+    cd
+    if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
+        $my_dir/overcloud/02_manage_overcloud_flavors.sh
+    fi
+}
+
+function tf_templates() {
+    cd
+    $my_dir/overcloud/04_prepare_heat_templates.sh
+}
+
+function tf_containers() {
+    cd
+    $my_dir/overcloud/05_prepare_containers.sh
+}
+
 # TODO:
 #   - move flavor into overcloud stage
 #   - split containers preparation into openstack and contrail parts
 #     and move openstack part into overcloud stage
 #Overcloud stage w/o deploy for debug and customizations pruposes
 function tf_no_deploy() {
-    cd
-    if [[ "$USE_PREDEPLOYED_NODES" == false ]]; then
-        $my_dir/overcloud/02_manage_overcloud_flavors.sh
-    fi
-    $my_dir/overcloud/04_prepare_heat_templates.sh
-    $my_dir/overcloud/05_prepare_containers.sh
+    tf_flavors
+    tf_templates
+    tf_containers
 }
 
 function tf_deploy() {
