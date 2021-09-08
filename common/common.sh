@@ -50,7 +50,7 @@ export LEGACY_ANALYTICS_ENABLE=${LEGACY_ANALYTICS_ENABLE:-true}
 export SSH_OPTIONS=${SSH_OPTIONS:-"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o PasswordAuthentication=no -o ServerAliveInterval=60"}
 # some value which is suitable for tf-devstack deployments
 # most deployments can work with 128 but juju-hybrid crashes and requires more
-export HUGE_PAGES_2MB=${HUGE_PAGES_2MB:-256}
+export HUGE_PAGES_2MB=${HUGE_PAGES_2MB:-512}
 
 # possible values: kubernetes, openstack, hybrid. Each deployer supports only some types of orchestrators.
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
