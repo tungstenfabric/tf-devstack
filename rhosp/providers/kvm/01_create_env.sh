@@ -26,8 +26,8 @@ if [[ $RHEL_VERSION == 'rhel8.2' ]]; then
 elif [[ $RHEL_VERSION == 'rhel8.4' ]]; then
   rhel_version_libvirt='rhl8.0'
   _default_base_image='/var/lib/libvirt/images/rhel-8.4-x86_64-kvm.qcow2'
-elif [[ $RHEL_VERSION == 'rhel7' ]]; then
-  rhel_version_libvirt=$RHEL_VERSION
+elif [[ $RHEL_VERSION == 'rhel7.7' || $RHEL_VERSION == 'rhel7.8' || $RHEL_VERSION == 'rhel7.9' ]]; then
+  rhel_version_libvirt=$RHEL_MAJOR_VERSION
   _default_base_image='/var/lib/libvirt/images/rhel-server-7.9-x86_64-kvm.qcow2'
 else
   echo "ERROR: Unknown RHEL_VERSION=$RHEL_VERSION"
@@ -104,7 +104,7 @@ for i in $(echo $overcloud_ctrlcont_instance | sed 's/,/ /g') ; do
 done
 for i in $(echo $overcloud_compute_instance | sed 's/,/ /g') ; do
   nets=$NET_NAME_PROV
-  if [ -n "L3MH_CIDR" ] ; then
+  if [ -n "$L3MH_CIDR" ] ; then
     nets+=",${NET_NAME_L3MH_1},${NET_NAME_L3MH_2}"
   fi
   define_overcloud_vms $i $COMP_MEM $vbmc_port 4 $nets
