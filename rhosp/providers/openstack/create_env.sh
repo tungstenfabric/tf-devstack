@@ -121,9 +121,19 @@ if [[ -z "$prov_cidr" ]] ; then
 fi
 
 #Get latest rhel image
-rhel_image_name=$(echo "prepared-${RHEL_VERSION}-" | sed "s/\\.//g" )
-image_name=$(openstack image list --status active -c Name -f value | grep "$rhel_image_name" | sort -nr | head -n 1)
-image_id=$(openstack image show -c id -f value "$image_name")
+function get_last_image() {
+  local v=$1
+  local rhel_image_name=$(echo "prepared-${v}-" | sed "s/\\.//g" )
+  local image_name=$(openstack image list --status active -c Name -f value | grep "$rhel_image_name" | sort -nr | head -n 1)
+  openstack image show -c id -f value "$image_name" || true
+}
+image_id=$(get_last_image ${RHEL_VERSION})
+[ -n "$image_id" ] || image_id=$(get_last_image ${RHEL_MAJOR_VERSION})
+if [ -z "$image_id" ] ; then
+  echo -e "ERROR: no image found for ${RHEL_VERSION}\n$(openstack image list --status active -c Name -f value)"
+  exit 1
+fi
+echo "INFO: use image $image_id"
 
 # tags
 PIPELINE_BUILD_TAG=${PIPELINE_BUILD_TAG:-}
