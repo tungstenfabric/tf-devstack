@@ -16,9 +16,9 @@ if [[ "${ENABLE_RHEL_REGISTRATION}" == 'true' ]]; then
 fi
 
 if [[ -n "$overcloud_ceph_instance" ]] ; then
-  tmpl=${RHOSP_VERSION}_containers-prepare-parameter-ceph.yaml.template
+  tmpl=${RHOSP_MAJOR_VERSION}_containers-prepare-parameter-ceph.yaml.template
 else
-  tmpl=${RHOSP_VERSION}_containers-prepare-parameter.yaml.template
+  tmpl=${RHOSP_MAJOR_VERSION}_containers-prepare-parameter.yaml.template
 fi
 cat $my_dir/$tmpl | envsubst >~/containers-prepare-parameter.yaml
 echo "INFO: containers-prepare-parameter.yaml"
