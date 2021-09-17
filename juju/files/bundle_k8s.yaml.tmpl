@@ -20,6 +20,10 @@ machines:
 {%- set all_nodes = range(0, all_nodes_count) | list %}
 {%- set controller_nodes = range(0, controllers_count|int) | list %}
 
+{%- set k8s_ver = K8S_VERSION | default("1.21") | replace("v", "") | replace("V", "") | replace("-", ".") %}
+{%- set k8s_ver = k8s_ver.split(".")[0:2] | join(".") %}
+{%- set k8s_channel = k8s_ver + "/stable" %}
+
 {%- for i in range(0, all_nodes_count) %}
   {{ i }}:
     series: "{{ UBUNTU_SERIES }}"
@@ -48,16 +52,13 @@ services:
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    # 987 for 1.20
-    #charm: cs:~containers/kubernetes-master-987
-    # 1034 for 1.21
     charm: cs:~containers/kubernetes-master-1034
     num_units: {{ controller_nodes | count }}
     expose: true
     options:
       enable-metrics: false
       enable-dashboard-addons: false
-      channel: '1.21/stable'
+      channel: '{{ k8s_channel }}'
       service-cidr: '10.96.0.0/12'
       snapd_refresh: 'max'
 {%- if ORCHESTRATOR == 'kubernetes' %}
@@ -67,14 +68,11 @@ services:
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
-    # 752 for 1.20
-    #charm: cs:~containers/kubernetes-worker-752
-    # 788 for 1.21
     charm: cs:~containers/kubernetes-worker-788
     num_units: {{ agent_nodes | count }}
     options:
       ingress: false
-      channel: '1.21/stable'
+      channel: '{{ k8s_channel }}'
       snapd_refresh: 'max'
     to: {{ agent_nodes }}
 

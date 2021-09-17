@@ -160,6 +160,10 @@ function k8s() {
         echo "INFO: Skipping k8s deployment"
         return
     fi
+    if [[ "${CONTRAIL_CONTAINER_TAG,,}" =~ 'r2011' || "${CONTRAIL_CONTAINER_TAG,,}" =~ 'r1912' ]] ; then
+        export K8S_VERSION="v1.18"
+        echo "INFO: use k8s $K8S_VERSION for branches r2011 and r1912"
+    fi
     export BUNDLE="$my_dir/files/bundle_k8s.yaml.tmpl"
     $my_dir/../common/deploy_juju_bundle.sh
 
