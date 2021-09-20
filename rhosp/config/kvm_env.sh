@@ -48,7 +48,7 @@ export undercloud_admin_host="${prov_subnet}.3"
 export undercloud_public_host="${prov_subnet}.4"
 
 # IPA params
-export ipa_instance="$RHOSP_VERSION-ipa-${DEPLOY_POSTFIX}"
+export ipa_instance="${RHOSP_VERSION//./-}-ipa-${DEPLOY_POSTFIX}"
 export ipa_mgmt_ip="${mgmt_subnet}.3"
 export ipa_prov_ip="${prov_subnet}.5"
 
