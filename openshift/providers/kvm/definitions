@@ -13,19 +13,19 @@ done
 
 DNS_DIR="/etc/dnsmasq.d"
 
-declare -A rhcos_versions=( ["4.5"]="4.5/4.5.6" ["4.6"]="4.6/4.6.8" )
+declare -A rhcos_versions=( ["4.5"]="4.5/4.5.6" ["4.6"]="4.6/4.6.8" ["4.8"]="4.8/4.8.2")
 RHCOS_VERSION=${RHCOS_VERSION:="${rhcos_versions[$OPENSHIFT_VERSION]}"}
 
-declare -A rhcos_images=( ["4.5"]="rhcos-metal.x86_64.raw.gz" ["4.6"]="rhcos-live-rootfs.x86_64.img" )
+declare -A rhcos_images=( ["4.5"]="rhcos-metal.x86_64.raw.gz" ["4.6"]="rhcos-live-rootfs.x86_64.img" ["4.8"]="rhcos-live-rootfs.x86_64.img")
 RHCOS_IMAGE="${rhcos_images[$OPENSHIFT_VERSION]}"
 
-declare -A rhcos_kernels=( ["4.5"]="rhcos-installer-kernel-x86_64" ["4.6"]="rhcos-live-kernel-x86_64" )
+declare -A rhcos_kernels=( ["4.5"]="rhcos-installer-kernel-x86_64" ["4.6"]="rhcos-live-kernel-x86_64" ["4.8"]="rhcos-live-kernel-x86_64")
 RHCOS_KERNEL="${rhcos_kernels[$OPENSHIFT_VERSION]}"
 
-declare -A rhcos_initramfs=( ["4.5"]="rhcos-installer-initramfs.x86_64.img" ["4.6"]="rhcos-live-initramfs.x86_64.img" )
+declare -A rhcos_initramfs=( ["4.5"]="rhcos-installer-initramfs.x86_64.img" ["4.6"]="rhcos-live-initramfs.x86_64.img" ["4.8"]="rhcos-live-initramfs.x86_64.img")
 RHCOS_INITRAMFS="${rhcos_initramfs[$OPENSHIFT_VERSION]}"
 
-declare -A versioned_rootfs_urls=( ["4.5"]="coreos.inst.image_url" ["4.6"]="coreos.live.rootfs_url" )
+declare -A versioned_rootfs_urls=( ["4.5"]="coreos.inst.image_url" ["4.6"]="coreos.live.rootfs_url" ["4.8"]="coreos.live.rootfs_url")
 
 MASTER_CPU=${MASTER_CPU:-"4"}
 MASTER_MEM=${MASTER_MEM:-"24000"}

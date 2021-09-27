@@ -20,7 +20,7 @@ declare -A STAGES=( \
 
 # constants
 
-# supported version 4.5, 4.6, master
+# supported version 4.5, 4.6, 4.8, master
 # master is a laltest supported numerical version
 export OPENSHIFT_VERSION=${OPENSHIFT_VERSION:-'master'}
 if [[ "$OPENSHIFT_VERSION" == 'master' ]]; then
