@@ -171,17 +171,23 @@ function tf() {
 
     wait_cmd_success "oc get pods" 15 480
 
-    echo "INFO: apply CRD-s  $(date)"
-    wait_cmd_success "oc apply -f ${OPERATOR_REPO}/deploy/crds/" 5 60
+    # If we apply cn/tf manifests from directory, we not need to apply any after
+    if [[ -n "${OCP_MANIFESTS_DIR}" ]]; then
+        # Get bootstrap aggreagation CA and add it to kubernetes cm
+        ${my_dir}/providers/${PROVIDER}/patch_aggregator_ca.sh
+    else
+        echo "INFO: apply CRD-s  $(date)"
+        wait_cmd_success "oc apply -f ${OPERATOR_REPO}/deploy/crds/" 5 60
 
-    echo "INFO: wait for CRD-s  $(date)"
-    wait_cmd_success 'oc wait crds --for=condition=Established --timeout=2m managers.tf.tungsten.io' 1 2
+        echo "INFO: wait for CRD-s  $(date)"
+        wait_cmd_success 'oc wait crds --for=condition=Established --timeout=2m managers.tf.tungsten.io' 1 2
 
-    echo "INFO: apply operator and TF templates  $(date)"
-    # apply operator
-    wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/operator/templates/" 5 60
-    # apply TF cluster
-    wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/contrail/templates/" 5 60
+        echo "INFO: apply operator and TF templates  $(date)"
+        # apply operator
+        wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/operator/templates/" 5 60
+        # apply TF cluster
+        wait_cmd_success "oc apply -k ${OPERATOR_REPO}/deploy/kustomize/contrail/templates/" 5 60
+    fi
 
     echo "INFO: wait for bootstrap complete  $(date)"
     openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete

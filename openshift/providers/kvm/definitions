@@ -44,3 +44,4 @@ LB_IMG_URL="https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericClou
 LB_IMAGE="CentOS-7-x86_64-GenericCloud.qcow2"
 
 HUGEPAGES_ENABLED=${HUGEPAGES_ENABLED:-"true"}
+BOOTSTRAP_DEFAULT_ADDRESS="192.168.123.102"
