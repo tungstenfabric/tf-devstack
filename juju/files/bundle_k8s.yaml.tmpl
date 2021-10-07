@@ -20,7 +20,7 @@ machines:
 {%- set all_nodes = range(0, all_nodes_count) | list %}
 {%- set controller_nodes = range(0, controllers_count|int) | list %}
 
-{%- set k8s_ver = K8S_VERSION | default("1.21") | replace("v", "") | replace("V", "") | replace("-", ".") %}
+{%- set k8s_ver = K8S_VERSION | default("1.22") | replace("v", "") | replace("V", "") | replace("-", ".") %}
 {%- set k8s_ver = k8s_ver.split(".")[0:2] | join(".") %}
 {%- set k8s_channel = k8s_ver + "/stable" %}
 
@@ -37,14 +37,14 @@ services:
 
   easyrsa:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/easyrsa-395
+    charm: cs:~containers/easyrsa-408
     num_units: 1
     to:
     - 0
 
   etcd:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/etcd-607
+    charm: cs:~containers/etcd-622
     num_units: {{ controller_nodes | count }}
     options:
       channel: auto
@@ -52,7 +52,7 @@ services:
 
   kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-master-1034
+    charm: cs:~containers/kubernetes-master-1051
     num_units: {{ controller_nodes | count }}
     expose: true
     options:
@@ -68,7 +68,7 @@ services:
 
   kubernetes-worker:
     series: "{{ UBUNTU_SERIES }}"
-    charm: cs:~containers/kubernetes-worker-788
+    charm: cs:~containers/kubernetes-worker-801
     num_units: {{ agent_nodes | count }}
     options:
       ingress: false
