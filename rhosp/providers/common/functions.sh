@@ -399,3 +399,19 @@ function add_node_to_ipa(){
         fi
     done
 }
+
+function ensure_fqdn() {
+    local domain=${1}
+    if [ -z "$domain" ] ; then
+        echo "ERROR: domain must be set"
+        exit 1
+    fi
+    local cur_fqdn="$(hostname -f)"
+    local exp_fqdn="$(hostname -s).${domain}"
+    echo "INFO: cur_fqdn=$cur_fqdn exp_fqdn=$exp_fqdn"
+    if [[ "$cur_fqdn" != "$exp_fqdn" ]] ; then
+        echo "INFO: cur fqdn doesnt match to expected: $cur_fqdn != $exp_fqdn"
+        sudo hostnamectl set-hostname $exp_fqdn
+    fi
+    echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"    
+}

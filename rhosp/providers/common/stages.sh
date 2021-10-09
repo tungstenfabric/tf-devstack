@@ -31,14 +31,7 @@ EOF
     sudo ip addr replace ${prov_ip}/${prov_subnet_len} dev $undercloud_local_interface
     sudo ip addr show
 
-    local cur_fqdn="$(hostname -f)"
-    local exp_fqdn="$(hostname -s).${domain}"
-    echo "INFO: cur_fqdn=$cur_fqdn exp_fqdn=$exp_fqdn"
-    if [[ "$cur_fqdn" != "$exp_fqdn" ]] ; then
-        echo "INFO: cur fqdn doesnt match to expected: $cur_fqdn != $exp_fqdn"
-        sudo hostnamectl set-hostname $exp_fqdn
-    fi
-    echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"
+    ensure_fqdn ${domain}
 }
 
 function _setup_ipa() {

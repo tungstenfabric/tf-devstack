@@ -48,7 +48,7 @@ if ! grep -q "$undercloud_hosts_entry" /etc/hosts ; then
 fi
 
 fqdn=$(hostname -f)
-short_name=$(hostname)
+short_name=$(hostname -s)
 hosts_names=$fqdn
 [[ "$short_name" != "$short_name" ]] && hosts_names+="    $short_name"
 if ! grep -q "$hosts_names" /etc/hosts ; then
