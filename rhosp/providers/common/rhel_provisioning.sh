@@ -8,6 +8,7 @@ source rhosp-environment.sh
 source $my_dir/../../../common/common.sh
 source $my_dir/../../../common/functions.sh
 source $my_dir/common.sh
+source $my_dir/functions.sh
 
 ensure_fqdn ${domain}
 
