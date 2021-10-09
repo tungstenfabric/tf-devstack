@@ -9,6 +9,8 @@ source $my_dir/../../../common/common.sh
 source $my_dir/../../../common/functions.sh
 source $my_dir/common.sh
 
+ensure_fqdn ${domain}
+
 attach_opts='--auto'
 if [[ -n "$RHEL_POOL_ID" ]] ; then
   attach_opts="--pool $RHEL_POOL_ID"
