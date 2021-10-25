@@ -54,6 +54,7 @@ export HUGE_PAGES_2MB=${HUGE_PAGES_2MB:-256}
 
 # possible values: kubernetes, openstack, hybrid. Each deployer supports only some types of orchestrators.
 export ORCHESTRATOR=${ORCHESTRATOR:-kubernetes}
+export CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-docker}
 
 # Services to check in wait stage
 declare -A CONTROLLER_SERVICES=(['analytics']="api collector nodemgr " \
