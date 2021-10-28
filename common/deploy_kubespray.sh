@@ -166,7 +166,7 @@ if sudo systemctl is-enabled systemd-resolved.service; then
   nameserver=$(grep -i nameserver /run/systemd/resolve/resolv.conf | grep -v $(echo $K8S_SERVICE_SUBNET | cut -d. -f1-2) | head -1 | awk '{print $2}')
   resolvfile=/run/systemd/resolve/resolv.conf
 else
-  nameserver=$(grep -i nameserver /etc/resolv.conf | grep -v $(echo $K8S_SERVICE_SUBNET | cut -d. -f1-2) | head -1 | awk '{print $2}')
+  nameserver=$(grep -i nameserver /etc/resolv.conf | grep -v $(echo $K8S_SERVICE_SUBNET | cut -d. -f1-2) | awk '{print $2}' | sed "s/^\(.*\)$/'\1'/" | tr '\n' ',' | sed 's/,$//' )
   resolvfile=/etc/resolv.conf
 fi
 if [ -z "$nameserver" ]; then
@@ -174,8 +174,8 @@ if [ -z "$nameserver" ]; then
   exit 1
 fi
 # Set upstream DNS server used by host and coredns for recursive lookups
-echo "upstream_dns_servers: ['$nameserver']" >> $cluster_vars
-echo "nameservers: ['$nameserver']" >> $cluster_vars
+echo "upstream_dns_servers: [$nameserver]" >> $cluster_vars
+echo "nameservers: [$nameserver]" >> $cluster_vars
 # Fix coredns deployment on single node
 echo "dns_min_replicas: 1" >> $cluster_vars
 
