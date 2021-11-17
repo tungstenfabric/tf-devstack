@@ -51,7 +51,9 @@ declare -A DEPLOYMENT_ENV
 function machines() {
     echo "$DISTRO detected"
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-        sudo yum -y install epel-release
+        if ! sudo yum repolist | grep -q epel ; then
+            sudo yum install -y epel-release
+        fi
         sudo yum install -y wget python3 python3-setuptools python3-pip iproute jq bind-utils git
         if [[ "$PROVIDER" == "aws" ]]; then
             sudo yum install -y awscli

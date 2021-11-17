@@ -9,8 +9,11 @@ OPENSHIFT_INSTALL_DIR=${OPENSHIFT_INSTALL_DIR:-"os-install-config"}
 OS_IMAGE_PUBLIC_SERVICE=${OS_IMAGE_PUBLIC_SERVICE:="https://image.public.sjc1.vexxhost.net/"}
 OPENSHIFT_VERSION="4.5.21"
 
-sudo yum install -y python3 epel-release
-sudo yum install -y jq
+if ! sudo yum repolist | grep -q epel ; then
+    sudo yum install -y epel-release
+fi
+
+sudo yum install -y python3 jq
 sudo pip3 install python-openstackclient ansible yq
 
 mkdir -p ./tmpopenshift

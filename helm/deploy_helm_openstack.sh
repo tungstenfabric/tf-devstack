@@ -18,7 +18,9 @@ export RUN_HELM_TESTS=no
 if [ "$DISTRO" == "centos" ]; then
   sudo yum remove -y pyparsing
   [[ $(sudo service firewalld stop) ]] || true
-  sudo yum install -y epel-release
+  if ! sudo yum repolist | grep -q epel ; then
+      sudo yum install -y epel-release
+  fi
   sudo yum install -y wget jq nmap bc python-pip python-devel git gcc nfs-utils libffi-devel openssl-devel
 elif [ "$DISTRO" == "ubuntu" ]; then
   export DEBIAN_FRONTEND=noninteractive

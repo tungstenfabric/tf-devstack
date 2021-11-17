@@ -56,7 +56,9 @@ function machines() {
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
         sudo yum autoremove -y python-yaml python-requests python-urllib3
-        sudo yum install -y epel-release
+        if ! sudo yum repolist | grep -q epel ; then
+            sudo yum install -y epel-release
+        fi
         sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive

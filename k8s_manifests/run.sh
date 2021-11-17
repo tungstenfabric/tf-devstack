@@ -45,7 +45,9 @@ function build() {
 function k8s() {
     echo "$DISTRO detected"
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-        sudo yum -y install epel-release
+        if ! sudo yum repolist | grep -q epel ; then
+            sudo yum install -y epel-release
+        fi
         sudo yum install -y jq bind-utils git
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
