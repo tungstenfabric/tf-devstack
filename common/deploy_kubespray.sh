@@ -25,7 +25,7 @@ K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 K8S_VERSION=${K8S_VERSION:-"v1.21.1"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
 # 'docker' is a default engine. 'containerd' is supported (with runc by default)
-K8S_CONTAINER_ENGINE=${K8S_CONTAINER_ENGINE:-''}
+CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-''}
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO=${IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
@@ -185,16 +185,16 @@ if [[ -n "${K8S_CLUSTER_NAME}" ]]; then
   echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> $cluster_vars
 fi
 
-if [[ -n "$K8S_CONTAINER_ENGINE" ]] ; then
+if [[ -n "$CONTAINER_RUNTIME" ]] ; then
   if grep -q '^container_manager:.*' $cluster_vars ; then
-    sed -i "s/container_manager:.*/container_manager: $K8S_CONTAINER_ENGINE/g" $cluster_vars
+    sed -i "s/container_manager:.*/container_manager: $CONTAINER_RUNTIME/g" $cluster_vars
   else
-    echo "container_manager: $K8S_CONTAINER_ENGINE" >> $cluster_vars
+    echo "container_manager: $CONTAINER_RUNTIME" >> $cluster_vars
   fi
-  if [[ "$K8S_CONTAINER_ENGINE" == 'crio' ]] ; then
+  if [[ "$CONTAINER_RUNTIME" == 'crio' ]] ; then
     echo "crio_pids_limit: 8192" >> $cluster_vars
   fi
-  if [[ "$K8S_CONTAINER_ENGINE" != 'docker' ]]; then
+  if [[ "$CONTAINER_RUNTIME" != 'docker' ]]; then
     echo "etcd_deployment_type: host" >> $cluster_vars
   fi
 fi
@@ -209,7 +209,7 @@ docker_image_repo: "${DOCKER_CACHE_REGISTRY}"
 EOF
 fi
 
-if [[ -z "$K8S_CONTAINER_ENGINE" || "$K8S_CONTAINER_ENGINE" == 'docker' ]]; then
+if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]]; then
   # enable docker live restore option
   #
   # set live-restore via config file to avoid conflicts between command line and
@@ -244,7 +244,7 @@ sudo chown -R $(id -u):$(id -g) ~/.kube
 # for a moment and then disappears. the port test is not enough
 # let's wait for k8s_POD_kube-apiserver cts first to catch the
 # kube-apiserver POD restart.
-if [[ -z "$K8S_CONTAINER_ENGINE" || "$K8S_CONTAINER_ENGINE" == 'docker' ]] ; then
+if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]] ; then
   if ! wait_cmd_success 'if [ -z "$(sudo docker ps -q --filter '\''name=k8s_POD_kube-apiserver*'\'')" ]; then false; fi' 5 12 ; then
     echo "ERROR: Kubernetes API POD is not available"
     exit 1
