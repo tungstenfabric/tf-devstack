@@ -4,6 +4,8 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 export WORKSPACE=${WORKSPACE:-$(pwd)}
+export ORCHESTRATOR="openstack"
+
 source "$my_dir/../common/functions.sh"
 source "$WORKSPACE/rhosp-environment.sh"
 
