@@ -36,6 +36,9 @@ services:
 {%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
 {%- endif %}
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -61,6 +64,9 @@ services:
 {%- else %}
       cassandra-jvm-extra-opts: "-Xms1g -Xmx2g"
 {%- endif %}
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -78,6 +84,9 @@ services:
     num_units: {{ controller_nodes | count }}
     options:
       log-level: "SYS_DEBUG"
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -100,6 +109,9 @@ services:
       dpdk-coremask: '3'
       dpdk-driver: 'vfio-pci'
       log-level: "SYS_DEBUG"
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -122,6 +134,9 @@ services:
     series: "{{ UBUNTU_SERIES }}"
     options:
       log-level: "SYS_DEBUG"
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -143,6 +158,9 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
     options:
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -154,6 +172,9 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-master"
     options:
       log-level: 'SYS_DEBUG'
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true
@@ -166,6 +187,9 @@ services:
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
     options:
       log-level: 'SYS_DEBUG'
+{%- if CONTAINER_RUNTIME == 'containerd' %}
+      container_runtime: containerd
+{%- endif %}
       docker_runtime: auto
       docker-registry: "{{ CONTAINER_REGISTRY }}"
       docker-registry-insecure: true

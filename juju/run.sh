@@ -74,6 +74,7 @@ export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
 export CONTAINER_REGISTRY
 export NODE_IP
 export VIRTUAL_IPS
+export CONTAINER_RUNTIME
 
 # stages
 
