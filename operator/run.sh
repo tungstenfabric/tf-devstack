@@ -89,6 +89,18 @@ function manifest() {
         echo "ERROR: for multi-NIC setup VROTER_GATEWAY should be set"
         exit 1
     fi
+    if [[ -z "$SSL_CAKEY" || -z "$SSL_CACERT" ]] ; then
+        local k8s_major=$(kubectl version --short -o=json | jq -rc '.serverVersion["minor"]')
+        if (( k8s_major >= 22 )) ; then
+            local cacert="$WORKSPACE/ca.crt.pem"
+            local cakey="$WORKSPACE/ca.key.pem"
+            if [ ! -e $cacert ] || [ ! -e $cakey ] ; then
+                $my_dir/../contrib/create_ca_certs.sh
+            fi
+            SSL_CAKEY=$(cat $cakey)
+            SSL_CACERT=$(cat $cacert)
+        fi
+    fi
     if [[ -n "$SSL_CAKEY" && -n "$SSL_CACERT" ]] ; then
         export TF_ROOT_CA_KEY_BASE64=$(echo "$SSL_CAKEY" | base64 -w 0)
         export TF_ROOT_CA_CERT_BASE64=$(echo "$SSL_CACERT" | base64 -w 0)

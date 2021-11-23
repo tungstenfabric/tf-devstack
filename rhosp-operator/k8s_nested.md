@@ -31,7 +31,7 @@ Red Hat account is needed for setting RHEL subscription.
     ``` bash
     # Run on KVM
     if [ ! -e ca.key.pem ] || [ ! -e ca.crt.pem ] ; then
-        ./tf-devstack/rhosp/providers/common/create_ca_certs.sh
+        ./tf-devstack/contrib/create_ca_certs.sh
     fi
     export SSL_CAKEY=$(cat ca.key.pem)
     export SSL_CACERT=$(cat ca.crt.pem)

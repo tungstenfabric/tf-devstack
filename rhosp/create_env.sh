@@ -11,7 +11,7 @@ if [[ "$ENABLE_TLS" == 'local' ]] ; then
   if [[ -z "$SSL_CAKEY" || -z "$SSL_CACERT" ]] ; then
     if [[ ! -e $WORKSPACE/ca.key.pem || ! -e $WORKSPACE/ca.crt.pem ]] ; then
       echo "INFO: generate contrail CA certs"
-      CA_ROOT_CERT=$WORKSPACE/ca.crt.pem CA_ROOT_KEY=$WORKSPACE/ca.key.pem $my_dir/providers/common/create_ca_certs.sh
+      CA_ROOT_CERT=$WORKSPACE/ca.crt.pem CA_ROOT_KEY=$WORKSPACE/ca.key.pem $my_dir/../contrib/create_ca_certs.sh
     else
       echo "INFO: use existing contrail CA certs"
     fi
