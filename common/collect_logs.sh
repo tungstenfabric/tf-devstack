@@ -619,5 +619,5 @@ function get_vrouter_image_id() {
 
 if [[ "${0}" == *"collect_logs.sh" ]] && [[ -n "${1}" ]]; then
     TF_LOG_DIR=${TF_LOG_DIR:-$(pwd)}
-    $1
+    $@
 fi

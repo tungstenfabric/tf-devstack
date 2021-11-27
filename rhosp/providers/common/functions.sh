@@ -226,6 +226,9 @@ function collect_deployment_log() {
     mkdir ${TF_LOG_DIR}/${host_name}
     collect_system_stats $host_name
     collect_openstack_logs $host_name
+    pushd  ${TF_LOG_DIR}/${host_name}
+    collect_docker_logs $CONTAINER_CLI_TOOL
+    popd
     collect_stack_details ${TF_LOG_DIR}/${host_name}
     if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
         sudo cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
@@ -241,11 +244,13 @@ set +e
 export TF_LOG_DIR="/home/$SSH_USER_OVERCLOUD/logs"
 cd /home/$SSH_USER_OVERCLOUD
 ./collect_logs.sh create_log_dir
-./collect_logs.sh collect_tf_status
-./collect_logs.sh collect_docker_logs
+./collect_logs.sh collect_docker_logs $CONTAINER_CLI_TOOL
 ./collect_logs.sh collect_system_stats
 ./collect_logs.sh collect_openstack_logs
+./collect_logs.sh collect_tf_status
 ./collect_logs.sh collect_tf_logs
+./collect_logs.sh collect_core_dumps
+
 [[ ! -f /var/log/ipaclient-install.log ]] || {
     sudo cp /var/log/ipaclient-install.log \$TF_LOG_DIR
     sudo chown $SSH_USER_OVERCLOUD:$SSH_USER_OVERCLOUD \$TF_LOG_DIR/ipaclient-install.log
@@ -265,6 +270,7 @@ export TF_LOG_DIR="/home/$SSH_USER/logs"
 cd /home/$SSH_USER
 ./collect_logs.sh create_log_dir
 ./collect_logs.sh collect_system_stats
+./collect_logs.sh collect_core_dumps
 [[ ! -f /var/log/ipaclient-install.log ]] || {
     sudo cp /var/log/ipaclient-install.log \$TF_LOG_DIR
     sudo chown $SSH_USER:$SSH_USER \$TF_LOG_DIR/ipaclient-install.log
