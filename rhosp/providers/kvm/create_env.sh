@@ -51,3 +51,27 @@ if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $tf_dir $SSH_USER@${ipa_mgmt_ip}:
   rsync -a -e "ssh -i $ssh_private_key $ssh_opts" rhosp-environment-bmc.sh $SSH_USER@${ipa_mgmt_ip}:rhosp-environment.sh
 fi
+
+function prepare_local_repo() {
+  local instance_ip=$1
+  local f="${RHEL_VERSION//\./}-tf-ci.repo"
+  local ff="/tmp/$f"
+  cat ${RHEL_VERSION//\./}-tf-ci.repo | envsubst > $ff
+  rsync -a -e "ssh -i $ssh_private_key $ssh_opts" $ff $SSH_USER@$instance_ip:
+  cat <<EOF | ssh $ssh_opts $SSH_USER@${instance_ip}
+set -ex
+sudo cp ~/$f /etc/yum.repos.d/
+if [[ -n "$MIRROR_IP_ADDRESS" && -n "$MIRROR_FQDN" ]] ; then
+  echo "$MIRROR_IP_ADDRESS  $MIRROR_FQDN" | sudo tee -a /etc/hosts
+fi
+sudo sed -i 's/enabled=1/enabled=0/g' /etc/yum/pluginconf.d/subscription-manager.conf
+EOF
+  fi
+}
+
+if [[ "$ENABLE_RHEL_REGISTRATION" != 'true' ]] ; then
+  prepare_local_repo $instance_ip
+  if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+    prepare_local_repo $ipa_mgmt_ip
+  fi
+fi

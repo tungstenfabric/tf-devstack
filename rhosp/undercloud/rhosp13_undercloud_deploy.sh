@@ -6,6 +6,10 @@ fi
 
 pkgs="python-tripleoclient python-rdomanager-oscplugin iproute rhosp-director-images"
 [[ -z "$overcloud_ceph_instance" ]] || pkgs+=" ceph-ansible"
+if [[ "$USE_PREDEPLOYED_NODES" != 'true' && "${ENABLE_RHEL_REGISTRATION,,}" != 'true' ]] ; then
+   pkgs+=" libguestfs-tools"
+fi
+
 sudo yum -y install $pkgs
 
 cat $my_dir/${RHOSP_MAJOR_VERSION}_undercloud.conf.template | envsubst >~/undercloud.conf

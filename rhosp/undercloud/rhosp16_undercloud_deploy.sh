@@ -2,6 +2,9 @@
 
 pkgs="python3-tripleoclient rhosp-director-images"
 [[ -z "$overcloud_ceph_instance" ]] || pkgs+=" ceph-ansible"
+if [[ "$USE_PREDEPLOYED_NODES" != 'true' && "${ENABLE_RHEL_REGISTRATION,,}" != 'true' ]] ; then
+   pkgs+=" libguestfs-tools"
+fi
 
 # dont use on undercloud rhocp if any enabled (it might be enabled in case of operator nodes
 # are prepared by rhosp)
