@@ -8,7 +8,7 @@ parameter_defaults:
   rhel_reg_org: ""
   rhel_reg_password: "$RHEL_PASSWORD"
   rhel_reg_pool_id: "$RHEL_POOL_ID"
-  rhel_reg_release: ""
+  rhel_reg_release: "$RHSM_RELEASE"
   rhel_reg_repos: "$RHEL_REPOS"
   rhel_reg_sat_url: ""
   rhel_reg_server_url: ""
