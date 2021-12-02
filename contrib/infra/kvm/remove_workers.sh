@@ -29,4 +29,7 @@ for vm_name in `virsh list --all | grep "${prefix}${BASE_VM_NAME}_" | awk '{prin
   done
 done
 
+net_name=${KVM_NETWORK}_1
+delete_network_dhcp $net_name
+
 sudo bash -c "cat /dev/null > /var/lib/libvirt/dnsmasq/${KVM_BRIDGE}_1.status"
