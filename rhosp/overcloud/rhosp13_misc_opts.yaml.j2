@@ -53,6 +53,8 @@ resource_registry:
 {%- endif %}
 
 parameter_defaults:
+  # disable ipv6 because it breaks getent hosts <fqdn> (it always returns ::1)
+  KernelDisableIPv6: 1
   GlanceBackend: '{{ glance_backend_storage }}'
   EnableGalera: '{{ enable_galera }}'
   RabbitUserName: 'contrail'
