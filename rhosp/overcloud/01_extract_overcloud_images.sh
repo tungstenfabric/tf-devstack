@@ -17,7 +17,8 @@ done
 
 if [[ "$USE_PREDEPLOYED_NODES" != 'true' && "${ENABLE_RHEL_REGISTRATION,,}" != 'true' ]] ; then
   upload_commands=''
-  for i in /etc/yum.repos.d/*.repo ; do echo $i; done
+  for i in /etc/yum.repos.d/*.repo ; do
+    echo "INFO: add repo $i to customize image"
     upload_commands+= " --upload $i:$i"
   done
   if [ -n "$upload_commands" ] ; then
