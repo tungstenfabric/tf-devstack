@@ -379,6 +379,7 @@ export L3MH_CIDR="$L3MH_CIDR"
 export VROUTER_GATEWAY="${VROUTER_GATEWAY}"
 export SSL_CAKEY="$SSL_CAKEY"
 export SSL_CACERT="$SSL_CACERT"
+export FFU_EXTRA_HEAT_ENVIRONMENTS="$FFU_EXTRA_HEAT_ENVIRONMENTS"
 EOF
     if [[ "$ENABLE_TLS" == 'local' ]] ; then
         if [ -z "$SSL_CAKEY" ] || [ -z "$SSL_CACERT" ] ; then
