@@ -91,7 +91,7 @@ echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
   $tls_env_files \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
-  $FFU_EXTRA_HEAT_ENVIRONMENTS" | tee .deploy_overcloud_command
+  $RHOSP_EXTRA_HEAT_ENVIRONMENTS" | tee .deploy_overcloud_command
 
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --roles-file $role_file \
@@ -105,6 +105,6 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   $tls_env_files \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
-  $FFU_EXTRA_HEAT_ENVIRONMENTS
+  $RHOSP_EXTRA_HEAT_ENVIRONMENTS
 
 [ -n "$job" ] && kill $job || true

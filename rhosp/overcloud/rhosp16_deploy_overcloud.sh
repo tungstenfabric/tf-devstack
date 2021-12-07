@@ -119,7 +119,7 @@ echo "openstack overcloud deploy --templates tripleo-heat-templates/ \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
   -e containers-prepare-parameter.yaml \
-  $FFU_EXTRA_HEAT_ENVIRONMENTS" | tee .deploy_overcloud_command
+  $RHOSP_EXTRA_HEAT_ENVIRONMENTS" | tee .deploy_overcloud_command
 
 openstack overcloud deploy --templates tripleo-heat-templates/ \
   --stack overcloud --libvirt-type kvm \
@@ -135,5 +135,5 @@ openstack overcloud deploy --templates tripleo-heat-templates/ \
   -e misc_opts.yaml \
   -e contrail-parameters.yaml \
   -e containers-prepare-parameter.yaml \
-  $FFU_EXTRA_HEAT_ENVIRONMENTS
+  $RHOSP_EXTRA_HEAT_ENVIRONMENTS
 
