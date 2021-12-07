@@ -19,7 +19,7 @@ if [[ "$USE_PREDEPLOYED_NODES" != 'true' && "${ENABLE_RHEL_REGISTRATION,,}" != '
   upload_commands=''
   for i in /etc/yum.repos.d/*.repo ; do
     echo "INFO: add repo $i to customize image"
-    upload_commands+= " --upload $i:$i"
+    upload_commands+=" --upload $i:$i"
   done
   if [ -n "$upload_commands" ] ; then
     echo "INFO: customize overcloud qcow: copy repos from undercloud to overcloud images: $upload_commands"
