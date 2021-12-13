@@ -87,6 +87,8 @@ if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
    cat <<EOF >>misc_opts.yaml
   ControllerExtraConfig:
     contrail_internal_api_ssl: True
+  ComputeExtraConfig:
+    contrail_internal_api_ssl: True
 EOF
    if [[ "$ENABLE_TLS" == 'ipa' && -n "$SSL_CACERT" ]] ; then
       # For operator with selfCA and RHOSP w/ IPA use selfsigned ca file
