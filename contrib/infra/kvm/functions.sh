@@ -28,7 +28,7 @@ EOF
 EOF
   fi
   cat <<EOF >> $fname
-  <domain name='localdomain' localOnly='yes'/>
+  <domain name='clouddomain' localOnly='yes'/>
   <ip address="$nic_ip" netmask="255.255.255.0">
 EOF
   if  [[ "$dhcp" == "yes" ]] ; then

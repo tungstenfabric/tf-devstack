@@ -39,7 +39,7 @@ export l3mh_subnet2="172.16.20.1"
 # Other
 export fixed_vip="${prov_subnet}.200"
 
-export domain="dev.localdomain"
+export domain="dev.clouddomain"
 
 # Undercloud
 export undercloud_instance="${RHOSP_VERSION//./-}-undercloud-${DEPLOY_POSTFIX}"
