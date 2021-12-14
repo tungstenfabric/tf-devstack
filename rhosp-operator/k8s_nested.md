@@ -1,19 +1,19 @@
-# tf-devstack/rhosp-operator 
+# tf-devstack/rhosp-operator
 # RHOSP deployment with Contrail Control plane deployed as a side in a K8S cluster
-# that is deployed on the Overcloud nodes provisioned by RHOSP 
+# that is deployed on the Overcloud nodes provisioned by RHOSP
 
 Contrail Control plane is deployed as a TF Operator based deployment in a K8S cluster
 
 ## Requirements
 
 Red Hat account is needed for setting RHEL subscription.
- 
+
 
 ## Simple KVM based virtual non-HA setup
 
 ### Prerequisites
 
-- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md) 
+- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md)
 
 - Download tf-devstack
     ``` bash
@@ -35,7 +35,7 @@ Red Hat account is needed for setting RHEL subscription.
     fi
     export SSL_CAKEY=$(cat ca.key.pem)
     export SSL_CACERT=$(cat ca.crt.pem)
-    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT
     # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
     # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt)
     ```
@@ -90,27 +90,27 @@ Red Hat account is needed for setting RHEL subscription.
     git clone http://github.com/tungstenfabric/tf-operator
     # Adjust keystone options according to overcloudrc file on underloud
     export AUTH_MODE=keystone
-    export KEYSTONE_AUTH_HOST=overcloud.dev.localdomain
+    export KEYSTONE_AUTH_HOST=overcloud.dev.clouddomain
     export KEYSTONE_AUTH_PROTO=http
     export KEYSTONE_AUTH_ADMIN_PASSWORD=qwe123QWE
     export KEYSTONE_AUTH_REGION_NAME=regionOne
-    export IPFABRIC_SERVICE_HOST=overcloud.internalapi.dev.localdomain
+    export IPFABRIC_SERVICE_HOST=overcloud.internalapi.dev.clouddomain
 
     # Disable Contrail CNI for K8S if it is not supposed to be used there
     export CNI=default
 
     # Container registry (usually points to udnercloud)
     export CONTAINER_REGISTRY=192.168.21.2:8787/tungstenfabric
-    
+
     export TF_ROOT_CA_CERT_BASE64=$(cat ca.key.pem | base64 -w 0)
     export TF_ROOT_CA_KEY_BASE64=$(cat ca.crt.pem | base64 -w 0)
-    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT
     # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
     # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt | base64 -w 0)
-    
-    # In case of data isolation provide Tenant network as below 
+
+    # In case of data isolation provide Tenant network as below
     # export DATA_NETWORK=10.0.0.0/24 -->
-    
+
     ./tf-operator/contrib/render_manifests.sh
     kubectl apply -f ./tf-operator/deploy/crds/
     kubectl wait crds --for=condition=Established --timeout=2m managers.tf.tungsten.io

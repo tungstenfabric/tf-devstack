@@ -23,7 +23,7 @@ fi
 if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   # WA for TLS
   #   To avoid error:
-  #     ipa-getkeytab -s rhosp16-ipa-20.dev.localdomain -p nova/rhosp16-undercloud-20.dev.localdomain -k /etc/novajoin/krb5.keytab
+  #     ipa-getkeytab -s rhosp16-ipa-20.dev.clouddomain -p nova/rhosp16-undercloud-20.dev.clouddomain -k /etc/novajoin/krb5.keytab
   #     Failed to add key to the keytab
   sudo mkdir -p /etc/novajoin
 

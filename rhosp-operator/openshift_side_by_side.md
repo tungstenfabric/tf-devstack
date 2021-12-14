@@ -1,4 +1,4 @@
-# tf-devstack/rhosp-operator 
+# tf-devstack/rhosp-operator
 # RHOSP deployment with Contrail Control plane deployed as a side in a OpenShift cluster
 
 Contrail Control plane is deployed separatly as a TF Operator based deployment in an OpenShift cluster
@@ -6,13 +6,13 @@ Contrail Control plane is deployed separatly as a TF Operator based deployment i
 ## Requirements
 
 Red Hat account is needed for setting RHEL subscription.
- 
+
 
 ## Simple KVM based virtual non-HA setup
 
 ### Prerequisites
 
-- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md) 
+- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md)
 
 - Download tf-devstack
     ``` bash
@@ -82,11 +82,11 @@ Red Hat account is needed for setting RHEL subscription.
 # On KVM there is dnsmasq run that uses /etc/hosts.
 # Update /etc/hosts on KVM and reload dnsmasq service
 cat << EOF | sudo tee -a /etc/hosts
-192.168.21.200  overcloud.ctlplane.dev.localdomain
-192.168.21.200  overcloud.storage.dev.localdomain
-192.168.21.200  overcloud.storagemgmt.dev.localdomain
-192.168.21.200  overcloud.internalapi.dev.localdomain
-192.168.21.200  overcloud.dev.localdomain
+192.168.21.200  overcloud.ctlplane.dev.clouddomain
+192.168.21.200  overcloud.storage.dev.clouddomain
+192.168.21.200  overcloud.storagemgmt.dev.clouddomain
+192.168.21.200  overcloud.internalapi.dev.clouddomain
+192.168.21.200  overcloud.dev.clouddomain
 EOF
 sudo systemctl restart dnsmasq
 ```
@@ -94,8 +94,8 @@ sudo systemctl restart dnsmasq
 OpenShift and Overcloud nodes are in different KVM networks, it is needed to add iptabels rules, e.g.
 ``` bash
 # Assuming that OpenShift network name is 'ocp' with CIDR 192.168.123.0/24
-sudo iptables -I LIBVIRT_FWI 1 -i prov-20 -d 192.168.123.0/24 -o ocp -j ACCEPT 
-sudo iptables -I LIBVIRT_FWI 1 -i mgmt-20 -d 192.168.123.0/24 -o ocp -j ACCEPT 
+sudo iptables -I LIBVIRT_FWI 1 -i prov-20 -d 192.168.123.0/24 -o ocp -j ACCEPT
+sudo iptables -I LIBVIRT_FWI 1 -i mgmt-20 -d 192.168.123.0/24 -o ocp -j ACCEPT
 sudo iptables -I LIBVIRT_FWI 1 -i ocp -d 192.168.20.0/24 -o mgmt-20  -j ACCEPT
 sudo iptables -I LIBVIRT_FWI 1 -i ocp -d 192.168.21.0/24 -o prov-20  -j ACCEPT
 ```
@@ -106,7 +106,7 @@ sudo iptables -I LIBVIRT_FWI 1 -i ocp -d 192.168.21.0/24 -o prov-20  -j ACCEPT
 
 6. Connect OpenShift based Contrail Control plane to the RHOSP keystone
 
-    - Get Overcloud Keystone auth parameters from overcloudrc from undercloud node 
+    - Get Overcloud Keystone auth parameters from overcloudrc from undercloud node
     ``` bash
     ssh stack@192.168.20.2 cat overcloudrc
     ```
@@ -125,7 +125,7 @@ sudo iptables -I LIBVIRT_FWI 1 -i ocp -d 192.168.21.0/24 -o prov-20  -j ACCEPT
     export KEYSTONE_AUTH_REGION_NAME='regionOne'
     ./tf-operator/contrib/render_manifests.sh
     oc apply -k ./tf-operator/deploy/kustomize/contrail/templates/
-    # Check if stateful sets are restarted 
+    # Check if stateful sets are restarted
     oc -n tf get pods
     # If stateful sets are not updated apply WA:
     oc -n tf rollout restart sts \

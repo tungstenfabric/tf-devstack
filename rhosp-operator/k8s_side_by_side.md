@@ -1,4 +1,4 @@
-# tf-devstack/rhosp-operator 
+# tf-devstack/rhosp-operator
 # RHOSP deployment with Contrail Control plane deployed as a side in a K8S cluster
 
 Contrail Control plane is deployed separatly as a TF Operator based deployment in a K8S cluster
@@ -6,13 +6,13 @@ Contrail Control plane is deployed separatly as a TF Operator based deployment i
 ## Requirements
 
 Red Hat account is needed for setting RHEL subscription.
- 
+
 
 ## Simple KVM based virtual non-HA setup
 
 ### Prerequisites
 
-- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md) 
+- KVM is prepared for [RHOSP deployment as described in KVM prerequisites](rhosp/README.md)
 
 - Download tf-devstack
     ``` bash
@@ -37,10 +37,10 @@ Red Hat account is needed for setting RHEL subscription.
 
     ``` bash
     # Run on KVM
-    
+
     # create instance
     export KVM_NETWORK="k8s"
-    export DOMAIN="dev.localdomain"
+    export DOMAIN="dev.clouddomain"
     ./tf-devstack/contrib/infra/kvm/create_workers.sh
     ```
 
@@ -81,8 +81,8 @@ Red Hat account is needed for setting RHEL subscription.
     - Enable forwarding between RHOSP and K8S networks (K8S and Overcloud nodes are in different KVM networks so it is needed to add iptabels rules).
 ``` bash
 # Assuming that K8S network name is 'k8s_1' with CIDR 10.100.0.0/24
-sudo iptables -I LIBVIRT_FWI 1 -i prov-20 -d 10.100.0.0/24 -o k8s_1 -j ACCEPT 
-sudo iptables -I LIBVIRT_FWI 1 -i mgmt-20 -d 10.100.0.0/24 -o k8s_1 -j ACCEPT 
+sudo iptables -I LIBVIRT_FWI 1 -i prov-20 -d 10.100.0.0/24 -o k8s_1 -j ACCEPT
+sudo iptables -I LIBVIRT_FWI 1 -i mgmt-20 -d 10.100.0.0/24 -o k8s_1 -j ACCEPT
 sudo iptables -I LIBVIRT_FWI 1 -i k8s_1 -d 192.168.20.0/24 -o mgmt-20  -j ACCEPT
 sudo iptables -I LIBVIRT_FWI 1 -i k8s_1 -d 192.168.21.0/24 -o prov-20  -j ACCEPT
 ```
@@ -92,13 +92,13 @@ sudo iptables -I LIBVIRT_FWI 1 -i k8s_1 -d 192.168.21.0/24 -o prov-20  -j ACCEPT
 # SSH to K8S instance
 ssh centos@$instance_ip
 
-# Add FQDNs <=> VIP resolving to /etc/hosts 
+# Add FQDNs <=> VIP resolving to /etc/hosts
 cat << EOF | sudo tee -a /etc/hosts
-192.168.21.200  overcloud.ctlplane.dev.localdomain
-192.168.21.200  overcloud.storage.dev.localdomain
-192.168.21.200  overcloud.storagemgmt.dev.localdomain
-192.168.21.200  overcloud.internalapi.dev.localdomain
-192.168.21.200  overcloud.dev.localdomain
+192.168.21.200  overcloud.ctlplane.dev.clouddomain
+192.168.21.200  overcloud.storage.dev.clouddomain
+192.168.21.200  overcloud.storagemgmt.dev.clouddomain
+192.168.21.200  overcloud.internalapi.dev.clouddomain
+192.168.21.200  overcloud.dev.clouddomain
 EOF
 
 # Check ping to RHOSP undercloud node
@@ -117,7 +117,7 @@ exit
     # Run inside K8S VM
     export SSL_CAKEY=$(cat ca.key.pem)
     export SSL_CACERT=$(cat ca.crt.pem)
-    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT 
+    # If RHOSP to be deployed with IPA it is needed to use bundled SSL_CACERT
     # (assuming ipa ca cert if downloaded to /etc/ipa/ca.crt)
     # export SSL_CACERT=$(cat ca.crt.pem /etc/ipa/ca.crt)
     export AUTH_MODE='keystone'
