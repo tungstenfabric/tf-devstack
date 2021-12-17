@@ -204,8 +204,8 @@ function check_pod_services() {
 
 function check_tf_services() {
   local user=${1:-$SSH_USER}
-  local controller_nodes=${2:-$CONTROLLER_NODES}
-  local agent_nodes=${3:-$AGENT_NODES}
+  local controller_nodes=${2-$CONTROLLER_NODES}
+  local agent_nodes=${3-$AGENT_NODES}
   local nodes="$controller_nodes $agent_nodes"
   local machine
 

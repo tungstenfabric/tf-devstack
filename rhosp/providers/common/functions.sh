@@ -158,9 +158,34 @@ EOF
 
 function collect_overcloud_env() {
     local openstack_node=$(get_first_controller_ctlplane_ip)
+
+    if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
+        local ext_nodes="${EXTERNAL_CONTROLLER_NODES//,/ }"
+        local first_ext_node=$(echo $ext_nodes | cut -d ' ' -f 1)
+        DEPLOYMENT_ENV['CONFIG_API_VIP']="$first_ext_node"
+        DEPLOYMENT_ENV['ANALYTICS_API_VIP']="$first_ext_node"
+        CONTROLLER_NODES="$ext_nodes"
+        DEPLOYMENT_ENV['CONTROL_NODES']="$ext_nodes"
+    else
+        DEPLOYMENT_ENV['CONFIG_API_VIP']="overcloud.internalapi.${domain}"
+        DEPLOYMENT_ENV['ANALYTICS_API_VIP']="overcloud.internalapi.${domain}"
+        # agent and contrail conroller to be on same network fo vdns test for ipa case
+        # so, use tenant
+        CONTROLLER_NODES="$(get_openstack_node_names $openstack_node contrailcontroller tenant)"
+        # control nodes are for net isolation case when tenant is on different networks
+        # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
+        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
+    fi
+
+    # control nodes are for net isolation case when tenant is on different networks
+    # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
+    if [ -z "${DEPLOYMENT_ENV['CONTROL_NODES']}" ] ; then
+        # Openstack and Contrail Controllers are on same nodes (aio)
+        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node controller tenant)"
+    fi
+
     # agent and contrail conroller to be on same network fo vdns test for ipa case
     # so, use tenant
-    CONTROLLER_NODES="$(get_openstack_node_names $openstack_node contrailcontroller tenant)"
     if [ -z "$CONTROLLER_NODES" ] ; then
         # Openstack and Contrail Controllers are on same nodes (aio)
         CONTROLLER_NODES="$(get_openstack_node_names $openstack_node controller tenant)"
@@ -168,30 +193,17 @@ function collect_overcloud_env() {
         # Openstack nodes are separate from contrail 
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_node_names $openstack_node controller internalapi)"
     fi
+
     AGENT_NODES="$(get_openstack_node_names $openstack_node novacompute tenant)"
     if [ -z "$AGENT_NODES" ] ; then
         # Agents and Contrail Controllers are on same nodes (aio)
         AGENT_NODES="$CONTROLLER_NODES"
     fi
-    DEPLOYMENT_ENV['CONFIG_API_VIP']="overcloud.internalapi.${domain}"
-    DEPLOYMENT_ENV['ANALYTICS_API_VIP']="overcloud.internalapi.${domain}"
-    # TODO: not clear if it is needed in tls case with network isolation
-    # DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_node_names $openstack_node contrailcontroller internalapi)"
-    # [ -n "${DEPLOYMENT_ENV['CONFIG_NODES']}" ] || DEPLOYMENT_ENV['CONFIG_NODES']="$(get_openstack_node_names $openstack_node controller internalapi)"
-    # DEPLOYMENT_ENV['ANALYTICS_NODES']="${DEPLOYMENT_ENV['CONFIG_NODES']}"
-    # DEPLOYMENT_ENV['ANALYTICSDB_NODES']="${DEPLOYMENT_ENV['CONFIG_NODES']}"
-    # ==
-    # control nodes are for net isolation case when tenant is on different networks
-    # (for control it is needed to use IP instead of fqdn (tls always uses fqdns))
-    DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node contrailcontroller tenant)"
-    if [ -z "${DEPLOYMENT_ENV['CONTROL_NODES']}" ] ; then
-        # Openstack and Contrail Controllers are on same nodes (aio)
-        DEPLOYMENT_ENV['CONTROL_NODES']="$(get_openstack_node_ips $openstack_node controller tenant)"
-    fi
     DEPLOYMENT_ENV['DPDK_AGENT_NODES']=$(get_openstack_node_names $openstack_node contraildpdk tenant)
     local sriov_agent_nodes=$(get_openstack_node_names $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
     [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
+    
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
         DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
@@ -201,10 +213,13 @@ function collect_overcloud_env() {
     DEPLOYMENT_ENV['SSH_USER']="$SSH_USER_OVERCLOUD"
     if [[ -n "$ENABLE_TLS" ]] ; then
         DEPLOYMENT_ENV['SSL_ENABLE']='true'
-        if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
-            local cafile='/etc/ipa/ca.crt'
-        else
-            local cafile='/etc/contrail/ssl/certs/ca-cert.pem'
+        local cafile=$(openstack stack environment show -f json overcloud | jq -rc '.parameter_defaults.ContrailCaCertFile')
+        if [ -z "$cafile" ] ; then
+            if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
+                cafile='/etc/ipa/ca.crt'
+            else
+                cafile='/etc/contrail/ssl/certs/ca-cert.pem'
+            fi
         fi
         DEPLOYMENT_ENV['SSL_KEY']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 /etc/contrail/ssl/private/server-privkey.pem 2>/dev/null)"
         DEPLOYMENT_ENV['SSL_CERT']="$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo base64 -w 0 /etc/contrail/ssl/certs/server.pem 2>/dev/null)"

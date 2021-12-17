@@ -15,6 +15,18 @@ function is_kubeapi_accessible() {
   return 0
 }
 
+function set_env_var() {
+  local name="$1"
+  local val="$2"
+  local file="$3"
+  local sep=${4:-'/'}
+  if grep -q "^${name}:" $file ; then
+    sed -i "s${sep}^${name}:.*${sep}${name}: $val${sep}g" $file
+  else
+    echo "${name}: ${val}" >> $file
+  fi
+}
+
 # parameters
 
 KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.16"}
@@ -24,6 +36,8 @@ K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 K8S_VERSION=${K8S_VERSION:-"v1.21.1"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
+K8S_DOMAIN=${K8S_DOMAIN:-''}
+
 # 'docker' is a default engine. 'containerd' is supported (with runc by default)
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-''}
 CNI=${CNI:-cni}
@@ -148,18 +162,19 @@ fi
 echo "INFO: inventory/mycluster/hosts.yml"
 cat inventory/mycluster/hosts.yml
 
-sed -i "s/kube_network_plugin: .*/kube_network_plugin: $CNI/g" $cluster_vars
+set_env_var "kube_network_plugin" "$CNI" $cluster_vars
+
 if [[ "${ORCHESTRATOR}" == "helm" ]]; then
-  echo "helm_enabled: true" >> $cluster_vars
+  set_env_var 'helm_enabled' true $cluster_vars
   # TODO: use different version for kubespray release != 2.14
-  echo 'helm_version: "v2.16.11"' >> $cluster_vars
-  echo 'helm_stable_repo_url: "https://charts.helm.sh/stable"' >> $cluster_vars
+  set_env_var 'helm_version' 'v2.16.11' $cluster_vars
+  set_env_var 'helm_stable_repo_url' 'https://charts.helm.sh/stable' $cluster_vars '|'
 fi
 
 # DNS
 # Allow host and hostnet pods to resolve cluster domains
-echo "resolvconf_mode: host_resolvconf" >> $cluster_vars
-echo "enable_nodelocaldns: false" >> $cluster_vars
+set_env_var 'resolvconf_mode' 'host_resolvconf' $cluster_vars
+set_env_var 'enable_nodelocaldns' 'false' $cluster_vars
 
 # Grab first nameserver from /etc/resolv.conf that is not coredns
 if sudo systemctl is-enabled systemd-resolved.service; then
@@ -174,39 +189,38 @@ if [ -z "$nameserver" ]; then
   exit 1
 fi
 # Set upstream DNS server used by host and coredns for recursive lookups
-echo "upstream_dns_servers: [$nameserver]" >> $cluster_vars
-echo "nameservers: [$nameserver]" >> $cluster_vars
+set_env_var 'upstream_dns_servers' "[$nameserver]" $cluster_vars
+set_env_var 'nameservers' "[$nameserver]" $cluster_vars
 # Fix coredns deployment on single node
-echo "dns_min_replicas: 1" >> $cluster_vars
+set_env_var 'dns_min_replicas' '1' $cluster_vars
 
 # Set explicetely k8s cluster name (some orchestrators like operator use name from kubernetes
 # and tf-test use hardcoded 'k8s' cluster name)
 if [[ -n "${K8S_CLUSTER_NAME}" ]]; then
-  echo "cluster_name: \"${K8S_CLUSTER_NAME}\"" >> $cluster_vars
+  set_env_var 'cluster_name' "$K8S_CLUSTER_NAME" $cluster_vars
+fi
+
+# K8S_DOMAIN
+if [ -n "$K8S_DOMAIN" ] ; then
+  set_env_var 'dns_domain' "$K8S_DOMAIN" $cluster_vars
 fi
 
 if [[ -n "$CONTAINER_RUNTIME" ]] ; then
-  if grep -q '^container_manager:.*' $cluster_vars ; then
-    sed -i "s/container_manager:.*/container_manager: $CONTAINER_RUNTIME/g" $cluster_vars
-  else
-    echo "container_manager: $CONTAINER_RUNTIME" >> $cluster_vars
-  fi
+  set_env_var 'container_manager' "$CONTAINER_RUNTIME" $cluster_vars
   if [[ "$CONTAINER_RUNTIME" == 'crio' ]] ; then
-    echo "crio_pids_limit: 8192" >> $cluster_vars
+    set_env_var 'crio_pids_limit' 8192 $cluster_vars
   fi
   if [[ "$CONTAINER_RUNTIME" != 'docker' ]]; then
-    echo "etcd_deployment_type: host" >> $cluster_vars
+    set_env_var 'etcd_deployment_type' 'host' $cluster_vars
   fi
 fi
 
 # Set local docker registries if defined
 if [[ -n "${DOCKER_CACHE_REGISTRY}" ]]; then
-   cat << EOF >> $cluster_vars
-quay_image_repo: "${DOCKER_CACHE_REGISTRY}"
-kube_image_repo: "${DOCKER_CACHE_REGISTRY}"
-gcr_image_repo: "${DOCKER_CACHE_REGISTRY}"
-docker_image_repo: "${DOCKER_CACHE_REGISTRY}"
-EOF
+  set_env_var 'quay_image_repo' "$DOCKER_CACHE_REGISTRY" $cluster_vars '|'
+  set_env_var 'kube_image_repo' "$DOCKER_CACHE_REGISTRY" $cluster_vars '|'
+  set_env_var 'gcr_image_repo' "$DOCKER_CACHE_REGISTRY" $cluster_vars '|'
+  set_env_var 'docker_image_repo' "$DOCKER_CACHE_REGISTRY" $cluster_vars '|'
 fi
 
 if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]]; then

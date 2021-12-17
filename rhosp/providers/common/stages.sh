@@ -190,12 +190,15 @@ function is_active() {
     CONTROLLER_SERVICES['kubernetes']=""
     CONTROLLER_SERVICES['analytics']+="redis "
 
-    local controller_nodes="$(get_ctlplane_ips contrailcontroller)"
-    local agent_nodes=
-    if [ -z "$controller_nodes" ] ; then
-        # AIO
-        controller_nodes="$(get_ctlplane_ips controller)"
-        agent_nodes=$controller_nodes
+    local agent_nodes=""
+    local controller_nodes=""
+    if [ -z "$EXTERNAL_CONTROLLER_NODES" ] ; then
+        controller_nodes="$(get_ctlplane_ips contrailcontroller)"
+        if [ -z "$controller_nodes" ] ; then
+            # AIO
+            controller_nodes="$(get_ctlplane_ips controller)"
+            agent_nodes=$controller_nodes
+        fi
     fi
     agent_nodes+=" $(get_ctlplane_ips novacompute)"
     agent_nodes+=" $(get_ctlplane_ips contraildpdk)"
