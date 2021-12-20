@@ -190,7 +190,7 @@ function collect_overcloud_env() {
         # Openstack and Contrail Controllers are on same nodes (aio)
         CONTROLLER_NODES="$(get_openstack_node_names $openstack_node controller tenant)"
     else
-        # Openstack nodes are separate from contrail 
+        # Openstack nodes are separate from contrail
         DEPLOYMENT_ENV['OPENSTACK_CONTROLLER_NODES']="$(get_openstack_node_names $openstack_node controller internalapi)"
     fi
 
@@ -203,7 +203,7 @@ function collect_overcloud_env() {
     local sriov_agent_nodes=$(get_openstack_node_names $openstack_node contrailsriov tenant)
     [ -z "${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}" ] || AGENT_NODES+=" ${DEPLOYMENT_ENV['DPDK_AGENT_NODES']}"
     [ -z "$sriov_agent_nodes" ] || AGENT_NODES+=" $sriov_agent_nodes"
-    
+
     if [[ -f ~/overcloudrc ]] ; then
         source ~/overcloudrc
         DEPLOYMENT_ENV['AUTH_URL']="${OS_AUTH_URL}"
@@ -340,7 +340,7 @@ function wait_ssh() {
     local interval=5
     local max=100
     local silent_cmd=1
-    [[ "$DEBUG" != true ]] || silent_cmd=0 
+    [[ "$DEBUG" != true ]] || silent_cmd=0
     if ! wait_cmd_success "ssh $ssh_opts $ssh_key ${SSH_USER}@${addr} uname -n" $interval $max $silent_cmd ; then
       echo "ERROR: Could not connect to VM $addr"
       exit 1
@@ -437,5 +437,5 @@ function ensure_fqdn() {
         echo "INFO: cur fqdn doesnt match to expected: $cur_fqdn != $exp_fqdn"
         sudo hostnamectl set-hostname $exp_fqdn
     fi
-    echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"    
+    echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"
 }

@@ -1,5 +1,6 @@
 export ENVIRONMENT_OS=${ENVIRONMENT_OS:-'centos7'}
 export KVM_NETWORK="${KVM_NETWORK:-devstack}"
+export KVM_NETWORK_ADDR="${KVM_NETWORK_ADDR:-10.100.0.1}"
 export KVM_BRIDGE="${KVM_BRIDGE:-devbr}"
 export BASE_IMAGE_POOL=${BASE_IMAGE_POOL:-'images'}
 export NET_DRIVER=${NET_DRIVER:-'e1000'}
@@ -28,24 +29,24 @@ declare -A VM_TYPES=( ['large']='8 32768' \
 declare -A OS_VARIANTS=( ['CENTOS7']='rhel7' \
                          ['CENTOS8']='rhel8' \
                          ['RHEL7']='rhel7' \
-                         ['RHEL82']='rhel8' \
-                         ['RHEL84']='rhel8' \
+                         ['RHEL82']='rhel8.0' \
+                         ['RHEL84']='rhel8.0' \
                          ['UBUNTU16']='ubuntu16.04' \
                          ['UBUNTU18']='ubuntu18.04' )
 
 declare -A OS_IMAGES=( ['CENTOS7']='centos7' \
                        ['CENTOS8']='centos8' \
                        ['RHEL7']='rhel7' \
-                       ['RHEL82']='rhel8' \
-                       ['RHEL84']='rhel8' \
+                       ['RHEL82']='rhel-8.2-x86_64-kvm.qcow2' \
+                       ['RHEL84']='rhel-8.4-x86_64-kvm.qcow2' \
                        ['UBUNTU16']='ubuntu16' \
                        ['UBUNTU18']='ubuntu18' )
 
 declare -A OS_IMAGE_USERS=( ['CENTOS7']='centos' \
                             ['CENTOS8']='centos' \
-                            ['RHEL7']='cloud-user' \
-                            ['RHEL82']='cloud-user' \
-                            ['RHEL84']='cloud-user' \
+                            ['RHEL7']='stack' \
+                            ['RHEL82']='stack' \
+                            ['RHEL84']='stack' \
                             ['UBUNTU16']='ubuntu' \
                             ['UBUNTU18']='ubuntu' )
 
