@@ -14,12 +14,9 @@ source "$my_dir/definitions"
 source "$my_dir/functions.sh"
 source "$WORKSPACE/global.env" || /bin/true
 
-prefix=''
-if [[ -n "$WORKER_NAME_PREFIX" ]]; then
-  prefix="${WORKER_NAME_PREFIX}_"
-fi
+base_name=$(get_vm_name)
 
-for vm_name in `virsh list --all | grep "${prefix}${BASE_VM_NAME}_" | awk '{print $2}'` ; do
+for vm_name in `virsh list --all | grep "$base_name" | awk '{print $2}'` ; do
   delete_domain $vm_name
   vol_path=$(get_pool_path $POOL_NAME)
   vol_name="$vm_name.qcow2"

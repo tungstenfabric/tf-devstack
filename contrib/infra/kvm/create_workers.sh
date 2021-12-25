@@ -38,14 +38,6 @@ if [[ -z "$INSTANCE_TYPE" ]]; then
 fi
 echo "INFO: VM_TYPE=$VM_TYPE  INSTANCE_TYPE='$INSTANCE_TYPE' (vcpus mem)"
 
-function get_vm_name() {
-  local prefix=""
-  if [ -n "$WORKER_NAME_PREFIX" ] ; then
-    prefix="${WORKER_NAME_PREFIX}"
-  fi
-  echo "${prefix}${1}"
-}
-
 # check previous env
 for ((i=0; i<${NODES_COUNT}; ++i)); do
   assert_env_exists "$(get_vm_name $i)"

@@ -281,10 +281,13 @@ function call_vbmc() {
 
 function delete_domain() {
   local name=$1
+  local remove_disks=${2:-1}
   if sudo virsh dominfo $name 2>/dev/null ; then
     sudo virsh destroy $name || true
     sleep 2
-    sudo virsh undefine $name || true
+    local opts=""
+    [[ "$remove_disks" != '1' ]] || opts+="--remove-all-storage"
+    sudo virsh undefine $name $opts || true
   fi
 }
 
@@ -419,4 +422,13 @@ function wait_ssh() {
     sleep 30
     ((++iter))
   done
+}
+
+function get_vm_name() {
+  local name=$1
+  local prefix=""
+  if [ -n "$WORKER_NAME_PREFIX" ] ; then
+    prefix+="${WORKER_NAME_PREFIX}_"
+  fi
+  echo "${prefix}${name}"
 }

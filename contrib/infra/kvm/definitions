@@ -21,7 +21,8 @@ export SSH_OPTS="-o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o 
 # v3-standard-8   8       32 GB     m4.2xlarge     large
 
 # type to 'vcpus mem'
-declare -A VM_TYPES=( ['large']='8 32768' \
+declare -A VM_TYPES=( ['xlarge']='16 65536' \
+                      ['large']='8 32768' \
                       ['medium']='4 16384' \
                       ['small']='2 8192' \
                       ['xsmall']='1 4096' )
