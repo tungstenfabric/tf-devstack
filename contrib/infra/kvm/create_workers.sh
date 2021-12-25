@@ -85,10 +85,10 @@ done
 hosts=''
 for ip in $ips ; do
   hname="node-$(echo $ip | tr '.' '-')"
-  hosts+=$(printf "$ip  ${hname}.${DOMAIN}  ${hname}\n")
+  hosts+="$ip  ${hname}.${DOMAIN}  ${hname}\n"
 done
 
-ssh_config=$(printf "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null")
+ssh_config=$(printf "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null\n")
 
 id_rsa="$(cat $HOME/.ssh/id_rsa)"
 id_rsa_pub="$(cat $HOME/.ssh/id_rsa.pub)"
@@ -100,14 +100,14 @@ hname="node-\$(echo $ip | tr '.' '-')"
 echo \$hname > /etc/hostname
 hostname \$hname
 domainname ${DOMAIN}
-echo "$hosts" >> /etc/hosts
+echo -e "$hosts" >> /etc/hosts
 echo "$ssh_config" > /root/.ssh/config
 echo "$id_rsa" > /root/.ssh/id_rsa
 echo "$id_rsa_pub" > /root/.ssh/id_rsa.pub
 echo "$id_rsa_pub" > /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/id_rsa /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
 if [[ "$IMAGE_SSH_USER" != 'root' ]] ; then
-  echo "$ssh_config" > /home/$IMAGE_SSH_USER/.ssh/config
+  echo -e "$ssh_config" > /home/$IMAGE_SSH_USER/.ssh/config
   echo "$id_rsa" > /home/$IMAGE_SSH_USER/.ssh/id_rsa
   echo "$id_rsa_pub" > /home/$IMAGE_SSH_USER/.ssh/id_rsa.pub
   echo "$id_rsa_pub" > /home/$IMAGE_SSH_USER/.ssh/authorized_keys
