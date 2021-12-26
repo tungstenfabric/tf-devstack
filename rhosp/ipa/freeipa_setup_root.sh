@@ -41,7 +41,7 @@ PREFIX=$FreeIPAIPSubnet
 EOM
 modprobe ipv6 || true
 ifdown eth1 || true
-ifup eth1
+ifup eth1 || true
 
 # use 8.8.8.8 as DNS because often local DNSes cannot work like forwarders
 sed -i '/nameserver/d'  /etc/resolv.conf
@@ -52,7 +52,7 @@ EOF
 
 yum -y remove openstack-dashboard
 if [[ $VERSION_ID == 7* ]]; then
-    # [cloud-user@rhosp13-ipa-13624 ~]$ yum repolist all  
+    # [cloud-user@rhosp13-ipa-13624 ~]$ yum repolist all
     # Failed to set locale, defaulting to C
     # Loaded plugins: search-disabled-repos
     # repo id         repo name     status
@@ -61,7 +61,7 @@ if [[ $VERSION_ID == 7* ]]; then
     if [ -z "$epel_repo" ] ; then
         wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         yum localinstall -y epel-release-latest-7.noarch.rpm
-        for i in {1..3} ; do 
+        for i in {1..3} ; do
             epel_repo=$(yum repolist | awk '/epel/{print($1)}' | cut -d '/' -f1 | head -n 1 | tr -d '!')
             [ -n "$epel_repo" ] && break
         done
@@ -79,7 +79,7 @@ else
     yum -y distro-sync
     yum update -y
     yum module install -y idm:DL1/{dns,client}
-    yum install -y rng-tools git python3-novajoin
+    yum install -y iptables rng-tools git python3-novajoin
     #Fix for SSL VERSION ISSUE https://access.redhat.com/solutions/5527751
     dnf downgrade -y java-1.8.0-openjdk java-1.8.0-openjdk-headless
 fi
