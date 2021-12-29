@@ -34,6 +34,9 @@ default_timeout=3000
 if [[ "$CLOUD" == 'maas' ]]; then default_timeout=9000 ; fi
 export WAIT_TIMEOUT=${WAIT_TIMEOUT:-$default_timeout}
 
+# override for juju
+export HUGE_PAGES_2MB=1024
+
 export JUJU_REPO=${JUJU_REPO:-$WORKSPACE/tf-charms}
 # cloud local is deprecated, please use CLOUD=manual and unset CONTROLLER_NODES and AGENT_NODES
 if [[ $CLOUD == 'local' ]] ; then
