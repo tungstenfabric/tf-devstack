@@ -21,7 +21,7 @@ APT_MIRROR=${APT_MIRROR:-''}
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
 sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq dnsutils -y
-sudo snap install --classic juju --channel=2.8
+sudo snap install --classic juju
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
 cat <<EOF > $HOME/.ssh/config
