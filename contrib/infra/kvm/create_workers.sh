@@ -77,7 +77,7 @@ done
 wait_dhcp $net_name $NODES_COUNT
 ips=''
 for (( i=0; i<${NODES_COUNT}; ++i )); do
-  ip=`get_ip_by_mac $net_name 52:54:00:00:10:0$i`
+  ip=`get_ip_by_mac $net_name $KVM_NODES_MAC_BASE:0$i`
   echo "INFO: node #$i, IP $ip (network $net_name)"
   ips+=" $ip"
 done
