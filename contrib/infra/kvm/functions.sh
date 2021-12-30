@@ -184,7 +184,7 @@ function create_vm() {
     opt_disks+=" $opt_vol_path $ADDITIONAL_DISK_SIZE"
   done
 
-  local net="$net_name/52:54:00:00:10:$mac_octet"
+  local net="$net_name/$KVM_NODES_MAC_BASE:$mac_octet"
   #for ((j=1; j<NET_COUNT; ++j)); do
   #  net="$net,${net_name}_$j/52:54:00:00:$((10+j)):$mac_octet"
   #done
