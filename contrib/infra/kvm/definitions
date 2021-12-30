@@ -1,6 +1,7 @@
 export ENVIRONMENT_OS=${ENVIRONMENT_OS:-'centos7'}
 export KVM_NETWORK="${KVM_NETWORK:-devstack}"
 export KVM_NETWORK_ADDR="${KVM_NETWORK_ADDR:-10.100.0.1}"
+export KVM_NODES_MAC_BASE="52:54:00:00:10"
 export KVM_BRIDGE="${KVM_BRIDGE:-devbr}"
 export BASE_IMAGE_POOL=${BASE_IMAGE_POOL:-'images'}
 export NET_DRIVER=${NET_DRIVER:-'e1000'}
