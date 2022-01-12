@@ -30,6 +30,10 @@ function _docker_ps() {
     sudo docker ps -a --format '{{.ID}} {{.Names}}'
 }
 
+function _podman_ps() {
+    sudo podman ps -a --format '{{.ID}} {{.Names}}'
+}
+
 function _crictl_ps() {
     sudo crictl ps -a -o json | jq -r -c ".[][] | .id + \" \" + .metadata.name"
 }
