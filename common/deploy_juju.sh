@@ -79,8 +79,7 @@ set_ssh_keys
 # controller and/or agent nodes
 SWITCH_OPT='--no-switch'
 if [[ $CLOUD == 'manual' ]] ; then
-    if [[ ( -n "$CONTROLLER_NODES" && "$CONTROLLER_NODES" != $NODE_IP )
-       || ( -n "$AGENT_NODES" && "$AGENT_NODES" != $NODE_IP ) ]] ; then
+    if [[ ( -n "$CONTROLLER_NODES" && "$CONTROLLER_NODES" != $NODE_IP ) ]] ; then
       SWITCH_OPT=''
     fi
 fi
