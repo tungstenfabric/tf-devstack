@@ -192,7 +192,7 @@ function tf() {
     fi
 
     echo "INFO: wait for bootstrap complete  $(date)"
-    openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete
+    wait_cmd_success "openshift-install --dir=${INSTALL_DIR} wait-for bootstrap-complete" 1 2
 
     echo "INFO: destroy bootstrap  $(date)"
     ${my_dir}/providers/${PROVIDER}/destroy_bootstrap.sh
@@ -214,7 +214,7 @@ function tf() {
 
     # TODO: move it to wait stage
     echo "INFO: wait for install complete $(date)"
-    openshift-install --dir=${INSTALL_DIR} wait-for install-complete
+    wait_cmd_success "openshift-install --dir=${INSTALL_DIR} wait-for install-complete" 1 2
 
     local ntp=${my_dir}/providers/${PROVIDER}/sync_ntp.sh
     if [ -e $ntp ]; then
