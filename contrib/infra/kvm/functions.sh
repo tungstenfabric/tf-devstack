@@ -408,12 +408,15 @@ function wait_ssh() {
   local ssh_key=${2:-''}
   local max_iter=${3:-20}
   local iter=0
-  ssh_key_opt=''
+  local ssh_key_opt=''
   if [[ -n "$ssh_key" ]] ; then
-    ssh_key_opt=" -i $ssh_key"
+    ssh_key_opt="-i $ssh_key"
+  fi
+  if ! echo "$addr" | grep -q '@' ; then
+    addr="root@${addr}"
   fi
   truncate -s 0 ./tmp_file
-  while ! scp $ssh_key_opt $SSH_OPTS -B ./tmp_file root@${addr}:/tmp/tmp_file ; do
+  while ! scp $ssh_key_opt $SSH_OPTS -B ./tmp_file ${addr}:/tmp/tmp_file ; do
     if (( iter >= max_iter )) ; then
       echo "ERROR: Could not connect to VM $addr"
       return 1

@@ -65,7 +65,7 @@ function wait_cmd_success() {
   local state="$(set +o)"
   [[ "$-" =~ e ]] && state+="; set -e"
 
-  set +o xtrace
+  [[ "${DEBUG,,}" == "true" ]] || set +o xtrace
   set -o pipefail
   local i=0
   if [[ "$silent_cmd" != "0" ]]; then

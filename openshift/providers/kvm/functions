@@ -1,6 +1,9 @@
 #!/bin/bash
 
-function start_lb_vm() {
+my_file="$(readlink -e "$0")"
+my_dir="$(dirname $my_file)"
+
+function start_helper_vm() {
   local name=$1
   local disk=$2
   local mem=$3
@@ -40,13 +43,25 @@ function start_openshift_vm() {
   local cpu=$3
   local ignition_file_name=$4
   local mac_addr=$5
+  local iso=$6
 
-  local versioned_rootfs_url=${versioned_rootfs_urls[$OPENSHIFT_VERSION]}
-  local extra_args="nomodeset rd.neednet=1 coreos.inst=yes coreos.inst.install_dev=vda $versioned_rootfs_url=http://${LBIP}:${WS_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${LBIP}:${WS_PORT}/${ignition_file_name}.ign"
+  local virsh_extra_opts="--noreboot"
+  if [ -z "$iso" ] ; then
+    local ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-lb) )
+    local lb_ip=${ip_mac[0]}
+    virsh_extra_opts+=" --extra-args '"
+    virsh_extra_opts+=" console=ttyS0,115200n8 serial nomodeset rd.neednet=1 coreos.inst.install_dev=vda coreos.inst=yes"
+    virsh_extra_opts+=" $RHCOS_ROOTFS=http://${lb_ip}:${BOOTSTRAP_PORT}/${RHCOS_IMAGE} coreos.inst.ignition_url=http://${lb_ip}:${BOOTSTRAP_PORT}/${ignition_file_name}.ign"
+    virsh_extra_opts+="'"
+    virsh_extra_opts+=" --location ${INSTALL_DIR}/rhcos-install/"
+  else
+    virsh_extra_opts+=" --cdrom $iso"
+  fi
   [ -z ${kernel_boot_args[${name}]} ] || extra_args+=" ${kernel_boot_args[${name}]}"
 
   local net_opts=""
   local octet=1
+  local i
   for i in ${VIRTUAL_NET//,/ } ; do
       net_opts+=" --network network=$i,model=virtio,mac=${mac_addr/52:54:00:13/52:54:00:1${octet}}"
       octet=$((octet+1))
@@ -56,19 +71,65 @@ function start_openshift_vm() {
   if [[ ${HUGEPAGES_ENABLED,,} == "true" ]]; then
     hugepages_opt=" --memorybacking hugepages=on "
   fi
-
-  sudo virt-install --name $name \
+  local dbg_opts=''
+  [ "${DEBUG,,}" != 'true' ] || dbg_opts+=' --debug'
+  eval sudo virt-install --name $name $dbg_opts \
     --disk "${LIBVIRT_DIR}/$name.qcow2,size=60,cache=writeback,bus=virtio" \
     --memory $mem \
     --cpu host \
     --vcpus $cpu \
     --os-type linux \
-    --os-variant rhel7 \
+    --os-variant rhl8.0 \
     $net_opts \
-    --noreboot \
     --noautoconsole \
     ${hugepages_opt} \
-    --location rhcos-install/ --extra-args "${extra_args}"
+    $virsh_extra_opts
+}
+
+function start_lb() {
+  echo "INFO: start LB VM"
+  cat <<EOF > $INSTALL_DIR/tmpws.service
+[Unit]
+After=network.target
+[Service]
+Type=simple
+WorkingDirectory=/opt
+ExecStart=/usr/bin/python -m SimpleHTTPServer ${BOOTSTRAP_PORT}
+[Install]
+WantedBy=default.target
+EOF
+  local copyin_opts=""
+  copyin_opts+=" --copy-in $INSTALL_DIR/haproxy.cfg:/etc/haproxy/"
+  copyin_opts+=" --copy-in $INSTALL_DIR/tmpws.service:/etc/systemd/system/"
+  local i
+  for i in bootstrap.ign master.ign worker.ign ; do
+    if [ -e "${INSTALL_DIR}/$i" ] ; then
+      copyin_opts+=" --copy-in ${INSTALL_DIR}/$i:/opt/"
+    fi
+  done
+  if [ -e "${DOWNLOADS_DIR}/${RHCOS_IMAGE}" ] ; then
+    copyin_opts+=" --copy-in ${DOWNLOADS_DIR}/${RHCOS_IMAGE}:/opt/"
+  fi
+  # Create and start load balancer
+  create_haproxy_cfg $INSTALL_DIR/haproxy.cfg
+  sudo cp "${DOWNLOADS_DIR}/CentOS-7-x86_64-GenericCloud.qcow2" "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2"
+  sudo virt-customize -a "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2" \
+      --run-command 'xfs_growfs /' \
+      --uninstall cloud-init \
+      --selinux-relabel \
+      --install haproxy \
+      --root-password "password:${ADMIN_PASSWORD}" \
+      --ssh-inject "${LB_SSH_USER}:string:${OPENSHIFT_PUB_KEY}" \
+      $copyin_opts \
+      --run-command 'echo net.ipv6.bindv6only=0 > /etc/sysctl.conf' \
+      --run-command 'echo net.ipv6.conf.all.forwarding=1 >> /etc/sysctl.conf' \
+      --run-command 'echo net.ipv4.ip_forward = 1 >> /etc/sysctl.conf' \
+      --run-command "sed -i 's/^SELINUX=.*$/SELINUX=permissive/' /etc/selinux/config" \
+      --run-command "systemctl daemon-reload" \
+      --run-command "systemctl enable tmpws.service" \
+      --run-command "systemctl enable haproxy"
+
+  start_helper_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2,cache=writeback,bus=virtio" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU} "52:54:00:13:21:01"
 }
 
 function get_ip_mac() {
@@ -97,14 +158,14 @@ function get_ip_mac() {
 
 function create_haproxy_cfg() {
   local cfgfile=$1
-
+  local controller_count=$(echo $CONTROLLER_NODES | wc -w)
   if [ -z "$controller_count" ] ; then
     echo "ERROR: internal error controller_count must be set"
     exit 1
   fi
 
-# Use large timeouts to show here explicetly that 
-# they cannot be short (aka 1m) - short ones lead to 
+# Use large timeouts to show here explicetly that
+# they cannot be short (aka 1m) - short ones lead to
 # the often reconnect of all Kube Monitors in kube-manager to kube-api
 # that re-read all objects from scratch and queue is growing
 # and all events are handled with the very large delay
@@ -183,57 +244,6 @@ EOF
   done
 }
 
-function prepare_rhcos_install() {
-  mkdir -p rhcos-install
-  cp "${DOWNLOADS_DIR}/${RHCOS_KERNEL}" "rhcos-install/vmlinuz"
-  cp "${DOWNLOADS_DIR}/${RHCOS_INITRAMFS}" "rhcos-install/initramfs.img"
-  cat <<EOF > rhcos-install/.treeinfo
-[general]
-arch = x86_64
-family = Red Hat CoreOS
-platforms = x86_64
-version = ${OCP_VER}
-[images-x86_64]
-initrd = initramfs.img
-kernel = vmlinuz
-EOF
-}
-
-function prepare_install_config() {
-  if [ -z "$controller_count" ] ; then
-    echo "ERROR: internal error controller_count must be set"
-    exit 1
-  fi
-
-  cat <<EOF > ${INSTALL_DIR}/install-config.yaml
-apiVersion: v1
-baseDomain: ${KUBERNETES_CLUSTER_DOMAIN}
-compute:
-- hyperthreading: Disabled
-  name: worker
-  replicas: 0
-controlPlane:
-  hyperthreading: Disabled
-  name: master
-  replicas: ${controller_count}
-metadata:
-  name: ${KUBERNETES_CLUSTER_NAME}
-networking:
-  clusterNetworks:
-  - cidr: 10.128.0.0/14
-    hostPrefix: 23
-  networkType: Contrail
-  serviceNetwork:
-  - 172.30.0.0/16
-platform:
-  none: {}
-pullSecret: '${OPENSHIFT_PULL_SECRET}'
-sshKey: '$(cat ${OPENSHIFT_PUB_KEY})'
-EOF
-
-  cat $INSTALL_DIR/install-config.yaml
-}
-
 function _domain_stopped() {
   sudo virsh list | grep -q $1 && return 1 || return 0
 }
@@ -251,7 +261,7 @@ function bootstrap_finished() {
 }
 
 # workaround the node bootstrap problem:
-#   occasionally rhcos failes on boot time with mount new ostree and 
+#   occasionally rhcos failes on boot time with mount new ostree and
 #    machine-config-daemon-firstboot.service service fails with the error
 #     "machine-config-daemon-firstboot.service: Failed at step EXEC spawning /run/bin/machine-config-daemon: Permission denied"
 #    reboot node to try again
@@ -280,4 +290,228 @@ done
 EOF
     sleep 10
   done
+}
+
+function _curl_impl() {
+  local data_type=$1
+  shift
+  local access_token
+  if [[ -n "${OPENSHIFT_AI_SSO_TOKEN}" ]]; then
+    access_token="-H \"Authorization: Bearer $OPENSHIFT_AI_SSO_TOKEN\""
+  fi
+  local result=$(mktemp -q --suffix .curl.result)
+  local rc=$(curl -s -w "%{http_code}" --output $result $access_token \
+    -H "Content-type: application/${data_type}" -H "Accept: application/${data_type}" $@)
+
+  if (( $rc < 200 || $rc > 299 )) ; then
+    echo "ERROR: curl -s -w %{http_code} -H \"Content-type: application/${data_type}\" -H \"Accept: application/${data_type}\" $@: http_code=$rc"
+    return 1
+  fi
+  cat $result
+  rm -f $result
+}
+
+function _curl() {
+  _curl_impl 'json' $@
+}
+
+function _curl_stream() {
+  _curl_impl 'octet-stream' $@
+}
+
+function ai_get_access_token(){
+  _curl -X POST \
+    -d "client_id=cloud-services&grant_type=refresh_token&refresh_token=${AI_OFFLINE_TOKEN}" \
+    $REDHAT_SSO_URL | jq -r '.access_token'
+}
+
+function ai_get_clusters(){
+  _curl ${OPENSHIFT_AI_API_V2}/clusters
+}
+
+function ai_post_manifests_folder(){
+  local clister_id=$1
+  local folder=$2
+  # Itarate over all manifests
+  local file
+  for file in $(ls $INSTALL_DIR/${folder}); do
+    cat << EOF > $INSTALL_DIR/${folder}/${file}.b64
+{
+  "folder": "${folder}",
+  "file_name": "${file}",
+  "content": "$(cat $INSTALL_DIR/${folder}/${file} | base64 -w 0)"
+}
+EOF
+    _curl -X POST -d @$INSTALL_DIR/${folder}/${file}.b64 \
+      ${OPENSHIFT_AI_API_V2}/clusters/${cluster_id}/manifests
+  done
+}
+
+function ai_post_manifests(){
+  local clister_id=$1
+  if [[ -z "${OCP_MANIFESTS_DIR}" ]]; then
+    ai_post_manifests_folder ${cluster_id} "openshift"
+  fi
+  ai_post_manifests_folder ${cluster_id} "manifests"
+}
+
+function ai_post_cluster(){
+  cat <<EOF >${INSTALL_DIR}/cluster_conf.json
+{
+  "name": "${KUBERNETES_CLUSTER_NAME}",
+  "openshift_version": "${OCP_VERSION}",
+  "ocp_release_image": "quay.io/openshift-release-dev/ocp-release:${OCP_VERSION}-x86_64",
+  "base_dns_domain": "example.com",
+  "cluster_network_cidr": "10.128.0.0/14",
+  "cluster_network_host_prefix": 24,
+  "service_network_cidr": "172.30.0.0/16",
+  "high_availability_mode": "Full",
+  "machine_network_cidr": "10.233.64.0/18",
+  "hyperthreading": "all",
+  "vip_dhcp_allocation": false,
+  "user_managed_networking": true,
+  "schedulable_masters": true,
+  "disk_encryption": {"enable_on": "none"},
+  "pull_secret": "$(echo $OPENSHIFT_PULL_SECRET | sed 's/"/\\"/g')",
+  "ssh_public_key": "${OPENSHIFT_PUB_KEY}",
+  "additional_ntp_source": "${EXTRA_NTP}"
+}
+EOF
+  _curl -X POST -d @${INSTALL_DIR}/cluster_conf.json "${OPENSHIFT_AI_API_V2}/clusters" | jq -r '.id'
+}
+
+function ai_create_infra_env(){
+  local cluster_id=$1
+  cat <<EOF >${INSTALL_DIR}/infra_env_conf.json
+{
+  "cluster_id": "$cluster_id",
+  "openshift_version": "${OCP_VERSION}",
+  "name": "${KUBERNETES_CLUSTER_NAME}",
+  "image_type": "full-iso",
+  "pull_secret": "$(echo $OPENSHIFT_PULL_SECRET | sed 's/"/\\"/g')",
+  "ssh_authorized_key": "${OPENSHIFT_PUB_KEY}",
+  "additional_ntp_source": "${EXTRA_NTP}"
+}
+EOF
+  _curl -X POST -d @./install-test1/infra_env_conf.json ${OPENSHIFT_AI_API_V2}/infra-envs | jq -r '.id'
+}
+
+function ai_get_iso_download_url() {
+  local id=$1
+  _curl ${OPENSHIFT_AI_API_V2}/infra-envs/$id | jq -r '.download_url'
+}
+
+function ai_download_iso() {
+  local id=$1
+  local target=$2
+  local download_url=$(ai_get_iso_download_url $id)
+  sudo rm -f $target
+  sudo curl -s --output $target ${download_url}
+}
+
+function ai_check_hosts_status_ready(){
+  local id=$1
+  local statuses=$(_curl ${OPENSHIFT_AI_API_V2}/infra-envs/${id}/hosts | jq -r '.[].status' | xargs)
+  [ -n "$statuses" ] || return 1
+  local i
+  for i in $statuses ; do
+    [[ "$i" == "known" ]] || return 1
+  done
+  return 0
+}
+
+function ai_start_cluster(){
+  local cluster_id=$1
+  _curl -X POST ${OPENSHIFT_AI_API_V2}/clusters/${cluster_id}/actions/install | jq "."
+}
+
+function ai_update_install_config(){
+  local cluster_id=$1
+  local d=$INSTALL_DIR/update_config_opts.json
+  cat <<EOF > $d
+"{\"networking\":{\"networkType\":\"TF\"}}"
+EOF
+  # TODO: v1 is depricated but still available only v1 in used AI version,
+  # switch to v2 as AI version be up
+  _curl -X PATCH -d @$d ${OPENSHIFT_AI_API_V2}/clusters/${cluster_id}/install-config
+}
+
+function ai_get_cluster_status(){
+  local cluster_id=$1
+  _curl ${OPENSHIFT_AI_API_V2}/clusters/${cluster_id} | jq -r '.status'
+}
+
+function ai_check_cluster_status(){
+  local cluster_id=$1
+  shift
+  local statuses="$@"
+  local cluster_status=$(ai_get_cluster_status $cluster_id)
+  [[ "$statuses" =~ "$cluster_status" ]]
+}
+
+function ai_get_kubeconfig(){
+    local cluster_id=$1
+    _curl_stream "${OPENSHIFT_AI_API_V2}/clusters/${cluster_id}/downloads/credentials?file_name=kubeconfig-noingress"
+}
+
+function ai_monitor_vms() {
+  local machines="$@"
+  local i
+  while true ; do
+    for i in $machines ; do
+      if [[ "$(sudo virsh domstate $i)" == "shut off" ]] ; then
+        echo "INFO: VM $i is shut off => start it ($date)"
+        sudo virsh start $i
+      fi
+    done
+    sleep 10
+  done
+}
+
+
+function install_ai_service() {
+  local ai_ip=$1
+  echo "INFO: install AI ip=$ai_ip"
+  local rhcos_base_url="${RHCOS_MIRROR}/${OPENSHIFT_VERSION}/${RHCOS_VERSION}"
+  cat <<EOF > $INSTALL_DIR/onprem-environment
+POSTGRESQL_DATABASE=installer
+POSTGRESQL_PASSWORD=admin
+POSTGRESQL_USER=admin
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_USER=admin
+DB_PASS=admin
+DB_NAME=installer
+SERVICE_BASE_URL=http://${ai_ip}:8090
+ASSISTED_SERVICE_SCHEME=http
+ASSISTED_SERVICE_HOST=127.0.0.1:8090
+IMAGE_SERVICE_BASE_URL=http://${ai_ip}:8888
+LISTEN_PORT=8888
+DEPLOY_TARGET=onprem
+STORAGE=filesystem
+DUMMY_IGNITION=false
+OS_IMAGES=[{"openshift_version":"${OPENSHIFT_VERSION}","cpu_architecture":"x86_64","url":"${rhcos_base_url}/rhcos-4.6.8-x86_64-live.x86_64.iso","rootfs_url":"${rhcos_base_url}/${RHCOS_IMAGE}","version":"46.82.202012051820-0"}]
+RELEASE_IMAGES=[{"openshift_version":"${OPENSHIFT_VERSION}","cpu_architecture":"x86_64","url":"quay.io/openshift-release-dev/ocp-release:${OCP_VERSION}-x86_64","version":"${OCP_VERSION}"}]
+ENABLE_SINGLE_NODE_DNSMASQ=true
+DISK_ENCRYPTION_SUPPORT=false
+PUBLIC_CONTAINER_REGISTRIES=quay.io
+NTP_DEFAULT_SERVER=
+IPV6_SUPPORT=false
+AUTH_TYPE=none
+HW_VALIDATOR_REQUIREMENTS=[{"version":"default","master":{"cpu_cores":2,"ram_mib":16384,"disk_size_gb":60,"installation_disk_speed_threshold_ms":30,"network_latency_threshold_ms":100,"packet_loss_percentage":0},"worker":{"cpu_cores":2,"ram_mib":8192,"disk_size_gb":60,"installation_disk_speed_threshold_ms":30,"network_latency_threshold_ms":1000,"packet_loss_percentage":10},"sno":{"cpu_cores":8,"ram_mib":32768,"disk_size_gb":60,"installation_disk_speed_threshold_ms":30}}]
+EOF
+
+  wait_ssh $ai_ip
+  scp $INSTALL_DIR/onprem-environment root@${ai_ip}:/root/onprem-environment
+
+  cat <<EOF | ssh root@${ai_ip}
+[ "${DEBUG,,}" != true ] || set -x
+set -eo pipefail
+yum install -y podman git make
+git clone https://github.com/openshift/assisted-service.git
+cd /root/assisted-service
+git checkout 80170758e2
+cp /root/onprem-environment ./
+make deploy-onprem
+EOF
 }

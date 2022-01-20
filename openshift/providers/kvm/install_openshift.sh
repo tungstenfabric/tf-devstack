@@ -3,6 +3,8 @@
 my_file=$(realpath "$0")
 my_dir="$(dirname $my_file)"
 
+[ "${DEBUG,,}" == "true" ] && set -x
+
 source "$my_dir/../../../common/functions.sh"
 source "$my_dir/../../definitions.sh"
 source "$my_dir/../../functions.sh"
@@ -19,8 +21,6 @@ function err() {
 [[ -n "${OPENSHIFT_PULL_SECRET}" ]] || err "set OPENSHIFT_PULL_SECRET env variable"
 [[ -n "${OPENSHIFT_PUB_KEY}" ]] || err "set OPENSHIFT_PUB_KEY env variable"
 
-RHCOS_URL="${RHCOS_MIRROR}/${RHCOS_VERSION}/${RHCOS_IMAGE}"
-
 controller_count=$(echo $CONTROLLER_NODES | wc -w)
 agent_count=0
 if [[ "$AGENT_NODES" != "$NODE_IP" ]] ; then
@@ -29,27 +29,7 @@ if [[ "$AGENT_NODES" != "$NODE_IP" ]] ; then
 fi
 
 # main part
-
-[[ -d "$INSTALL_DIR"  ]] && rm -rf ${INSTALL_DIR}
-mkdir -p ${INSTALL_DIR}
-mkdir -p ${DOWNLOADS_DIR}
-
-download_artefacts
-
-prepare_rhcos_install
-
-prepare_install_config
-
-mkdir -p ${INSTALL_DIR}/openshift
-mkdir -p ${INSTALL_DIR}/manifests
-
 openshift-install --dir $INSTALL_DIR create manifests
-
-if [[ -n "${OCP_MANIFESTS_DIR}" ]]; then
-  cp ${OCP_MANIFESTS_DIR}/* ${INSTALL_DIR}/manifests
-else
-  $OPENSHIFT_REPO/scripts/apply_install_manifests.sh ${INSTALL_DIR}
-fi
 
 # if no agents nodes - masters are schedulable, no needs patch ingress to re-schedule it on masters
 if (( agent_count != 0 )) ; then
@@ -68,33 +48,7 @@ for i in ${VIRTUAL_NET//,/ } ; do
   sudo virsh net-start $i
 done
 
-WS_PORT="1234"
-cat <<EOF > tmpws.service
-[Unit]
-After=network.target
-[Service]
-Type=simple
-WorkingDirectory=/opt
-ExecStart=/usr/bin/python -m SimpleHTTPServer ${WS_PORT}
-[Install]
-WantedBy=default.target
-EOF
-
-create_haproxy_cfg $WORKSPACE/haproxy.cfg
-
-sudo cp "${DOWNLOADS_DIR}/CentOS-7-x86_64-GenericCloud.qcow2" "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2"
-
-sudo virt-customize -a "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2" \
-    --uninstall cloud-init --ssh-inject ${LB_SSH_USER}:file:${OPENSHIFT_PUB_KEY} --selinux-relabel --install haproxy --install bind-utils \
-    --copy-in ${INSTALL_DIR}/bootstrap.ign:/opt/ --copy-in ${INSTALL_DIR}/master.ign:/opt/ --copy-in ${INSTALL_DIR}/worker.ign:/opt/ \
-    --copy-in "${DOWNLOADS_DIR}/${RHCOS_IMAGE}":/opt/ --copy-in tmpws.service:/etc/systemd/system/ \
-    --copy-in $WORKSPACE/haproxy.cfg:/etc/haproxy/ \
-    --run-command "systemctl daemon-reload" --run-command "systemctl enable tmpws.service"
-
-start_lb_vm ${KUBERNETES_CLUSTER_NAME}-lb "${LIBVIRT_DIR}/${KUBERNETES_CLUSTER_NAME}-lb.qcow2,cache=writeback,bus=virtio" ${LOADBALANCER_MEM} ${LOADBALANCER_CPU} "52:54:00:13:21:01"
-
-ip_mac=( $(get_ip_mac ${KUBERNETES_CLUSTER_NAME}-lb) )
-LBIP=${ip_mac[0]}
+start_lb
 
 # Create machines
 echo "INFO: start bootstrap vm"

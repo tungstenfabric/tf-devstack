@@ -7,7 +7,7 @@ compute:
   hyperthreading: Enabled
   name: worker
   platform: {}
-  replicas: {{ (agents | length) - (controllers | length) }}
+  replicas: {{ (agents | length) }}
 controlPlane:
   archtecture: amd64
   hyperthreading: Enabled
@@ -26,8 +26,15 @@ networking:
   networkType: Contrail
   serviceNetwork:
   - 172.30.0.0/16
+pullSecret: '{{ OPENSHIFT_PULL_SECRET }}'
+{% if PROVIDER == 'aws' %}
 platform:
   aws:
     region: {{ AWS_REGION }}
 publish: External
-pullSecret: '{{ OPENSHIFT_PULL_SECRET }}'
+{% else %}
+platform:
+  none: {}
+sshKey: |
+  {{ OPENSHIFT_PUB_KEY }}
+{% endif %}

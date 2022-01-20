@@ -7,7 +7,6 @@ OPENSHIFT_API_FIP=${OPENSHIFT_API_FIP:-"38.108.68.139"}
 OPENSHIFT_INGRESS_FIP=${OPENSHIFT_INGRESS_FIP:-"38.108.68.90"}
 OPENSHIFT_INSTALL_DIR=${OPENSHIFT_INSTALL_DIR:-"os-install-config"}
 OS_IMAGE_PUBLIC_SERVICE=${OS_IMAGE_PUBLIC_SERVICE:="https://image.public.sjc1.vexxhost.net/"}
-OPENSHIFT_VERSION="4.5.21"
 
 if ! sudo yum repolist | grep -q epel ; then
     sudo yum install -y epel-release

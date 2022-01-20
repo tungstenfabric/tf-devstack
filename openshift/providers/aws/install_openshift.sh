@@ -19,11 +19,7 @@ export AWS_REGION=${AWS_REGION:-"us-east-2"}
 GOLANG_URL="https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz"
 GOLANG="go1.14.2.linux-amd64.tar.gz"
 
-# Download `kubectl`, `oc` and `openshift-install` to the current directory
-download_artefacts
-
 # Create openshift install config and manifests
-[[ ! -d ${INSTALL_DIR} ]] && mkdir -p ${INSTALL_DIR}
 [[ ! -d ${HOME}/.aws ]] && mkdir -p ${HOME}/.aws
 
 jinja="$my_dir/../../../common/jinja2_render.py"
