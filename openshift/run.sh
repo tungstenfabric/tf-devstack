@@ -266,6 +266,7 @@ function collect_deployment_env() {
     export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: agent_nodes: $AGENT_NODES"
 
+    DEPLOYMENT_ENV['CONTROL_NODES']="$CONTROLLER_NODES"
     DEPLOYMENT_ENV['SSH_USER']="core"
     DEPLOYMENT_ENV['DOMAINSUFFIX']="${KUBERNETES_CLUSTER_NAME}.${KUBERNETES_CLUSTER_DOMAIN}"
     # always ssl enabled
