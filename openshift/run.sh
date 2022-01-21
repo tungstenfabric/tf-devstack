@@ -261,7 +261,7 @@ function collect_deployment_env() {
         return 0
     fi
 
-    export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master /{print $6}' | tr '\n' ' '`"
+    export CONTROLLER_NODES="`oc get nodes -o wide | awk '/ master |master,worker/{print $6}' | tr '\n' ' '`"
     echo "INFO: controller_nodes: $CONTROLLER_NODES"
     export AGENT_NODES="`oc get nodes -o wide | awk '/ worker /{print $6}' | tr '\n' ' '`"
     echo "INFO: agent_nodes: $AGENT_NODES"
