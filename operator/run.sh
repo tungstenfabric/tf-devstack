@@ -34,6 +34,7 @@ export WAIT_TIMEOUT=1200
 
 TF_POD_SUBNET=${TF_POD_SUBNET:-"10.32.0.0/12"}
 TF_SERVICE_SUBNET=${TF_SERVICE_SUBNET:-"10.96.0.0/12"}
+K8S_CA=${K8S_CA:-}
 
 # stages
 
@@ -63,6 +64,11 @@ function k8s() {
     export K8S_POD_SUBNET=$TF_POD_SUBNET
     export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
     export K8S_CLUSTER_NAME=k8s
+    if [[ -n "$K8S_CA" ]]; then
+        rm -rf $WORKSPACE/ssl
+        ${K8S_CA}_gen_keys
+        transfer_ca
+    fi
     $my_dir/../common/deploy_kubespray.sh
 }
 
