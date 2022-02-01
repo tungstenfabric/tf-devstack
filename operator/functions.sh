@@ -42,3 +42,39 @@ EOF
         popd
     done
 }
+
+function openssl_gen_keys() {
+    local work_dir=${WORKSPACE}
+    mkdir -p $work_dir/ssl
+    CA_ROOT_CERT="${work_dir}/ssl/ca.crt" CA_ROOT_KEY="${work_dir}/ssl/ca.key" ${my_dir}/../contrib/create_ca_certs.sh
+    cp ${work_dir}/ssl/ca.crt ${work_dir}/ssl/front-proxy-ca.crt
+    cp ${work_dir}/ssl/ca.key ${work_dir}/ssl/front-proxy-ca.key
+    mkdir -p ${work_dir}/ssl/etcd/
+    cp ${work_dir}/ssl/ca.* ${work_dir}/ssl/etcd/
+}
+
+function transfer_ca() {
+    local work_dir=${WORKSPACE}
+    local controller_nodes=${CONTROLLER_NODES}
+    local tmp_ca_dir="/tmp/ca_certs_k8s"
+    local k8s_ca_dir="/etc/kubernetes/ssl"
+    local etcd_ca_dir="/etc/ssl/etcd/ssl"
+    local machine
+    for machine in $(echo $controller_nodes | tr " " "\n" | sort -u) ; do
+        local addr="$machine"
+        echo "INFO: copy CA to node $addr"
+        [ -z "$SSH_USER" ] || addr="$SSH_USER@$addr"
+        scp $SSH_OPTIONS -rp ${work_dir}/ssl ${addr}:${tmp_ca_dir}
+        cat << EOF | ssh $SSH_OPTIONS $addr
+export DEBUG=$DEBUG
+sudo mkdir -p ${k8s_ca_dir}
+sudo cp -r ${tmp_ca_dir}/* ${k8s_ca_dir}/
+sudo chmod -R a=wrX  ${k8s_ca_dir}
+sudo mkdir -p ${etcd_ca_dir}
+sudo cp ${tmp_ca_dir}/ca.key ${etcd_ca_dir}/ca-key.pem
+sudo cp ${tmp_ca_dir}/ca.crt ${etcd_ca_dir}/ca.pem
+sudo chmod -R a=wrX  ${etcd_ca_dir}
+rm -rf ${tmp_ca_dir}
+EOF
+    done
+}
