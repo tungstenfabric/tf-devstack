@@ -31,5 +31,5 @@ LIBVIRT_DIR="/var/lib/libvirt/images"
 LB_IMG_URL="https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2"
 LB_IMAGE="CentOS-7-x86_64-GenericCloud.qcow2"
 
-HUGEPAGES_ENABLED=${HUGEPAGES_ENABLED:-"true"}
+HUGEPAGES_ENABLED=${HUGEPAGES_ENABLED:-"false"}
 BOOTSTRAP_DEFAULT_ADDRESS="192.168.123.102"
