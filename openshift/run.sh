@@ -282,4 +282,14 @@ function collect_logs() {
   collect_logs_from_machines
 }
 
+echo "INFO: install openshift"
+echo "        PROVIDER=$PROVIDER"
+echo "        OPENSHIFT_AI_INSTALLER=$OPENSHIFT_AI_INSTALLER"
+echo "        KUBERNETES_CLUSTER_DOMAIN=$KUBERNETES_CLUSTER_DOMAIN"
+echo "        OPERATOR_REPO=$OPERATOR_REPO"
+echo "        OPENSHIFT_REPO=$OPENSHIFT_REPO"
+echo "        WORKSPACE=$WORKSPACE"
+echo "        INSTALL_DIR=$INSTALL_DIR"
+echo "        KUBECONFIG=$KUBECONFIG"
+
 run_stages $STAGE
