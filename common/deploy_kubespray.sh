@@ -38,8 +38,7 @@ K8S_VERSION=${K8S_VERSION:-"v1.21.1"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
 K8S_DOMAIN=${K8S_DOMAIN:-''}
 
-# 'docker' is a default engine. 'containerd' is supported (with runc by default)
-CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-''}
+# 'docker' is a default engine for CONTAINER_RUNTIME. 'containerd' is supported (with runc by default)
 CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO=${IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
