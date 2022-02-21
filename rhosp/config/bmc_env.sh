@@ -1,17 +1,24 @@
 #!/bin/bash
 
+# DEPLOY_POSTFIX is used for environment isolation:
+# It changes provider network
+
+export DEPLOY_POSTFIX=${DEPLOY_POSTFIX:-24}
+export DEPLOY_POSTFIX_INC=$((DEPLOY_POSTFIX+1))
+
+
 export overcloud_virt_type="kvm"
 export domain="lab1.local"
 export undercloud_instance="undercloud"
-export prov_inspection_iprange="192.168.24.51,192.168.24.91"
-export prov_dhcp_start="192.168.24.100"
-export prov_dhcp_end="192.168.24.200"
-export prov_ip="192.168.24.1"
-export prov_subnet="192.168.24"
+export prov_inspection_iprange="192.168.${DEPLOY_POSTFIX}.51,192.168.${DEPLOY_POSTFIX}.91"
+export prov_dhcp_start="192.168.${DEPLOY_POSTFIX}.100"
+export prov_dhcp_end="192.168.${DEPLOY_POSTFIX}.200"
+export prov_ip="192.168.${DEPLOY_POSTFIX}.1"
+export prov_subnet="192.168.${DEPLOY_POSTFIX}"
 export prov_subnet_len="24"
-export prov_cidr="192.168.24.0/${prov_subnet_len}"
+export prov_cidr="192.168.${DEPLOY_POSTFIX}.0/${prov_subnet_len}"
 export prov_ip_cidr="${prov_ip}/${prov_subnet_len}"
-export fixed_vip="192.168.24.250"
+export fixed_vip="192.168.${DEPLOY_POSTFIX}.250"
 
 #RHOSP16 additional parameters for undercloud.conf
 export undercloud_admin_host="${prov_subnet}.3"
@@ -36,7 +43,7 @@ export overcloud_ctrlcont_instance="1,2,3"
 export overcloud_compute_instance="1"
 export overcloud_dpdk_instance="1"
 export overcloud_sriov_instance="1"
-export overcloud_ceph_instance="1,2,3"
+#export overcloud_ceph_instance="1,2,3"
 
 # to allow nova to use hp as well (2 are used by vrouter)
 export vrouter_huge_pages_1g='32'
@@ -49,4 +56,4 @@ export sriov_vf_number="4"
 # IPA params
 export ipa_instance="ipa"
 #export ipa_mgmt_ip="$ipa_mgmt_ip" - defined outside
-export ipa_prov_ip="192.168.24.5"
+export ipa_prov_ip="192.168.${DEPLOY_POSTFIX}.5"
