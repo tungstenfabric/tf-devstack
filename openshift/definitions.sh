@@ -18,6 +18,8 @@ export KUBERNETES_CLUSTER_DOMAIN=${KUBERNETES_CLUSTER_DOMAIN:-"example.com"}
 export KEEP_SOURCES=${KEEP_SOURCES:-false}
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 export OPENSHIFT_REPO=${OPENSHIFT_REPO:-$WORKSPACE/tf-openshift}
+export INSTALL_DIR=${INSTALL_DIR:-"${WORKSPACE}/install-${KUBERNETES_CLUSTER_NAME}"}
+export DOWNLOADS_DIR=${DOWNLOADS_DIR:-"${WORKSPACE}/downloads-${KUBERNETES_CLUSTER_NAME}"}
 export KUBECONFIG=${KUBECONFIG:-"${INSTALL_DIR}/auth/kubeconfig"}
 
 # user for coreos is always 'core'
@@ -32,9 +34,6 @@ OCP_BASE_URL="https://mirror.openshift.com/pub/openshift-v4"
 
 RHCOS_MIRROR="$OCP_BASE_URL/dependencies/rhcos"
 OCP_MIRROR="$OCP_BASE_URL/clients/ocp"
-
-INSTALL_DIR=${INSTALL_DIR:-"${WORKSPACE}/install-${KUBERNETES_CLUSTER_NAME}"}
-DOWNLOADS_DIR=${DOWNLOADS_DIR:-"${WORKSPACE}/downloads-${KUBERNETES_CLUSTER_NAME}"}
 
 CLIENT="openshift-client-linux-${OCP_VERSION}.tar.gz"
 CLIENT_URL="${OCP_MIRROR}/${OCP_VERSION}/${CLIENT}"
