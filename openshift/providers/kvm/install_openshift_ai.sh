@@ -61,6 +61,7 @@ for i in  $(seq 1 $clusters_len); do
   fi
 done
 
+echo "INFO: cluster id $cluster_id"
 if [ -z "$cluster_id" ] ; then 
   echo "INFO: Create new cluster $KUBERNETES_CLUSTER_NAME"
   cluster_id=$(ai_post_cluster)
@@ -72,15 +73,18 @@ if [[ -z ${cluster_id} ]]; then
 fi
 
 # Upload tf-openshift manifests to assisted installer
+echo "INFO: post manifests"
 ai_post_manifests $cluster_id
 
 # Update Install Config for Contrail SDN
+echo "INFO: update config to set TF SDN"
 ai_update_install_config $cluster_id
 
 # V2: create infra-env for cluster
 infra_id=$(ai_create_infra_env $cluster_id)
 
 # Generate and download ISO from assisted installer
+echo "INFO: download iso for infra env id $infra_id"
 ai_download_iso $infra_id ${LIBVIRT_DIR}/ai_install_ocp_image.iso
 
 machine_names=""
