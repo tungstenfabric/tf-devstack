@@ -21,7 +21,12 @@ APT_MIRROR=${APT_MIRROR:-''}
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
 sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq dnsutils -y
-sudo snap install --classic juju --channel=2.8
+
+#sudo snap install --classic juju
+curl -sSLO https://launchpad.net/juju/2.9/2.9.22/+download/juju-2.9.22-linux-amd64.tar.xz
+tar xf juju-2.9.22-linux-amd64.tar.xz 
+sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
+hash -r
 
 # configure ssh to not check host keys and avoid garbadge in known hosts files
 cat <<EOF > $HOME/.ssh/config
