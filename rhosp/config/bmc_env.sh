@@ -38,12 +38,12 @@ export external_net_mask="${external_net_mask:-255.255.255.0}"
 export tenant_ip_net="10.${DEPLOY_POSTFIX}.0.0/24"
 
 # TODO: rework after AGENT_NODES, CONTROLLER_NODES be used as an input for rhosp
-export overcloud_cont_instance="${overcloud_cont_instance:-1,2,3}"
-export overcloud_ctrlcont_instance="${overcloud_ctrlcont_instance:-1,2,3}"
-export overcloud_compute_instance="${overcloud_compute_instance:-1}"
-export overcloud_dpdk_instance="${overcloud_dpdk_instance}"
-export overcloud_sriov_instance="${overcloud_sriov_instance}"
-export overcloud_ceph_instance="${overcloud_ceph_instance:-1,2,3}"
+export overcloud_cont_instance="${overcloud_cont_instance-1,2,3}"
+export overcloud_ctrlcont_instance="${overcloud_ctrlcont_instance-1,2,3}"
+export overcloud_compute_instance="${overcloud_compute_instance-1}"
+export overcloud_dpdk_instance="${overcloud_dpdk_instance-1}"
+export overcloud_sriov_instance="${overcloud_sriov_instance-1}"
+export overcloud_ceph_instance="${overcloud_ceph_instance-1,2,3}"
 
 # to allow nova to use hp as well (2 are used by vrouter)
 export vrouter_huge_pages_1g="32"
