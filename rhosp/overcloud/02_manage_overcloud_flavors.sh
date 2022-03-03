@@ -11,7 +11,7 @@ source $my_dir/../../common/common.sh
 # re-define flavors
 for id in `openstack flavor list -f value -c ID` ; do openstack flavor delete $id ; done
 
-openstack flavor create --id auto --ram 1000 --disk 29 --vcpus 2 baremetal
+openstack flavor create --id auto --ram 1000 --disk 10 --vcpus 1 baremetal
 openstack flavor set --property "cpu_arch"="x86_64" \
                      --property "capabilities:boot_option"="local" \
                      --property "resources:CUSTOM_BAREMETAL=1" \
