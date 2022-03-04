@@ -28,7 +28,7 @@ if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
   add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
   add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
   # tenant network has no vlan for now, so route is enough
-  tenant_ip_route="$tenant_ip_net via $prov_ip dev br-ctlplane"
+  tenant_ip_route="$tenant_cidr via $prov_ip dev br-ctlplane"
   sudo ip route add $tenant_ip_route || true
   # save this route persistent
   brctl_cfg_file="/etc/sysconfig/network-scripts/route-br-ctlplane"

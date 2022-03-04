@@ -209,3 +209,44 @@ parameter_defaults:
   ManilaCephFSDataPoolPGNum: 8
   ManilaCephFSMetadataPoolPGNum: 8
 {%- endif %}
+
+{%- if internal_vlan is defined %}
+  InternalApiNetworkVlanID: {{ internal_vlan }}
+{%- endif %}
+{%- if external_vlan is defined %}
+  ExternalNetworkVlanID: {{ external_vlan }}
+{%- endif %}
+{%- if storage_vlan is defined %}
+  StorageNetworkVlanID: {{ storage_vlan }}
+{%- endif %}
+{%- if storage_mgmt_vlan is defined %}
+  StorageMgmtNetworkVlanID: {{ storage_mgmt_vlan }}
+{%- endif %}
+
+{%- if internal_cidr is defined %}
+  InternalApiNetCidr: {{ internal_cidr }}
+  InternalApiAllocationPools: {{ internal_allocation_pool }}
+  InternalApiDefaultRoute: {{ internal_default_route }}
+{%- endif %}
+
+{%- if external_cidr is defined %}
+  ExternalNetCidr: {{ external_cidr }}
+  ExternalAllocationPools: {{ external_allocation_pool }}
+  ExternalInterfaceDefaultRoute: {{ external_default_route }}
+{%- endif %}
+
+{%- if storage_cidr is defined %}
+  StorageNetCidr: {{ storage_cidr }}
+  StorageAllocationPools: {{ storage_allocation_pool }}
+{%- endif %}
+
+{%- if storage_mgmt_cidr is defined %}
+  StorageMgmtNetCidr: {{ storage_mgmt_cidr }}
+  StorageMgmtAllocationPools: {{ storage_mgmt_allocation_pool }}
+{%- endif %}
+
+{%- if tenant_cidr is defined %}
+  TenantNetCidr: {{ tenant_cidr }}
+  TenantAllocationPools: {{ tenant_allocation_pool }}
+{%- endif %}
+
