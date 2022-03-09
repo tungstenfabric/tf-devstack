@@ -20,6 +20,11 @@ else
   export ipa_otp_option=""
 fi
 
+export ceph_option=""
+if [[ -n "$overcloud_ceph_instance" ]]; then
+    export ceph_option="clean_nodes=true"
+fi
+
 if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   # WA for TLS
   #   To avoid error:
