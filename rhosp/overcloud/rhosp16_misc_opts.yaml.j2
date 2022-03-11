@@ -208,6 +208,12 @@ parameter_defaults:
   CephPoolDefaultPgNum: 8
   ManilaCephFSDataPoolPGNum: 8
   ManilaCephFSMetadataPoolPGNum: 8
+  CephAnsibleDisksConfig:
+    devices:
+      - /dev/vdb
+      - /dev/vdc
+      - /dev/vdd
+      - /dev/vde
 {%- endif %}
 
 {%- if internal_vlan is defined %}

@@ -15,7 +15,7 @@ fi
 
 # cleanup old nodes
 for i in $(openstack baremetal node list -f value -c UUID) ; do
-   openstack baremetal node delete $i || true
+    openstack baremetal node delete $i || true
 done
 
 # import overcloud configuration
@@ -23,7 +23,7 @@ openstack overcloud node import ~/instackenv.json
 
 # cleanup metadata only on Ceph nodes
 for n in $(openstack baremetal node list -c Name -f value | grep ^ceph) ; do
-   openstack baremetal node clean $n --clean-steps '[{"interface": "deploy", "step": "erase_devices_metadata"}]' --wait &
+    openstack baremetal node clean $n --clean-steps '[{"interface": "deploy", "step": "erase_devices_metadata"}]' --wait &
 done
 wait
 
@@ -33,10 +33,18 @@ openstack overcloud node introspect --all-manageable --provide
 # TODO check every node
 # Wait until nodes become manageable
 for i in {1..3} ; do
-   if ! openstack baremetal node list 2>&1 | grep -q 'manageable' ; then
+    if ! openstack baremetal node list 2>&1 | grep -q 'manageable' ; then
       break
-   fi
-   sleep 5
+    fi
+    sleep 5
 done
 
 openstack baremetal node list
+
+#Setting root disks for ceph storage nodes
+for uuid in $(openstack baremetal node list -c Name -c UUID | grep cephstorage  | awk '{print $2}'); do
+    echo "INFO: setting device /dev/vda as root_device for ceph-storage node $uuid"
+    openstack baremetal node set --property root_device='{"name": "/dev/vda"}' $uuid
+done
+
+
