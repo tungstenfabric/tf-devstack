@@ -86,10 +86,6 @@ sudo python3 -m pip install --upgrade pip==21.1.3
 
 set_ssh_keys
 
-# setup timeserver
-
-setup_timeserver
-
 # deploy kubespray
 
 [ ! -d kubespray ] && git clone --depth 1 --single-branch --branch=${KUBESPRAY_TAG} https://github.com/kubernetes-sigs/kubespray.git

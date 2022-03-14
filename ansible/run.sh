@@ -52,6 +52,10 @@ function machines() {
     # install required packages
 
     echo "$DISTRO detected"
+    if [[ "$DISTRO" == "rhel" && "$DISTRO_VERSION_ID" =~ ^8\. ]]; then
+        sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+    fi
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
         # remove packages that may cause conflicts,
         # all requried ones be re-installed
@@ -69,9 +73,6 @@ function machines() {
         exit 1
     fi
 
-    # setup timeserver
-    setup_timeserver
-
     # pip3 is installed at /usr/local/bin which is not in sudoers secure_path by default
     # use it as "python3 -m pip" with sudo
     curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/pip/3.6/get-pip.py | sudo python3
@@ -82,10 +83,17 @@ function machines() {
     # and reinstall them via deps of docker-compose
     sudo python2 -m pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
 
+    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]] && [[ "$DISTRO_VERSION_ID" =~ ^8\. ]]; then
+        py2ansible=''
+        py3ansible='ansible==2.7.11'
+    else
+        py2ansible='ansible==2.7.11'
+        py3ansible=''
+    fi
     # docker-compose MUST be first here, because it will install the right version of PyYAML
-    sudo python2 -m pip install 'docker-compose==1.24.1' 'ansible==2.7.11'
+    sudo python2 -m pip install 'docker-compose==1.24.1' $py2ansible
     # jinja is reqiured to create some configs
-    sudo python3 -m pip install jinja2 pyyaml
+    sudo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python3 -m pip install jinja2 pyyaml $py3ansible
 
     set_ssh_keys
 
@@ -104,7 +112,7 @@ function machines() {
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
     rm -rf /tmp/rekjreekrbjrekj.txt
 
-    sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+    sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/configure_instances.yml
     if [[ $? != 0 ]] ; then
@@ -117,7 +125,7 @@ function k8s() {
     if [[ "$ORCHESTRATOR" != "kubernetes" ]]; then
         echo "INFO: Skipping k8s deployment"
     else
-        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$tf_deployer_dir/instances.yaml \
             $tf_deployer_dir/playbooks/install_k8s.yml
     fi
@@ -127,7 +135,7 @@ function openstack() {
     if [[ "$ORCHESTRATOR" != "openstack" ]]; then
         echo "INFO: Skipping openstack deployment"
     else
-        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
             -e config_file=$tf_deployer_dir/instances.yaml \
             $tf_deployer_dir/playbooks/install_openstack.yml
     fi
@@ -151,19 +159,19 @@ function tf() {
         # generate new inventory file due to possible new input
         python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
 
-        sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+        sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/configure_instances.yml
 
         if [[ "$ORCHESTRATOR" == "openstack" ]]; then
-            sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+            sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
                 -e config_file=$tf_deployer_dir/instances.yaml \
                 $tf_deployer_dir/playbooks/install_openstack.yml \
                 --tags "nova,neutron,heat"
         fi
     fi
 
-    sudo -E ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+    sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
 
