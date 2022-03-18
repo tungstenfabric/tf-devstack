@@ -43,24 +43,25 @@ EOF
     done
 }
 
-function openssl_gen_keys() {
+function openssl_enroll() {
+    echo "INFO: enroll for external self-signed certs"
     local work_dir=${WORKSPACE}
+    rm -rf $work_dir/ssl
     mkdir -p $work_dir/ssl
-    CA_ROOT_CERT="${work_dir}/ssl/ca.crt" CA_ROOT_KEY="${work_dir}/ssl/ca.key" ${my_dir}/../contrib/create_ca_certs.sh
+    CA_ROOT_CERT="${work_dir}/ssl/ca.crt" \
+        CA_ROOT_KEY="${work_dir}/ssl/ca.key" \
+        ${my_dir}/../contrib/create_ca_certs.sh
     cp ${work_dir}/ssl/ca.crt ${work_dir}/ssl/front-proxy-ca.crt
     cp ${work_dir}/ssl/ca.key ${work_dir}/ssl/front-proxy-ca.key
     mkdir -p ${work_dir}/ssl/etcd/
     cp ${work_dir}/ssl/ca.* ${work_dir}/ssl/etcd/
-}
 
-function transfer_ca() {
-    local work_dir=${WORKSPACE}
-    local controller_nodes=${CONTROLLER_NODES}
+    local nodes="$CONTROLLER_NODES $AGENT_NODES"
     local tmp_ca_dir="/tmp/ca_certs_k8s"
     local k8s_ca_dir="/etc/kubernetes/ssl"
     local etcd_ca_dir="/etc/ssl/etcd/ssl"
     local machine
-    for machine in $(echo $controller_nodes | tr " " "\n" | sort -u) ; do
+    for machine in $(echo $nodes | tr " " "\n" | sort -u) ; do
         local addr="$machine"
         echo "INFO: copy CA to node $addr"
         [ -z "$SSH_USER" ] || addr="$SSH_USER@$addr"
@@ -76,5 +77,18 @@ sudo cp ${tmp_ca_dir}/ca.crt ${etcd_ca_dir}/ca.pem
 sudo chmod -R a=wrX  ${etcd_ca_dir}
 rm -rf ${tmp_ca_dir}
 EOF
+    done
+}
+
+function ipa_enroll() {
+    local nodes="$CONTROLLER_NODES $AGENT_NODES"
+    local work_dir=${WORKSPACE}
+    local machine
+    for machine in $(echo "$nodes" | tr " " "\n" | sort -u) ; do
+        local addr="$machine"
+        echo "INFO: copy enroll.sh to node $machine"
+        scp "$SSH_OPTIONS" -rp "${work_dir}"/tf-devstack/contrib/ipa/enroll.sh "${machine}":/tmp
+        echo "INFO: enroll node $machine to IPA"
+        ssh "$SSH_OPTIONS" "$machine" /tmp/enroll.sh "$IPA_IP" "$IPA_ADMIN" "$IPA_PASSWORD" "$machine"
     done
 }
