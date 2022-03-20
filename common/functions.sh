@@ -268,35 +268,6 @@ function check_tf_active() {
   return 0
 }
 
-#TODO time sync restart needed when startup from snapshot
-function setup_timeserver() {
-  # install timeserver
-  if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-    if [[ ! "$DISTRO_VERSION_ID" =~ ^8\. ]] ; then
-      sudo yum install -y ntp
-      sudo systemctl enable ntpd
-      sudo systemctl start ntpd
-    else
-      #rhel8.x
-      sudo yum install -y chrony
-    fi
-  elif [ "$DISTRO" == "ubuntu" ]; then
-    DEBIAN_FRONTEND=noninteractive
-    # Check for Ubuntu 18
-    sudo apt update -y
-
-    local ubuntu_release=`lsb_release -r | awk '{split($2,a,"."); print a[1]}'`
-    if [ 16 -eq $ubuntu_release ]; then
-      sudo apt install -y ntp
-    else # Ubuntu 18 or more
-      sudo apt install -y chrony
-    fi
-  else
-    echo "Unsupported OS version"
-    return 1
-  fi
-}
-
 function retry() {
   local i
   for ((i=0; i<10; ++i)) ; do
