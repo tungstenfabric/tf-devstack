@@ -415,6 +415,7 @@ function wait_ssh() {
   if ! echo "$addr" | grep -q '@' ; then
     addr="root@${addr}"
   fi
+  [[ "$addr" =~ '@' ]] || addr="root@$addr"
   truncate -s 0 ./tmp_file
   while ! scp $ssh_key_opt $SSH_OPTS -B ./tmp_file ${addr}:/tmp/tmp_file ; do
     if (( iter >= max_iter )) ; then
