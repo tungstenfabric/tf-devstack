@@ -66,6 +66,7 @@ else
     roles+=" ComputeL3mh"
   fi
 fi
+
 [[ -z "$overcloud_dpdk_instance" ]] || roles+=" ContrailDpdk"
 [[ -z "$overcloud_sriov_instance" ]] || roles+=" ContrailSriov"
 
