@@ -136,6 +136,14 @@ parameter_defaults:
   ContrailDpdkHugepages2MB: '2048'
   ContrailDpdkDriver: 'vfio-pci'
 
+{%- if sriov_physical_interface is defined and sriov_vf_number is defined %}
+  ContrailSriovNumVFs: ["{{ sriov_physical_interface }}:{{ sriov_vf_number }}"]
+  NovaPCIPassthrough:
+    - devname: "{{ sriov_physical_interface }}"
+{%- endif %}
+{%- if sriov_physical_network is defined %}
+      physical_network: "{{ sriov_physical_network }}"
+{%- endif %}
   ContrailSriovHugepages1GB: 8
 
   ContrailVrouterHugepages1GB: '{{ hp1gb }}'

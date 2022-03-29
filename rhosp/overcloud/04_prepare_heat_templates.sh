@@ -66,11 +66,6 @@ popd
 
 cp -r contrail-tripleo-heat-templates/* tripleo-heat-templates
 
-#SRIOV parameters tuning
-contrailsriovnumvfs="${sriov_physical_interface}:${sriov_vf_number}"
-sed -i "s/ContrailSriovNumVFs:.*/ContrailSriovNumVFs: [\"$contrailsriovnumvfs\"]/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
-sed -i "s/devname: .*/devname: \"${sriov_physical_interface}\"/" tripleo-heat-templates/environments/contrail/contrail-services.yaml
-
 #Creating rhosp specific contrail-parameters.yaml
 $my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_MAJOR_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
 if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
