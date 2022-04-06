@@ -31,7 +31,9 @@ function set_env_var() {
 
 KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.16"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
-K8S_NODES=${K8S_NODES:-$NODE_IP}
+K8S_NODES=${K8S_NODES-$NODE_IP}
+# host_resolvconf or none
+K8S_RESOLV_CONFG_MODE=${K8S_RESOLV_CONFG_MODE:-'host_resolvconf'}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
 K8S_VERSION=${K8S_VERSION:-"v1.21.1"}
@@ -57,7 +59,7 @@ fi
 # install required packages
 
 if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
-    sudo yum install -y python3 python3-pip libyaml-devel python3-devel git
+    sudo yum install -y python3 python3-pip libyaml-devel python3-devel git network-scripts
 elif [ "$DISTRO" == "ubuntu" ]; then
     # Ensure updates repo is available
     if [[ "$IGNORE_APT_UPDATES_REPO" != "false" ]] && ! apt-cache policy | grep http | awk '{print $2 $3}' | sort -u | grep -q updates; then
@@ -102,13 +104,13 @@ if [ ! -e $cluster_vars ]; then
   # releases < 2.16 has different naming
   cluster_vars="inventory/mycluster/group_vars/k8s-cluster/k8s-cluster.yml"
 fi
-declare -a IPS=( $K8S_MASTERS $K8S_NODES )
-masters=( $K8S_MASTERS )
+declare -a IPS=( $(echo $K8S_MASTERS $K8S_NODES | sort -u) )
+declare -a masters=( $(echo $K8S_MASTERS | sort -u ) )
 
 # Copy devstack-directory to another nodes
 ssh_opts="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 devstack_dir="$(basename $(dirname $my_dir))"
-for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u); do
+for machine in $(echo "$CONTROLLER_NODES $AGENT_NODES" | tr " " "\n" | sort -u) ; do
   if ! ip a | grep -q "$machine"; then
     echo "INFO: Copy devstack from master to $machine"
     scp -r $ssh_opts $(dirname $my_dir) $machine:/tmp/
@@ -126,9 +128,8 @@ if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "tru
   echo "INFO: lookup node hostnames and ips"
   node_count=0
   declare -a hnames
+  declare -A IPS_WITH_HOSTNAMES
   for ip in $(echo ${IPS[@]} | tr ' ' '\n' | awk '!x[$0]++'); do
-    declare -A IPS_WITH_HOSTNAMES
-    hostname=$(ssh $ssh_opts $ip hostname -f)
     ip_=$ip
     if [ -n "$MANAGEMENT_NETWORK" ] ; then
       ip_=$(ssh $ssh_opts $ip /sbin/ip route get $MANAGEMENT_NETWORK | grep -o "src .*" | cut -d ' ' -f 2)
@@ -137,6 +138,8 @@ if ! [ -e inventory/mycluster/hosts.yml ] && [[ "$LOOKUP_NODE_HOSTNAMES" == "tru
         exit 1
       fi
     fi
+    hostname=$(getent hosts $ip_ | awk '{print($2)}')
+    [ -n "$hostname" ] || hostname=$(ssh $ssh_opts $ip hostname -f)
     IPS_WITH_HOSTNAMES[$hostname]=$ip_
     hnames=( ${hnames[@]} $hostname )
     ((node_count+=1))
@@ -167,8 +170,9 @@ if [[ "${ORCHESTRATOR}" == "helm" ]]; then
 fi
 
 # DNS
+
 # Allow host and hostnet pods to resolve cluster domains
-set_env_var 'resolvconf_mode' 'host_resolvconf' $cluster_vars
+set_env_var 'resolvconf_mode' "$K8S_RESOLV_CONFG_MODE" $cluster_vars
 set_env_var 'enable_nodelocaldns' 'false' $cluster_vars
 
 # Grab first nameserver from /etc/resolv.conf that is not coredns
@@ -239,9 +243,12 @@ if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]]; then
 fi
 
 extra_vars=""
-[[ -n $K8S_POD_SUBNET ]] && extra_vars="-e kube_pods_subnet=$K8S_POD_SUBNET"
-[[ -n $K8S_SERVICE_SUBNET ]] && extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
-[[ -n $K8S_VERSION ]] && extra_vars="$extra_vars -e kube_version=$K8S_VERSION"
+[[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] || extra_vars="$extra_vars -e rhel_enable_repos=False"
+[[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
+[[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
+[[ -z $K8S_POD_SUBNET ]] || extra_vars="$extra_vars -e kube_pods_subnet=$K8S_POD_SUBNET"
+[[ -z $K8S_SERVICE_SUBNET ]] || extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
+[[ -z $K8S_VERSION ]] || extra_vars="$extra_vars -e kube_version=$K8S_VERSION"
 ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars "$@"
 
 mkdir -p ~/.kube
