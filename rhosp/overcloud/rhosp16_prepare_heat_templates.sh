@@ -23,4 +23,4 @@ if [[ -n "$overcloud_sriov_instance" ]]; then
 fi
 
 #Removing tenant network from controller role (ansible checks connectivity for all enabled network in rhosp16.2)
-sed -i '/Tenant:$/,+2d' tripleo-heat-templates/roles/Controller.yaml
+sed -i '/Tenant:$/,+1d' tripleo-heat-templates/roles/Controller.yaml
