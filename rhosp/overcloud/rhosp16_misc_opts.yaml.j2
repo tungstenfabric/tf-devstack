@@ -58,6 +58,17 @@ resource_registry:
 {%- endif %}
 
 parameter_defaults:
+  ExtraConfig:
+    nova::debug: true
+    glance::registry::debug: true
+    glance::api::debug: true
+    neutron::debug: true
+    keystone::debug: true
+    cinder::debug: true
+    tripleo::profile::base::sshd::options:
+      PasswordAuthentication: 'yes'
+      PermitRootLogin: 'yes'
+      UseDNS: 'no'
   GlanceBackend: '{{ glance_backend_storage }}'
   EnableGalera: '{{ enable_galera }}'
   RabbitUserName: 'contrail'
@@ -89,6 +100,13 @@ parameter_defaults:
   ControlPlaneDefaultRoute: '{{ prov_ip }}'
   ControlPlaneSubnetCidr: {{ prov_subnet_len }}
   ControlFixedIPs: [{'ip_address':'{{ fixed_vip }}'}]
+  # TODO
+  # InternalApiVirtualFixedIPs: [{'ip_address':'172.16.0.9'}]
+  # PublicVirtualFixedIPs: [{'ip_address':'10.1.1.9'}]
+  # StorageVirtualFixedIPs: [{'ip_address':'172.18.0.9'}]
+  # StorageMgmtVirtualFixedIPs: [{'ip_address':'172.19.0.9'}]
+  # RedisVirtualFixedIPs: [{'ip_address':'172.16.0.8'}]
+  #
   EC2MetadataIp: '{{ prov_ip }}'
   DnsServers: {{ overcloud_nameservers }}
   NtpServer: '{{ NTP_SERVERS }}'

@@ -53,6 +53,17 @@ resource_registry:
 {%- endif %}
 
 parameter_defaults:
+  ExtraConfig:
+    nova::debug: true
+    glance::registry::debug: true
+    glance::api::debug: true
+    neutron::debug: true
+    keystone::debug: true
+    cinder::debug: true
+    tripleo::profile::base::sshd::options:
+      PasswordAuthentication: 'yes'
+      PermitRootLogin: 'yes'
+      UseDNS: 'no'
   # disable ipv6 because it breaks getent hosts <fqdn> (it always returns ::1)
   KernelDisableIPv6: 1
   GlanceBackend: '{{ glance_backend_storage }}'
