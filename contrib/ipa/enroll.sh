@@ -26,25 +26,25 @@ sudo ipa-client-install --verbose -U --server "$IPA_FQDN" -p "$IPA_PRINCIPAL" -w
 
 sudo cp /etc/ipa/ca.crt $CA_DIR/ca-bundle.crt
 
-echo "$IPA_PASSWORD" | kinit "$IPA_PRINCIPAL"
+echo "$IPA_PASSWORD" | sudo kinit "$IPA_PRINCIPAL"
 
 sudo ipa dnszone-find "$PTR_ZONE" || sudo ipa dnszone-add "$PTR_ZONE"
-sudo ipa dnsrecord-find "$PTR_ZONE" --ptr-rec "$HOST_FQDN". || sudo ipa dnsrecord-add "$PTR_ZONE" "$(echo "$HOST_IP" | awk -F. '{print $3}')" --ptr-rec "$HOST_FQDN".
+sudo ipa dnsrecord-find "$PTR_ZONE" --ptr-rec "$HOST_FQDN". || sudo ipa dnsrecord-add "$PTR_ZONE" "$(echo "$HOST_IP" | awk -F. '{print $4}')" --ptr-rec "$HOST_FQDN".
 sudo ipa dnsrecord-find --name="$Hostname" "$IPA_DOMAIN" || sudo ipa dnsrecord-add --a-ip-address="$HOST_IP" "$IPA_DOMAIN" "$Hostname"
 
 HOST_PRINCIPAL=contrail/"$HOST_FQDN"@"${IPA_DOMAIN^^}"
 
 if ! ipa service-find "$HOST_PRINCIPAL" ; then
-    sudo ipa service-add "$HOST_PRINCIPAL"
-    sudo ipa service-add-host --hosts "$HOST_FQDN" "$HOST_PRINCIPAL"
+    sudo ipa service-add "$HOST_PRINCIPAL" || true
+    sudo ipa service-add-host --hosts "$HOST_FQDN" "$HOST_PRINCIPAL" || true
 fi
 if [ ! -e $CERTS_DIR/client-"$HOST_IP".crt ] ; then
-    sudo ipa-getcert request -f $CERTS_DIR/client-"$HOST_IP".crt -k $CERTS_DIR/client-key-"$HOST_IP".pem -D "$HOST_FQDN" -A "$HOST_IP" -K contrail/"$HOST_FQDN"@"${IPA_DOMAIN^^}"
+    sudo ipa-getcert request -f $CERTS_DIR/client-"$HOST_IP".crt -k $CERTS_DIR/client-key-"$HOST_IP".pem -D "$HOST_FQDN" -K contrail/"$HOST_FQDN"@"${IPA_DOMAIN^^}"
     while [ ! -e $CERTS_DIR/client-"$HOST_IP".crt ] ; do sleep 1; done
 fi
 
 if [ ! -e $CERTS_DIR/server-"$HOST_IP".crt ] ; then
-    sudo ipa-getcert request -f $CERTS_DIR/server-"$HOST_IP".crt -k $CERTS_DIR/server-key-"$HOST_IP".pem -D "$HOST_FQDN" -A "$HOST_IP" -K contrail/"$HOST_FQDN"@"${IPA_DOMAIN^^}"
+    sudo ipa-getcert request -f $CERTS_DIR/server-"$HOST_IP".crt -k $CERTS_DIR/server-key-"$HOST_IP".pem -D "$HOST_FQDN" -K contrail/"$HOST_FQDN"@"${IPA_DOMAIN^^}"
     while [ ! -e $CERTS_DIR/server-"$HOST_IP".crt ] ; do sleep 1; done
 fi
 
