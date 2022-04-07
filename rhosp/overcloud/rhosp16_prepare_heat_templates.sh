@@ -22,3 +22,5 @@ if [[ -n "$overcloud_sriov_instance" ]]; then
   sed -i "s/nic2/nic4/" tripleo-heat-templates/network/config/contrail/contrail-sriov-nic-config.yaml
 fi
 
+#Removing tenant network from controller role (ansible checks connectivity for all enabled network in rhosp16.2)
+sed -i '/Tenant:$/,+2d' tripleo-heat-templates/roles/Controller.yaml
