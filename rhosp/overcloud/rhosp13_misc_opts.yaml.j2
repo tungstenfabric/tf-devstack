@@ -188,3 +188,39 @@ parameter_defaults:
   ManilaCephFSDataPoolPGNum: 8
   ManilaCephFSMetadataPoolPGNum: 8
 {%- endif %}
+
+{%- if internal_vlan is defined %}
+  InternalApiNetworkVlanID: {{ internal_vlan }}
+{%- endif %}
+{%- if external_vlan is defined %}
+  ExternalNetworkVlanID: {{ external_vlan }}
+{%- endif %}
+{%- if storage_vlan is defined %}
+  StorageNetworkVlanID: {{ storage_vlan }}
+{%- endif %}
+{%- if storage_mgmt_vlan is defined %}
+  StorageMgmtNetworkVlanID: {{ storage_mgmt_vlan }}
+{%- endif %}
+
+{%- if internal_cidr is defined %}
+  InternalApiIpSubnet: {{ internal_cidr }}
+  InternalApiDefaultRoute: {{ internal_default_route }}
+{%- endif %}
+
+{%- if external_cidr is defined %}
+  ExternalIpSubnet: {{ external_cidr }}
+  ExternalInterfaceDefaultRoute: {{ external_default_route }}
+{%- endif %}
+
+{%- if storage_cidr is defined %}
+  StorageIpSubnet: {{ storage_cidr }}
+{%- endif %}
+
+{%- if storage_mgmt_cidr is defined %}
+  StorageMgmtIpSubnet: {{ storage_mgmt_cidr }}
+{%- endif %}
+
+{%- if tenant_cidr is defined %}
+  TenantIpSubnet: {{ tenant_cidr }}
+{%- endif %}
+
