@@ -164,7 +164,7 @@ parameter_defaults:
 
   ContrailDpdkDriver: 'vfio-pci'
   ContrailDpdkParameters:
-    KernelArgs: "intel_iommu=on iommu=pt default_hugepagesz=1GB hugepagesz=1G hugepages=32 hugepagesz=2M hugepages=1024"
+    KernelArgs: "intel_iommu=on iommu=pt default_hugepagesz=1GB hugepagesz=1G hugepages=32"
     ExtraSysctlSettings:
       vm.nr_hugepages:
         value: 32
@@ -172,7 +172,7 @@ parameter_defaults:
         value: 128960
 
   ContrailSriovParameters:
-    KernelArgs: "intel_iommu=on iommu=pt default_hugepagesz=1GB hugepagesz=1G hugepages=10 hugepagesz=2M hugepages=1024"
+    KernelArgs: "intel_iommu=on iommu=pt default_hugepagesz=1GB hugepagesz=1G hugepages=10"
     ExtraSysctlSettings:
       # must be equal to value from 1G kernel args: hugepages=4
       vm.nr_hugepages:
