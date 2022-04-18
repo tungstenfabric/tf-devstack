@@ -1,0 +1,8 @@
+171a172,178
+>                 #--BEGIN: Unofficial patch by Progmaticlab
+>                 # Ensure we have the proper nameserver in /etc/resolv.conf
+>                 dns_server=$(grep -rE '^DNS1=[0-9\.]*$' /etc/sysconfig/network-scripts/ifcfg* | cut -d '=' -f2 | head -n 1)
+>                 if [ -n "$dns_server" ] && ! grep $dns_server /etc/resolv.conf; then
+>                     echo "nameserver $dns_server" >> /etc/resolv.conf
+>                 fi
+>                 #--END: Unofficial patch by Progmaticlab
