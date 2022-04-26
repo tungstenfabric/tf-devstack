@@ -29,14 +29,14 @@ function set_env_var() {
 
 # parameters
 
-KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.16"}
+KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.18"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES-$NODE_IP}
 # host_resolvconf or none
 K8S_RESOLV_CONFG_MODE=${K8S_RESOLV_CONFG_MODE:-'host_resolvconf'}
 K8S_POD_SUBNET=${K8S_POD_SUBNET:-"10.32.0.0/12"}
 K8S_SERVICE_SUBNET=${K8S_SERVICE_SUBNET:-"10.96.0.0/12"}
-K8S_VERSION=${K8S_VERSION:-"v1.21.1"}
+K8S_VERSION=${K8S_VERSION:-"v1.22.8"}
 K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-''}
 K8S_DOMAIN=${K8S_DOMAIN:-''}
 
@@ -45,6 +45,14 @@ CNI=${CNI:-cni}
 IGNORE_APT_UPDATES_REPO=${IGNORE_APT_UPDATES_REPO:-false}
 LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
 CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
+
+# set locale to prevent errors from pip install and similar
+sudo localectl set-locale LANG=en-US.UTF-8
+. /etc/locale.conf
+export LC_ALL=en_US.UTF-8
+if ! grep -q "LANG" /etc/environment && ! grep -q "LC_ALL" /etc/environment ; then
+  sudo bash -c "echo -e 'LANG=en_US.utf-8\nLC_ALL=en_US.utf-8' >> /etc/environment"
+fi
 
 # Apply docker cli workaround
 k8s_major=$(echo $K8S_VERSION | cut -d '.' -f 2)
