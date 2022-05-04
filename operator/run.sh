@@ -40,8 +40,8 @@ export TF_SERVICE_SUBNET=${TF_SERVICE_SUBNET:-"10.96.0.0/12"}
 #   ipa     - IPA
 export K8S_CA=${K8S_CA:-}
 export IPA_IP=${IPA_IP:-}
-export IPA_ADMIN=${IPA_IP:-}
-export IPA_PASSWORD=${IPA_IP:-}
+export IPA_ADMIN=${IPA_ADMIN:-}
+export IPA_PASSWORD=${IPA_PASSWORD:-}
 
 # stages
 
@@ -64,6 +64,12 @@ function machines() {
         exit 1
     fi
     if [[ -n "$K8S_CA" ]]; then
+        if [[ "$K8S_CA" == "ipa" ]] && [[ "$DEPLOY_IPA_SERVER" == "true" ]]; then
+            ipa_node=$(echo "$IPA_NODES" | awk '{print $1}')
+            IPA_ADMIN=admin
+            export IPA_CERT=$(ipa_server_install $ipanode $IPA_PASSWORD)
+            IPA_IP=$ipanode
+        fi
         ${K8S_CA}_enroll
     fi
 }

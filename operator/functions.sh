@@ -87,8 +87,22 @@ function ipa_enroll() {
     for machine in $(echo "$nodes" | tr " " "\n" | sort -u) ; do
         local addr="$machine"
         echo "INFO: copy enroll.sh to node $machine"
-        scp "$SSH_OPTIONS" -rp "${work_dir}"/tf-devstack/contrib/ipa/enroll.sh "${machine}":/tmp
+        scp $SSH_OPTIONS -rp "${work_dir}"/tf-devstack/contrib/ipa/enroll.sh "${machine}":/tmp
         echo "INFO: enroll node $machine to IPA"
-        ssh "$SSH_OPTIONS" "$machine" /tmp/enroll.sh "$IPA_IP" "$IPA_ADMIN" "$IPA_PASSWORD" "$machine"
+        ssh $SSH_OPTIONS "$machine" /tmp/enroll.sh "$IPA_IP" "$IPA_ADMIN" "$IPA_PASSWORD" "$machine"
+        if [[ ! -z ${IPA_CERT+x} ]]; then
+            echo "$IPA_CERT" | ssh $SSH_OPTIONS "$machine" "cat > /etc/ipa/ca.crt"
+        fi
     done
+}
+
+function ipa_server_install {
+    machine=$1
+    local work_dir=${WORKSPACE}
+    local addr="$machine"
+    echo "INFO: copy server_install.sh to node $machine"
+    scp $SSH_OPTIONS -rp "${work_dir}"/tf-devstack/contrib/ipa/server_install.sh "${machine}":/tmp
+    echo "INFO: install IPA server at $machine"
+    ssh $SSH_OPTIONS "$machine" /tmp/server_install.sh "$IPA_PASSWORD"
+    ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt
 }
