@@ -81,6 +81,11 @@ function k8s() {
     export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
     export K8S_CLUSTER_NAME=k8s
 
+    if [[ "${CONTRAIL_CONTAINER_TAG,,}" =~ '[rR]2011' || "${CONTRAIL_CONTAINER_TAG,,}" =~ '[rR]21\.3' ]] ; then
+        export K8S_VERSION="v1.20"
+        echo "INFO: use k8s $K8S_VERSION for branches r2011/r21.3"
+    fi
+
     $my_dir/../common/deploy_kubespray.sh
 }
 
