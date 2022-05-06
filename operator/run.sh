@@ -27,6 +27,7 @@ export DEPLOYER='operator'
 export SSL_ENABLE="true"
 export OPERATOR_REPO=${OPERATOR_REPO:-$WORKSPACE/tf-operator}
 export DATA_NETWORK=${DATA_NETWORK}
+export DOMAIN=${DOMAIN:-'k8s'}
 # max wait in seconds after deployment
 export WAIT_TIMEOUT=1200
 
@@ -48,13 +49,17 @@ export IPA_PASSWORD=${IPA_PASSWORD:-}
 # deployment related environment set by any stage and put to tf_stack_profile at the end
 declare -A DEPLOYMENT_ENV
 
+
 function machines() {
     echo "$DISTRO detected"
-    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
+    if [[ "$DISTRO" == "centos" ]]; then
         if ! sudo yum repolist | grep -q epel ; then
             sudo yum -y install epel-release
         fi
         sudo yum install -y jq bind-utils git
+    elif [[ "$DISTRO" == "rhel" ]]; then
+        sudo yum install -y jq bind-utils git
+        rhel_setup_all_the_nodes
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
@@ -63,12 +68,14 @@ function machines() {
         echo "Unsupported OS version"
         exit 1
     fi
+    sync_time
     if [[ -n "$K8S_CA" ]]; then
+        #set_domain_on_machines $DOMAIN
         if [[ "$K8S_CA" == "ipa" ]] && [[ "$DEPLOY_IPA_SERVER" == "true" ]]; then
-            ipa_node=$(echo "$IPA_NODES" | awk '{print $1}')
+            ipa_node=$(echo "$IPA_NODES" | cut -d ',' -f1)
             IPA_ADMIN=admin
-            export IPA_CERT=$(ipa_server_install $ipanode $IPA_PASSWORD)
-            IPA_IP=$ipanode
+            IPA_IP=$ipa_node
+            ipa_server_install $ipa_node
         fi
         ${K8S_CA}_enroll
     fi
@@ -79,7 +86,8 @@ function k8s() {
     export K8S_MASTERS="$CONTROLLER_NODES"
     export K8S_POD_SUBNET=$TF_POD_SUBNET
     export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
-    export K8S_CLUSTER_NAME=k8s
+    export K8S_CLUSTER_NAME=${K8S_CLUSTER_NAME:-'k8s'}
+    export K8S_DOMAIN=${DOMAIN:-'k8s'}
 
     if [[ "${CONTRAIL_CONTAINER_TAG,,}" =~ r2011 || "${CONTRAIL_CONTAINER_TAG,,}" =~ r21\.3 ]] ; then
         export K8S_VERSION="v1.20.15"
@@ -111,7 +119,7 @@ function manifest() {
     if [[ -n $DATA_NETWORK ]] && [[ -z $VROUTER_GATEWAY ]] ; then
         echo "ERROR: for multi-NIC setup VROTER_GATEWAY should be set"
         exit 1
-    fi    
+    fi
     if [[ -n "$SSL_CAKEY" && -n "$SSL_CACERT" ]] ; then
         export TF_ROOT_CA_KEY_BASE64=$(echo "$SSL_CAKEY" | base64 -w 0)
         export TF_ROOT_CA_CERT_BASE64=$(echo "$SSL_CACERT" | base64 -w 0)
@@ -119,8 +127,8 @@ function manifest() {
     $OPERATOR_REPO/contrib/render_manifests.sh
 }
 
+
 function tf() {
-    sync_time
     ensure_kube_api_ready
 
     # apply crds
@@ -133,6 +141,12 @@ function tf() {
 
     # apply contrail cluster
     kubectl apply -k $OPERATOR_REPO/deploy/kustomize/contrail/templates/
+
+    if ! wait_cmd_success wait_vhost0_up 5 24; then
+        echo "vhost0 interface(s) cannot obtain an IP address"
+        return 1
+    fi
+    sync_time
 }
 
 # This is_active function is called in wait stage defined in common/stages.sh
@@ -159,24 +173,32 @@ function collect_deployment_env() {
 
     # always ssl enabled
     DEPLOYMENT_ENV['SSL_ENABLE']='true'
-    # use first pod cert
-    local sts="$(kubectl get pod  -n tf -o json config1-config-statefulset-0)"
-    local podIP=$(echo "$sts" | jq -c -r ".status.podIP")
-    local podSercret=$(kubectl get secret -n tf -o json config1-secret-certificates)
-    DEPLOYMENT_ENV['SSL_KEY']=$(echo "$podSercret" | jq -c -r ".data.\"server-key-${podIP}.pem\"")
-    DEPLOYMENT_ENV['SSL_CERT']=$(echo "$podSercret" | jq -c -r ".data.\"server-${podIP}.crt\"")
-    local ca_cert="$SSL_CACERT"
-    if [ -z "$ca_cert" ] ; then
-        ca_cert=$(kubectl get secrets -n tf contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"") || true
+    if [[ "$CERT_SIGNER" == "External" ]]; then
+        DEPLOYMENT_ENV['SSL_KEY']=$(cat /etc/contrail/ssl/certs/server-key-*.pem | base64 -w 0)
+        DEPLOYMENT_ENV['SSL_CERT']=$(cat /etc/contrail/ssl/certs/server-*.crt | base64 -w 0)
+        DEPLOYMENT_ENV['SSL_CACERT']=$(cat /etc/contrail/ssl/ca-certs/ca-bundle.crt | base64 -w 0)
+        CONTROLLER_NODES=$(convert_ips_to_hostnames "$CONTROLLER_NODES")
+        AGENT_NODES=$(convert_ips_to_hostnames "$AGENT_NODES")
+    else
+        # use first pod cert
+        local sts="$(kubectl get pod  -n tf -o json config1-config-statefulset-0)"
+        local podIP=$(echo "$sts" | jq -c -r ".status.podIP")
+        local podSercret=$(kubectl get secret -n tf -o json config1-secret-certificates)
+        DEPLOYMENT_ENV['SSL_KEY']=$(echo "$podSercret" | jq -c -r ".data.\"server-key-${podIP}.pem\"")
+        DEPLOYMENT_ENV['SSL_CERT']=$(echo "$podSercret" | jq -c -r ".data.\"server-${podIP}.crt\"")
+        local ca_cert="$SSL_CACERT"
         if [ -z "$ca_cert" ] ; then
-            ca_cert=$(kubectl get configmaps -n kube-public cluster-info -o json | jq -r -c ".data.kubeconfig" | awk  '/certificate-authority-data:/ {print($2)}')
+            ca_cert=$(kubectl get secrets -n tf contrail-ca-certificate -o json | jq -c -r  ".data.\"ca-bundle.crt\"") || true
+            if [ -z "$ca_cert" ] ; then
+                ca_cert=$(kubectl get configmaps -n kube-public cluster-info -o json | jq -r -c ".data.kubeconfig" | awk  '/certificate-authority-data:/ {print($2)}')
+            fi
         fi
+        if [ -z "$ca_cert" ] ; then
+            echo "ERROR: CA is empty: there is no CA in both contrail-ca-certificate secret and configmaps kube-public/cluster-info"
+            exit 1
+        fi
+        DEPLOYMENT_ENV['SSL_CACERT']="$ca_cert"
     fi
-    if [ -z "$ca_cert" ] ; then
-        echo "ERROR: CA is empty: there is no CA in both contrail-ca-certificate secret and configmaps kube-public/cluster-info"
-        exit 1
-    fi
-    DEPLOYMENT_ENV['SSL_CACERT']="$ca_cert"
 }
 
 function collect_logs() {

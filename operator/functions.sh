@@ -86,23 +86,77 @@ function ipa_enroll() {
     local machine
     for machine in $(echo "$nodes" | tr " " "\n" | sort -u) ; do
         local addr="$machine"
-        echo "INFO: copy enroll.sh to node $machine"
-        scp $SSH_OPTIONS -rp "${work_dir}"/tf-devstack/contrib/ipa/enroll.sh "${machine}":/tmp
+        scp $SSH_OPTIONS -rp "${work_dir}"/src/tungstenfabric/tf-devstack/contrib/ipa/enroll.sh "${machine}":/tmp
         echo "INFO: enroll node $machine to IPA"
         ssh $SSH_OPTIONS "$machine" /tmp/enroll.sh "$IPA_IP" "$IPA_ADMIN" "$IPA_PASSWORD" "$machine"
-        if [[ ! -z ${IPA_CERT+x} ]]; then
-            echo "$IPA_CERT" | ssh $SSH_OPTIONS "$machine" "cat > /etc/ipa/ca.crt"
+    done
+}
+
+function ipa_server_install() {
+    local machine=$1
+    local work_dir=${WORKSPACE}
+    local addr="$machine"
+    echo "INFO: copy freeipa_server_root.sh to node $machine"
+    scp $SSH_OPTIONS -rp "${work_dir}"/src/tungstenfabric/tf-devstack/contrib/ipa/freeipa_setup_root.sh "${machine}":
+    echo "INFO: install IPA server at $machine"
+
+    cat <<EOF | ssh $SSH_OPTIONS $machine
+[[ "$DEBUG" == true ]] && set -x
+export AdminPassword=$IPA_PASSWORD
+export FreeIPAIP=$machine
+sudo -E ./freeipa_setup_root.sh
+EOF
+    ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt
+}
+
+#function get_ipa_crt() {
+#    local machine=$1
+#    ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt
+#}
+
+function rhel_setup_node() {
+    local ip_addr=$1
+    local tf_devstack_path=$(dirname $my_dir)
+    scp $SSH_OPTIONS -r $tf_devstack_path $ip_addr:
+    cat <<EOF | ssh $SSH_OPTIONS $ip_addr
+[[ "$DEBUG" == true ]] && set -x
+export DOMAIN=$DOMAIN
+echo "INFO: running rhel_provisioning on the $ip_addr"
+./$(basename $tf_devstack_path)/common/rhel_provisioning.sh
+EOF
+}
+
+
+function wait_vhost0_up() {
+    local node
+    for node in $(echo ${CONTROLLER_NODES} ${AGENT_NODES} | tr ',' ' ') ; do
+        scp $SSH_OPTIONS ${fmy_dir}/functions.sh ${node}:/tmp/functions.sh
+        if ! ssh $SSH_OPTIONS ${node} "export PATH=\$PATH:/usr/sbin ; source /tmp/functions.sh ; wait_nic_up vhost0" ; then
+            return 1
         fi
     done
 }
 
-function ipa_server_install {
-    machine=$1
-    local work_dir=${WORKSPACE}
-    local addr="$machine"
-    echo "INFO: copy server_install.sh to node $machine"
-    scp $SSH_OPTIONS -rp "${work_dir}"/tf-devstack/contrib/ipa/server_install.sh "${machine}":/tmp
-    echo "INFO: install IPA server at $machine"
-    ssh $SSH_OPTIONS "$machine" /tmp/server_install.sh "$IPA_PASSWORD"
-    ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt
+function rhel_setup_all_the_nodes()
+{
+    local jobs=""
+    declare -A jobs_descr
+    local ip_addr
+    for ip_addr in ${CONTROLLER_NODES//,/ } ${AGENT_NODES//,/ } ${IPA_NODES//,/ } ; do
+        rhel_setup_node $ip_addr &
+        jobs_descr[$!]="rhel_setup_node $ip_addr"
+        jobs+=" $!"
+    done
+    echo "Parallel setup nodes. pids: $jobs. Waiting..."
+    local res=0
+    local i
+    for i in $jobs ; do
+        command wait $i || {
+            echo "ERROR: failed ${jobs_descr[$i]}"
+            res=1
+        }
+    done
+    [[ "${res}" == 0 ]] || exit 1
 }
+
+

@@ -1,0 +1,19 @@
+---
+#Kubespray manages /etc/hosts and this playbook clean ansible inventory ip from /etc/hosts
+#It should be run with kubespray inventory file
+- name: Clear /etc/hosts from ansible inventory hosts
+  hosts: all
+  become: yes
+  tasks:
+
+    - set_fact:
+        cluster_hosts: "{{ cluster_hosts|default([]) + [ hostvars[item]['ansible_host'] ] }}"
+      loop: "{{ groups['all'] }}"
+      run_once: true
+
+    - name: Delete ip addresses from /etc/hosts
+      lineinfile: dest=/etc/hosts
+        state=absent
+        regexp='^{{ item }}'
+      with_items: "{{ cluster_hosts }}"
+

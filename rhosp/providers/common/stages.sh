@@ -36,9 +36,11 @@ EOF
 
 function _setup_ipa() {
     local fqdn=$(hostname -f)
+    echo "INFO: Setup IPA server ${ipa_mgmt_ip}"
     cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
+source rhosp-environment.sh
 [[ "$DEBUG" == true ]] && set -x
-./tf-devstack/rhosp/providers/common/rhel_provisioning.sh
+./tf-devstack/common/rhel_provisioning.sh
 export UndercloudFQDN=$fqdn
 export AdminPassword=$ADMIN_PASSWORD
 export FreeIPAIP=$ipa_prov_ip
@@ -48,10 +50,11 @@ EOF
 }
 
 function _overcloud_setup_overcloud_node() {
-    local ip=$1
+    local ip_addr=$1
     local tf_devstack_path=$(dirname $my_dir)
-    scp $ssh_opts -r rhosp-environment.sh $tf_devstack_path $SSH_USER_OVERCLOUD@$ip:
-    ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip ./$(basename $tf_devstack_path)/rhosp/overcloud/03_setup_predeployed_nodes.sh
+    echo "INFO: predeploying node $ip_addr"
+    scp $ssh_opts -r rhosp-environment.sh $tf_devstack_path $SSH_USER_OVERCLOUD@$ip_addr:
+    ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip_addr ./$(basename $tf_devstack_path)/rhosp/overcloud/03_setup_predeployed_nodes.sh
 }
 
 function _overcloud_preprovisioned_nodes()
@@ -124,7 +127,7 @@ function _overcloud() {
 function machines() {
     cd
     _predeploy_undercloud
-    $my_dir/providers/common/rhel_provisioning.sh &
+    $my_dir/../common/rhel_provisioning.sh &
     local jobs="$!"
     if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
         _setup_ipa &

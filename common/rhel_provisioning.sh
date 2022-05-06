@@ -4,13 +4,16 @@ my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
 cd
-source rhosp-environment.sh
-source $my_dir/../../../common/common.sh
-source $my_dir/../../../common/functions.sh
+
+#For rhosp compatibility
+if [[ -n "$domain" ]]; then
+    export DOMAIN=$domain
+fi
+
 source $my_dir/common.sh
 source $my_dir/functions.sh
 
-ensure_fqdn ${domain}
+ensure_fqdn ${DOMAIN}
 
 attach_opts='--auto'
 if [[ -n "$RHEL_POOL_ID" ]] ; then

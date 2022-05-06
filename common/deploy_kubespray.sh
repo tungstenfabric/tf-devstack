@@ -48,6 +48,9 @@ LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
 CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # set locale to prevent errors from pip install and similar
+if [[ "$DISTRO" == "rhel" ]]; then
+    sudo dnf install -y glibc-langpack-en
+fi
 sudo localectl set-locale LANG=en_US.UTF-8
 . /etc/locale.conf
 export LC_ALL=en_US.UTF-8
@@ -252,13 +255,18 @@ if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]]; then
 fi
 
 extra_vars=""
-[[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] || extra_vars="$extra_vars -e {\"rhel_enable_repos\":False}"
+[[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] || echo '{"rhel_enable_repos": False}' >/tmp/extravars.json
 [[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
 [[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
 [[ -z $K8S_POD_SUBNET ]] || extra_vars="$extra_vars -e kube_pods_subnet=$K8S_POD_SUBNET"
 [[ -z $K8S_SERVICE_SUBNET ]] || extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
 [[ -z $K8S_VERSION ]] || extra_vars="$extra_vars -e kube_version=$K8S_VERSION"
-ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml $extra_vars "$@"
+
+echo i"INFO: Cleanup /etc/hosts before kubespay"
+cp $my_dir/deploy_kubespray_cleanup_hosts.yaml .
+ansible-playbook -i inventory/mycluster/hosts.yml deploy_kubespray_cleanup_hosts.yaml
+echo "INFO: Running kubespray playbook"
+ansible-playbook -i inventory/mycluster/hosts.yml --become --become-user=root cluster.yml --extra-vars "@/tmp/extravars.json" $extra_vars "$@"
 
 mkdir -p ~/.kube
 sudo cp /root/.kube/config ~/.kube/config

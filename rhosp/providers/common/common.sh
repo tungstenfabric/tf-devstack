@@ -36,6 +36,7 @@ fi
 declare -A _default_rhel_version=( ['rhel7']='rhel7.9' ['rhel82']='rhel8.2' ['rhel84']='rhel8.4' )
 export RHEL_VERSION=${_default_rhel_version[$ENVIRONMENT_OS]}
 export RHEL_MAJOR_VERSION=$(echo $RHEL_VERSION | cut -d '.' -f1)
+
 declare -A _container_cli_tools=( ['rhel7']='docker' ['rhel8']='podman' )
 export CONTAINER_CLI_TOOL=${_container_cli_tools[$RHEL_MAJOR_VERSION]}
 

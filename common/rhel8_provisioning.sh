@@ -31,7 +31,7 @@ sudo dnf distro-sync -y
 
 sudo dnf update -y
 
-packages="chrony wget yum-utils vim iproute jq curl bind-utils network-scripts net-tools tmux createrepo bind-utils sshpass python36 podman"
+packages="chrony wget yum-utils vim iproute jq curl bind-utils network-scripts net-tools tmux createrepo sshpass python36 podman"
 [[ "$ENABLE_TLS" != 'ipa' ]] || packages+=" ipa-client python3-novajoin openssl-perl ca-certificates"
 
 sudo dnf install -y --allowerasing $packages
@@ -39,3 +39,7 @@ sudo dnf install -y --allowerasing $packages
 sudo systemctl start chronyd
 
 sudo alternatives --set python /usr/bin/python3
+
+#service network is not enabled by default in RHEL8.4
+sudo systemctl enable network || true
+sudo systemctl start network || true

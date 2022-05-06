@@ -25,12 +25,14 @@ source /etc/os-release
 
 fqdn=$(hostname -f)
 domain=$(hostname -d)
+host_name=$(hostname -s)
 export Hostname=${Hostname:-"${fqdn}"}
 export DirectoryManagerPassword=${DirectoryManagerPassword:-"$AdminPassword"}
 export FreeIPAExtraArgs=${FreeIPAExtraArgs:-""}
 export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"${domain}"}
-export FreeIPAIPSubnet=${FreeIPAIPSubnet:-'24'}
-export IPA_IFACE=${IPA_IFACE-'eth1'}
+export FreeIPAIPSubnet=$(ip addr show | grep -o "inet ${FreeIPAIP}/[0-9]* "| cut -d '/' -f2)
+export IPA_IFACE=$(ip addr show | grep "inet ${FreeIPAIP}" | awk '{print $(NF)}')
+export DEFAULT_IFACE=$(ip route list | grep default | cut -d ' ' -f5)
 export IPA_DNS1=${IPA_DNS1-'8.8.8.8'}
 export IPA_DNS2=${IPA_DNS2-'8.8.4.4'}
 
@@ -47,8 +49,10 @@ IPADDR=$FreeIPAIP
 PREFIX=$FreeIPAIPSubnet
 EOM
     modprobe ipv6 || true
-    ifdown $IPA_IFACE || true
-    ifup $IPA_IFACE || true
+    if [[ "$DEFAULT_IFACE" != "$IPA_IFACE" ]]; then
+        ifdown $IPA_IFACE || true
+        ifup $IPA_IFACE || true
+    fi
 fi
 
 if [[ -n "$IPA_DNS1" || -n "$IPA_DNS2" ]] ; then
@@ -154,6 +158,9 @@ function install_ipa_server() {
                     --setup-dns --auto-forwarders --auto-reverse $FreeIPAExtraArgs || res=1
     return $res
 }
+
+#Adding ipaserver fqdn to the /etc/hosts
+sed -i /etc/hosts -e "s/^${FreeIPAIP}.*$/${FreeIPAIP} ${fqdn} ${host_name}/"
 
 for i in {1..5} ; do
     if install_ipa_server ; then

@@ -11,7 +11,7 @@ my_dir="$(dirname $my_file)"
 domain=${domain:-$(hostname -d)}
 export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"${domain}"}
 
-sudo -E $my_dir/freeipa_setup_root.sh
+sudo -E $my_dir/../../contrib/ipa/freeipa_setup_root.sh
 
 # Precreate undercloud entry and generate OTP
 novajoin-ipa-setup \

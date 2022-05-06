@@ -1,11 +1,15 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+exec 3>&1 1> >(tee /tmp/setup_predeployed_node.log) 2>&1
+echo $(date) "------------------ STARTED: $0 -------------------"
+
 cd
 source rhosp-environment.sh
 source $my_dir/../../common/common.sh
+source $my_dir/../../common/functions.sh
 source $my_dir/../providers/common/common.sh
 source $my_dir/../providers/common/functions.sh
 
@@ -22,17 +26,14 @@ sudo ip route replace default via ${prov_ip} dev $default_dev
 sudo sed -i '/^GATEWAY[ ]*=/d' $cfg_file
 echo "GATEWAY=${prov_ip}" | sudo tee -a $cfg_file
 
-sudo sed -i '/nameserver/d'  /etc/resolv.conf
-if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
-   echo "nameserver $ipa_prov_ip" | sudo tee -a /etc/resolv.conf
-   if ! sudo grep -q "$domain" /etc/resolv.conf ; then
-      sudo sed -i "0,/nameserver/s/\(nameserver.*\)/search ${domain}\n\1/" /etc/resolv.conf
-   fi
-else
-   echo "nameserver 8.8.8.8" | sudo tee -a /etc/resolv.conf
-fi
+$my_dir/../../common/rhel_provisioning.sh
 
-$my_dir/../providers/common/rhel_provisioning.sh
+if [[ "$ENABLE_TLS" == "ipa" ]] ; then
+   ensure_nameserver $ipa_prov_ip
+   ensure_record_in_etc_hosts $ipa_prov_ip "${ipa_instance}.${domain}"
+else
+   ensure_nameserver "8.8.8.8"
+fi
 
 echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh"
 source $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh
@@ -41,11 +42,7 @@ source $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh
 sudo sed -i 's/.*UseDNS.*/UseDNS no/g' /etc/ssh/sshd_config
 sudo service sshd reload
 
-undercloud_hosts_entry="$prov_ip    $undercloud_instance"
-[ -n "$domain" ] && undercloud_hosts_entry+=".$domain    $undercloud_instance"
-if ! grep -q "$undercloud_hosts_entry" /etc/hosts ; then
-   echo "$undercloud_hosts_entry" | sudo tee -a /etc/hosts
-fi
+ensure_record_in_etc_hosts $prov_ip $undercloud_instance
 
 fqdn=$(hostname -f)
 short_name=$(hostname -s)
