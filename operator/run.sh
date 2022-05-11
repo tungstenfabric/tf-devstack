@@ -82,9 +82,9 @@ function k8s() {
     export K8S_CLUSTER_NAME=k8s
 
     if [[ "${CONTRAIL_CONTAINER_TAG,,}" =~ r2011 || "${CONTRAIL_CONTAINER_TAG,,}" =~ r21\.3 ]] ; then
-        export K8S_VERSION="v1.20"
-        echo "INFO: use k8s $K8S_VERSION for branches r2011/r21.3"
+        export K8S_VERSION="v1.20.15"
     fi
+    echo "INFO: use k8s $K8S_VERSION for tag() $CONTRAIL_CONTAINER_TAG"
 
     $my_dir/../common/deploy_kubespray.sh
 }

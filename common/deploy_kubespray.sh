@@ -29,6 +29,7 @@ function set_env_var() {
 
 # parameters
 
+# this version still supports 1.20
 KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.18"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES-$NODE_IP}
