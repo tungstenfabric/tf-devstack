@@ -195,8 +195,18 @@ if [[ -n "$ipa_instance" ]] ; then
   jobs+=" $!"
 fi
 # Creating overcloud nodes
-for instance_name in ${overcloud_cont_instance//,/ } ${overcloud_compute_instance//,/ } ${overcloud_ctrlcont_instance//,/ }; do
+for instance_name in ${overcloud_cont_instance//,/ } ${overcloud_compute_instance//,/ }; do
     create_vm $instance_name ${INSTANCE_FLAVORS[${instance_name}]} "${provision_network_name}:insecure" &
+  jobs+=" $!"
+done
+# Creating ctrlcont nodes
+if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' ]] ; then
+  network_names="${management_network_name},${provision_network_name}:insecure"
+else
+  network_names="${provision_network_name}:insecure"
+fi
+for instance_name in ${overcloud_ctrlcont_instance//,/ }; do
+    create_vm $instance_name ${INSTANCE_FLAVORS[${instance_name}]} "$network_names" &
   jobs+=" $!"
 done
 # wait for nodes creation done
@@ -245,6 +255,10 @@ function collect_node_ips() {
 overcloud_cont_prov_ip=$(collect_node_ips $overcloud_cont_instance)
 overcloud_compute_prov_ip=$(collect_node_ips $overcloud_compute_instance)
 overcloud_ctrlcont_prov_ip=$(collect_node_ips $overcloud_ctrlcont_instance)
+if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' && $overcloud_compute_prov_ip == '' ]] ; then
+  overcloud_ctrlcont_mgmt_ip=$(get_openstack_vm_ip $overcloud_ctrlcont_instance $management_network_name)
+  export EXTERNAL_CONTROLLER_NODES=$overcloud_ctrlcont_prov_ip
+fi
 
 prov_allocation_pool=$(openstack subnet show -f json -c allocation_pools $provision_network_name)
 prov_end_addr=$(echo "$prov_allocation_pool" | jq -rc '.allocation_pools[0].end')

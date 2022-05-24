@@ -1,0 +1,28 @@
+#!/bin/bash -ex
+
+set -eo pipefail
+my_dir=$(dirname $(readlink -e $0))
+
+export DEBUG=true
+
+export AUTH_MODE='keystone'
+export IPFABRIC_SERVICE_HOST={{ overcloud_node_ip }}
+export KEYSTONE_AUTH_HOST={{ overcloud_node_ip }}
+export KEYSTONE_AUTH_PROTO='http'
+export KEYSTONE_AUTH_ADMIN_PASSWORD='qwe123QWE'
+export KEYSTONE_AUTH_REGION_NAME='regionOne'
+export K8S_RESOLV_CONFG_MODE='none'
+export CONTAINER_REGISTRY={{ CONTAINER_REGISTRY }}
+export CONTRAIL_CONTAINER_TAG={{ CONTRAIL_CONTAINER_TAG }}
+
+export CERT_SIGNER="SelfSignedCA"
+export TF_ROOT_CA_KEY_BASE64={{ cakey }}
+export TF_ROOT_CA_CERT_BASE64={{ cabundle }}
+
+# TODO(tikitavi): do not install podman
+sudo dnf remove -y podman runc
+
+./tf-devstack/operator/run.sh platform
+./tf-devstack/operator/run.sh manifest
+./tf-devstack/operator/run.sh tf
+./tf-devstack/operator/run.sh wait || true

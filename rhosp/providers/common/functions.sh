@@ -127,7 +127,7 @@ function update_undercloud_etc_hosts() {
     echo "INFO: update /etc/hosts with overcloud ips & fqdns"
     local openstack_node=$(get_first_controller_ctlplane_ip)
     ssh $ssh_opts $SSH_USER_OVERCLOUD@$openstack_node sudo grep "overcloud\-" /etc/hosts 2>/dev/null | sudo tee -a /etc/hosts
-    if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
+    if [[ -z "$overcloud_compute_instance" && ( -z "$overcloud_ctrlcont_instance" || $CONTROL_PLANE_ORCHESTRATOR == 'operator' ) ]] ; then
         # User first Controller for AIO case.
         # Openstack & contrail control plane & agent (compute) are on same node.
         # And VIPs are not working properly because of vrouter.
@@ -154,6 +154,16 @@ ${ctlplane_vip} overcloud.ctlplane.${domain}
 EOF
     echo "INFO: updated undercloud /etc/hosts"
     sudo cat /etc/hosts
+
+    if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' ]] ; then
+        # copy FQDN to tf node
+        ssh $ssh_opts $SSH_USER@$overcloud_ctrlcont_prov_ip "cat <<EOF | sudo tee -a /etc/hosts
+# Overcloud VIPs and Nodes
+${public_vip} overcloud.${domain}
+${internal_api_vip} overcloud.internalapi.${domain}
+${ctlplane_vip} overcloud.ctlplane.${domain}
+EOF"
+    fi
 }
 
 function collect_overcloud_env() {

@@ -56,6 +56,18 @@ resource_registry:
 {%- if overcloud_ceph_instance > 0 %}
   OS::TripleO::CephStorage::Net::SoftwareConfig: tripleo-heat-templates/network/config/single-nic-vlans/ceph-storage.yaml
 {%- endif %}
+{%- if CONTROL_PLANE_ORCHESTRATOR == 'operator' %}
+  OS::TripleO::Services::ContrailOperator: OS::Heat::None
+  OS::TripleO::Services::ContrailAnalytics: OS::Heat::None
+  OS::TripleO::Services::ContrailAnalyticsAlarm: OS::Heat::None
+  OS::TripleO::Services::ContrailAnalyticsDatabase: OS::Heat::None
+  OS::TripleO::Services::ContrailAnalyticsSnmp: OS::Heat::None
+  OS::TripleO::Services::ContrailConfigDatabase: OS::Heat::None
+  OS::TripleO::Services::ContrailConfig: OS::Heat::None
+  OS::TripleO::Services::ContrailControl: OS::Heat::None
+  OS::TripleO::Services::ContrailControlOnly: OS::Heat::None
+  OS::TripleO::Services::ContrailWebui: OS::Heat::None
+{%- endif %}
 
 parameter_defaults:
   ExtraConfig:
@@ -281,6 +293,13 @@ parameter_defaults:
 {%- if tenant_cidr is defined %}
   TenantNetCidr: {{ tenant_cidr }}
   TenantAllocationPools: {{ tenant_allocation_pool }}
+{%- endif %}
+
+{%- if CONTROL_PLANE_ORCHESTRATOR == 'operator' %}
+  ServiceNetMap:
+    KeystoneAdminApiNetwork: internal_api
+
+  AAAMode: rbac
 {%- endif %}
 
 {%- if dmi_uuids is defined and dmi_uuids|length %}

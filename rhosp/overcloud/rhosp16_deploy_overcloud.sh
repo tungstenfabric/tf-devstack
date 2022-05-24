@@ -47,7 +47,7 @@ if [[ -n "$overcloud_ceph_instance" ]] ; then
 fi
 
 role_file="$(pwd)/roles_data.yaml"
-if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
+if [[ ( -z "$overcloud_ctrlcont_instance" || $CONTROL_PLANE_ORCHESTRATOR == 'operator' ) && -z "$overcloud_compute_instance" ]] ; then
   if [[ -z "$L3MH_CIDR" ]] ; then
     roles+=" ContrailAio"
   else
@@ -86,7 +86,7 @@ if [[ "$USE_PREDEPLOYED_NODES" == true ]]; then
   pre_deploy_nodes_env_files+=" -e ctlplane-assignments.yaml"
   pre_deploy_nodes_env_files+=" -e hostname-map.yaml"
 
-  if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
+  if [[ ( -z "$overcloud_ctrlcont_instance" || $CONTROL_PLANE_ORCHESTRATOR == 'operator' ) && -z "$overcloud_compute_instance" ]] ; then
     export OVERCLOUD_ROLES="ContrailAio"
     export ContrailAio_hosts="${overcloud_cont_prov_ip//,/ }"
   else

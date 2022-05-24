@@ -90,7 +90,17 @@ if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
   ExternalContrailConfigIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
   ExternalContrailControlIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
   ExternalContrailAnalyticsIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
+
+  ExtraHostFileEntries:
 EOF
+
+   for node in ${EXTERNAL_CONTROLLER_NODES} ; do
+      fqdn=$(ssh $node hostname -f)
+      short=$(ssh $node hostname -s)
+      cat <<EOF >>misc_opts.yaml
+       - "$node    $fqdn    $short"
+EOF
+   done
 fi
 
 if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
@@ -100,6 +110,8 @@ if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
   ControllerExtraConfig:
     contrail_internal_api_ssl: True
   ComputeExtraConfig:
+    contrail_internal_api_ssl: True
+  ContrailAioExtraConfig:
     contrail_internal_api_ssl: True
 EOF
    if [[ "$ENABLE_TLS" == 'ipa' && -n "$SSL_CACERT" ]] ; then
@@ -126,7 +138,7 @@ echo "INFO: using template $my_dir/${RHOSP_MAJOR_VERSION}_contrail-parameters.ya
 cat $my_dir/${RHOSP_MAJOR_VERSION}_contrail-parameters.yaml.template | envsubst > contrail-parameters.yaml
 
 #Changing tripleo-heat-templates/roles_data_contrail_aio.yaml
-if [[ -z "$overcloud_ctrlcont_instance" && -z "$overcloud_compute_instance" ]] ; then
+if [[ ( -z "$overcloud_ctrlcont_instance" || "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ) && -z "$overcloud_compute_instance" ]] ; then
    role_file=tripleo-heat-templates/roles/ContrailAio.yaml
    sed -i -re 's/Count:\s*[[:digit:]]+/Count: 0/' tripleo-heat-templates/environments/contrail/contrail-services.yaml
    sed -i -re 's/ContrailAioCount: 0/ContrailAioCount: 1/' tripleo-heat-templates/environments/contrail/contrail-services.yaml

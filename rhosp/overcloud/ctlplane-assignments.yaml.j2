@@ -4,7 +4,7 @@
 {%- set instances = instances + overcloud_cont_instance.split(',') %}
 {%- set instances_ips = instances_ips + overcloud_cont_prov_ip.split(',') %}
 {%- endif %}
-{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length %}
+{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length and CONTROL_PLANE_ORCHESTRATOR == 'rhosp' %}
 {%- set instances = instances + overcloud_ctrlcont_instance.split(',') %}
 {%- set instances_ips = instances_ips+  overcloud_ctrlcont_prov_ip.split(',') %}
 {%- endif %}
