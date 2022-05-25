@@ -252,7 +252,7 @@ if [[ -z "$CONTAINER_RUNTIME" || "$CONTAINER_RUNTIME" == 'docker' ]]; then
 fi
 
 extra_vars=""
-[[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] || extra_vars="$extra_vars -e rhel_enable_repos=False"
+[[ "$ENABLE_RHEL_REGISTRATION" == 'true' ]] || extra_vars="$extra_vars -e {\"rhel_enable_repos\":False}"
 [[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
 [[ -z "$REGISTRY_PROXY" ]] || extra_vars="$extra_vars -e docker_image_repo=$REGISTRY_PROXY"
 [[ -z $K8S_POD_SUBNET ]] || extra_vars="$extra_vars -e kube_pods_subnet=$K8S_POD_SUBNET"
