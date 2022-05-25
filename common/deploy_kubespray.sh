@@ -48,7 +48,7 @@ LOOKUP_NODE_HOSTNAMES=${LOOKUP_NODE_HOSTNAMES:-true}
 CRYPTOGRAPHY_ALLOW_OPENSSL_102=true
 
 # set locale to prevent errors from pip install and similar
-sudo localectl set-locale LANG=en-US.UTF-8
+sudo localectl set-locale LANG=en_US.UTF-8
 . /etc/locale.conf
 export LC_ALL=en_US.UTF-8
 if ! grep -q "LANG" /etc/environment && ! grep -q "LC_ALL" /etc/environment ; then
