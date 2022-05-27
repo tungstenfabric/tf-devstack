@@ -283,3 +283,12 @@ parameter_defaults:
   TenantAllocationPools: {{ tenant_allocation_pool }}
 {%- endif %}
 
+{%- if dmi_uuids is defined and dmi_uuids|length %}
+{%- set dmi_uuids = dmi_uuids.split() %}
+{%- endif %}
+  NodeDataLookup:
+    {%- for uuid in dmi_uuids %}
+    "{{ uuid }}":
+      contrail_settings:
+        test: "test"
+    {%- endfor %}

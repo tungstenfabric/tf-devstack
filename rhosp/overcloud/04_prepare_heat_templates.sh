@@ -66,6 +66,23 @@ popd
 
 cp -r contrail-tripleo-heat-templates/* tripleo-heat-templates
 
+# detect dmi_uuids for NodeDataLookup
+dmi_uuids=""
+if [[ $PROVIDER == 'openstack' ]] ; then
+   get_dmi_uuid="sudo dmidecode --s system-uuid | awk 'match(\$0, /[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}/) { print substr(\$0, RSTART, RLENGTH) }'"
+   for ip in ${overcloud_cont_prov_ip//,/ } ${overcloud_compute_prov_ip//,/ } ${overcloud_ctrlcont_prov_ip//,/ } ; do
+      dmi_uuids+=$(ssh $ssh_opts $SSH_USER_OVERCLOUD@$ip $get_dmi_uuid)
+      dmi_uuids+=" "
+   done
+else
+   node_ids=$(openstack baremetal node list -f value -c UUID)
+   for node_id in $node_ids ; do
+      dmi_uuids+=$(openstack baremetal introspection data save $node_id | jq .extra.system.product.uuid | tr '[:upper:]' '[:lower:]' | sed 's/"//g')
+      dmi_uuids+=" "
+   done
+fi
+export dmi_uuids
+
 #Creating rhosp specific contrail-parameters.yaml
 $my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_MAJOR_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
 if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then

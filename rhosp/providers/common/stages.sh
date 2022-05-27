@@ -175,9 +175,15 @@ function tf_deploy() {
     $my_dir/overcloud/06_deploy_overcloud.sh
 }
 
+function tf_post_deploy() {
+    cd
+    $my_dir/overcloud/07_post_deploy_overcloud.sh
+}
+
 function tf() {
     tf_no_deploy
     tf_deploy
+    tf_post_deploy
 }
 
 function logs() {

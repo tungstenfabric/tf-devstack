@@ -445,3 +445,34 @@ function ensure_fqdn() {
     fi
     echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"
 }
+
+function check_nodedata() {
+    local agent_node_addr=$1
+    local user=${2:-$SSH_USER}
+
+    [ -z "$user" ] || agent_node_addr="$user@$agent_node_addr"
+    local container='contrail_vrouter_agent'
+    local inspect
+    if ! inspect=$(ssh $SSH_OPTIONS $agent_node_addr "sudo $CONTAINER_CLI_TOOL inspect $container" 2>/dev/null)  ; then
+        echo "No container $container on $agent_node_addr"
+        return 1
+    elif ! echo "$inspect" | grep 'test=test' &>/dev/null ; then
+        echo "Node data didn't appear in $container container on $agent_node_addr"
+        return 1
+    fi
+    echo "Node data was succesfully found in $container container on $agent_node_addr"
+    return 0
+}
+
+function get_first_agent_node() {
+    local agent_nodes="$(get_ctlplane_ips novacompute)"
+    if [ -z "$agent_nodes" ] ; then
+        # AIO
+        agent_nodes="$(get_ctlplane_ips controller)"
+    fi
+    if [ -z "$agent_nodes" ] ; then
+        echo "No agent nodes were found"
+        return 1
+    fi
+    echo "$agent_nodes" | cut -d, -f1
+}
