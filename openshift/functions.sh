@@ -154,13 +154,4 @@ function monitor_csr() {
   done
 }
 
-function wait_vhost0_up() {
-    local node
-    for node in $(echo ${CONTROLLER_NODES} ${AGENT_NODES} | tr ',' ' ') ; do
-        scp $SSH_OPTIONS ${fmy_dir}/functions.sh ${node}:/tmp/functions.sh
-        if ! ssh $SSH_OPTIONS ${node} "export PATH=\$PATH:/usr/sbin ; source /tmp/functions.sh ; wait_nic_up vhost0" ; then
-            return 1
-        fi
-    done
-}
 

@@ -100,6 +100,19 @@ function wait_nic_up() {
   echo "INFO: $nic is up"
 }
 
+function wait_vhost0_up() {
+    local node
+    local node_list=$@
+    for node in $(echo $node_list | tr ',' ' ') ; do
+        scp $SSH_OPTIONS ${fmy_dir}/functions.sh ${node}:/tmp/functions.sh
+        echo "INFO: Waiting for vhost0 is up on $node"
+        if ! ssh $SSH_OPTIONS ${node} "export PATH=\$PATH:/usr/sbin ; source /tmp/functions.sh ; wait_nic_up vhost0" ; then
+            return 1
+        fi
+    done
+}
+
+
 function nic_has_ip() {
   local nic=$1
   if nic_ip=$(ip addr show $nic | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*"); then

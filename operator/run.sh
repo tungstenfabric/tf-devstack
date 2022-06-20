@@ -142,7 +142,7 @@ function tf() {
     # apply contrail cluster
     kubectl apply -k $OPERATOR_REPO/deploy/kustomize/contrail/templates/
 
-    if ! wait_cmd_success wait_vhost0_up 5 24; then
+    if ! wait_cmd_success "wait_vhost0_up ${CONTROLLER_NODES}, ${AGENT_NODES}" 5 24; then
         echo "vhost0 interface(s) cannot obtain an IP address"
         return 1
     fi

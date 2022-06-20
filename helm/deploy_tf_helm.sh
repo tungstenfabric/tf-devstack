@@ -45,16 +45,6 @@ function kill_helm_serve() {
   fi
 }
 
-function wait_vhost0_up() {
-  local a=$1
-  local d="$(basename $(dirname $my_dir))"
-  if ! ip a | grep -q "${a}"; then
-    ssh $SSH_OPTIONS ${a} "export PATH=\$PATH:/usr/sbin ; source /tmp/${d}/common/functions.sh ; wait_nic_up vhost0"
-  else
-    wait_nic_up vhost0
-  fi
-}
-
 trap 'catch_errors' ERR
 function catch_errors() {
   local exit_code=$?
@@ -115,10 +105,15 @@ fi
 
 kubectl create ns tungsten-fabric || :
 helm upgrade --install --namespace tungsten-fabric tungsten-fabric $WORKSPACE/tf-helm-deployer/$TF_CHART -f $WORKSPACE/tf-devstack-values.yaml $host_var
+REMOTE_AGENT_NODES=''
 if [[ $ORCHESTRATOR == "openstack" ]] ; then
   for machine in $AGENT_NODES ; do
-    wait_vhost0_up $machine
+      if ! ip a | grep -q "${machine}"; then
+          REMOTE_AGENT_NODES+="${machine} "
+      fi
   done
+  wait_nic_up vhost0
+  wait_vhost0_up $REMOTE_AGENT_NODES
 
   # upgrade of neutron and nova containers with tf ones
   helm upgrade neutron $WORKSPACE/openstack-helm/neutron --namespace=openstack --force --reuse-values \
@@ -128,11 +123,13 @@ if [[ $ORCHESTRATOR == "openstack" ]] ; then
 fi
 
 # multinodes "wait_nic_up vhost0"
+REMOTE_CONTROLLER_NODES=''
 for machine in $CONTROLLER_NODES ; do
   if echo $AGENT_NODES | grep -q $machine ; then
-    wait_vhost0_up $machine
+      REMOTE_CONTROLLER_NODES+="$machine "
   fi
 done
+wait_vhost0_up $REMOTE_CONTROLLER_NODES
 
 label_nodes_by_ip opencontrail.org/controller=enabled $CONTROLLER_NODES
 

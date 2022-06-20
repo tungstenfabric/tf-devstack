@@ -141,15 +141,6 @@ function openstack() {
     fi
 }
 
-function wait_vhost0_up() {
-    local node
-    for node in ${AGENT_NODES} ; do
-        scp $SSH_OPTIONS ${fmy_dir}/functions.sh ${node}:/tmp/functions.sh
-        if ! ssh $SSH_OPTIONS ${node} "export PATH=\$PATH:/usr/sbin ; source /tmp/functions.sh ; wait_nic_up vhost0" ; then
-            return 1
-        fi
-    done
-}
 
 function tf() {
     current_container_tag=$(cat $tf_deployer_dir/instances.yaml | python3 -c "import yaml, sys ; data = yaml.safe_load(sys.stdin.read()); print(data['contrail_configuration']['CONTRAIL_CONTAINER_TAG'])")
@@ -175,7 +166,7 @@ function tf() {
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/install_contrail.yml
 
-    if ! wait_cmd_success wait_vhost0_up 5 24
+    if ! wait_cmd_success "wait_vhost0_up ${AGENT_NODES}" 5 24
     then
         echo "vhost0 interface(s) cannot obtain an IP address"
         return 1
