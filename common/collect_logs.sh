@@ -123,6 +123,7 @@ function collect_openstack_logs() {
                 '/etc/glance' '/var/log/glance' '/var/lib/config-data/puppet-generated/glance' '/var/log/containers/glance' \
                 '/etc/octavia' '/var/log/octavia' '/var/lib/config-data/puppet-generated/octavia' '/var/log/containers/octavia' \
                 '/var/log/mysql' '/var/log/mysqld.log' \
+                '/etc/mistral' '/var/lib/mistral' '/var/log/mistral' '/var/lib/config-data/puppet-generated/mistral' '/var/log/containers/mistral' \
                 ; do
         if sudo ls "$ldir" >/dev/null 2>&1 ; then
             sudo cp -R -P $ldir $log_dir/

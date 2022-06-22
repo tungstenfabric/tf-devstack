@@ -8,7 +8,7 @@
 {%- if overcloud_cont_instance is defined and overcloud_cont_instance|length %}
   {%- set _ =  hosts.update({controller_role: overcloud_cont_instance.split(',')}) %}
 {%- endif %}
-{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length and CONTROL_PLANE_ORCHESTRATOR == 'rhosp' %}
+{%- if overcloud_ctrlcont_instance is defined and overcloud_ctrlcont_instance|length and CONTROL_PLANE_ORCHESTRATOR | default('') != 'operator' %}
   {%- set _ = hosts.update({'contrailcontroller': overcloud_ctrlcont_instance.split(',')}) %}
 {%- endif %}
 {%- if overcloud_compute_instance is defined and overcloud_compute_instance|length %}

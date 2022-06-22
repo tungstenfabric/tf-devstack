@@ -94,7 +94,7 @@ if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
   ExtraHostFileEntries:
 EOF
 
-   for node in ${EXTERNAL_CONTROLLER_NODES} ; do
+   for node in ${EXTERNAL_CONTROLLER_NODES//,/ } ; do
       fqdn=$(ssh $node hostname -f)
       short=$(ssh $node hostname -s)
       cat <<EOF >>misc_opts.yaml
@@ -110,6 +110,10 @@ if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
   ControllerExtraConfig:
     contrail_internal_api_ssl: True
   ComputeExtraConfig:
+    contrail_internal_api_ssl: True
+  ContrailDpdkExtraConfig:
+    contrail_internal_api_ssl: True
+  ContrailSriovExtraConfig:
     contrail_internal_api_ssl: True
   ContrailAioExtraConfig:
     contrail_internal_api_ssl: True

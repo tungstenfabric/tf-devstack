@@ -22,19 +22,22 @@ source /etc/os-release
     exit 1
 }
 
-
-fqdn=$(hostname -f)
-domain=$(hostname -d)
-host_name=$(hostname -s)
-export Hostname=${Hostname:-"${fqdn}"}
+export Hostname=${Hostname:-"$(hostname -f)"}
+fqdn=$Hostname
+short_name=$(echo $fqdn | cut -d '.' -f1)
 export DirectoryManagerPassword=${DirectoryManagerPassword:-"$AdminPassword"}
 export FreeIPAExtraArgs=${FreeIPAExtraArgs:-""}
-export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"${domain}"}
-export FreeIPAIPSubnet=$(ip addr show | grep -o "inet ${FreeIPAIP}/[0-9]* "| cut -d '/' -f2)
-export IPA_IFACE=$(ip addr show | grep "inet ${FreeIPAIP}" | awk '{print $(NF)}')
-export DEFAULT_IFACE=$(ip route list | grep default | cut -d ' ' -f5)
+export CLOUD_DOMAIN_NAME=${CLOUD_DOMAIN_NAME:-"$(hostname -d)"}
+export FreeIPAIPSubnet=${FreeIPAIPSubnet:-$(ip addr show | grep -o "inet ${FreeIPAIP}/[0-9]* "| cut -d '/' -f2)}
+export IPA_IFACE=${IPA_IFACE:-$(ip addr show | grep "inet ${FreeIPAIP}" | awk '{print $(NF)}')}
+export DEFAULT_IFACE=${DEFAULT_IFACE:-$(ip route list | grep default | cut -d ' ' -f5)}
 export IPA_DNS1=${IPA_DNS1-'8.8.8.8'}
 export IPA_DNS2=${IPA_DNS2-'8.8.4.4'}
+
+[ -n "$IPA_IFACE" ] || {
+    echo "ERROR: IPA_IFACE env variable is not set and cannot be derived from FreeIPAIP=$FreeIPAIP"
+    exit 1
+}
 
 if [[ -n "$IPA_IFACE" ]] ; then
     echo "INFO: init NIC $IPA_IFACE"
@@ -153,14 +156,14 @@ function install_ipa_server() {
     local res=0
     ipa-server-install -U -r `hostname -d|tr "[a-z]" "[A-Z]"` \
                     -p $DirectoryManagerPassword -a $AdminPassword \
-                    --hostname `hostname -f` \
+                    --hostname $fqdn \
                     --ip-address=$FreeIPAIP \
                     --setup-dns --auto-forwarders --auto-reverse $FreeIPAExtraArgs || res=1
     return $res
 }
 
 #Adding ipaserver fqdn to the /etc/hosts
-sed -i /etc/hosts -e "s/^${FreeIPAIP}.*$/${FreeIPAIP} ${fqdn} ${host_name}/"
+sed -i /etc/hosts -e "s/^$FreeIPAIP.*$/$FreeIPAIP $fqdn $short_name/"
 
 for i in {1..5} ; do
     if install_ipa_server ; then

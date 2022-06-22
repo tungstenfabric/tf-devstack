@@ -142,10 +142,12 @@ function tf() {
     # apply contrail cluster
     kubectl apply -k $OPERATOR_REPO/deploy/kustomize/contrail/templates/
 
+    echo "INFO: $(date): wait for vhost0 is up.."
     if ! wait_cmd_success "wait_vhost0_up ${CONTROLLER_NODES}, ${AGENT_NODES}" 5 24; then
-        echo "vhost0 interface(s) cannot obtain an IP address"
+        echo "ERROR: vhost0 interface(s) cannot obtain an IP address"
         return 1
     fi
+    echo "INFO: $(date): wait for vhost0 is up...done"
     sync_time
 }
 

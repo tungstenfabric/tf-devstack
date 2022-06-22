@@ -5,9 +5,21 @@ function _predeploy_undercloud() {
     chmod 700 ~/.ssh
     cat <<EOF >~/.ssh/config
 Host *
-StrictHostKeyChecking no
-UserKnownHostsFile=/dev/null
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
 EOF
+    if [[ -n "$EXTERNAL_CONTROLLER_NODES" && -n "$EXTERNAL_CONTROLLER_SSH_USER" ]] ; then
+        local i
+        for i in ${EXTERNAL_CONTROLLER_NODES//,/ } ; do
+        cat <<EOF >>~/.ssh/config
+Host $i
+    User $EXTERNAL_CONTROLLER_SSH_USER
+    StrictHostKeyChecking no
+    UserKnownHostsFile=/dev/null
+EOF
+        done
+    fi
+
     chmod 644 ~/.ssh/config
 
     # Overwrite ifcfg as  br-ctlplane will take IP
@@ -45,6 +57,8 @@ export UndercloudFQDN=$fqdn
 export AdminPassword=$ADMIN_PASSWORD
 export FreeIPAIP=$ipa_prov_ip
 export FreeIPAIPSubnet=$prov_subnet_len
+export IPA_IFACE=$(ip -o link | grep ether | awk '{print($2)}' | tr -d ':.*' | head -n 2 | tail -n1)
+[ -n "$IPA_IFACE" ] || IPA_IFACE="eth1"
 ./tf-devstack/rhosp/ipa/freeipa_setup.sh
 EOF
 }

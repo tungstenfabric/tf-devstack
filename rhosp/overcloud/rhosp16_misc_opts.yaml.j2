@@ -56,7 +56,7 @@ resource_registry:
 {%- if overcloud_ceph_instance > 0 %}
   OS::TripleO::CephStorage::Net::SoftwareConfig: tripleo-heat-templates/network/config/single-nic-vlans/ceph-storage.yaml
 {%- endif %}
-{%- if CONTROL_PLANE_ORCHESTRATOR == 'operator' %}
+{%- if CONTROL_PLANE_ORCHESTRATOR | default('') == 'operator' %}
   OS::TripleO::Services::ContrailOperator: OS::Heat::None
   OS::TripleO::Services::ContrailAnalytics: OS::Heat::None
   OS::TripleO::Services::ContrailAnalyticsAlarm: OS::Heat::None
@@ -295,7 +295,7 @@ parameter_defaults:
   TenantAllocationPools: {{ tenant_allocation_pool }}
 {%- endif %}
 
-{%- if CONTROL_PLANE_ORCHESTRATOR == 'operator' %}
+{%- if CONTROL_PLANE_ORCHESTRATOR | default('') == 'operator' %}
   ServiceNetMap:
     KeystoneAdminApiNetwork: internal_api
 

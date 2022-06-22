@@ -11,5 +11,25 @@ source $my_dir/../../common/functions.sh
 source $my_dir/../providers/common/functions.sh
 source $my_dir/../providers/common/common.sh
 
+# update hosts file for tf-test
+update_undercloud_etc_hosts
+
+if [[ "${ENABLE_NETWORK_ISOLATION,,}" == true ]]; then
+  add_vlan_interface ${internal_vlan} ${internal_interface} ${internal_ip_addr} ${internal_net_mask}
+  add_vlan_interface ${external_vlan} ${external_interface} ${external_ip_addr} ${external_net_mask}
+  # tenant network has no vlan for now, so route is enough
+  tenant_ip_route="$tenant_cidr via $prov_ip dev br-ctlplane"
+  sudo ip route add $tenant_ip_route || true
+  # save this route persistent
+  brctl_cfg_file="/etc/sysconfig/network-scripts/route-br-ctlplane"
+  if [ ! -f $brctl_cfg_file ] || ! grep -q "$tenant_ip_route" $brctl_cfg_file ; then
+    echo "$tenant_ip_route" | sudo tee -a $brctl_cfg_file
+  fi
+fi
+
 agent_node=$(get_first_agent_node)
 check_nodedata $agent_node $SSH_USER_OVERCLOUD
+
+# Sync time can be done on post deploy in RHOSP as bmc/kvm nodes are provisioned
+# during tf deploy
+sync_time $SSH_USER_OVERCLOUD $(get_ctlplane_ips)

@@ -42,6 +42,14 @@ function tf_deploy() {
     _run tf_deploy
 }
 
+function tf_deploy() {
+    _run tf_deploy
+}
+
+function tf_post_deploy() {
+    _run tf_post_deploy
+}
+
 function tf() {
     _run tf
 }

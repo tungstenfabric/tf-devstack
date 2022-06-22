@@ -157,12 +157,19 @@ EOF
 
     if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' ]] ; then
         # copy FQDN to tf node
-        ssh $ssh_opts $SSH_USER@$overcloud_ctrlcont_prov_ip "cat <<EOF | sudo tee -a /etc/hosts
+        local ssh_user=${EXTERNAL_CONTROLLER_SSH_USER:-$SSH_USER}
+        local addr=$overcloud_ctrlcont_prov_ip
+        [ -z "$ssh_user" ] || addr="$ssh_user@$addr"
+        cat <<EOE | ssh $ssh_opts $addr
+# remove old records
+sudo sed "/overcloud.${domain}\|overcloud.\(internalapi\|ctlplane\).${domain}/d" /etc/hosts
+cat <<EOF | sudo tee -a /etc/hosts
 # Overcloud VIPs and Nodes
 ${public_vip} overcloud.${domain}
 ${internal_api_vip} overcloud.internalapi.${domain}
 ${ctlplane_vip} overcloud.ctlplane.${domain}
-EOF"
+EOF
+EOE
     fi
 }
 
@@ -255,8 +262,8 @@ function collect_deployment_log() {
     collect_docker_logs $CONTAINER_CLI_TOOL
     popd
     collect_stack_details ${TF_LOG_DIR}/${host_name}
-    if [[ -e /var/lib/mistral/overcloud/ansible.log ]] ; then
-        sudo cp /var/lib/mistral/overcloud/ansible.log ${TF_LOG_DIR}/${host_name}/
+    if [[ -e ~/undercloud.conf ]] ; then
+        cp ~/undercloud.conf ${TF_LOG_DIR}/${host_name}/
     fi
 
     #Collecting overcloud logs
@@ -404,7 +411,8 @@ export ENABLE_NETWORK_ISOLATION=$ENABLE_NETWORK_ISOLATION
 export OPENSTACK_CONTAINER_REGISTRY="$OPENSTACK_CONTAINER_REGISTRY"
 export OPENSTACK_CONTAINER_TAG="$OPENSTACK_CONTAINER_TAG"
 export ENABLE_TLS=$ENABLE_TLS
-export EXTERNAL_CONTROLLER_NODES=$EXTERNAL_CONTROLLER_NODES
+export EXTERNAL_CONTROLLER_NODES="$EXTERNAL_CONTROLLER_NODES"
+export EXTERNAL_CONTROLLER_SSH_USER="$EXTERNAL_CONTROLLER_SSH_USER"
 export CONTROL_PLANE_ORCHESTRATOR=$CONTROL_PLANE_ORCHESTRATOR
 export L3MH_CIDR="$L3MH_CIDR"
 export VROUTER_GATEWAY="${VROUTER_GATEWAY}"
