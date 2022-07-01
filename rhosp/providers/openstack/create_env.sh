@@ -255,8 +255,7 @@ function collect_node_ips() {
 overcloud_cont_prov_ip=$(collect_node_ips $overcloud_cont_instance)
 overcloud_compute_prov_ip=$(collect_node_ips $overcloud_compute_instance)
 overcloud_ctrlcont_prov_ip=$(collect_node_ips $overcloud_ctrlcont_instance)
-if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' && $overcloud_compute_prov_ip == '' ]] ; then
-  overcloud_ctrlcont_mgmt_ip=$(get_openstack_vm_ip $overcloud_ctrlcont_instance $management_network_name)
+if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' ]] ; then
   export EXTERNAL_CONTROLLER_NODES=$overcloud_ctrlcont_prov_ip
 fi
 

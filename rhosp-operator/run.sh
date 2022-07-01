@@ -16,6 +16,7 @@ source "$my_dir/../common/stages.sh"
 source "$my_dir/../common/collect_logs.sh"
 source "$rhosp_dir/providers/common/common.sh"
 source "$rhosp_dir/providers/common//functions.sh"
+source "$my_dir/functions.sh"
 source "$my_dir/stages.sh"
 
 export DEPLOYER='operator'

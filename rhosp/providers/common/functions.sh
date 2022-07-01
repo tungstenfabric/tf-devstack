@@ -158,9 +158,10 @@ EOF
     if [[ $CONTROL_PLANE_ORCHESTRATOR == 'operator' ]] ; then
         # copy FQDN to tf node
         local ssh_user=${EXTERNAL_CONTROLLER_SSH_USER:-$SSH_USER}
-        local addr=$overcloud_ctrlcont_prov_ip
-        [ -z "$ssh_user" ] || addr="$ssh_user@$addr"
-        cat <<EOE | ssh $ssh_opts $addr
+        local addr
+        for addr in $(echo $overcloud_ctrlcont_prov_ip | tr ',' ' ') ; do
+            [ -z "$ssh_user" ] || addr="$ssh_user@$addr"
+            cat <<EOE | ssh $ssh_opts $addr
 # remove old records
 sudo sed "/overcloud.${domain}\|overcloud.\(internalapi\|ctlplane\).${domain}/d" /etc/hosts
 cat <<EOF | sudo tee -a /etc/hosts
@@ -170,6 +171,7 @@ ${internal_api_vip} overcloud.internalapi.${domain}
 ${ctlplane_vip} overcloud.ctlplane.${domain}
 EOF
 EOE
+        done
     fi
 }
 
@@ -493,5 +495,5 @@ function get_first_agent_node() {
         echo "No agent nodes were found"
         return 1
     fi
-    echo "$agent_nodes" | cut -d, -f1
+    echo "$agent_nodes" | cut -d ' ' -f1
 }

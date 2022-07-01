@@ -97,4 +97,3 @@ EOF
     tar -czf ${TF_LOG_DIR}/tht.tgz -C ~ *.yaml tripleo-heat-templates
     tar -czf ${WORKSPACE}/logs.tgz -C ${TF_LOG_DIR}/.. logs
 }
-

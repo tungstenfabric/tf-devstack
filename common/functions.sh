@@ -385,6 +385,14 @@ function ensure_nameserver() {
         echo "INFO: Adding nameserver $nameserver_ip to /etc/resolv.conf"
         echo "nameserver $nameserver_ip" | sudo tee -a /etc/resolv.conf
     done
+    sudo mv /etc/dhcp/dhclient-enter-hooks /etc/dhcp/dhclient-enter-hooks.old || true
+    cat <<EOF | sudo tee /etc/dhcp/dhclient-enter-hooks
+# tf-devstack generated to avoid dhclient to rewrite resolv.conf
+make_resolv_conf(){
+	:
+}
+EOF
+    sudo chmod a+x /etc/dhcp/dhclient-enter-hooks
 }
 
 

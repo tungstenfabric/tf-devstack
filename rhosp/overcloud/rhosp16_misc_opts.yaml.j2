@@ -18,8 +18,12 @@
   {%- set overcloud_ctrlcont_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
   {%- set overcloud_operator_instance = 0 %}
 {% else %}
-  {%- set overcloud_operator_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
   {%- set overcloud_ctrlcont_instance = 0 %}
+  {%- if EXTERNAL_CONTROLLER_NODES is defined and EXTERNAL_CONTROLLER_NODES|length %}
+    {%- set overcloud_operator_instance = 0 %}
+  {% else %}
+    {%- set overcloud_operator_instance = (overcloud_ctrlcont_instance.split(',') | length) if overcloud_ctrlcont_instance != '' else 0 %}
+  {%- endif %}
 {%- endif %}
 
 {%- set overcloud_compute_instance = overcloud_compute_instance | default('') %}
