@@ -77,11 +77,13 @@ function machines() {
     sync_time
     if [[ -n "$K8S_CA" ]]; then
         #set_domain_on_machines $DOMAIN
-        if [[ "$K8S_CA" == "ipa" ]] && [[ "$DEPLOY_IPA_SERVER" == "true" ]]; then
+        if [[ "$K8S_CA" == "ipa" ]] ; then
             ipa_node=$(echo "$IPA_NODES" | cut -d ',' -f1)
             IPA_ADMIN=admin
             IPA_IP=$ipa_node
-            ipa_server_install $ipa_node
+            if [[ "$DEPLOY_IPA_SERVER" == "true" ]] ; then
+                ipa_server_install $ipa_node
+            fi
         fi
         ${K8S_CA}_enroll
     fi

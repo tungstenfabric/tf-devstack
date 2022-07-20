@@ -42,7 +42,12 @@ else
     sudo yum install ipa-client -y
 fi
 
-sudo ipa-client-install --verbose -U --server "$IPA_FQDN" -p "$IPA_PRINCIPAL" -w "$IPA_PASSWORD" --domain "$IPA_DOMAIN" --hostname "$HOST_FQDN"
+sudo ipa-client-install --verbose -U --server "$IPA_FQDN" -p "$IPA_PRINCIPAL" -w "$IPA_PASSWORD" --domain "$IPA_DOMAIN" --hostname "$HOST_FQDN" || error_code=$?
+if [[ $error_code == 3 ]] ; then
+    echo "The client is already configured"
+elif [[ -n $error_code ]] ; then
+    exit 1
+fi
 
 sudo cp /etc/ipa/ca.crt $CA_DIR/ca-bundle.crt
 

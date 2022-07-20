@@ -7,16 +7,23 @@ export DEBUG=true
 
 export AUTH_MODE='keystone'
 export IPFABRIC_SERVICE_HOST={{ overcloud_node_ip }}
-export KEYSTONE_AUTH_HOST={{ overcloud_node_ip }}
+export KEYSTONE_AUTH_HOST='overcloud.internalapi.{{ domain }}'
+{%- if K8S_CA %}
+export KEYSTONE_AUTH_PROTO='https'
+export KEYSTONE_AUTH_INSECURE=False
+{%- else %}
 export KEYSTONE_AUTH_PROTO='http'
+{%- endif %}
 export KEYSTONE_AUTH_ADMIN_PASSWORD='qwe123QWE'
 export KEYSTONE_AUTH_REGION_NAME='regionOne'
 export K8S_RESOLV_CONFG_MODE='none'
 export CONTAINER_REGISTRY={{ CONTAINER_REGISTRY }}
 export CONTRAIL_CONTAINER_TAG={{ CONTRAIL_CONTAINER_TAG }}
 export CONTROLLER_NODES="{{ CONTROLLER_NODES }}"
+export IPA_NODES="{{ IPA_NODES }}"
+export DOMAIN="{{ DOMAIN }}"
 
-export CERT_SIGNER="SelfSignedCA"
+export CERT_SIGNER="{{ CERT_SIGNER | default('SelfSignedCA') }}"
 export TF_ROOT_CA_KEY_BASE64={{ cakey }}
 export TF_ROOT_CA_CERT_BASE64={{ cabundle }}
 

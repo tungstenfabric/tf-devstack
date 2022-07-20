@@ -87,20 +87,23 @@ export dmi_uuids
 $my_dir/../../common/jinja2_render.py < $my_dir/${RHOSP_MAJOR_VERSION}_misc_opts.yaml.j2 >misc_opts.yaml
 if [[ -n "$EXTERNAL_CONTROLLER_NODES" ]] ; then
    cat <<EOF >>misc_opts.yaml
-  ExternalContrailConfigIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
-  ExternalContrailControlIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
-  ExternalContrailAnalyticsIPs: ${EXTERNAL_CONTROLLER_NODES// /,}
-
   ExtraHostFileEntries:
 EOF
-
+   external_controller_fqdns=""
    for node in ${EXTERNAL_CONTROLLER_NODES//,/ } ; do
       fqdn=$(ssh $node hostname -f)
       short=$(ssh $node hostname -s)
+      external_controller_fqdns+="${fqdn} "
       cat <<EOF >>misc_opts.yaml
        - "$node    $fqdn    $short"
 EOF
    done
+   cat <<EOF >>misc_opts.yaml
+
+  ExternalContrailConfigIPs: ${external_controller_fqdns// /,}
+  ExternalContrailControlIPs: ${external_controller_fqdns// /,}
+  ExternalContrailAnalyticsIPs: ${external_controller_fqdns// /,}
+EOF
 fi
 
 if [[ "$CONTROL_PLANE_ORCHESTRATOR" == 'operator' ]] ; then
