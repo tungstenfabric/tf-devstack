@@ -14,7 +14,7 @@ source $my_dir/../providers/common/functions.sh
 if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
    export overcloud_nameservers="[ \"$ipa_prov_ip\" ]"
 else
-   export overcloud_nameservers="[ \"8.8.8.8\", \"8.8.4.4\" ]"
+   export overcloud_nameservers=${NAMESERVER_LIST:-"[ \"8.8.8.8\", \"8.8.4.4\" ]"}
 fi
 
 export undercloud_registry=${prov_ip}:8787

@@ -15,7 +15,7 @@ if [[ "$ENABLE_TLS" == 'ipa' ]] ; then
   export nova_join_option="enable_novajoin = True"
   export ipa_otp_option="ipa_otp = \"$OTP_PASSWORD\""
 else
-  export undercloud_nameservers="8.8.8.8"
+  export undercloud_nameservers=${NAMESERVER_LIST:-"8.8.8.8"}
   export nova_join_option=""
   export ipa_otp_option=""
 fi

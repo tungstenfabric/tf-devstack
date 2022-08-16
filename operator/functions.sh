@@ -100,10 +100,18 @@ function ipa_server_install() {
     scp $SSH_OPTIONS -rp "${work_dir}"/src/tungstenfabric/tf-devstack/contrib/ipa/freeipa_setup_root.sh "${machine}":
     echo "INFO: install IPA server at $machine"
 
+    if [ -n $NAMESERVER_LIST ]; then
+        echo "INFO: Setup DNS servers $NAMESERVER_LIST"
+        IPA_DNS1=$(echo $NAMESERVER_LIST | cut -d ',' -f1)
+        IPA_DNS2=$(echo $NAMESERVER_LIST | cut -d ',' -f2)
+    fi
+
     cat <<EOF | ssh $SSH_OPTIONS $machine
 [[ "$DEBUG" == true ]] && set -x
 export AdminPassword=$IPA_PASSWORD
 export FreeIPAIP=$machine
+export IPA_DNS1=$IPA_DNS1
+export IPA_DNS2=$IPA_DNS2
 sudo -E ./freeipa_setup_root.sh
 EOF
     ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt

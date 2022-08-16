@@ -28,11 +28,16 @@ echo "GATEWAY=${prov_ip}" | sudo tee -a $cfg_file
 
 $my_dir/../../common/rhel_provisioning.sh
 
+if [ -n $NAMESERVER_LIST ]; then
+    echo "INFO: Setup DNS servers $NAMESERVER_LIST"
+    NS_SERVER1=$(echo $NAMESERVER_LIST | cut -d ',' -f1)
+fi
+
 if [[ "$ENABLE_TLS" == "ipa" ]] ; then
    ensure_nameserver $ipa_prov_ip
    ensure_record_in_etc_hosts $ipa_prov_ip "${ipa_instance}.${domain}"
 else
-   ensure_nameserver "8.8.8.8"
+   ensure_nameserver ${NS_SERVER1:-"8.8.8.8"}
 fi
 
 echo "INFO: source file $my_dir/${RHOSP_MAJOR_VERSION}_configure_registries_overcloud.sh"

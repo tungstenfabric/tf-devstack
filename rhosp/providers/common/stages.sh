@@ -49,12 +49,19 @@ EOF
 function _setup_ipa() {
     local fqdn=$(hostname -f)
     echo "INFO: Setup IPA server ${ipa_mgmt_ip}"
+    if [ -n $NAMESERVER_LIST ]; then
+        echo "INFO: Setup DNS servers $NAMESERVER_LIST"
+        IPA_DNS1=$(echo $NAMESERVER_LIST | cut -d ',' -f1)
+        IPA_DNS2=$(echo $NAMESERVER_LIST | cut -d ',' -f2)
+    fi
     cat <<EOF | ssh $ssh_opts $SSH_USER@${ipa_mgmt_ip}
 source rhosp-environment.sh
 [[ "$DEBUG" == true ]] && set -x
 ./tf-devstack/common/rhel_provisioning.sh
 export UndercloudFQDN=$fqdn
 export AdminPassword=$ADMIN_PASSWORD
+export IPA_DNS1=$IPA_DNS1
+export IPA_DNS2=$IPA_DNS2
 export FreeIPAIP=$ipa_prov_ip
 export FreeIPAIPSubnet=$prov_subnet_len
 export IPA_IFACE=$(ip -o link | grep ether | awk '{print($2)}' | tr -d ':.*' | head -n 2 | tail -n1)
