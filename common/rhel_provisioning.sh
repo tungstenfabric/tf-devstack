@@ -3,6 +3,8 @@
 my_file="$(readlink -e "$0")"
 my_dir="$(dirname $my_file)"
 
+exec 3>&1 1> >(tee /tmp/rhel_provisioning.log) 2>&1
+
 cd
 
 #For rhosp compatibility
@@ -68,7 +70,7 @@ else
   sudo subscription-manager config --rhsm.manage_repos=0
 fi
 
-echo "INFO: source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh"
+echo "INFO: hostname=$(hostname -s) source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh"
 source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh
 
 [[ "$ENABLE_TLS" != 'ipa' ]] || sudo update-ca-trust extract
