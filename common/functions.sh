@@ -376,13 +376,16 @@ function ensure_fqdn() {
 }
 
 function ensure_nameserver() {
-    local nameserver_ip=${1:-'8.8.8.8'}
-    if ! grep -q "nameserver $nameserver_ip" /etc/resolv.conf; then
-        echo "INFO: change_nameserver: nameserver $nameserver_ip is set in /etc/resolv.conf"
-        sudo sed -i '/nameserver/d'  /etc/resolv.conf
+    local nameserver_list=${1:-'8.8.8.8'}
+    echo "INFO: Removing all nameservers from /etc/resolv.conf"
+    sudo sed -i '/nameserver/d'  /etc/resolv.conf
+    local nameserver_ip
+    for nameserver_ip in $(echo $nameserver_list | tr ',' ' '); do
+        echo "INFO: Adding nameserver $nameserver_ip to /etc/resolv.conf"
         echo "nameserver $nameserver_ip" | sudo tee -a /etc/resolv.conf
-    fi
+    done
 }
+
 
 function ensure_record_in_etc_hosts() {
     local ip_addr=$1

@@ -74,3 +74,7 @@ echo "INFO: hostname=$(hostname -s) source $my_dir/${RHEL_MAJOR_VERSION}_provisi
 source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh
 
 [[ "$ENABLE_TLS" != 'ipa' ]] || sudo update-ca-trust extract
+
+if [[ -n "$NAMESERVER_LIST" ]]; then
+    ensure_nameserver "$NAMESERVER_LIST"
+fi

@@ -60,8 +60,6 @@ source rhosp-environment.sh
 ./tf-devstack/common/rhel_provisioning.sh
 export UndercloudFQDN=$fqdn
 export AdminPassword=$ADMIN_PASSWORD
-export IPA_DNS1=$IPA_DNS1
-export IPA_DNS2=$IPA_DNS2
 export FreeIPAIP=$ipa_prov_ip
 export FreeIPAIPSubnet=$prov_subnet_len
 export IPA_IFACE=$(ip -o link | grep ether | awk '{print($2)}' | tr -d ':.*' | head -n 2 | tail -n1)
