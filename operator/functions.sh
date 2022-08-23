@@ -129,6 +129,7 @@ function rhel_setup_node() {
     cat <<EOF | ssh $SSH_OPTIONS $ip_addr
 [[ "$DEBUG" == true ]] && set -x
 export DOMAIN=$DOMAIN
+export NAMESERVER_LIST=$NAMESERVER_LIST
 echo "INFO: running rhel_provisioning on the $ip_addr"
 ./$(basename $tf_devstack_path)/common/rhel_provisioning.sh
 EOF
