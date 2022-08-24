@@ -367,7 +367,11 @@ function ensure_fqdn() {
         echo "INFO: cur fqdn doesnt match to expected: $cur_fqdn != $exp_fqdn"
         sudo hostnamectl set-hostname $exp_fqdn
         echo "INFO: Changing /etc/resolv.conf (search $domain) on $(hostname -f)"
-        sudo sed -i 's/search .*$/search $domain/' /etc/resolv.conf
+        if grep -q search /etc/resolv.conf; then
+            sudo sed -i 's/search .*$/search $domain/' /etc/resolv.conf
+        else 
+            echo "search $domain" | sudo tee -a /etc/resolv.conf
+        fi
     fi
     echo "INFO: fqdn: $(hostname -f) host domain: $(hostname -d)"
 }

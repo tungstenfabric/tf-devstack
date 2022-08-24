@@ -77,4 +77,7 @@ source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh
 
 if [[ -n "$NAMESERVER_LIST" ]]; then
     ensure_nameserver "$NAMESERVER_LIST"
+else
+    ensure_nameserver 8.8.8.8
 fi
+
