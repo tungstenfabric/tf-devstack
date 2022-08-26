@@ -30,9 +30,7 @@ function set_env_var() {
 # parameters
 
 # this version still supports 1.20
-#TODO: tag 'master' should be changed to some stable release as soon as ntp managing features are merged  
-#Current release-2.19 doesn't include ntp managing
-KUBESPRAY_TAG=${KUBESPRAY_TAG:="master"} 
+KUBESPRAY_TAG=${KUBESPRAY_TAG:="release-2.18"}
 K8S_MASTERS=${K8S_MASTERS:-$NODE_IP}
 K8S_NODES=${K8S_NODES-$NODE_IP}
 # host_resolvconf or none
@@ -74,9 +72,6 @@ fi
 
 if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]]; then
     sudo yum install -y python3 python3-pip libyaml-devel python3-devel git network-scripts
-    #Update python
-    sudo yum install -y python39
-    sudo yum remove -y python36
 elif [ "$DISTRO" == "ubuntu" ]; then
     # Ensure updates repo is available
     if [[ "$IGNORE_APT_UPDATES_REPO" != "false" ]] && ! apt-cache policy | grep http | awk '{print $2 $3}' | sort -u | grep -q updates; then
@@ -267,20 +262,7 @@ extra_vars=""
 [[ -z $K8S_SERVICE_SUBNET ]] || extra_vars="$extra_vars -e kube_service_addresses=$K8S_SERVICE_SUBNET"
 [[ -z $K8S_VERSION ]] || extra_vars="$extra_vars -e kube_version=$K8S_VERSION"
 
-#Tuning ntp servers
-if [[ -n "$NTP_SERVERS" ]]; then
-    sed -i "s/ntp_enabled: false/ntp_enabled: true/" ./inventory/mycluster/group_vars/all/all.yml
-    sed -i "s/ntp_manage_config: false/ntp_manage_config: true/" ./inventory/mycluster/group_vars/all/all.yml
-    sed -i "/ntp_manage_config:/ a ntp_force_sync_immediately: true" ./inventory/mycluster/group_vars/all/all.yml
-    sed -i "/pool.ntp.org iburst/d" ./inventory/mycluster/group_vars/all/all.yml
-    for srv in $(echo $NTP_SERVERS | tr ',' ' '); do
-         sed -i "/^ntp_servers:/ a \  - \"${srv} iburst\"" ./inventory/mycluster/group_vars/all/all.yml
-    done
-    echo "INFO: tuning ntp servers in ./inventory/mycluster/group_vars/all/all.yml"
-    grep 'ntp\|iburst' ./inventory/mycluster/group_vars/all/all.yml | grep -v ^#
-fi
-
-echo "INFO: Cleanup /etc/hosts before kubespay"
+echo i"INFO: Cleanup /etc/hosts before kubespay"
 cp $my_dir/deploy_kubespray_cleanup_hosts.yaml .
 ansible-playbook -i inventory/mycluster/hosts.yml deploy_kubespray_cleanup_hosts.yaml
 echo "INFO: Running kubespray playbook"
