@@ -55,11 +55,12 @@ function machines() {
     if [[ "$DISTRO" == "centos" ]]; then
         if ! sudo yum repolist | grep -q epel ; then
             sudo yum -y install epel-release
+            parallel_run set_timeserver_node
         fi
         sudo yum install -y jq bind-utils git
     elif [[ "$DISTRO" == "rhel" ]]; then
         sudo yum install -y jq bind-utils git
-        rhel_setup_all_the_nodes
+        parallel_run rhel_setup_node
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update

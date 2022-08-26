@@ -369,7 +369,7 @@ function ensure_fqdn() {
         echo "INFO: Changing /etc/resolv.conf (search $domain) on $(hostname -f)"
         if grep -q search /etc/resolv.conf; then
             sudo sed -i 's/search .*$/search $domain/' /etc/resolv.conf
-        else 
+        else
             echo "search $domain" | sudo tee -a /etc/resolv.conf
         fi
     fi
@@ -398,3 +398,59 @@ function ensure_record_in_etc_hosts() {
         echo "$ip_addr $fqdn $shortname" | sudo tee -a /etc/hosts
     fi
 }
+
+function ensure_chrony_server() {
+    local server_list=$1
+    sudo sed -i '/^pool/d'  /etc/chrony.conf
+    sudo sed -i '/^server/d'  /etc/chrony.conf
+
+    local server_ip
+    for server_ip in $(echo $server_list | tr ',' ' '); do
+        echo "INFO: Adding NTP server $server_ip to /etc/chrony.conf"
+        echo "server $server_ip iburst" | sudo tee -a /etc/chrony.conf
+    done
+    sudo systemctl restart chronyd
+}
+
+function ensure_ntp_server() {
+    local server_list=$1
+    sudo sed -i '/^pool/d'  /etc/ntp.conf
+    sudo sed -i '/^server/d'  /etc/ntp.conf
+
+    local server_ip
+    for server_ip in $(echo $server_list | tr ',' ' '); do
+        echo "INFO: Adding NTP server $server_ip to /etc/ntp.conf"
+        echo "server $server_ip iburst" | sudo tee -a /etc/ntp.conf
+    done
+    sudo systemctl restart ntp
+}
+
+#function ensure_timesyncd_server() {
+#    local server_list=$1
+#    server_lst=$(echo $server_list | tr ',' ' ')
+#    echo "INFO: Set  NTP servers \"$server_lst\" in /etc/systemd/timesyncd.conf"
+#    if grep -q ^NTP= /etc/systemd/timesyncd.conf; then
+#        sed -i "s/NTP=.*$/NTP=$server_lst/" /etc/systemd/timesyncd.conf
+#    else
+#        echo "NTP=$server_lst" | sudo tee -a /etc/systemd/timesyncd.conf
+#    done
+#    sudo systemctl restart systemd-networkd
+#}
+
+function ensure_timeserver() {
+    local server_list=$1
+    local ntpd_detected=$(ps xa | grep -v grep | grep -c ntpd | cat)
+    local chrony_detected=$(ps xa | grep -v grep | grep -c chronyd | cat)
+    #systemd_timesync_detected=$(ps xa | grep -v grep | grep -c systemd-networkd | cat)
+    if [[ "$ntpd_detected" == "1" ]] && [[ "$chrony_detected" == "0" ]]; then
+        echo "INFO: ensure_timeserver $server_list. ntpd detected "
+        ensure_ntp_server "$server_list"
+    elif [[ "$ntpd_detected" == "0" ]] && [[ "$chrony_detected" == "1" ]]; then
+        echo "INFO: ensure_timeserver $server_list. chrony detected "
+        ensure_chrony_server "$server_list"
+    else
+        echo "ERROR: Can't detect NTP service"
+        exit 1
+    fi
+}
+
