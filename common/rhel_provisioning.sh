@@ -75,9 +75,14 @@ source $my_dir/${RHEL_MAJOR_VERSION}_provisioning.sh
 
 [[ "$ENABLE_TLS" != 'ipa' ]] || sudo update-ca-trust extract
 
+if [[ -n "$NTP_SERVERS" ]]; then
+    ensure_timeserver "$NTP_SERVERS"
+fi
+
 if [[ -n "$NAMESERVER_LIST" ]]; then
     ensure_nameserver "$NAMESERVER_LIST"
 else
     ensure_nameserver 8.8.8.8
 fi
 
+echo "INFO: rhel_provisioning finished"
