@@ -147,6 +147,7 @@ function rhel_setup_node() {
 [[ "$DEBUG" == true ]] && set -x
 export DOMAIN=$DOMAIN
 export NAMESERVER_LIST=$NAMESERVER_LIST
+export NTP_SERVERS=$NTP_SERVERS
 echo "INFO: running rhel_provisioning on the $ip_addr. See log at /tmp/rhel_provisioning.log"
 ./$(basename $tf_devstack_path)/common/rhel_provisioning.sh
 EOF
