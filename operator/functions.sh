@@ -130,7 +130,7 @@ function set_timeserver_node() {
         return
     fi
     echo "INFO: copying common/set_timeserver.sh and common/functions.sh to the $ip_addr"
-    scp $SSH_OPTIONS -r $tf_devstack_path/common/set_timeserver.sh $tf_devstack_path/common/functions,sh $ip_addr:/tmp
+    scp $SSH_OPTIONS -r $tf_devstack_path/common/set_timeserver.sh $tf_devstack_path/common/functions.sh $ip_addr:/tmp
     cat <<EOF | ssh $SSH_OPTIONS $ip_addr
 [[ "$DEBUG" == true ]] && set -x
 export NTP_SERVERS="$NTP_SERVERS"
