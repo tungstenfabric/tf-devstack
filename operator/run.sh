@@ -55,9 +55,11 @@ function machines() {
     if [[ "$DISTRO" == "centos" ]]; then
         if ! sudo yum repolist | grep -q epel ; then
             sudo yum -y install epel-release
-            parallel_run set_timeserver_node
         fi
         sudo yum install -y jq bind-utils git
+        if [[ -n $NTP_SERVERS ]]; then
+            parallel_run set_timeserver_node
+        fi
     elif [[ "$DISTRO" == "rhel" ]]; then
         sudo yum install -y jq bind-utils git
         parallel_run rhel_setup_node
@@ -65,6 +67,9 @@ function machines() {
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update
         sudo -E apt-get install -y jq dnsutils
+        if [[ -n $NTP_SERVERS ]]; then
+            parallel_run set_timeserver_node
+        fi
     else
         echo "Unsupported OS version"
         exit 1
