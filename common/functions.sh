@@ -422,7 +422,7 @@ function ensure_ntp_server() {
         echo "INFO: Adding NTP server $server_ip to /etc/ntp.conf"
         echo "server $server_ip iburst" | sudo tee -a /etc/ntp.conf
     done
-    sudo systemctl restart ntp
+    sudo systemctl restart ntp || sudo systemctl restart ntpd
 }
 
 #function ensure_timesyncd_server() {
