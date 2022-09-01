@@ -135,7 +135,7 @@ function set_timeserver_node() {
 [[ "$DEBUG" == true ]] && set -x
 export NTP_SERVERS="$NTP_SERVERS"
 echo "INFO: running set_timeserver.sh on the $ip_addr. See log at /tmp/set_timeserver.log"
-./$(basename $tf_devstack_path)/common/rhel_provisioning.sh
+/tmp/set_timeserver.sh
 EOF
 }
 

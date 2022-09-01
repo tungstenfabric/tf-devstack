@@ -19,6 +19,3 @@ else
     echo "ERROR: Variable NTP_SERVERS is undefined. Exiting"
     exit 1
 fi
-
-fi
-
