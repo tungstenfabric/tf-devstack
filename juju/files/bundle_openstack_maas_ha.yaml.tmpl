@@ -394,6 +394,10 @@ services:
       - "4"
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp-41"
+{%- if NTP_SERVERS %}
+    options:
+      source: "{{ NTP_SERVERS }}"
+{%- endif %}
 
 
 relations:

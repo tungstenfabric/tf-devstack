@@ -278,6 +278,11 @@ services:
     to: {{ all_nodes }}
   ntp:
     charm: "cs:{{ UBUNTU_SERIES }}/ntp-41"
+{%- if NTP_SERVERS %}
+    options:
+      source: "{{ NTP_SERVERS }}"
+{%- endif %}
+
 
 
 relations:
