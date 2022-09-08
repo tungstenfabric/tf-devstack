@@ -58,11 +58,11 @@ committers:
       email: 'williamstevens@gmail.com'
       company: ''
       id: 'swill'
-      timezone: ''
+      timezone: 'America/Los_Angeles'
 tsc:
     # yamllint disable rule:line-length
     approval: 'https://wiki.tungsten.io/display/TUN/Projects'
     changes:
         - type: 'initial approval'
           name: ''
-          link: ''
+          link: 'https://lists.tungsten.io/g/tsc/topic/88752516#1249'
