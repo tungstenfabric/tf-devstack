@@ -13,7 +13,7 @@ provider_config:
     ssh_private_key: "{{ HOME }}/.ssh/id_rsa"
     domainsuffix: "{{ DOMAINSUFFIX }}"
 {%- if NTP_SERVERS %}
-    ntpserver: {{ NTP_SERVERS | split(",") | first }}
+    ntpserver: {{ NTP_SERVERS.split(',')[0] }}
 {%- endif %}
 
 instances:
