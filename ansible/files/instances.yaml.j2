@@ -12,6 +12,9 @@ provider_config:
     ssh_pwd:
     ssh_private_key: "{{ HOME }}/.ssh/id_rsa"
     domainsuffix: "{{ DOMAINSUFFIX }}"
+{%- if NTP_SERVERS %}
+    ntpserver: {{ NTP_SERVERS | split(",") | first }}
+{%- endif %}
 
 instances:
 {%- for node in CONTROLLER_NODES %}
