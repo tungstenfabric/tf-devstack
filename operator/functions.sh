@@ -122,23 +122,6 @@ EOF
 #    ssh $SSH_OPTIONS $machine cat /etc/ipa/ca.crt
 #}
 
-function set_timeserver_node() {
-    local ip_addr=$1
-    local tf_devstack_path=$(dirname $my_dir)
-    if [[ ! -n "$NTP_SERVERS" ]]; then
-        echo "INFO: set_timeserver: Variable NTP_SERVERS is empty. Nothing to set"
-        return
-    fi
-    echo "INFO: copying common/set_timeserver.sh and common/functions.sh to the $ip_addr"
-    scp $SSH_OPTIONS -r $tf_devstack_path/common/set_timeserver.sh $tf_devstack_path/common/functions.sh $ip_addr:/tmp
-    cat <<EOF | ssh $SSH_OPTIONS $ip_addr
-[[ "$DEBUG" == true ]] && set -x
-export NTP_SERVERS="$NTP_SERVERS"
-echo "INFO: running set_timeserver.sh on the $ip_addr. See log at /tmp/set_timeserver.log"
-/tmp/set_timeserver.sh
-EOF
-}
-
 function rhel_setup_node() {
     local ip_addr=$1
     local tf_devstack_path=$(dirname $my_dir)
@@ -151,29 +134,6 @@ export NTP_SERVERS=$NTP_SERVERS
 echo "INFO: running rhel_provisioning on the $ip_addr. See log at /tmp/rhel_provisioning.log"
 ./$(basename $tf_devstack_path)/common/rhel_provisioning.sh
 EOF
-}
-
-
-function parallel_run() {
-    local action=$1
-    local jobs=""
-    declare -A jobs_descr
-    local ip_addr
-    for ip_addr in ${CONTROLLER_NODES//,/ } ${AGENT_NODES//,/ } ${IPA_NODES//,/ } ; do
-        $action $ip_addr &
-        jobs_descr[$!]="$action $ip_addr"
-        jobs+=" $!"
-    done
-    echo "INFO: Parallel $action. pids: $jobs. Waiting..."
-    local res=0
-    local i
-    for i in $jobs ; do
-        command wait $i || {
-            echo "ERROR: failed ${jobs_descr[$i]}"
-            res=1
-        }
-    done
-    [[ "${res}" == 0 ]] || exit 1
 }
 
 

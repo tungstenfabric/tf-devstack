@@ -63,7 +63,7 @@ function k8s() {
     export K8S_POD_SUBNET=$TF_POD_SUBNET
     export K8S_SERVICE_SUBNET=$TF_SERVICE_SUBNET
     if [[ -n "$NTP_SERVERS" ]]; then
-        ensure_timeserver "$NTP_SERVERS"
+        parallel_run set_timeserver_node
     fi
     $my_dir/../common/deploy_kubespray.sh
 }
