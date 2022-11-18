@@ -497,3 +497,50 @@ function get_first_agent_node() {
     fi
     echo "$agent_nodes" | cut -d ' ' -f1
 }
+
+function configure_podman_insecure_registries_v1() {
+    local new_registry=$1
+    local podman_config="/etc/containers/registries.conf"
+    local current_registries="$(sed -n '/registries.insecure/{n; s/registries = //p}' "$podman_config" | tr -d '[]')"
+    echo "INFO: current registries are $current_registries"
+    if [[ "$current_registries" != *"$new_registry"* ]]; then
+        echo "INFO: Adding new registry $new_registry v1"
+        insecure_registries="registries = [$current_registries, '$new_registry']"
+        echo "INFO: new insecure registries are $insecure_registries"
+        sudo sed -i "/registries.insecure/{n; s/registries = .*$/${insecure_registries}/g}" ${podman_config}
+    else
+        echo "INFO: insecure registry $new_registry is already configured (v1). Skipping"
+    fi
+}
+
+function configure_podman_insecure_registries_v2() {
+    local new_registry=$1
+    echo "configure_podman_insecure_registries_v2: $new_registry"
+    local podman_config="/etc/containers/registries.conf"
+    if grep -qE "prefix = .?$new_registry.?" ${podman_config}; then
+        echo "INFO: insecure registry '${new_registry}' is already configured (v2). Skipping"
+    else
+        echo "INFO: Adding new registry $new_registry v2"
+        echo "[[registry]]" | sudo tee -a ${podman_config}
+        echo "prefix = \"$new_registry\"" | sudo tee -a ${podman_config}
+        echo "insecure = true" | sudo tee -a ${podman_config}
+        echo "location = \"$new_registry\"" | sudo tee -a ${podman_config}
+    fi
+}
+
+function configure_podman_insecure_registries() {
+    local new_registry=$1
+    local podman_config="/etc/containers/registries.conf"
+    if grep -q 'registries.insecure' ${podman_config}; then
+        echo "INFO: podman config ${podman_config} v1 detected"
+        configure_podman_insecure_registries_v1 $new_registry
+    elif grep -q '\[\[registry\]\]' ${podman_config}; then
+        echo "INFO: podman config ${podman_config} v2 detected"
+        configure_podman_insecure_registries_v2 $new_registry
+    else
+        "INFO: podman config ${podman_config} version not detected. Using v1"
+        configure_podman_insecure_registries_v1 $new_registry
+    fi
+}
+
+
