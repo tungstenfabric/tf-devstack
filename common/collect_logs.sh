@@ -284,6 +284,11 @@ function collect_system_stats() {
     sudo chown -R $SUDO_UID:$SUDO_GID $syslogs
     sudo find $syslogs -type f -exec chmod a+r {} \;
     sudo find $syslogs -type d -exec chmod a+rx {} \;
+
+    local distro=$(cat /etc/*release | egrep '^ID=' | awk -F= '{print $2}' | tr -d \")
+    if [ "$distro" == "ubuntu" ]; then
+        apt list --installed &>$syslogs/apt-list.log
+    fi
 }
 
 function collect_juju_status() {
