@@ -91,7 +91,7 @@ function machines() {
         py3ansible=''
     fi
     # docker-compose MUST be first here, because it will install the right version of PyYAML
-    sudo python2 -m pip install 'docker-compose==1.24.1' $py2ansible
+    sudo python2 -m pip install 'docker-compose==1.24.1' 'setuptools>44,<45' $py2ansible
     # jinja is reqiured to create some configs
     sudo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python3 -m pip install jinja2 pyyaml $py3ansible
 
