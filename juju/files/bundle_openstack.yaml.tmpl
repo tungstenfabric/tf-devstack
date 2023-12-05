@@ -1,6 +1,6 @@
 
 {%- set placement = false %}
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri'  or OPENSTACK_VERSION == 'yoga' %}
 {%- set placement = true %}
 {%- endif %}
 
@@ -10,7 +10,7 @@
 # https://bugs.launchpad.net/charm-mysql-innodb-cluster/+bug/1882205
 # for non MAAS deployments mysql/bionic is still preffered
 # let's use percona-cluster in bionic container for now
-{%- set mysql_innodb = false %}
+{%- set mysql_innodb = true %}
 {%- endif %}
 
 machines:
@@ -42,8 +42,9 @@ machines:
 series: "{{ UBUNTU_SERIES }}"
 services:
   glance:
-    charm: "cs:{{ UBUNTU_SERIES }}/glance"
+    charm: "glance"
     num_units: 1
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     options:
       debug: "true"
       openstack-origin: "{{ OPENSTACK_ORIGIN }}"
@@ -51,8 +52,9 @@ services:
     to:
       - lxd:0
   keystone:
-    charm: "cs:{{ UBUNTU_SERIES }}/keystone"
+    charm: "keystone"
     num_units: 1
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     options:
       admin-password: "{{ AUTH_PASSWORD }}"
       admin-role: "admin"
@@ -66,7 +68,7 @@ services:
 
 {%- if not mysql_innodb %}
   mysql:
-    charm: "cs:bionic/percona-cluster"
+    charm: "percona-cluster"
     series: "bionic"
     num_units: 1
     options:
@@ -82,48 +84,48 @@ services:
 {%- else %}
 
   keystone-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   glance-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   nova-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   neutron-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   dashboard-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   heat-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri'  or OPENSTACK_VERSION == 'yoga' %}
   placement-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
 {%- endif %}
 {%- if ENABLE_IRONIC.lower() == 'true' %}
   ironic-api-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   ironic-conductor-mysql-router:
-    charm: cs:mysql-router
+    charm: mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
 {%- endif %}
 
   mysql-innodb-cluster:
-    charm: cs:{{ UBUNTU_SERIES }}/mysql-innodb-cluster
+    charm: mysql-innodb-cluster
     num_units: 3
     options:
       innodb-buffer-pool-size: 256M
@@ -136,14 +138,15 @@ services:
 {%- endif %}
 
   rabbitmq-server:
-    charm: "cs:{{ UBUNTU_SERIES }}/rabbitmq-server"
+    charm: "rabbitmq-server"
     num_units: 1
     options:
       min-cluster-size: 1
     to:
       - lxd:0
   neutron-api:
-    charm: "cs:{{ UBUNTU_SERIES }}/neutron-api"
+    charm: "neutron-api"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       debug: "true"
@@ -154,7 +157,8 @@ services:
     to:
       - lxd:0
   heat:
-    charm: "cs:{{ UBUNTU_SERIES }}/heat"
+    charm: "heat"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       debug: "true"
@@ -164,8 +168,9 @@ services:
       - lxd:0
 
   swift-proxy:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-proxy"
+    charm: "swift-proxy"
     num_units: 1
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     options:
       zone-assignment: manual
       replicas: 1
@@ -175,7 +180,8 @@ services:
     to:
       - lxd:0
   swift-storage:
-    charm: "cs:{{ UBUNTU_SERIES }}/swift-storage"
+    charm: "swift-storage"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       block-device: '/etc/swift/storagedev1.img|15G'
@@ -186,7 +192,8 @@ services:
 
 {%- if placement %}
   placement:
-    charm: "cs:{{ UBUNTU_SERIES }}/placement"
+    charm: "placement"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       debug: "true"
@@ -195,7 +202,8 @@ services:
     - lxd:0
 {%- endif %}
   nova-cloud-controller:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-cloud-controller"
+    charm: "nova-cloud-controller"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       network-manager: "Neutron"
@@ -210,8 +218,9 @@ services:
   # memcached is not required cause we run openstack in non-HA
 
   nova-compute:
-    charm: "cs:{{ UBUNTU_SERIES }}/nova-compute"
+    charm: "nova-compute"
     series: "{{ UBUNTU_SERIES }}"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: {{ agent_nodes | count }}
     options:
       debug: "true"
@@ -222,7 +231,8 @@ services:
       migration-auth-type: "ssh"
     to: {{ agent_nodes }}
   openstack-dashboard:
-    charm: "cs:{{ UBUNTU_SERIES }}/openstack-dashboard"
+    charm: "openstack-dashboard"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       debug: "true"
@@ -233,7 +243,8 @@ services:
 
 {%- if ENABLE_IRONIC.lower() == 'true' %}
   ironic-api:
-    charm: "cs:~openstack-charmers-next/{{ UBUNTU_SERIES }}/ironic-api"
+    charm: "ironic-api"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       debug: "true"
@@ -242,7 +253,8 @@ services:
     to:
       - lxd:0
   ironic-conductor:
-    charm: "cs:~openstack-charmers-next/{{ UBUNTU_SERIES }}/ironic-conductor"
+    charm: "ironic-conductor"
+    channel: "{{ OPENSTACK_VERSION }}/stable"
     num_units: 1
     options:
       default-network-interface: flat
@@ -257,19 +269,19 @@ services:
 {%- endif %}
 {%- if ENABLE_NAGIOS.lower() == 'true' and '20.' not in DISTRO_VERSION_ID %}
   nagios:
-    charm: cs:nagios
+    charm: nagios
     num_units: 1
     to:
     - "0"
     expose: true
   nrpe:
-    charm: cs:nrpe
+    charm: nrpe
 {%- endif %}
 
   # misc
 
   ubuntu:
-    charm: "cs:{{ UBUNTU_SERIES }}/ubuntu"
+    charm: "ubuntu"
 {%- if ORCHESTRATOR == 'hybrid' %}
     num_units: {{ all_nodes | count + 1 }}
 {%- else %}
@@ -277,7 +289,7 @@ services:
 {%- endif %}
     to: {{ all_nodes }}
   ntp:
-    charm: "cs:{{ UBUNTU_SERIES }}/ntp-41"
+    charm: "ntp"
 {%- if NTP_SERVERS %}
     options:
       source: "{{ NTP_SERVERS }}"

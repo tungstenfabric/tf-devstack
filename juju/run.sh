@@ -69,7 +69,7 @@ export SRIOV_VF=${SRIOV_VF:-4}
 
 source /etc/lsb-release
 export UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
-declare -A default_openstacks=( ["bionic"]="train" ["focal"]="ussuri" )
+declare -A default_openstacks=( ["bionic"]="train" ["focal"]="yoga" )
 default_openstack=${default_openstacks[$UBUNTU_SERIES]}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-$default_openstack}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
@@ -124,7 +124,7 @@ function openstack() {
 
     if [[ "$UBUNTU_SERIES" == 'bionic' && "$OPENSTACK_VERSION" == 'queens' ]]; then
         export OPENSTACK_ORIGIN="distro"
-    elif [[ "$UBUNTU_SERIES" == 'focal' && "$OPENSTACK_VERSION" == 'ussuri' ]]; then
+    elif [[ "$UBUNTU_SERIES" == 'focal' && "$OPENSTACK_VERSION" == 'yoga' ]]; then
         export OPENSTACK_ORIGIN="distro"
     else
         export OPENSTACK_ORIGIN="cloud:$UBUNTU_SERIES-$OPENSTACK_VERSION"
@@ -156,6 +156,19 @@ function openstack() {
         # this should be done after openstak deploy
         command juju run-action --wait ironic-conductor/leader set-temp-url-secret
     fi
+
+    # patch nova-compute to add virt_type to configuration
+    # https://bugs.launchpad.net/charm-nova-compute/+bug/2045774
+    units=$(command juju status --format json | jq '.applications["nova-compute"]["units"] | keys '  | sed 's/[][",]//g' | tr -d ',\n' )
+    openstack_version=$(command juju status --format json | jq '.applications["nova-compute"]["charm-channel"]'  | sed 's/"//g' | awk -F "/" '{print$1}')
+    for unit in $units ; do
+        unit_formatted=$(echo $unit | sed 's*/*-*g')
+        # patch
+        echo "patching /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/${openstack_version}/nova.conf"
+        $(which juju) ssh $unit "sudo sed -i 's/\[libvirt\]/\[libvirt\]\nvirt_type = {{ virt_type }}/g' /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/${openstack_version}/nova.conf"
+        command juju run --unit $unit "hooks/config-changed" >/dev/null
+        $(which juju) ssh $unit "cat /etc/nova/nova.conf"
+    done
 }
 
 function k8s() {

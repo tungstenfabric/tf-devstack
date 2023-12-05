@@ -1,7 +1,7 @@
 {% set VIRTUAL_IPS = VIRTUAL_IPS.split() -%}
 
 {%- set placement = false %}
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri'  or OPENSTACK_VERSION == 'yoga' %}
 {%- set placement = true %}
 {%- endif %}
 
@@ -158,7 +158,7 @@ services:
     charm: cs:mysql-router
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
-{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri' %}
+{%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri'  or OPENSTACK_VERSION == 'yoga' %}
   placement-mysql-router:
     charm: cs:mysql-router
     options:
