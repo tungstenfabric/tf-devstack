@@ -164,10 +164,10 @@ function openstack() {
     for unit in $units ; do
         unit_formatted=$(echo $unit | sed 's*/*-*g')
         # patch
-        echo "patching /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/${openstack_version}/nova.conf"
         $(which juju) ssh $unit "sudo sed -i 's/\[libvirt\]/\[libvirt\]\nvirt_type = {{ virt_type }}/g' /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/${openstack_version}/nova.conf"
+        # for some reason it takes config template from train
+        $(which juju) ssh $unit "sudo sed -i 's/\[libvirt\]/\[libvirt\]\nvirt_type = {{ virt_type }}/g' /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/train/nova.conf"
         command juju run --unit $unit "hooks/config-changed" >/dev/null
-        $(which juju) ssh $unit "cat /etc/nova/nova.conf"
     done
 }
 
