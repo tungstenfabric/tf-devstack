@@ -12,7 +12,13 @@ function install_docker_ubuntu() {
   sudo -E apt-get install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common
   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
   sudo add-apt-repository -y -u "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-  sudo -E apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
+  if [[ "$DISTRO_VERSION_ID" = "20.04" ]]; then
+        sudo apt-get install docker-ce=5:24.0.7-1~ubuntu.20.04~focal
+  elif [[ "$DISTRO_VERSION_ID" = "18.04" ]]; then
+        sudo -E apt-get install -y "docker-ce=18.06.3~ce~3-0~ubuntu"
+  else
+        sudo apt-get install docker-ce
+  fi
 }
 
 function install_docker_centos() {
