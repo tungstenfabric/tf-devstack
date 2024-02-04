@@ -69,7 +69,7 @@ export SRIOV_VF=${SRIOV_VF:-4}
 
 source /etc/lsb-release
 export UBUNTU_SERIES=${UBUNTU_SERIES:-${DISTRIB_CODENAME}}
-declare -A default_openstacks=( ["bionic"]="train" ["focal"]="yoga" )
+declare -A default_openstacks=( ["bionic"]="train" ["focal"]="yoga" ["jammy"]="zed" )
 default_openstack=${default_openstacks[$UBUNTU_SERIES]}
 export OPENSTACK_VERSION=${OPENSTACK_VERSION:-$default_openstack}
 export VIRT_TYPE=${VIRT_TYPE:-'qemu'}
