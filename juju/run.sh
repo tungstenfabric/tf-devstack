@@ -150,19 +150,23 @@ function openstack() {
     fi
     $my_dir/../common/deploy_juju_bundle.sh
 
+    echo "INFO: wait for readiness"
     wait_cmd_success is_ready 10 $((WAIT_TIMEOUT/10))
 
     if [[ ${ENABLE_IRONIC,,} == 'true' && ($ORCHESTRATOR == 'openstack' || $ORCHESTRATOR == 'hybrid') ]] ; then
         # this should be done after openstak deploy
+        echo "INFO: update ironic-conductor"
         command juju run-action --wait ironic-conductor/leader set-temp-url-secret
     fi
 
     # patch nova-compute to add virt_type to configuration
     # https://bugs.launchpad.net/charm-nova-compute/+bug/2045774
+    echo "INFO: patch nova-compute"
     units=$(command juju status --format json | jq '.applications["nova-compute"]["units"] | keys '  | sed 's/[][",]//g' | tr -d ',\n' )
     openstack_version=$(command juju status --format json | jq '.applications["nova-compute"]["charm-channel"]'  | sed 's/"//g' | awk -F "/" '{print$1}')
     for unit in $units ; do
-        unit_formatted=$(echo $unit | sed 's*/*-*g')
+        echo "INFO: update nova-compute for unit: $unit"
+        local unit_formatted=$(echo $unit | sed 's*/*-*g')
         # patch
         $(which juju) ssh $unit "sudo sed -i 's/\[libvirt\]/\[libvirt\]\nvirt_type = {{ virt_type }}/g' /var/lib/juju/agents/unit-${unit_formatted}/charm/templates/${openstack_version}/nova.conf"
         # for some reason it takes config template from train

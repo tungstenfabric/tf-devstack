@@ -38,5 +38,8 @@ lxd_machines=`timeout -s 9 30 juju machines --format tabular | tail -n +2 | grep
 echo "INFO: lxd machines:"
 echo $lxd_machines
 for machine in $lxd_machines ; do
+  echo "INFO: wait for lxd $machine"
   wait_cmd_success 'juju ssh --proxy $machine "sudo apt-get update -y"'
 done
+
+echo "INFO: bundle has been deployed"
