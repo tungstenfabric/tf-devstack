@@ -20,7 +20,17 @@ APT_MIRROR=${APT_MIRROR:-''}
 # install JuJu and tools
 export DEBIAN_FRONTEND=noninteractive
 sudo -E apt-get update -y
-sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq dnsutils -y
+for ((i=0; i<5; i++)); do
+    if sudo -E apt-get install snap netmask prips python3-jinja2 software-properties-common curl jq dnsutils -y ; then
+        break
+    fi
+    echo "INFO: retry installing tools for juju deploy: $i"
+    sleep 2
+done
+if [[ $i == 5 ]]; then
+    echo "ERROR: failed to install tools for juju deploy"
+    exit 1
+fi
 
 #sudo snap install --classic juju
 curl -sSLO https://launchpad.net/juju/2.9/2.9.22/+download/juju-2.9.22-linux-amd64.tar.xz
