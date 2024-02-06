@@ -66,9 +66,9 @@ function machines() {
         sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
-        sudo -E apt-get update
+        sudo -E apt-get update -y
         if [[ "$DISTRO_VERSION_ID" = "20.04" ]]; then
-                ln -s /usr/bin/python3 /usr/bin/python
+                sudo -E ln -s /usr/bin/python3 /usr/bin/python
         fi
         sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils
     else
