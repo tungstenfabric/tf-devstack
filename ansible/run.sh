@@ -63,14 +63,15 @@ function machines() {
         if ! sudo yum repolist | grep -q epel ; then
             sudo yum install -y epel-release
         fi
-        sudo yum install -y python3 python3-setuptools libselinux-python3 libselinux-python iproute jq bind-utils
+        sudo yum install -y python3 python3-setuptools libselinux-python3 iproute jq bind-utils
     elif [ "$DISTRO" == "ubuntu" ]; then
         export DEBIAN_FRONTEND=noninteractive
         sudo -E apt-get update -y
-        if [[ "$DISTRO_VERSION_ID" = "20.04" ]]; then
-                sudo -E ln -s /usr/bin/python3 /usr/bin/python
+        if [[ "$DISTRO_VERSION_ID" = "20.04" || "$DISTRO_VERSION_ID" = "22.04" ]]; then
+                sudo -E ln -sf /usr/bin/python3 /usr/bin/python
         fi
-        sudo -E apt-get install -y python-setuptools python3-distutils iproute2 python-crypto jq dnsutils
+        sudo -E apt-get install -y python3-setuptools python3-distutils iproute2 python3-cryptography jq dnsutils chrony
+        sudo apt-get purge -y python3-yaml
     else
         echo "Unsupported OS version"
         exit 1
@@ -79,24 +80,11 @@ function machines() {
     # pip3 is installed at /usr/local/bin which is not in sudoers secure_path by default
     # use it as "python3 -m pip" with sudo
     curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/pip/3.6/get-pip.py | sudo python3
-    curl --retry 3 --retry-delay 10 https://bootstrap.pypa.io/pip/2.7/get-pip.py | sudo python2 - 'pip==20.1'
 
-    # Uninstall docker-compose and packages it uses to avoid
-    # conflicts with other projects (like tf-dev-test, tf-dev-env)
-    # and reinstall them via deps of docker-compose
-    sudo python2 -m pip uninstall -y requests docker-compose urllib3 chardet docker docker-py
-
-    if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]] && [[ "$DISTRO_VERSION_ID" =~ ^8\. ]]; then
-        py2ansible=''
-        py3ansible='ansible==2.9'
-    else
-        py2ansible='ansible==2.9'
-        py3ansible=''
-    fi
     # docker-compose MUST be first here, because it will install the right version of PyYAML
-    sudo python2 -m pip install 'docker-compose==1.24.1' 'setuptools>44,<45' $py2ansible
     # jinja is reqiured to create some configs
-    sudo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python3 -m pip install jinja2 pyyaml $py3ansible
+    sudo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python3 -m pip install 'docker-compose==1.24.1' 'setuptools>44,<45' 'ansible==2.10' 'jinja2==3.0.3' pyyaml
+    sudo LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 python3 -m pip install pyopenssl --upgrade
 
     set_ssh_keys
 
@@ -111,11 +99,18 @@ function machines() {
     # generate inventory file
     python3 $my_dir/../common/jinja2_render.py < $my_dir/files/instances.yaml.j2 > $tf_deployer_dir/instances.yaml
 
+    # fix dns
+    if [ -f /run/systemd/resolve/resolv.conf ] ; then
+        sudo rm -rf /etc/resolv.conf
+        sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    fi
+
+
     # create Ansible temporary dir under current user to avoid create it under root
     ansible -m "copy" --args="content=c dest='/tmp/rekjreekrbjrekj.txt'" localhost
     rm -rf /tmp/rekjreekrbjrekj.txt
 
-    sudo -E PATH=$PATH:/usr/local/bin ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
+    sudo -E env "PATH=$PATH:/usr/local/bin" ansible-playbook -v -e orchestrator=$ORCHESTRATOR \
         -e config_file=$tf_deployer_dir/instances.yaml \
         $tf_deployer_dir/playbooks/configure_instances.yml
     if [[ $? != 0 ]] ; then
