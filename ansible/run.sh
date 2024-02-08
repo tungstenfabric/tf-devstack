@@ -88,9 +88,9 @@ function machines() {
 
     if [[ "$DISTRO" == "centos" || "$DISTRO" == "rhel" ]] && [[ "$DISTRO_VERSION_ID" =~ ^8\. ]]; then
         py2ansible=''
-        py3ansible='ansible==2.7.11'
+        py3ansible='ansible==2.9'
     else
-        py2ansible='ansible==2.7.11'
+        py2ansible='ansible==2.9'
         py3ansible=''
     fi
     # docker-compose MUST be first here, because it will install the right version of PyYAML
