@@ -67,11 +67,11 @@ You can select OpenStack as orchestrator with environment variables before insta
 
 ``` bash
 export ORCHESTRATOR=openstack
-export OPENSTACK_VERSION=rocky
+export OPENSTACK_VERSION=train
 ./run.sh
 ```
 
-OpenStack version may be selected from queens, rocky (default), train.
+OpenStack version may be selected from train(default), (TODO: support next releases).
 
 ## Customized deployments and deployment steps
 
@@ -103,7 +103,7 @@ build tf-dev-control container.
 Environment variable list:
 
 - ORCHESTRATOR kubernetes by default or openstack
-- OPENSTACK_VERSION rocky (default), ocata/rocky/train/stein/ussuri, variable is used when ORCHESTRATOR=openstack
+- OPENSTACK_VERSION train/stein/ussuri, variable is used when ORCHESTRATOR=openstack
 - NODE_IP a IP address used as CONTROLLER_NODES and CONTROL_NODES
 - CONTAINER_REGISTRY - by default "tungstenfabric"
 - CONTRAIL_CONTAINER_TAG - by default "latest"

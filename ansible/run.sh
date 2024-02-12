@@ -33,7 +33,7 @@ openstack_deployer_image=${OPENSTACK_DEPLOYER:-"tf-kolla-ansible-src"}
 
 export ANSIBLE_CONFIG=$tf_deployer_dir/ansible.cfg
 
-export OPENSTACK_VERSION=${OPENSTACK_VERSION:-rocky}
+export OPENSTACK_VERSION=${OPENSTACK_VERSION:-train}
 export AUTH_PASSWORD='contrail123'
 export VIRT_TYPE=qemu
 
