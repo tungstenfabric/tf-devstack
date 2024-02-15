@@ -127,10 +127,10 @@ services:
   mysql-innodb-cluster:
     charm: mysql-innodb-cluster
     num_units: 3
+    channel: 8.0/stable
     options:
       innodb-buffer-pool-size: 256M
       max-connections: 1500
-      source: "{{ OPENSTACK_ORIGIN }}"
     to:
     - lxd:0
     - lxd:0
