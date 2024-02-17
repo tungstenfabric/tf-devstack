@@ -84,48 +84,57 @@ services:
 {%- else %}
 
   keystone-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   glance-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   nova-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   neutron-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   dashboard-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   heat-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
 {%- if OPENSTACK_VERSION == 'train' or OPENSTACK_VERSION == 'ussuri'  or OPENSTACK_VERSION == 'yoga' %}
   placement-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
 {%- endif %}
 {%- if ENABLE_IRONIC.lower() == 'true' %}
   ironic-api-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
   ironic-conductor-mysql-router:
-    charm: mysql-router
+    charm: ch:mysql-router
+    channel: 8.0/stable
     options:
       source: "{{ OPENSTACK_ORIGIN }}"
 {%- endif %}
 
   mysql-innodb-cluster:
-    charm: mysql-innodb-cluster
+    charm: ch:mysql-innodb-cluster
     num_units: 3
     channel: 8.0/stable
     options:
