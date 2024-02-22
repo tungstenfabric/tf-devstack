@@ -51,6 +51,7 @@ services:
 {%- endif %}
     expose: true
     to: {{ controller_nodes }}
+
 {%- if (LEGACY_ANALYTICS_ENABLE | lower) == 'true' %}
   tf-analyticsdb:
     charm: "{{ JUJU_REPO }}/contrail-analyticsdb"
@@ -78,6 +79,7 @@ services:
     expose: true
     to: {{ controller_nodes }}
 {%- endif %}
+
   tf-analytics:
     charm: "{{ JUJU_REPO }}/contrail-analytics"
     series: "{{ UBUNTU_SERIES }}"
@@ -100,6 +102,7 @@ services:
 {%- endif %}
     expose: true
     to: {{ controller_nodes }}
+
 {%- if ENABLE_DPDK_SRIOV.lower() == 'true' %}
   tf-agent-dpdk:
     charm: "{{ JUJU_REPO }}/contrail-agent"
@@ -154,6 +157,7 @@ services:
     num_units: 1
     to:
       - "0"
+
   tf-openstack:
     charm: "{{ JUJU_REPO }}/contrail-openstack"
     series: "{{ UBUNTU_SERIES }}"
@@ -166,6 +170,7 @@ services:
       docker-registry-insecure: true
       image-tag: "{{ CONTRAIL_CONTAINER_TAG }}"
 {%- endif %}
+
 {%- if ORCHESTRATOR == 'kubernetes' or ORCHESTRATOR == 'hybrid' %}
   tf-kubernetes-master:
     series: "{{ UBUNTU_SERIES }}"
@@ -182,6 +187,7 @@ services:
       cluster_name: "k8s"
       public_fip_pool: "{'domain':'{{ KUBERNETES_CLUSTER_DOMAIN | default('default-domain') }}','project':'{{ KUBERNETES_CLUSTER_PROJECT |  default('k8s-default') }}','name':'__fip_pool_public__','network':'__public__'}"
       ip_fabric_snat: true
+
   tf-kubernetes-node:
     series: "{{ UBUNTU_SERIES }}"
     charm: "{{ JUJU_REPO }}/contrail-kubernetes-node"
