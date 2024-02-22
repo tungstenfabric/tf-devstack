@@ -183,7 +183,7 @@ function is_ready() {
   local max_errors=10
   # nova-compute just for checking
   # https://bugs.launchpad.net/charm-nova-compute/+bug/1934123
-  local allowed_not_active="neutron-api nova-compute kubernetes-master kubernetes-worker ironic-conductor"
+  local allowed_not_active="neutron-api nova-compute kubernetes-master kubernetes-worker ironic-conductor mysql-innodb-cluster"
 
   # TODO: rework to jq
   # juju status --format json | jq -r '.applications[] | ."charm-name" + " " +  ."application-status".current'
